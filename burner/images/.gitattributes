@@ -1,0 +1,2 @@
+*.romfs filter=lfs diff=lfs merge=lfs -text
+uImage filter=lfs diff=lfs merge=lfs -text
