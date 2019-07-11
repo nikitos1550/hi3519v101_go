@@ -35,7 +35,7 @@ To burn uboot ```sudo ./burner.py uboot --ip 192.168.0.200 --uboot ../loader/u-b
 
 To load linux ```sudo ./burner.py load --uimage ./images/uImage --rootfs ./images/rootfs.romfs --ip 192.168.0.200 --speed 9600 --skip 1024 --memory 96```
 
-To burn linux ```sudo ./burner.py load --uimage ./images/uImage --rootfs ./images/rootfs.romfs --ip 192.168.0.200 --speed 9600 --skip 1024 --memory 96```
+To burn linux ```sudo ./burner.py burn --uimage ./images/uImage --rootfs ./images/rootfs.romfs --ip 192.168.0.200 --speed 9600 --skip 1024 --memory 96```
 
 
 

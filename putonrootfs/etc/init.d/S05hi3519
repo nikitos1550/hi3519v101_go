@@ -1,0 +1,65 @@
+#!/bin/sh
+#
+# Start hi3516a modules
+#
+
+start() {
+	echo -n "Starting hi3519v101: "
+	#himm 0x120100cc 0xca
+	#sleep 1
+	#himm 0x120100cc 0x4a
+	/lib/modules/hi3519v101/load3519v101 -i -sensor imx274 -osmem 256 -total 512 -offline  #echo "Cooming soon"
+	#himm 0x1009003c 0x1fff #ethernet max frame 8192
+	echo "OK"
+
+        # pin_mux
+        #himm 0x120400C8 0x0             # GPIO0_0
+        #himm 0x120400E4 0x0             # GPIO0_7
+
+        # dir
+        #himm 0x12140400 0x81
+        # data, GPIO0_7: 0, GPIO0_0: 1  (normal mode)
+        #himm 0x12140204 0x1             # GPIO0_7 GPIO0_0
+
+        # back to original 
+        #sleep 1;
+        #himm 0x12140204 0x0             # GPIO0_7 GPIO0_0
+
+        # pin_mux
+        #himm 0x120400C8 0x0             # GPIO0_0
+        #himm 0x120400E4 0x0             # GPIO0_7
+
+        # dir
+        #himm 0x12140400 0x81
+        # data, GPIO0_7: 1, GPIO0_0: 0  (ir mode)
+        #himm 0x12140204 0x80            # GPIO0_7 GPIO0_0
+
+        # back to original 
+        #sleep 1;
+        #himm 0x12140204 0x0             # GPIO0_7 GPIO0_0
+
+	#echo "IRCUT ON OK"
+}
+
+stop() {
+	echo -n "Stopping hi3516a: "
+	echo "OK"
+}
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+#  restart|reload)
+#	stop
+#	start
+#	;;
+  *)
+	echo "Usage: $0 {start|stop}"
+	exit 1
+esac
+
+exit $?
