@@ -1,7 +1,7 @@
 THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 
-TOOLCHAIN=$(THIS_DIR)../buildroot-2019.02.3/output/host/bin/arm-buildroot-linux-uclibcgnueabi-
+TOOLCHAIN=$(THIS_DIR)../buildroot-2019.05.1/output/host/bin/arm-buildroot-linux-uclibcgnueabi-
 #TOOLCHAIN=/opt/hisi-linux/x86-arm/arm-hisiv500-linux/bin/arm-hisiv500-linux-uclibcgnueabi-
 
 
