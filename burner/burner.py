@@ -150,25 +150,14 @@ def filepath(file):
 	answer[1] = file_path
 	return answer
 
-def ipFormatChk(ip_str):
-    if len(ip_str.split()) == 1:
-        ipList = ip_str.split('.')
-        if len(ipList) == 4:
-            for i, item in enumerate(ipList):
-                try:
-                    ipList[i] = int(item)
-                except:
-                    return False
-                if not isinstance(ipList[i], int):
-                    return False
-            if max(ipList) < 256:
-                return True
-            else:
-                return False
-        else:
-            return False
-    else:
-        return False
+
+def validate_ip_address(ip_str):  # throw on error
+    import socket
+    try:
+        socket.inet_aton(ip_str)
+    except socket.error:
+        raise ValueError("Invalid IP address: {}".format(ip_str))
+
 
 def threadtftd():
 	server.listen(server_ip, 69)
@@ -183,6 +172,24 @@ def randommac():
             random.randint(0x01, 0xfe) ]
     return ':'.join(map(lambda x: "%02x" % x, mac))
 
+
+def get_iface_ip_and_mask(iface):
+    try:
+        addrs = netifaces.ifaddresses(iface).get(netifaces.AF_INET)
+        if (addrs is None) or (len(addrs) == 0):
+            raise ValueError("iface has no addresses")
+
+        addr = addrs[0]["addr"]
+        netmask = addrs[0]["netmask"]
+        return addr, netmask
+    except StandardError as err:
+        raise ValueError(
+            "Network interface '{}' address and mask wasn't defined: {}\nAvailable interfaces: {}".format(
+                iface, err.message, ", ".join(netifaces.interfaces())
+            )
+        )
+
+
 ###############################################################################
 
 
@@ -194,7 +201,7 @@ parser.add_argument('--ip', 	    type=str,	help='Ip address for device', require
 #parser.add_argument('--mask',     type=str,   help='Owerrite network mask for device')
 #parser.add_argument('--server',   type=str,   help='Server ip')
 
-parser.add_argument('--skip',   type=int,   help='Uboot size to skip in kb (default 512kb)',    required=False)
+parser.add_argument('--skip', type=int, default=512, help='Uboot size to skip in kb (default 512kb)', required=False)
 parser.add_argument('--uboot', 	type=str, 	help='Uboot image file name',                       required=False)
 parser.add_argument('--uimage', type=str, 	help='Kernel uImage file name',                     required=False)
 parser.add_argument('--rootfs', type=str, 	help='RootFS file name',                            required=False)
@@ -203,10 +210,10 @@ parser.add_argument('--memory', type=int,   help='Amount of RAM for Linux in MB'
 parser.add_argument('--initrd', type=int,   help='Amount of RAM for Linux Initrd (only for load action)', required=False)
 parser.add_argument('--lserial', type=int,   help='Linux load serial config', required=False)
 
-parser.add_argument('--port', type=int,   help='Serial port dev name',               required=False)
+parser.add_argument('--port', help='Serial port dev name', required=False)
 parser.add_argument('--speed', type=int,   help='Serial port speed',               required=False)
 
-parser.add_argument('--iface', type=int,   help='Network interface name',               required=False)
+parser.add_argument('--iface', default=iface, help='Network interface name (default: {})'.format(iface), required=False)
 
 parser.add_argument('--duplex', type=int,   help='Full (default) or Half duplex mode',               required=False)
 parser.add_argument('--mc21', type=int,   help='To remove',               required=False)
@@ -217,34 +224,12 @@ args = parser.parse_args()
 
 print args
 
-if args.iface != None:
-    iface = args.iface
-    print "Iface is not set, default iface " + iface
-else:
-    print "Iface " + iface
+validate_ip_address(args.ip)
+ip = args.ip
+server_ip, mask = get_iface_ip_and_mask(args.iface)
 
-for ifaceName in netifaces.interfaces():
-    if ifaceName == iface:
-        #addresses = [i['addr'] for i in ifaddresses(ifaceName).setdefault(AF_INET, [{'addr':'No IP addr'}] )]
-        #print '%s: %s' % (ifaceName, ', '.join(addresses))
-        addrs = netifaces.ifaddresses(ifaceName).get(netifaces.AF_INET)
-        server_ips = [addr.get("addr") for addr in addrs]
-        server_mask = [addr.get("netmask") for addr in addrs]
-        server_ip = str(server_ips[0])
-        mask = str(server_mask[0])
-        print "Server ip " + server_ip + " mask " + mask
-
-if ipFormatChk(args.ip) 	    != True: 
-    exit("Ip is not valid")
-else:
-    ip = args.ip
-    
-#if ipFormatChk(args.mask) 	    != True: exit("Network mask is not valid")
-#if ipFormatChk(args.server) 	!= True: exit("Server ip is not valid")
-
-###
-
-print "Target device ip " + ip
+print("Iface " + args.iface)
+print("- Server IP: {}\n- Mask: {}\n- Target device IP: {}".format(server_ip, mask, ip))
 
 ###
 
