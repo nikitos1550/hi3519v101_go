@@ -9,11 +9,21 @@ paths:
   /:
     get:
       summary: 'Information about application'
-      description: ''
+      description: 'Basic information: api version, build information, etc...'
       operationId: ''
       responses:
         default:
           description: Default error sample response
+################################################################################
+  /system:
+    get:
+      summary: 'System information'
+      description: 'System runtime information: mem, cpu, net load, etc...'
+      operationId: ''
+      responses:
+        default:
+          description: Default error sample response
+################################################################################
   /debug:
     get:
       summary: '???'
@@ -98,12 +108,124 @@ paths:
       description: ''
       operationId: ''
       responses:
-        default:
-          description: Default error sample response
+        '200':
+          description: 'Success'
+          content: 
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: int8
+                    channel_id:
+                      type: integer
+                      format: int8
+                    width:
+                      type: integer
+                      format: int16
+                    height:
+                      type: integer
+                      format: int16
+                    q:
+                      type: integer
+                      format: int8
+              examples:
+                test:
+                  summary: 'Example responce'
+                  value:
+                  - id: 0
+                    channel_id: 0
+                    width: 1920
+                    height: 1080
+                    q: 80
+                  - id: 1
+                    channel_id: 1
+                    width: 1280
+                    height: 720
+                    q: 50
+                  - id: 2
+                    channel_id: 1
+                    width: 640
+                    height: 360
+                    q: 20
+        '500':
+          description: 'Default error response'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_code:
+                    type: integer
+                  error_description:
+                    type: string
     post:
       summary: 'Configure and add JPEG encoder instance'
       description: ''
       operationId: ''
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                channel_id:
+                  type: integer
+                  format: int8
+                  description: 'Source channel id'
+                width:
+                  type: integer
+                  format: int16
+                  minimum: 2
+                  maximum: 8192
+                  multipleOf: 2
+                  default: 640
+                  description: 'Width of picture'
+                height:
+                  type: integer
+                  format: int16
+                  minimum: 2
+                  maximum: 8192  
+                  multipleOf: 2
+                  default: 480
+                  description: 'Height of picture'
+                q:
+                  type: integer
+                  format: int8
+                  minimum: 1
+                  maximum: 99
+                  default: 20
+                  description: 'Quality???'
+                #y_q:
+                #  type: integer
+                #  format: int32
+                #  minimum: 1
+                #  maximum: 255
+                #  description: 'Y quantization'
+                #cb_q:
+                #  type: integer
+                #  format: int32
+                #  minimum: 1
+                #  maximum: 255
+                #  description: 'Cb quantization'
+                #cr_q:
+                #  type: integer
+                #  format: int32
+                #  minimum: 1
+                #  maximum: 255
+                #  description: 'Cr quantization'
+            examples:
+              test:
+                summary: 'HD resolution middle quality'
+                value:
+                  channel_id: 2
+                  width: 1280
+                  height: 720
+                  q: 50
       responses:
         default:
           description: Default error sample response                  
@@ -113,7 +235,7 @@ paths:
         in: path
         schema:
             type: integer
-        description: Channel id
+        description: 'JPEG encoder instance id'
         required: true
     get:
       summary: 'Get information about JPEG encoder instance'
@@ -158,7 +280,7 @@ paths:
         in: path
         schema:
             type: integer
-        description: ''
+        description: 'MJPEG encoder instance id'
         required: true
     get:
       summary: 'Get information about MJPEG encoder instance'
@@ -202,7 +324,7 @@ paths:
         in: path
         schema:
             type: integer
-        description: Channel id
+        description: 'H.264 encoder instance id'
         required: true
     get:
       summary: 'Get information about H.264 encoder instance'
@@ -246,7 +368,7 @@ paths:
         in: path
         schema:
             type: integer
-        description: Channel id
+        description: 'H.265 encoder instance id'
         required: true
     get:
       summary: 'Get information about H.265 encoder instance'
