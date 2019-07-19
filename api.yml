@@ -62,7 +62,14 @@ paths:
       operationId: ''
       responses:
         default:
-          description: Default error sample response
+          description: Default error sample response        
+    post:
+      summary: ''
+      description: ''
+      operationId: ''
+      responses:
+        default:
+          description: Default error sample response               
   /encoder:
     summary: MPP debug
     description: Mapping /proc/umap/* to http api
@@ -83,6 +90,13 @@ paths:
       responses:
         default:
           description: Default error sample response
+    put:
+      summary: ''
+      description: ''
+      operationId: ''
+      responses:
+        default:
+          description: Default error sample response                  
   /encoder/jpeg/{id}:
     parameters:
       - name: id
@@ -99,7 +113,22 @@ paths:
       operationId: ''
       responses:
         default:
-          description: Default error sample response         
+          description: Default error sample response   
+    post:
+      summary: ''
+      description: ''
+      operationId: ''
+      responses:
+        default:
+          description: Default error sample response             
+          
+    delete:
+      summary: ''
+      description: ''
+      operationId: ''
+      responses:
+        default:
+          description: Default error sample response          
   /encoder/mjpeg:
     summary: MPP debug
     description: Mapping /proc/umap/* to http api
@@ -110,6 +139,13 @@ paths:
       responses:
         default:
           description: Default error sample response
+    put:
+      summary: ''
+      description: ''
+      operationId: ''
+      responses:
+        default:
+          description: Default error sample response               
   /encoder/mjpeg/{id}:
     parameters:
       - name: id
@@ -126,7 +162,22 @@ paths:
       operationId: ''
       responses:
         default:
-          description: Default error sample response               
+          description: Default error sample response        
+    post:
+      summary: ''
+      description: ''
+      operationId: ''
+      responses:
+        default:
+          description: Default error sample response             
+          
+    delete:
+      summary: ''
+      description: ''
+      operationId: ''
+      responses:
+        default:
+          description: Default error sample response             
   /encoder/h264:
     summary: MPP debug
     description: Mapping /proc/umap/* to http api
@@ -137,6 +188,13 @@ paths:
       responses:
         default:
           description: Default error sample response
+    put:
+      summary: ''
+      description: ''
+      operationId: ''
+      responses:
+        default:
+          description: Default error sample response                 
   /encoder/h264/{id}:
     parameters:
       - name: id
@@ -153,7 +211,21 @@ paths:
       operationId: ''
       responses:
         default:
-          description: Default error sample response               
+          description: Default error sample response          
+    post:
+      summary: ''
+      description: ''
+      operationId: ''
+      responses:
+        default:
+          description: Default error sample response             
+    delete:
+      summary: ''
+      description: ''
+      operationId: ''
+      responses:
+        default:
+          description: Default error sample response           
   /encoder/h265:
     summary: MPP debug
     description: Mapping /proc/umap/* to http api
@@ -164,6 +236,13 @@ paths:
       responses:
         default:
           description: Default error sample response
+    put:
+      summary: ''
+      description: ''
+      operationId: ''
+      responses:
+        default:
+          description: Default error sample response       
   /encoder/h265/{id}:
     parameters:
       - name: id
@@ -180,7 +259,22 @@ paths:
       operationId: ''
       responses:
         default:
-          description: Default error sample response               
+          description: Default error sample response     
+    post:
+      summary: ''
+      description: ''
+      operationId: ''
+      responses:
+        default:
+          description: Default error sample response             
+          
+    delete:
+      summary: ''
+      description: ''
+      operationId: ''
+      responses:
+        default:
+          description: Default error sample response        
   /streamer:
     summary: MPP debug
     description: Mapping /proc/umap/* to http api
@@ -211,3 +305,18 @@ paths:
       responses:
         default:
           description: Default error sample response
+  /streamer/video-to-storage:
+    summary: MPP debug
+    description: Mapping /proc/umap/* to http api
+    get:
+      summary: ''
+      description: ''
+      operationId: ''
+      responses:
+        default:
+          description: Default error sample response
+  
+          
+          
+          
+          
