@@ -7,41 +7,33 @@ servers:
     description: Use your camera
 paths:
   /:
-    summary: MPP debug
-    description: Mapping /proc/umap/* to http api
     get:
-      summary: ''
+      summary: 'Information about application'
       description: ''
       operationId: ''
       responses:
         default:
           description: Default error sample response
   /debug:
-    summary: MPP debug
-    description: Mapping /proc/umap/* to http api
     get:
-      summary: ''
+      summary: '???'
       description: ''
       operationId: ''
       responses:
         default:
           description: Default error sample response
   /debug/mpp:
-    summary: MPP debug
-    description: Mapping /proc/umap/* to http api
     get:
-      summary: ''
-      description: ''
+      summary: 'HiMPP debug'
+      description: 'Mapping /proc/umap/* to http api'
       operationId: ''
       responses:
         default:
           description: Default error sample response
 ################################################################################          
   /channel:
-    summary: MPP debug
-    description: Mapping /proc/umap/* to http api
     get:
-      summary: ''
+      summary: 'List of availible channels'
       description: ''
       operationId: ''
       responses:
@@ -55,17 +47,15 @@ paths:
             type: integer
         description: Channel id
         required: true
-    summary: MPP debug
-    description: Mapping /proc/umap/* to http api
     get:
-      summary: ''
+      summary: 'Get information about channel'
       description: ''
       operationId: ''
       responses:
         default:
           description: Default error sample response        
     patch:
-      summary: ''
+      summary: 'Change channel settings'
       description: ''
       operationId: ''
       responses:
@@ -79,17 +69,15 @@ paths:
             type: integer
         description: Channel id
         required: true
-    summary: MPP debug
-    description: Mapping /proc/umap/* to http api
     post:
-      summary: ''
+      summary: 'Enable channel'
       description: ''
       operationId: ''
       responses:
         default:
           description: Default error sample response        
     delete:
-      summary: ''
+      summary: 'Disable channel'
       description: ''
       operationId: ''
       responses:
@@ -97,27 +85,23 @@ paths:
           description: Default error sample response             
 ################################################################################          
   /encoder:
-    summary: MPP debug
-    description: Mapping /proc/umap/* to http api
     get:
-      summary: ''
+      summary: 'List of avalible encoders'
       description: ''
       operationId: ''
       responses:
         default:
           description: Default error sample response
   /encoder/jpeg:
-    summary: MPP debug
-    description: Mapping /proc/umap/* to http api
     get:
-      summary: ''
+      summary: 'Get list of JPEG encoder instances'
       description: ''
       operationId: ''
       responses:
         default:
           description: Default error sample response
     post:
-      summary: ''
+      summary: 'Configure and add JPEG encoder instance'
       description: ''
       operationId: ''
       responses:
@@ -131,17 +115,15 @@ paths:
             type: integer
         description: Channel id
         required: true
-    summary: MPP debug
-    description: Mapping /proc/umap/* to http api
     get:
-      summary: ''
+      summary: 'Get information about JPEG encoder instance'
       description: ''
       operationId: ''
       responses:
         default:
           description: Default error sample response   
     patch:
-      summary: ''
+      summary: 'Change JPEG encoder instance runtime settings'
       description: ''
       operationId: ''
       responses:
@@ -149,24 +131,22 @@ paths:
           description: Default error sample response             
           
     delete:
-      summary: ''
+      summary: 'Delete JPEG encoder instance'
       description: ''
       operationId: ''
       responses:
         default:
           description: Default error sample response          
   /encoder/mjpeg:
-    summary: MPP debug
-    description: Mapping /proc/umap/* to http api
     get:
-      summary: ''
+      summary: 'Get list of MJPEG encoder instances'
       description: ''
       operationId: ''
       responses:
         default:
           description: Default error sample response
     post:
-      summary: ''
+      summary: 'Configure and add MJPEG encoder instance'
       description: ''
       operationId: ''
       responses:
@@ -178,44 +158,39 @@ paths:
         in: path
         schema:
             type: integer
-        description: Channel id
+        description: ''
         required: true
-    summary: MPP debug
-    description: Mapping /proc/umap/* to http api
     get:
-      summary: ''
+      summary: 'Get information about MJPEG encoder instance'
       description: ''
       operationId: ''
       responses:
         default:
           description: Default error sample response        
     patch:
-      summary: ''
+      summary: 'Change MJPEG encoder instance runtime settings'
       description: ''
       operationId: ''
       responses:
         default:
           description: Default error sample response             
-          
     delete:
-      summary: ''
+      summary: 'Delete MJPEG encoder instance'
       description: ''
       operationId: ''
       responses:
         default:
           description: Default error sample response             
   /encoder/h264:
-    summary: MPP debug
-    description: Mapping /proc/umap/* to http api
     get:
-      summary: ''
+      summary: 'Get list of H.264 encoder instances'
       description: ''
       operationId: ''
       responses:
         default:
           description: Default error sample response
     post:
-      summary: ''
+      summary: 'Configure and add H.264 encoder instance'
       description: ''
       operationId: ''
       responses:
@@ -229,41 +204,37 @@ paths:
             type: integer
         description: Channel id
         required: true
-    summary: MPP debug
-    description: Mapping /proc/umap/* to http api
     get:
-      summary: ''
+      summary: 'Get information about H.264 encoder instance'
       description: ''
       operationId: ''
       responses:
         default:
           description: Default error sample response          
     patch:
-      summary: ''
+      summary: 'Change H.264 encoder instance runtime settings'
       description: ''
       operationId: ''
       responses:
         default:
           description: Default error sample response             
     delete:
-      summary: ''
+      summary: 'Delete H.264 encoder instance'
       description: ''
       operationId: ''
       responses:
         default:
           description: Default error sample response           
   /encoder/h265:
-    summary: MPP debug
-    description: Mapping /proc/umap/* to http api
     get:
-      summary: ''
+      summary: 'Get list of H.265 encoder instances'
       description: ''
       operationId: ''
       responses:
         default:
           description: Default error sample response
     post:
-      summary: ''
+      summary: 'Configure and add H.265 encoder instance'
       description: ''
       operationId: ''
       responses:
@@ -277,24 +248,22 @@ paths:
             type: integer
         description: Channel id
         required: true
-    summary: MPP debug
-    description: Mapping /proc/umap/* to http api
     get:
-      summary: ''
+      summary: 'Get information about H.265 encoder instance'
       description: ''
       operationId: ''
       responses:
         default:
           description: Default error sample response     
     patch:
-      summary: ''
+      summary: 'Change H.265 encoder instance runtime settings'
       description: ''
       operationId: ''
       responses:
         default:
           description: Default error sample response             
     delete:
-      summary: ''
+      summary: 'Delete H.264 encoder instance'
       description: ''
       operationId: ''
       responses:
@@ -302,40 +271,32 @@ paths:
           description: Default error sample response     
 ################################################################################
   /streamer:
-    summary: MPP debug
-    description: Mapping /proc/umap/* to http api
     get:
-      summary: ''
+      summary: 'List of avalible streamers'
       description: ''
       operationId: ''
       responses:
         default:
           description: Default error sample response
   /streamer/jpeg-over-http:
-    summary: MPP debug
-    description: Mapping /proc/umap/* to http api
     get:
-      summary: ''
+      summary: 'TBD'
       description: ''
       operationId: ''
       responses:
         default:
           description: Default error sample response
   /streamer/rtsp:
-    summary: MPP debug
-    description: Mapping /proc/umap/* to http api
     get:
-      summary: ''
+      summary: 'TBD'
       description: ''
       operationId: ''
       responses:
         default:
           description: Default error sample response
   /streamer/video-to-storage:
-    summary: MPP debug
-    description: Mapping /proc/umap/* to http api
     get:
-      summary: ''
+      summary: 'TBD'
       description: ''
       operationId: ''
       responses:
