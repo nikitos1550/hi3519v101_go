@@ -1,0 +1,32 @@
+#!/bin/sh
+#
+# Start hi3516a modules
+#
+
+start() {
+	#gdbserver :2345 /opt/mpp_version &
+	#/opt/app_sample &
+}
+
+stop() {
+	echo -n "Stopping hi3516a: "
+	echo "OK"
+}
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+#  restart|reload)
+#	stop
+#	start
+#	;;
+  *)
+	echo "Usage: $0 {start|stop}"
+	exit 1
+esac
+
+exit $?

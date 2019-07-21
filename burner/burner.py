@@ -13,15 +13,15 @@ import netifaces
 
 ###############################################################################
 
-DATA_PORT 		= "/dev/ttyUSB0"
-#DATA_PORT 		= "/dev/ttyACM0"
+DATA_PORT 		= "/dev/ttyCAM1"
+POWER_PORT 		= "/dev/ttyACM0"
 
 SPEED			= 115200
 
 promt 			= ["xmtech #", "hisilicon #"]
 duplex 			= "full"
 
-iface           = "enp3s0"
+iface           = "enx503eaa7b65cb"
 
 ###############################################################################
 def datawrite(send):
@@ -48,7 +48,7 @@ def datacmd(cmd):
 	if duplex == "half":
 		datawrite(cmd)
 	else:
-		data.write(cmd)
+		data.write(cmd.encode())
 
 def setvar(key, value):
 	cmd = "setenv " + key + " " + value
@@ -220,6 +220,9 @@ parser.add_argument('--mc21', type=int,   help='To remove',               requir
 
 parser.add_argument('--force', action='store_true', help='Skip usefull checks',               required=False)
 
+parser.add_argument('--servercamera', type=int, help='Camera number',               required=False)
+
+
 args = parser.parse_args()
 
 print args
@@ -298,8 +301,9 @@ if args.action in ["uboot"]:
     if uboot_size > 512*1024 and args.force != True:
         exit("Seems your uboot image is too big, correct burner.py if you know what you are doing")
 
-data = serial.Serial(DATA_PORT,      SPEED, timeout = 1)
-time.sleep(1)
+data = serial.Serial(DATA_PORT,      SPEED, timeout = 0.5)
+#power = serial.Serial(POWER_PORT,      SPEED, timeout = 1)
+#time.sleep(3)
 
 if args.mc21 != None:
     datawrite("%%%camterm\r\n") #data.write("%%%camterm\r\n")
@@ -324,7 +328,15 @@ if args.mc21 != None:
     print "-->got cmd"
 
 else:
-    print "Please plug power to module"
+
+    if args.servercamera != None:
+	power = serial.Serial(POWER_PORT,      SPEED, timeout = 1)
+	time.sleep(3)
+	print "Server camera "+str(args.servercamera)+" setted, auto power reset"
+    	power.write("reset "+str(args.servercamera)+"\n")
+	power.close()
+    else:
+    	print "Please plug power to module"
 
     while True:
         answer = data.readline().strip()
@@ -349,7 +361,7 @@ else:
     waitcmd()
     print "-->got cmd"
 
-printenv()
+#printenv()
 
 if args.action in ["mac"]:
     setvar("ethaddr", mac)
@@ -429,7 +441,7 @@ if args.action in ["load", "burn"]:
 #if args.version != None:
 #	setvar("version", args.version)
 
-    printenv()
+    #printenv()
 
     if args.action == "burn":
 	    saveenv()
@@ -437,9 +449,9 @@ if args.action in ["load", "burn"]:
     if args.action == "load":
 	    datacmd("bootm 0x82000000")
 
-    while True:
-        answer = data.readline().strip()
-        print "DATA: " + answer
+    #while True:
+    #    answer = data.readline().strip()
+    #    print "DATA: " + answer
 
     data.close()
 

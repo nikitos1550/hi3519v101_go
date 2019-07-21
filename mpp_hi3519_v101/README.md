@@ -1,0 +1,4 @@
+# SDK information
+
+* Hi3519_V101R001C02SPC050
+* Hi3519V101_SDK_V2.0.5.0

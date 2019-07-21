@@ -1,0 +1,48 @@
+#PL2303 rules
+#udevadm info /dev/ttyUSB0
+#sudo udevadm control --reload-rules && udevadm trigger
+#usb 3.0 (xhci) has some troubles with 10+ devices, usb 2.0 (ehci) forced via bios
+
+#usb 3.0 address
+#SUBSYSTEM=="tty", ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:10.4.4:1.0", SYMLINK+="ttyCAM1"
+#SUBSYSTEM=="tty", ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:10.4.3:1.0", SYMLINK+="ttyCAM2"
+#SUBSYSTEM=="tty", ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:10.4.2:1.0", SYMLINK+="ttyCAM3"
+#SUBSYSTEM=="tty", ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:10.4.1:1.0", SYMLINK+="ttyCAM4"
+#SUBSYSTEM=="tty", ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:10.3:1.0", SYMLINK+="ttyCAM5"
+#SUBSYSTEM=="tty", ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:10.2:1.0", SYMLINK+="ttyCAM6"
+#SUBSYSTEM=="tty", ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:10.1:1.0", SYMLINK+="ttyCAM7"
+#SUBSYSTEM=="tty", ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:9.4.4:1.0", SYMLINK+="ttyCAM8"
+#SUBSYSTEM=="tty", ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:9.4.3:1.0", SYMLINK+="ttyCAM9"
+#SUBSYSTEM=="tty", ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:9.4.2:1.0", SYMLINK+="ttyCAM10"
+#SUBSYSTEM=="tty", ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:9.4.1:1.0", SYMLINK+="ttyCAM11"
+#SUBSYSTEM=="tty", ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:9.3:1.0", SYMLINK+="ttyCAM12"
+#SUBSYSTEM=="tty", ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:9.2:1.0", SYMLINK+="ttyCAM13"
+#SUBSYSTEM=="tty", ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:9.1:1.0", SYMLINK+="ttyCAM14"
+#SUBSYSTEM=="tty", ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:4.4.4:1.0", SYMLINK+="ttyCAM15"
+#SUBSYSTEM=="tty", ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:4.4.3:1.0", SYMLINK+="ttyCAM16"
+
+#usb 2.0
+SUBSYSTEM=="tty",	ENV{ID_PATH}=="pci-0000:00:1d.0-usb-0:1.6.4.4:1.0",	SYMLINK+="ttyCAM1"
+SUBSYSTEM=="tty",	ENV{ID_PATH}=="pci-0000:00:1d.0-usb-0:1.6.4.3:1.0",	SYMLINK+="ttyCAM2"
+SUBSYSTEM=="tty",	ENV{ID_PATH}=="pci-0000:00:1d.0-usb-0:1.6.4.2:1.0",	SYMLINK+="ttyCAM3"
+SUBSYSTEM=="tty",	ENV{ID_PATH}=="pci-0000:00:1d.0-usb-0:1.6.4.1:1.0",	SYMLINK+="ttyCAM4"
+SUBSYSTEM=="tty",	ENV{ID_PATH}=="pci-0000:00:1d.0-usb-0:1.6.3:1.0",	SYMLINK+="ttyCAM5"
+SUBSYSTEM=="tty",	ENV{ID_PATH}=="pci-0000:00:1d.0-usb-0:1.6.2:1.0",	SYMLINK+="ttyCAM6"
+SUBSYSTEM=="tty",	ENV{ID_PATH}=="pci-0000:00:1d.0-usb-0:1.6.1:1.0",	SYMLINK+="ttyCAM7"
+
+SUBSYSTEM=="tty",	ENV{ID_PATH}=="pci-0000:00:1d.0-usb-0:1.5.4.4:1.0",	SYMLINK+="ttyCAM8"
+SUBSYSTEM=="tty",	ENV{ID_PATH}=="pci-0000:00:1d.0-usb-0:1.5.4.3:1.0",	SYMLINK+="ttyCAM9"
+SUBSYSTEM=="tty",	ENV{ID_PATH}=="pci-0000:00:1d.0-usb-0:1.5.4.2:1.0",	SYMLINK+="ttyCAM10"
+SUBSYSTEM=="tty",	ENV{ID_PATH}=="pci-0000:00:1d.0-usb-0:1.5.4.1:1.0",	SYMLINK+="ttyCAM11"
+SUBSYSTEM=="tty",	ENV{ID_PATH}=="pci-0000:00:1d.0-usb-0:1.5.3:1.0",	SYMLINK+="ttyCAM12"
+SUBSYSTEM=="tty",	ENV{ID_PATH}=="pci-0000:00:1d.0-usb-0:1.5.2:1.0",	SYMLINK+="ttyCAM13"
+SUBSYSTEM=="tty",	ENV{ID_PATH}=="pci-0000:00:1d.0-usb-0:1.5.1:1.0",	SYMLINK+="ttyCAM14"
+
+SUBSYSTEM=="tty",	ENV{ID_PATH}=="pci-0000:00:1d.0-usb-0:1.4.4.4:1.0",	SYMLINK+="ttyCAM15"
+SUBSYSTEM=="tty",	ENV{ID_PATH}=="pci-0000:00:1d.0-usb-0:1.4.4.3:1.0",	SYMLINK+="ttyCAM16"
+SUBSYSTEM=="tty",	ENV{ID_PATH}=="pci-0000:00:1d.0-usb-0:1.4.4.2:1.0",	SYMLINK+="ttyCAM17"
+SUBSYSTEM=="tty",	ENV{ID_PATH}=="pci-0000:00:1d.0-usb-0:1.4.4.1:1.0",	SYMLINK+="ttyCAM18"
+SUBSYSTEM=="tty",	ENV{ID_PATH}=="pci-0000:00:1d.0-usb-0:1.4.3:1.0",	SYMLINK+="ttyCAM19"
+SUBSYSTEM=="tty",	ENV{ID_PATH}=="pci-0000:00:1d.0-usb-0:1.4.2:1.0",	SYMLINK+="ttyCAM20"
+SUBSYSTEM=="tty",	ENV{ID_PATH}=="pci-0000:00:1d.0-usb-0:1.4.1:1.0",	SYMLINK+="ttyCAM21"
+##usb 2.0 end

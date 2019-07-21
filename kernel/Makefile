@@ -1,9 +1,8 @@
 THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 
-TOOLCHAIN=$(THIS_DIR)../buildroot-2019.05.1/output/host/bin/arm-buildroot-linux-uclibcgnueabi-
+TOOLCHAIN=$(THIS_DIR)../buildroot-2019.05.1-debug/output/host/bin/arm-buildroot-linux-uclibcgnueabi-
 #TOOLCHAIN=/opt/hisi-linux/x86-arm/arm-hisiv500-linux/bin/arm-hisiv500-linux-uclibcgnueabi-
-
 
 unpack:
 	test -e linux-3.18.y || tar -xzf ./linux-3.18.20.tar.gz

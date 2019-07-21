@@ -1,5 +1,7 @@
 # Tool for burn firmware for embedded hisilicon device
 
+**!!!Description outdated, should be updated!!!**
+
 ```
 usage: burner.py [-h] --ip IP [--skip SKIP] [--uboot UBOOT] [--uimage UIMAGE]
                  [--rootfs ROOTFS] [--memory MEMORY] [--initrd INITRD]
