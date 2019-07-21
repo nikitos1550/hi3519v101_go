@@ -49,3 +49,7 @@ app-deploy-debug-server: app-build-debug
 app-deploy-debug-local: app-build-debug
 	cd burner; \
 		sudo ./burner.py load --uimage ./images/uImage --rootfs ./images/rootfs.squashfs --ip $(CAMERA_LOCAL_LOAD_IP) --skip 1024 --memory 96
+
+########################################################################
+camera-serial:
+	screen -L /dev/ttyCAM$(CAMERA) 115200
