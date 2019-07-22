@@ -1,0 +1,489 @@
+openapi: 3.0.0
+info:
+  title: Camera API
+  version: 1.0.0
+servers:
+- description: Use your camera
+  url: http://localhost:8000/api/v1
+paths:
+  /:
+    get:
+      description: 'Basic information: api version, build information, etc...'
+      operationId: apiinfo
+      responses:
+        default:
+          description: Default error sample response
+      summary: Information about application
+  /system:
+    get:
+      description: 'System runtime information: mem, cpu, net load, etc...'
+      operationId: systeminfo
+      responses:
+        default:
+          description: Default error sample response
+      summary: System information
+  /debug:
+    get:
+      responses:
+        default:
+          description: Default error sample response
+      summary: ???
+  /debug/mpp:
+    get:
+      description: Mapping /proc/umap/* to http api
+      responses:
+        default:
+          description: Default error sample response
+      summary: HiMPP debug
+  /channel:
+    get:
+      responses:
+        default:
+          description: Default error sample response
+      summary: List of availible channels
+  /channel/{id}:
+    get:
+      parameters:
+      - description: Channel id
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        default:
+          description: Default error sample response
+      summary: Get information about channel
+    patch:
+      parameters:
+      - description: Channel id
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        default:
+          description: Default error sample response
+      summary: Change channel settings
+  /channel/{id}/enable:
+    delete:
+      parameters:
+      - description: Channel id
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        default:
+          description: Default error sample response
+      summary: Disable channel
+    post:
+      parameters:
+      - description: Channel id
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        default:
+          description: Default error sample response
+      summary: Enable channel
+  /encoder:
+    get:
+      responses:
+        default:
+          description: Default error sample response
+      summary: List of avalible encoders
+  /encoder/jpeg:
+    get:
+      responses:
+        200:
+          content:
+            application/json:
+              examples:
+                test:
+                  summary: Example responce
+                  value:
+                  - id: 0
+                    channel_id: 0
+                    width: 1920
+                    height: 1080
+                    q: 80
+                  - id: 1
+                    channel_id: 1
+                    width: 1280
+                    height: 720
+                    q: 50
+                  - id: 2
+                    channel_id: 1
+                    width: 640
+                    height: 360
+                    q: 20
+              schema:
+                items:
+                  $ref: '#/components/schemas/inline_response_200'
+                type: array
+          description: Success
+        500:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_500'
+          description: Default error response
+      summary: Get list of JPEG encoder instances
+    post:
+      requestBody:
+        $ref: '#/components/requestBodies/inline_object'
+        content:
+          application/json:
+            examples:
+              test:
+                summary: HD resolution middle quality
+                value:
+                  channel_id: 2
+                  width: 1280
+                  height: 720
+                  q: 50
+            schema:
+              properties:
+                channel_id:
+                  description: Source channel id
+                  format: int8
+                  type: integer
+                width:
+                  default: 640
+                  description: Width of picture
+                  format: int16
+                  maximum: 8192
+                  minimum: 2
+                  multipleOf: 2
+                  type: integer
+                height:
+                  default: 480
+                  description: Height of picture
+                  format: int16
+                  maximum: 8192
+                  minimum: 2
+                  multipleOf: 2
+                  type: integer
+                q:
+                  default: 20
+                  description: Quality???
+                  format: int8
+                  maximum: 99
+                  minimum: 1
+                  type: integer
+              type: object
+        required: true
+      responses:
+        default:
+          description: Default error sample response
+      summary: Configure and add JPEG encoder instance
+  /encoder/jpeg/{id}:
+    delete:
+      parameters:
+      - description: JPEG encoder instance id
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        default:
+          description: Default error sample response
+      summary: Delete JPEG encoder instance
+    get:
+      parameters:
+      - description: JPEG encoder instance id
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        default:
+          description: Default error sample response
+      summary: Get information about JPEG encoder instance
+    patch:
+      parameters:
+      - description: JPEG encoder instance id
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        default:
+          description: Default error sample response
+      summary: Change JPEG encoder instance runtime settings
+  /encoder/mjpeg:
+    get:
+      responses:
+        default:
+          description: Default error sample response
+      summary: Get list of MJPEG encoder instances
+    post:
+      responses:
+        default:
+          description: Default error sample response
+      summary: Configure and add MJPEG encoder instance
+  /encoder/mjpeg/{id}:
+    delete:
+      parameters:
+      - description: MJPEG encoder instance id
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        default:
+          description: Default error sample response
+      summary: Delete MJPEG encoder instance
+    get:
+      parameters:
+      - description: MJPEG encoder instance id
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        default:
+          description: Default error sample response
+      summary: Get information about MJPEG encoder instance
+    patch:
+      parameters:
+      - description: MJPEG encoder instance id
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        default:
+          description: Default error sample response
+      summary: Change MJPEG encoder instance runtime settings
+  /encoder/h264:
+    get:
+      responses:
+        default:
+          description: Default error sample response
+      summary: Get list of H.264 encoder instances
+    post:
+      responses:
+        default:
+          description: Default error sample response
+      summary: Configure and add H.264 encoder instance
+  /encoder/h264/{id}:
+    delete:
+      parameters:
+      - description: H.264 encoder instance id
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        default:
+          description: Default error sample response
+      summary: Delete H.264 encoder instance
+    get:
+      parameters:
+      - description: H.264 encoder instance id
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        default:
+          description: Default error sample response
+      summary: Get information about H.264 encoder instance
+    patch:
+      parameters:
+      - description: H.264 encoder instance id
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        default:
+          description: Default error sample response
+      summary: Change H.264 encoder instance runtime settings
+  /encoder/h265:
+    get:
+      responses:
+        default:
+          description: Default error sample response
+      summary: Get list of H.265 encoder instances
+    post:
+      responses:
+        default:
+          description: Default error sample response
+      summary: Configure and add H.265 encoder instance
+  /encoder/h265/{id}:
+    delete:
+      parameters:
+      - description: H.265 encoder instance id
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        default:
+          description: Default error sample response
+      summary: Delete H.264 encoder instance
+    get:
+      parameters:
+      - description: H.265 encoder instance id
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        default:
+          description: Default error sample response
+      summary: Get information about H.265 encoder instance
+    patch:
+      parameters:
+      - description: H.265 encoder instance id
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        default:
+          description: Default error sample response
+      summary: Change H.265 encoder instance runtime settings
+  /streamer:
+    get:
+      responses:
+        default:
+          description: Default error sample response
+      summary: List of avalible streamers
+  /streamer/jpeg-over-http:
+    get:
+      responses:
+        default:
+          description: Default error sample response
+      summary: TBD
+  /streamer/rtsp:
+    get:
+      responses:
+        default:
+          description: Default error sample response
+      summary: TBD
+  /streamer/video-to-storage:
+    get:
+      responses:
+        default:
+          description: Default error sample response
+      summary: TBD
+components:
+  requestBodies:
+    inline_object:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/inline_object'
+      required: true
+  schemas:
+    inline_response_200:
+      example:
+        q: 5
+        width: 1
+        id: 0
+        channel_id: 6
+        height: 5
+      properties:
+        id:
+          format: int8
+          type: integer
+        channel_id:
+          format: int8
+          type: integer
+        width:
+          format: int16
+          type: integer
+        height:
+          format: int16
+          type: integer
+        q:
+          format: int8
+          type: integer
+    inline_object:
+      properties:
+        channel_id:
+          description: Source channel id
+          format: int8
+          type: integer
+        width:
+          default: 640
+          description: Width of picture
+          format: int16
+          maximum: 8192
+          minimum: 2
+          multipleOf: 2
+          type: integer
+        height:
+          default: 480
+          description: Height of picture
+          format: int16
+          maximum: 8192
+          minimum: 2
+          multipleOf: 2
+          type: integer
+        q:
+          default: 20
+          description: Quality???
+          format: int8
+          maximum: 99
+          minimum: 1
+          type: integer
+      type: object
+    inline_response_500:
+      properties:
+        error_code:
+          type: integer
+        error_description:
+          type: string

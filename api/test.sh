@@ -5,8 +5,10 @@
 #  -g go-server \
 #  -o samples/server/petstore/go-server
 
-java -jar ./openapi-generator-cli.jar generate \
-  -i ./api.yml \
-  -g go-server \
-  -o go-server
+#java -jar ./openapi-generator-cli.jar generate \
+#  -i ./api.yaml \
+#  -g go-gin-server \
+#  -o go-gin-server
 
+# https://github.com/deepmap/oapi-codegen
+ ~/go/bin/oapi-codegen pet.yaml  > pet.gen.go
