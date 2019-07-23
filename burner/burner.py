@@ -353,8 +353,8 @@ if args.mc21 != None:
 else:
 
     if args.servercamera != None:
-	power = serial.Serial(POWER_PORT,      SPEED, timeout = 1)
-	time.sleep(3)
+	power = serial.Serial(POWER_PORT,      SPEED, timeout = 0.5)
+	time.sleep(2)
 	print "Server camera "+str(args.servercamera)+" setted, auto power reset"
     	power.write("reset "+str(args.servercamera)+"\n")
 	power.close()
