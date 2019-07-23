@@ -1,8 +1,8 @@
 THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 #THIS IS YOUR CUSTOM SETTINGS
-APP := app_sample       # TARGET APPLICATION
-#APP := app_minimal
+#APP := app_sample       # TARGET APPLICATION
+APP := app_minimal
 CAMERA := 1             # NUMBER OF CAMERA ATTACHED TO SERVER TO TEST ON
 
 CAMERA_LOCAL_LOAD_IP := 192.168.0.200 #ONLY FOR LOCAL USAGE, SERVER DOESN'T USE IT
@@ -41,14 +41,23 @@ app-build-debug:
 	cd buildroot-2019.05.1-debug; make
 	cp buildroot-2019.05.1-debug/output/images/rootfs.squashfs ./burner/images
 
-app-deploy-debug-server: app-build-debug
-	cd burner; \
-		authbind --deep ./burner.py load --uimage ./images/uImage --rootfs ./images/rootfs.squashfs --ip 192.169.0.10$(CAMERA) --skip 1024 --memory 96 --servercamera $(CAMERA)
-	screen /dev/ttyCAM$(CAMERA) 115200
+app-deploy-debug-server: app-build-debug deploy-no-build
 
 app-deploy-debug-local: app-build-debug
 	cd burner; \
 		sudo ./burner.py load --uimage ./images/uImage --rootfs ./images/rootfs.squashfs --ip $(CAMERA_LOCAL_LOAD_IP) --skip 1024 --memory 96
+
+deploy-no-build:
+	cd burner; \
+		authbind --deep ./burner.py \
+			load \
+			--uimage ./images/uImage \
+			--rootfs ./images/rootfs.squashfs \
+			--ip 192.169.0.10$(CAMERA) \
+			--skip 1024 \
+			--memory 96 \
+			--servercamera $(CAMERA)
+	screen /dev/ttyCAM$(CAMERA) 115200
 
 ########################################################################
 camera-serial:

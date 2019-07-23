@@ -353,7 +353,7 @@ if args.mc21 != None:
 else:
 
     if args.servercamera != None:
-	power = serial.Serial(POWER_PORT,      SPEED, timeout = 0.5)
+	power = serial.Serial(POWER_PORT,      SPEED, timeout = 0.1)
 	time.sleep(2)
 	print "Server camera "+str(args.servercamera)+" setted, auto power reset"
     	power.write("reset "+str(args.servercamera)+"\n")
@@ -480,9 +480,9 @@ if args.action in ["load", "burn"]:
     if args.action == "load":
 	    datacmd("bootm 0x82000000")
 
-    while True:
-        answer = data.readline().strip()
-        print "DATA: " + answer
+    #while True:
+    #    answer = data.readline().strip()
+    #    print "DATA: " + answer
 
     data.close()
 
