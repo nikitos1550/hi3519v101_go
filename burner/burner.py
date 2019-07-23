@@ -55,6 +55,14 @@ def setvar(key, value):
 	datacmd(cmd)
 	waitcmd()
 
+def setvararray(kvs):
+	cmd = ""
+	for key in kvs:
+        	cmd = cmd + "setenv " + key + " " + kvs[key]+"; "
+        datacmd(cmd)
+        waitcmd()
+
+
 def printenv():
 	env = {}
 	datacmd("printenv")
@@ -301,6 +309,21 @@ if args.action in ["uboot"]:
     if uboot_size > 512*1024 and args.force != True:
         exit("Seems your uboot image is too big, correct burner.py if you know what you are doing")
 
+##PREPARE cat uImage+rootfs
+uimage_blocks = uimage_size/(64*1024)
+print "uImage full 64K blocks " + str(uimage_blocks)
+if uimage_size - (uimage_blocks*64*1024) > 0:
+	print "uImage align difference " + str( ( (uimage_blocks+1)*64*1024 ) - uimage_size) + " bytes"
+        uimage_size_e = ((uimage_blocks+1)*64*1024)
+os.system("rm ./images/difference; rm ./images/tmp.tftp")
+os.system("dd if=/dev/zero of=./images/difference conv=sync bs=1 count="+str(( (uimage_blocks+1)*64*1024 ) - uimage_size ))
+os.system("cat "+args.uimage+" ./images/difference "+args.rootfs+" > ./images/tmp.tftp")
+os.system("chmod 777 ./images/difference; chmod 777 ./images/tmp.tftp;")
+
+uimage_rootfs_size = uimage_size_e + rootfs_size
+
+###########################
+
 data = serial.Serial(DATA_PORT,      SPEED, timeout = 0.5)
 #power = serial.Serial(POWER_PORT,      SPEED, timeout = 1)
 #time.sleep(3)
@@ -373,6 +396,12 @@ setvar("ipaddr", 	ip)
 setvar("netmask", 	mask)
 setvar("serverip", 	server_ip)
 
+#netdata = {}
+#netdata["ipaddr"] = ip
+#netdata["netmask"] = mask
+#netdata["serverip"] = server_ip
+#setvararray(netdata)
+
 #datacmd("mm 0x120100cc 0x4a")
 
 if args.action in ["uboot"]:
@@ -390,24 +419,26 @@ if args.action in ["uboot"]:
 
 if args.action in ["load", "burn"]:
     server = tftpy.TftpServer(uimage_filepath[1])
+    #server = tftpy.TftpServer(".")
     thread.start_new_thread( threadtftd, () )
     print "-->tftpd started"
     if args.action == "burn":
 	    size_wroute = tftpuploadspi(uimage_filepath[0], uimage_size, uboot_size)
     if args.action == "load":
-	    tftpupload(uimage_filepath[0], uimage_size, "kernel")
+	    #tftpupload(uimage_filepath[0], uimage_size, "kernel")
+	    tftpupload("tmp.tftp", uimage_rootfs_size, "kernel")
     server.stop(now=True)
-    time.sleep(10)
+    #time.sleep(10)
 
-    server = tftpy.TftpServer(rootfs_filepath[1])
-    thread.start_new_thread( threadtftd, () )
-    print "-->tftpd started"
-    if args.action == "burn":
-        tftpuploadspi(rootfs_filepath[0], rootfs_size, uboot_size + size_wroute)
-    if args.action == "load":
-        tftpupload(rootfs_filepath[0], rootfs_size, "rootfs")
-    server.stop(True)
-    time.sleep(10)
+    #server = tftpy.TftpServer(rootfs_filepath[1])
+    #thread.start_new_thread( threadtftd, () )
+    #print "-->tftpd started"
+    #if args.action == "burn":
+    #    tftpuploadspi(rootfs_filepath[0], rootfs_size, uboot_size + size_wroute)
+    #if args.action == "load":
+    #    tftpupload(rootfs_filepath[0], rootfs_size, "rootfs")
+    #server.stop(True)
+    #time.sleep(10)
 	#print "-->tftpd stoped"
 
 
@@ -427,7 +458,7 @@ if args.action in ["load", "burn"]:
 
     bootargs = bootargs + "console=" + lserial + " "
     #if rootfs == "file":
-    bootargs = bootargs + "root=/dev/ram rw initrd=0x82400000," + initrd
+    bootargs = bootargs + "root=/dev/ram rw initrd="+hex(0x82000000 + uimage_size_e)+"," + initrd
 
     #if rootfs == "nfs":
 	#    bootargs = bootargs + "root=/dev/nfs rw nfsrootdebug nfsroot=" + args.nfs + ",v3"
@@ -449,9 +480,9 @@ if args.action in ["load", "burn"]:
     if args.action == "load":
 	    datacmd("bootm 0x82000000")
 
-    #while True:
-    #    answer = data.readline().strip()
-    #    print "DATA: " + answer
+    while True:
+        answer = data.readline().strip()
+        print "DATA: " + answer
 
     data.close()
 
