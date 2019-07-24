@@ -1,13 +1,22 @@
 package main
 
 import (
-    "fmt"
+    	"fmt"
 	"flag"
 	"net/http"
+	"./himpp3"
 )
 
 func main() {
-	portPtr := flag.Int("port", 8080, "http port")
+	himpp3.SysInit()
+	himpp3.MipiIspInit()
+	himpp3.ViInit()
+	himpp3.VpssInit()
+	//himpp3.VencInit()
+	
+	
+
+	portPtr := flag.Int("port", 80, "http port")
 
 	flag.Parse()
 
@@ -15,11 +24,11 @@ func main() {
 	fmt.Printf("http port %d\n", *portPtr);
 
 	http.HandleFunc("/", func (w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Welcome to my website!")
+		fmt.Fprintf(w, "Camera go webserver!")
 	})
 
 	//fs := http.FileServer(http.Dir("static/"))
 	//http.Handle("/static/", http.StripPrefix("/static/", fs))
 
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":80", nil)
 }

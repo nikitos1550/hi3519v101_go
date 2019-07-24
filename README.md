@@ -94,4 +94,4 @@ start() {
 
 * Don`t forget about git-lfs to clone this repo fully
 * For clean ubuntu server 19.04 I installed mc build-essential make cmake u-boot-tools python libncurses5-dev packages
-
+* hisi-build webserver basic auth - test/hisilicon
