@@ -18,7 +18,7 @@ CAMERA_LOCAL_LOAD_IP := 192.168.0.200 #ONLY FOR LOCAL USAGE, SERVER DOESN'T USE 
 enviroiment-buildroot-2019.05.1-debug:
 	tar -xzf buildroot-2019.05.1.tar.gz -C $(THIS_DIR)
 	mv buildroot-2019.05.1 buildroot-2019.05.1-debug
-	test -e buildroot-dl || makdir buildroot-dl
+	test -e buildroot-dl || mkdir buildroot-dl
 	cd buildroot-2019.05.1-debug; ln -s ../buildroot-dl dl
 	cd buildroot-2019.05.1-debug; make defconfig BR2_DEFCONFIG=$(THIS_DIR)/defconfig-debug.buildroot
 	cp -r ./buildroot-2019.05.1-patch/* ./buildroot-2019.05.1-debug

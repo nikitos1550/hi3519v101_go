@@ -7,12 +7,16 @@ import (
 	"./himpp3"
 )
 
+var BuildTime string
+
 func main() {
+	fmt.Println(BuildTime)
+
 	himpp3.SysInit()
 	himpp3.MipiIspInit()
 	himpp3.ViInit()
 	himpp3.VpssInit()
-	//himpp3.VencInit()
+	himpp3.VencInit()
 	
 	
 

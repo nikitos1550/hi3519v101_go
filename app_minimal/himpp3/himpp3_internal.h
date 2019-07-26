@@ -107,7 +107,7 @@ VI_DEV_ATTR_S DEV_ATTR_LVDS_BASE =
     }
 };
 
-
+//int devmem(uint32_t target, unsigned long value);
 
 
 

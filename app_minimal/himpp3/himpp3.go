@@ -1,6 +1,11 @@
 package himpp3
 
-import "fmt"
+import (
+	"fmt"
+//	"unsafe"
+//	"syscall"
+	"../external/github.com/creack/goselect"
+)
 
 // #include "himpp3_external.h"
 // #include "himpp3_mpp_includes.h"
@@ -17,6 +22,10 @@ import "fmt"
 // #cgo LDFLAGS: ${SRCDIR}/../../mpp_hi3519_v101/lib/lib_hidefog.a
 // #cgo CFLAGS: -mcpu=cortex-a7 -mfloat-abi=softfp -mfpu=neon-vfpv4 -mno-unaligned-access -fno-aggressive-loop-optimizations
 import "C"
+
+func init() {
+	C.himpp3_ko_init()
+}
 
 //SysInit dfsdf
 func SysInit() {
@@ -50,10 +59,10 @@ func VencInit() {
 	if tmp > 0 {
 		fmt.Println(tmp, " this is venc channel fd")
 		// let start goroutine to get frames
-		go jpegGetDataLoop()
+		go jpegGetDataLoop((int)(tmp))
 	}
 }
-
+/*
 type jpegFrame struct {
 	//data???
 	size	uint32
@@ -65,9 +74,38 @@ type jpegData struct {
 	currentFrame	uint8
 	frames 			[2]jpegFrame
 }
+*/
+func jpegGetDataLoop(fd int) {
+	/*
+	var bytePtr *C.char
+	var bytePtr2 **C.char
+	bytePtr2 = &bytePtr
+	fmt.Println("** before adress ", bytePtr2)
+	fmt.Println("* before address ", bytePtr)
+	C.himpp3_test_func(bytePtr2)
+	fmt.Println("** after address ", bytePtr2)
+	fmt.Println("* after address ", bytePtr)
+	fmt.Println("* after value ", *bytePtr)
+	*/
+	var counter uint64
+	//var read_fdset syscall.FdSet
+	rFDSet := &goselect.FDSet{}
+	for {
+	rFDSet.Zero()
+	rFDSet.Set((uintptr)(fd))
+	if err := goselect.Select(fd+1, rFDSet, nil, nil, -1); err != nil {
+		fmt.Println("SELECT FATAL ERROR")
+	}
 
-func jpegGetDataLoop() {
-
+	for i := uintptr(0); i < goselect.FD_SETSIZE; i++ {
+		if rFDSet.IsSet(i) {
+			//fmt.Println(i, "is ready")
+		}
+	}
+	C.himpp3_venc_jpeg_export_frame()
+	counter++
+	//fmt.Println("counter ", counter)
+	}
 }
 
 func jpegGetFrame() {
