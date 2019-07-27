@@ -2,9 +2,11 @@ package himpp3
 
 import (
 	"fmt"
-//	"unsafe"
+	"unsafe"
 //	"syscall"
-	"../external/github.com/creack/goselect"
+//	"../external/github.com/creack/goselect"
+	"bytes"
+	"sync"
 )
 
 // #include "himpp3_external.h"
@@ -56,12 +58,38 @@ func VpssInit() {
 func VencInit() {
 	var tmp = C.himpp3_venc_init()
 	fmt.Println("VencInit %d", tmp)
-	if tmp > 0 {
-		fmt.Println(tmp, " this is venc channel fd")
-		// let start goroutine to get frames
-		go jpegGetDataLoop((int)(tmp))
-	}
 }
+
+var B1 bytes.Buffer
+var Mutex sync.Mutex
+
+//export jpegVencGetDataCallback
+func jpegVencGetDataCallback(stStream * C.struct_jpegFrame) {
+	//fmt.Println("New jpeg frame!")
+	//fmt.Println("stStream.seq = ", stStream.seq)
+	//fmt.Println("stStream.count = ", stStream.count)
+	//fmt.Println("stStream.packs[0].length = ", stStream.packs[0].length)
+	//fmt.Println("stStream.packs[1].length = ", stStream.packs[1].length)
+
+	//b1.Grow((int)(stStream.packs[0].length) + (int)(stStream.packs[1].length))
+
+	data1 := (*[1 << 30]byte)(unsafe.Pointer(stStream.packs[0].data))[:int(stStream.packs[0].length):int(stStream.packs[0].length)]
+	data2 := (*[1 << 30]byte)(unsafe.Pointer(stStream.packs[1].data))[:int(stStream.packs[1].length):int(stStream.packs[1].length)]
+	// or for an array if BUFF_SIZE is a constant
+	//myArray := *(*[C.BUFF_SIZE]byte)(unsafe.Pointer(&C.my_buf))
+
+	Mutex.Lock()
+	B1.Reset()
+	B1.Write(data1)
+        B1.Write(data2)
+	Mutex.Unlock()
+
+	//fmt.Println("b1 cap = ", B1.Cap(), " len = ", B1.Len())
+	//b1p := b1.Bytes()
+
+	//fmt.Printf("%d %d %d\n", b1p[0], b1p[1], b1p[2])
+}
+
 /*
 type jpegFrame struct {
 	//data???
@@ -75,18 +103,8 @@ type jpegData struct {
 	frames 			[2]jpegFrame
 }
 */
+/*
 func jpegGetDataLoop(fd int) {
-	/*
-	var bytePtr *C.char
-	var bytePtr2 **C.char
-	bytePtr2 = &bytePtr
-	fmt.Println("** before adress ", bytePtr2)
-	fmt.Println("* before address ", bytePtr)
-	C.himpp3_test_func(bytePtr2)
-	fmt.Println("** after address ", bytePtr2)
-	fmt.Println("* after address ", bytePtr)
-	fmt.Println("* after value ", *bytePtr)
-	*/
 	var counter uint64
 	//var read_fdset syscall.FdSet
 	rFDSet := &goselect.FDSet{}
@@ -102,13 +120,10 @@ func jpegGetDataLoop(fd int) {
 			//fmt.Println(i, "is ready")
 		}
 	}
-	C.himpp3_venc_jpeg_export_frame()
+	//C.himpp3_venc_jpeg_export_frame()
 	counter++
 	//fmt.Println("counter ", counter)
 	}
 }
-
-func jpegGetFrame() {
-
-}
+*/
 

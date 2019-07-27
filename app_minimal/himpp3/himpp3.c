@@ -1,3 +1,4 @@
+#include "himpp3_external.h"
 #include "himpp3_internal.h"
 #include "himpp3_ko.h"
 
@@ -20,10 +21,11 @@
 #include <inttypes.h>
 
 int devmem(uint32_t target, unsigned long value);
+void * himpp3_venc_jpeg_test_loop(void * arg);
 
 #ifdef TEST_C_APP
 int main(void) {
-        devmem(0x120100e4);
+        //devmem(0x120100e4);
 	//himpp3_ko_init();
 
 	//himpp3_sys_init();
@@ -79,7 +81,7 @@ int himpp3_ko_init() {
         ////////////////////////////////////////////////////
 
         #ifdef VPSS_ONLINE
-		devmem(0x12030000 0x00000204
+		devmem(0x12030000, 0x00000204);
 		
 		//write priority select
 		devmem(0x12030054, 0x55552356); //  each module 4bit  cci       ---        ddrt  ---    ---     gzip   ---    ---
@@ -160,7 +162,7 @@ int himpp3_ko_init() {
         devmem(0x12040194, 0x1); // #SPI0_SDI
         devmem(0x12040198, 0x1); // #SPI0_CSN
     
-        //drive capability   
+        //drive capability
         devmem(0x12040998, 0x150); // #SPI0_SCLK
         devmem(0x1204099c, 0x160); // #SPI0_SD0
         devmem(0x120409a0, 0x160); // #SPI0_SDI
@@ -169,12 +171,14 @@ int himpp3_ko_init() {
         //fflush(stdout);
 
         // insmod /lib/modules/hi3519v101/extdrv/hi_ssp_sony.ko;
+	
         if (init_module(_binary_hi_ssp_sony_ko_start, 
                                 _binary_hi_ssp_sony_ko_end -_binary_hi_ssp_sony_ko_start, 
-                                NULL) != 0) {
-                        printf("init_module %s failed\n", modules[i].name);
+                                "") != 0) {
+                        printf("init_module hi_ssp_sony.ko failed\n");
                         return 1;//return EXIT_FAILURE;
                 }
+	
 
         //single_pipe)
         devmem(0x12040184, 0x1); //   # SENSOR0 HS from VI0 HS
@@ -232,7 +236,7 @@ int devmem(uint32_t target, unsigned long value) {
 
         *((volatile uint32_t *) virt_addr) = value;
         read_result = *((volatile uint32_t *) virt_addr);
-        printf("0x%lx value 0x%lx\n", target, read_result);
+        //printf("0x%lx value 0x%lx\n", target, read_result);
 
         if (munmap(map_base, map_size) != 0) {
                 printf("ERROR munmap (%d) %s\n", errno, strerror(errno));
@@ -242,23 +246,23 @@ int devmem(uint32_t target, unsigned long value) {
         return 0;
 }
 
-int himpp3_sys_init(/*int * error_func, int * error_code*/) {
+int himpp3_sys_init() {
         //int ret;
 
         int error_code = 0;
-        //*error_func = HIMPP3_ERROR_FUNC_NONE;
-        //*error_code = 0;
+        // *error_func = HIMPP3_ERROR_FUNC_NONE;
+        // *error_code = 0;
 
 	error_code = HI_MPI_SYS_Exit();
         if (error_code != HI_SUCCESS) {
-                //*error_func = HIMPP3_ERROR_FUNC_HI_MPI_SYS_Exit;
+                // *error_func = HIMPP3_ERROR_FUNC_HI_MPI_SYS_Exit;
                 return -1;
         }
         printf("HI_MPI_SYS_Exit ok\n");
 
         error_code = HI_MPI_VB_Exit();
         if (error_code != HI_SUCCESS) {
-                //*error_func = HIMPP3_ERROR_FUNC_HI_MPI_VB_Exit;
+                // *error_func = HIMPP3_ERROR_FUNC_HI_MPI_VB_Exit;
                 return -1;
         }
         printf("HI_MPI_VB_Exit ok\n");
@@ -273,14 +277,14 @@ int himpp3_sys_init(/*int * error_func, int * error_code*/) {
 
         error_code = HI_MPI_VB_SetConf(&stVbConf);
 	if(error_code != HI_SUCCESS) {
-		//*error_func = HIMPP3_ERROR_FUNC_HI_MPI_VB_SetConf;
+		// *error_func = HIMPP3_ERROR_FUNC_HI_MPI_VB_SetConf;
 		return -1;
 	}
         printf("HI_MPI_VB_SetConf ok\n");
 
 	error_code = HI_MPI_VB_Init();
 	if (error_code != HI_SUCCESS) {
-		//*error_func = HIMPP3_ERROR_FUNC_???;
+		// *error_func = HIMPP3_ERROR_FUNC_???;
 		return -1;
 	}
         printf("HI_MPI_VB_Init ok\n");
@@ -291,14 +295,14 @@ int himpp3_sys_init(/*int * error_func, int * error_code*/) {
 
 	error_code = HI_MPI_SYS_SetConf(&stSysConf);
 	if (error_code != HI_SUCCESS) {
-		//*error_func = HIMPP3_ERROR_FUNC_HI_MPI_SYS_SetConf;
+		// *error_func = HIMPP3_ERROR_FUNC_HI_MPI_SYS_SetConf;
 		return -1;
 	}
         printf("HI_MPI_SYS_SetConf ok\n");
 
 	error_code = HI_MPI_SYS_Init();
 	if(error_code != HI_SUCCESS) {
-		//*error_func = HIMPP3_ERROR_FUNC_HI_MPI_SYS_Init;
+		// *error_func = HIMPP3_ERROR_FUNC_HI_MPI_SYS_Init;
 		return -1;
 	}
         printf("HI_MPI_SYS_Init ok\n");
@@ -672,6 +676,9 @@ int himpp3_vpss_init() {
 
 }
 
+static pthread_t gs_JpegPid;
+
+
 int himpp3_venc_init() {
         int error_code;
 
@@ -783,22 +790,47 @@ int himpp3_venc_init() {
         */
         //////////////////////////////////////////
 
+        if (0 != pthread_create(&gs_JpegPid, 0, &himpp3_venc_jpeg_test_loop, &fd)) {
+                printf("%s: create jpeg running thread failed!\n", __FUNCTION__);
+                return -1;
+        }
+
+
 	return fd;
 
 
 }
 
-int himpp3_venc_jpeg_export_frame() {
+
+void * himpp3_venc_jpeg_test_loop(void * arg) {
+	int fd = *((int *)arg);
+
+	printf("himpp3_venc_jpeg_test_loop fd %d\n", fd);
+
+	//return 0;
+
  	VENC_STREAM_S stStream;
         VENC_CHN_STAT_S stStat;
 	int error_code;
+	fd_set read_fds;
 
-	memset(&stStream, 0, sizeof(stStream));
+while(1) {
+        FD_ZERO(&read_fds);
+        FD_SET(fd, &read_fds);
+
+	error_code = select(fd + 1, &read_fds, NULL, NULL, NULL);
+	if (error_code < 0) {
+		printf("select failed\n");
+	}
+
+	if (FD_ISSET(fd, &read_fds)) {
+
+		memset(&stStream, 0, sizeof(stStream));
 
                 error_code = HI_MPI_VENC_Query(0, &stStat);
                 if (error_code != HI_SUCCESS) {
                         printf("HI_MPI_VENC_Query chn[%d] failed with %#x!\n", 0, error_code);
-                        return 1;
+                        return 0;
                 }
 
                 stStream.pstPack = (VENC_PACK_S*)malloc(sizeof(VENC_PACK_S) * stStat.u32CurPacks);
@@ -809,7 +841,24 @@ int himpp3_venc_jpeg_export_frame() {
                         printf("HI_MPI_VENC_GetStream failed with %#x!\n", error_code);
                 }
                 //printf("got frame\n");
-
+		/////
+		struct jpegFrame newFrame;
+		newFrame.seq = stStream.u32Seq;
+		newFrame.count = stStream.u32PackCount;
+		for (int i =0;i<stStream.u32PackCount;i++) {
+			newFrame.packs[i].length = stStream.pstPack[i].u32Len;
+			newFrame.packs[i].data = stStream.pstPack[i].pu8Addr;
+			newFrame.packs[i].pts = stStream.pstPack[i].u64PTS;
+		}
+		/*
+		printf("C: ");
+		for (int i =0;i<10;i++) {
+			printf("%d ", stStream.pstPack[0].pu8Addr[i]);
+		}
+		printf("\n");
+		*/
+		jpegVencGetDataCallback(&newFrame);
+		/////
 		free(stStream.pstPack);
 
                 error_code = HI_MPI_VENC_ReleaseStream(0, &stStream);
@@ -817,12 +866,15 @@ int himpp3_venc_jpeg_export_frame() {
                         printf("failed to release stream: %#x\n", error_code);
                 }
                 //printf("frame released\n");
-
-}
-int himpp3_venc_jpeg_release_frame() {
+	}
 }
 
+}
 
+//int himpp3_venc_jpeg_release_frame() {
+//}
+
+/*
 static char test_byte = 'Y';
 char * himpp3_test_func(char ** buffer) {
 	printf("test byte address %p\n", &test_byte);
@@ -830,3 +882,4 @@ char * himpp3_test_func(char ** buffer) {
 	//printf("buffer pointer after %p\n", buffer);
 	return &test_byte;
 }
+*/

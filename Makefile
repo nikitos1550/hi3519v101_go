@@ -5,9 +5,14 @@ THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 APP := app_minimal
 CAMERA := 1             # NUMBER OF CAMERA ATTACHED TO SERVER TO TEST ON
 
+#ROOTFS := romfs
+ROOTFS := squashfs
+
 CAMERA_LOCAL_LOAD_IP := 192.168.0.200 #ONLY FOR LOCAL USAGE, SERVER DOESN'T USE IT
 ########################################################################
-
+BUILDROOT := buildroot-2019.05.1-debug
+#BUILDROOT := buildroot-2019.05.1-musl
+########################################################################
 #buildroot-2019.05.1-toolchain:
 #	tar -xzf buildroot-2019.05.1.tar.gz -C $(THIS_DIR)
 #	mv buildroot-2019.05.1 buildroot-2019.05.1-toolchain
@@ -18,7 +23,7 @@ CAMERA_LOCAL_LOAD_IP := 192.168.0.200 #ONLY FOR LOCAL USAGE, SERVER DOESN'T USE 
 enviroiment-buildroot-2019.05.1-debug:
 	tar -xzf buildroot-2019.05.1.tar.gz -C $(THIS_DIR)
 	mv buildroot-2019.05.1 buildroot-2019.05.1-debug
-	test -e buildroot-dl || mkdir buildroot-dl
+	test -e buildroot-dl || makdir buildroot-dl
 	cd buildroot-2019.05.1-debug; ln -s ../buildroot-dl dl
 	cd buildroot-2019.05.1-debug; make defconfig BR2_DEFCONFIG=$(THIS_DIR)/defconfig-debug.buildroot
 	cp -r ./buildroot-2019.05.1-patch/* ./buildroot-2019.05.1-debug
@@ -38,26 +43,26 @@ enviroiment-deploy-debug: enviroiment-buildroot-2019.05.1-debug
 app-build-debug:
 	cd $(APP); make
 	cd $(APP); cp ./$(APP) ../putonrootfs-debug/opt
-	cd buildroot-2019.05.1-debug; make
-	cp buildroot-2019.05.1-debug/output/images/rootfs.squashfs ./burner/images
+	cd $(BUILDROOT); make rootfs-$(ROOTFS)
+	cp $(BUILDROOT)/output/images/rootfs.$(ROOTFS) ./burner/images
 
 app-deploy-debug-server: app-build-debug deploy-no-build
 
 app-deploy-debug-local: app-build-debug
 	cd burner; \
-		sudo ./burner.py load --uimage ./images/uImage --rootfs ./images/rootfs.squashfs --ip $(CAMERA_LOCAL_LOAD_IP) --skip 1024 --memory 96
+		sudo ./burner.py load --uimage ./images/uImage --rootfs ./images/rootfs.$(ROOTFS) --ip $(CAMERA_LOCAL_LOAD_IP) --skip 1024 --memory 96
 
 deploy-no-build:
 	cd burner; \
 		authbind --deep ./burner.py \
 			load \
 			--uimage ./images/uImage \
-			--rootfs ./images/rootfs.squashfs \
+			--rootfs ./images/rootfs.$(ROOTFS) \
 			--ip 192.169.0.10$(CAMERA) \
 			--skip 1024 \
 			--memory 96 \
 			--servercamera $(CAMERA)
-	screen /dev/ttyCAM$(CAMERA) 115200
+	screen -L /dev/ttyCAM$(CAMERA) 115200
 
 ########################################################################
 camera-serial:

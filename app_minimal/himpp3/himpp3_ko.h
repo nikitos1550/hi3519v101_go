@@ -150,13 +150,13 @@ struct komodules modules[] = {
     _binary_hi_sensor_i2c_ko_start, 
     _binary_hi_sensor_i2c_ko_end, 
     ""},
-
+*/
 
 {"hi_pwm.ko", 
     _binary_hi_pwm_ko_start, 
     _binary_hi_pwm_ko_end, 
     ""},
-*/
+
 /*
 {"hi_piris.ko", 
     _binary_hi_piris_ko_start, 

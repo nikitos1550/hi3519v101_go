@@ -18,14 +18,13 @@ BUILDFLAGS := -ldflags="-extldflags '-static'"
 
 all: libhimpp3 himpp3
 
-#SOURCES = $(wildcard ./o/*.o)
+SOURCES = $(wildcard ./o/*.o)
 KO = $(wildcard ./ko/*.o)
 
 #-ldflags="-X 'company/buildinfo.BuildTime=$(date)'"
 
 libhimpp3:
 	$(CC) $(CFLAGS) -c ./himpp3.c -o himpp3.o
-	cd ko; make
 	$(AR) rc libhimpp3.a himpp3.o $(KO)
 	rm ./himpp3.o
 	$(RANLIB) libhimpp3.a
