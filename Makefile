@@ -3,7 +3,7 @@ THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 #THIS IS YOUR CUSTOM SETTINGS
 #APP := app_sample       # TARGET APPLICATION
 APP := app_minimal
-CAMERA := 2             # NUMBER OF CAMERA ATTACHED TO SERVER TO TEST ON
+CAMERA := 1             # NUMBER OF CAMERA ATTACHED TO SERVER TO TEST ON
 
 #ROOTFS := romfs
 ROOTFS := squashfs

@@ -1,16 +1,16 @@
 #!/bin/sh
 #
-# Start hi3516a modules
+# Start debug
 #
 
 start() {
 	#gdbserver :2345 /opt/mpp_version &
-	echo "..."
+	echo "S90debug TODO..."
 	#/opt/app_sample &
 }
 
 stop() {
-	echo -n "Stopping hi3516a: "
+	echo -n "Stopping debug"
 	echo "OK"
 }
 
