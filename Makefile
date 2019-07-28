@@ -8,7 +8,7 @@ CAMERA := 1             # NUMBER OF CAMERA ATTACHED TO SERVER TO TEST ON
 #ROOTFS := romfs
 ROOTFS := squashfs
 
-CAMERA_LOCAL_LOAD_IP := 192.168.0.200 #ONLY FOR LOCAL USAGE, SERVER DOESN'T USE IT
+CAMERA_LOCAL_LOAD_IP := 192.169.0.102 #ONLY FOR LOCAL USAGE, SERVER DOESN'T USE IT
 ########################################################################
 BUILDROOT := buildroot-2019.05.1-debug
 #BUILDROOT := buildroot-2019.05.1-musl
@@ -20,10 +20,10 @@ BUILDROOT := buildroot-2019.05.1-debug
 #	cd buildroot-2019.05.1-toolchain; make defconfig BR2_DEFCONFIG=$(THIS_DIR)/defconfig-toolchain.buildroot
 #	cp -r ./buildroot-2019.05.1-patch/* ./buildroot-2019.05.1-debug
 
-enviroiment-buildroot-2019.05.1-debug:
+environment-buildroot-2019.05.1-debug:
 	tar -xzf buildroot-2019.05.1.tar.gz -C $(THIS_DIR)
 	mv buildroot-2019.05.1 buildroot-2019.05.1-debug
-	test -e buildroot-dl || makdir buildroot-dl
+	test -e buildroot-dl || mkdir buildroot-dl
 	cd buildroot-2019.05.1-debug; ln -s ../buildroot-dl dl
 	cd buildroot-2019.05.1-debug; make defconfig BR2_DEFCONFIG=$(THIS_DIR)/defconfig-debug.buildroot
 	cp -r ./buildroot-2019.05.1-patch/* ./buildroot-2019.05.1-debug
@@ -38,7 +38,7 @@ enviroiment-buildroot-2019.05.1-debug-update-config:
 #	cd buildroot-2019.05.1-release; make defconfig BR2_DEFCONFIG=$(THIS_DIR)/defconfig-release.buildroot
 #	cp -r ./buildroot-2019.05.1-patch/* ./buildroot-2019.05.1-release
 
-enviroiment-deploy-debug: enviroiment-buildroot-2019.05.1-debug
+environment-deploy-debug: environment-buildroot-2019.05.1-debug
 	cd buildroot-2019.05.1-debug; make clean; make
 
 ########################################################################
