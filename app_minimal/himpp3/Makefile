@@ -11,8 +11,7 @@ RANLIB := $(THIS_DIR)/../../$(BUILDROOT)/output/host/bin/$(TOOLCHAIN)-ranlib
 
 GO := $(THIS_DIR)/../../$(BUILDROOT)/output/host/bin/go
 
-CFLAGS := -fPIC -mcpu=cortex-a7 -mfloat-abi=softfp -mfpu=neon-vfpv4 -mno-unaligned-access -fno-aggressive-loop-optimizations
-#CFLAGS := -fPIC
+CFLAGS := -std=gnu11 -fPIC -mcpu=cortex-a7 -mfloat-abi=softfp -mfpu=neon-vfpv4 -mno-unaligned-access -fno-aggressive-loop-optimizations
 
 BUILDFLAGS := -ldflags="-extldflags '-static'"
 

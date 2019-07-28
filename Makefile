@@ -8,7 +8,7 @@ CAMERA := 2             # NUMBER OF CAMERA ATTACHED TO SERVER TO TEST ON
 #ROOTFS := romfs
 ROOTFS := squashfs
 
-CAMERA_LOCAL_LOAD_IP := 192.168.0.200 #ONLY FOR LOCAL USAGE, SERVER DOESN'T USE IT
+CAMERA_LOCAL_LOAD_IP := 192.169.0.102 #ONLY FOR LOCAL USAGE, SERVER DOESN'T USE IT
 ########################################################################
 BUILDROOT := buildroot-2019.05.1-debug
 #BUILDROOT := buildroot-2019.05.1-musl

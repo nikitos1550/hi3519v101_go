@@ -18,6 +18,7 @@
 #include <errno.h>
 #include <ctype.h>
 #include <sys/mman.h>
+#include <sys/select.h>
 #include <inttypes.h>
 
 int devmem(uint32_t target, uint32_t value, uint32_t * read);
