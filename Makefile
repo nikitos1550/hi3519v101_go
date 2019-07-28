@@ -3,7 +3,7 @@ THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 #THIS IS YOUR CUSTOM SETTINGS
 #APP := app_sample       # TARGET APPLICATION
 APP := app_minimal
-CAMERA := 1             # NUMBER OF CAMERA ATTACHED TO SERVER TO TEST ON
+CAMERA := 2             # NUMBER OF CAMERA ATTACHED TO SERVER TO TEST ON
 
 #ROOTFS := romfs
 ROOTFS := squashfs
@@ -50,12 +50,20 @@ app-deploy-debug-server: app-build-debug deploy-no-build
 
 app-deploy-debug-local: app-build-debug
 	cd burner; \
-		sudo ./burner.py load --uimage ./images/uImage --rootfs ./images/rootfs.$(ROOTFS) --ip $(CAMERA_LOCAL_LOAD_IP) --skip 1024 --memory 96
+		sudo ./burner.py \
+				load \
+				--port /dev/ttyCAM$(CAMERA) \
+				--uimage ./images/uImage \
+				--rootfs ./images/rootfs.$(ROOTFS) \
+				--ip $(CAMERA_LOCAL_LOAD_IP) \
+				--skip 1024 \
+				--memory 96
 
 deploy-no-build:
 	cd burner; \
 		authbind --deep ./burner.py \
 			load \
+			--port /dev/ttyCAM$(CAMERA) \
 			--uimage ./images/uImage \
 			--rootfs ./images/rootfs.$(ROOTFS) \
 			--ip 192.169.0.10$(CAMERA) \
@@ -67,3 +75,9 @@ deploy-no-build:
 ########################################################################
 camera-serial:
 	screen -L /dev/ttyCAM$(CAMERA) 115200
+
+camera-serial-1:
+	screen -L /dev/ttyCAM1 115200
+camera-serial-2:
+	screen -L /dev/ttyCAM2 115200
+
