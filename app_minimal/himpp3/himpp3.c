@@ -20,7 +20,7 @@
 #include <sys/mman.h>
 #include <inttypes.h>
 
-int devmem(uint32_t target, unsigned long value);
+int devmem(uint32_t target, uint32_t value, uint32_t * read);
 void * himpp3_venc_jpeg_test_loop(void * arg);
 
 #ifdef TEST_C_APP
@@ -38,98 +38,112 @@ int main(void) {
 }
 #endif
 
+
+int inittemperature() {
+        devmem(0x120A0110, 0x60FA0000, NULL);
+        return 0;
+}
+float gettemperature() {
+        uint32_t read;
+        devmem(0x120A0118, -1, &read);
+        printf("temperature code 0x%lx\n", read & 0x3FF);
+        printf("temperature C %.1f\n", (float)((( (read & 0x3FF)-125) / 806.0 ) * 165) - 40 );
+        return (float)(((( (read & 0x3FF) - 125) / 806.0 ) *165) - 40);
+}
+
+
 #define init_module(module_image, len, param_values) syscall(__NR_init_module, module_image, len, param_values)
 
 int himpp3_ko_init() {
         //sensor0 pinmux
-        devmem(0x1204017c, 0x1);  //#SENSOR0_CLK
-        devmem(0x12040180, 0x0);  //#SENSOR0_RSTN
-        devmem(0x12040184, 0x1);  //#SENSOR0_HS,from vi0
-        devmem(0x12040188, 0x1);  //#SENSOR0_VS,from vi0
+        devmem(0x1204017c, 0x1, NULL);  //#SENSOR0_CLK
+        devmem(0x12040180, 0x0, NULL);  //#SENSOR0_RSTN
+        devmem(0x12040184, 0x1, NULL);  //#SENSOR0_HS,from vi0
+        devmem(0x12040188, 0x1, NULL);  //#SENSOR0_VS,from vi0
         //sensor0 drive capability
-        devmem(0x12040988, 0x150);  //#SENSOR0_CLK
-        devmem(0x1204098c, 0x170);  //#SENSOR0_RSTN
-        devmem(0x12040990, 0x170);  //#SENSOR0_HS
-        devmem(0x12040994, 0x170);  //#SENSOR0_VS 
+        devmem(0x12040988, 0x150, NULL);  //#SENSOR0_CLK
+        devmem(0x1204098c, 0x170, NULL);  //#SENSOR0_RSTN
+        devmem(0x12040990, 0x170, NULL);  //#SENSOR0_HS
+        devmem(0x12040994, 0x170, NULL);  //#SENSOR0_VS 
 
         ////////////////////////////////////////////////
 
-        devmem(0x120100e4, 0x1ff70000); //# I2C0-3/SSP0-3 unreset, enable clk gate
-        devmem(0x1201003c, 0x31000100);     //# MIPI VI ISP unreset
-        devmem(0x12010050, 0x2);            //# VEDU0 unreset 
-        devmem(0x12010058, 0x2);            //# VPSS0 unreset 
-        devmem(0x12010058, 0x3);            //# VPSS0 unreset 
-        devmem(0x12010058, 0x2);            //# VPSS0 unreset 
-        devmem(0x1201005c, 0x2);            //# VGS unreset 
-        devmem(0x12010060, 0x2);            //# JPGE unreset 
-        devmem(0x12010064, 0x2);            //# TDE unreset 
-        devmem(0x1201006c, 0x2);            //# IVE unreset      
-        devmem(0x12010070, 0x2);            //# FD unreset
-        devmem(0x12010074, 0x2);            //# GDC unreset 
-        devmem(0x1201007C, 0x2a);           //# HASH&SAR ADC&CIPHER unreset   
-        devmem(0x12010080, 0x2);            //# AIAO unreset,clock 1188M
-        devmem(0x12010084, 0x2);            //# GZIP unreset  
-        devmem(0x120100d8, 0xa);            //# ddrt efuse enable clock, unreset
-        devmem(0x120100e0, 0xa8);           //# rsa trng klad enable clock, unreset
+        devmem(0x120100e4, 0x1ff70000, NULL); //# I2C0-3/SSP0-3 unreset, enable clk gate
+        devmem(0x1201003c, 0x31000100, NULL);     //# MIPI VI ISP unreset
+        devmem(0x12010050, 0x2, NULL);            //# VEDU0 unreset 
+        devmem(0x12010058, 0x2, NULL);            //# VPSS0 unreset 
+        devmem(0x12010058, 0x3, NULL);            //# VPSS0 unreset 
+        devmem(0x12010058, 0x2, NULL);            //# VPSS0 unreset 
+        devmem(0x1201005c, 0x2, NULL);            //# VGS unreset 
+        devmem(0x12010060, 0x2, NULL);            //# JPGE unreset 
+        devmem(0x12010064, 0x2, NULL);            //# TDE unreset 
+        devmem(0x1201006c, 0x2, NULL);            //# IVE unreset      
+        devmem(0x12010070, 0x2, NULL);            //# FD unreset
+        devmem(0x12010074, 0x2, NULL);            //# GDC unreset 
+        devmem(0x1201007C, 0x2a, NULL);           //# HASH&SAR ADC&CIPHER unreset   
+        devmem(0x12010080, 0x2, NULL);            //# AIAO unreset,clock 1188M
+        devmem(0x12010084, 0x2, NULL);            //# GZIP unreset  
+        devmem(0x120100d8, 0xa, NULL);            //# ddrt efuse enable clock, unreset
+        devmem(0x120100e0, 0xa8, NULL);           //# rsa trng klad enable clock, unreset
         //#himm 0x120100e0 0xaa       //# rsa trng klad DMA enable clock, unreset
-        devmem(0x12010040, 0x60);
-        devmem(0x12010040, 0x0);            //# sensor unreset,unreset the control module with slave-mode
+        devmem(0x12010040, 0x60, NULL);
+        devmem(0x12010040, 0x0, NULL);            //# sensor unreset,unreset the control module with slave-mode
 
         //# pcie clk enable
-        devmem(0x120100b0, 0x000001f0);
+        devmem(0x120100b0, 0x000001f0, NULL);
 
         ////////////////////////////////////////////////////
 
         #ifdef VPSS_ONLINE
-		devmem(0x12030000, 0x00000204);
+		devmem(0x12030000, 0x00000204, NULL);
 		
 		//write priority select
-		devmem(0x12030054, 0x55552356); //  each module 4bit  cci       ---        ddrt  ---    ---     gzip   ---    ---
-		devmem(0x12030058, 0x16554411); // each module 4bit  vicap1    hash       ive   aio    jpge    tde   vicap0  vdp 
-		devmem(0x1203005c, 0x33466314); // each module 4bit  mmc2      A17        fmc   sdio1  sdio0   A7    vpss0   vgs 
-		devmem(0x12030060, 0x46266666); // each module 4bit  gdc       usb3/pcie  vedu  usb2   cipher  dma2  dma1    gsf
+		devmem(0x12030054, 0x55552356, NULL); //  each module 4bit  cci       ---        ddrt  ---    ---     gzip   ---    ---
+		devmem(0x12030058, 0x16554411, NULL); // each module 4bit  vicap1    hash       ive   aio    jpge    tde   vicap0  vdp 
+		devmem(0x1203005c, 0x33466314, NULL); // each module 4bit  mmc2      A17        fmc   sdio1  sdio0   A7    vpss0   vgs 
+		devmem(0x12030060, 0x46266666, NULL); // each module 4bit  gdc       usb3/pcie  vedu  usb2   cipher  dma2  dma1    gsf
 
 		//read priority select
-		devmem(0x12030064, 0x55552356); // each module 4bit  cci       ---         ddrt  ---    ---     gzip   ---    ---
-		devmem(0x12030068, 0x06554401); // each module 4bit  vicap1    hash        ive   aio    jpge    tde   vicap0  vdp
-		devmem(0x1203006c, 0x33466304); // each module 4bit  mmc2      A17         fmc   sdio1  sdio0    A7   vpss0   vgs 
-		devmem(0x12030070, 0x46266666); // each module 4bit  gdc       usb3/pcie   vedu  usb2   cipher  dma2  dma1    gsf
+		devmem(0x12030064, 0x55552356, NULL); // each module 4bit  cci       ---         ddrt  ---    ---     gzip   ---    ---
+		devmem(0x12030068, 0x06554401, NULL); // each module 4bit  vicap1    hash        ive   aio    jpge    tde   vicap0  vdp
+		devmem(0x1203006c, 0x33466304, NULL); // each module 4bit  mmc2      A17         fmc   sdio1  sdio0    A7   vpss0   vgs 
+		devmem(0x12030070, 0x46266666, NULL); // each module 4bit  gdc       usb3/pcie   vedu  usb2   cipher  dma2  dma1    gsf
 
-		devmem(0x120641f0, 0x1);	//use pri_map
+		devmem(0x120641f0, 0x1, NULL);	//use pri_map
 		//write timeout select
-		devmem(0x1206409c, 0x00000040);	
-		devmem(0x120640a0, 0x00000000);	
+		devmem(0x1206409c, 0x00000040, NULL);	
+		devmem(0x120640a0, 0x00000000, NULL);	
 		
 		//read timeout select
-		devmem(0x120640ac, 0x00000040);	
-		devmem(0x120640b0, 0x00000000);	
+		devmem(0x120640ac, 0x00000040, NULL);	
+		devmem(0x120640b0, 0x00000000, NULL);	
 	#else //VPSS_OFFLINE
-		devmem(0x12030000, 0x00000004);
+		devmem(0x12030000, 0x00000004, NULL);
 
 		//write priority select
-		devmem(0x12030054, 0x55552366); // each module 4bit  cci       ---        ddrt  ---    ---     gzip   ---    ---
-		devmem(0x12030058, 0x16556611); // each module 4bit  vicap1    hash       ive   aio    jpge    tde   vicap0  vdp
-		devmem(0x1203005c, 0x43466445); // each module 4bit  mmc2      A17        fmc   sdio1  sdio0   A7    vpss0   vgs
-		devmem(0x12030060, 0x56466666); // each module 4bit  gdc       usb3/pcie  vedu  usb2   cipher  dma2  dma1    gsf
+		devmem(0x12030054, 0x55552366, NULL); // each module 4bit  cci       ---        ddrt  ---    ---     gzip   ---    ---
+		devmem(0x12030058, 0x16556611, NULL); // each module 4bit  vicap1    hash       ive   aio    jpge    tde   vicap0  vdp
+		devmem(0x1203005c, 0x43466445, NULL); // each module 4bit  mmc2      A17        fmc   sdio1  sdio0   A7    vpss0   vgs
+		devmem(0x12030060, 0x56466666, NULL); // each module 4bit  gdc       usb3/pcie  vedu  usb2   cipher  dma2  dma1    gsf
 
 		//read priority select
-		devmem(0x12030064, 0x55552366); // each module 4bit  cci       ---        ddrt  ---    ---     gzip   ---    ---
-		devmem(0x12030068, 0x06556600); // each module 4bit  vicap1    hash       ive   aio    jpge    tde   vicap0  vdp
-		devmem(0x1203006c, 0x43466435); // each module 4bit  mmc2      A17        fmc   sdio1  sdio0   A7    vpss0   vgs
-		devmem(0x12030070, 0x56266666); // each module 4bit  gdc       usb3/pcie  vedu  usb2   cipher  dma2  dma1    gsf
+		devmem(0x12030064, 0x55552366, NULL); // each module 4bit  cci       ---        ddrt  ---    ---     gzip   ---    ---
+		devmem(0x12030068, 0x06556600, NULL); // each module 4bit  vicap1    hash       ive   aio    jpge    tde   vicap0  vdp
+		devmem(0x1203006c, 0x43466435, NULL); // each module 4bit  mmc2      A17        fmc   sdio1  sdio0   A7    vpss0   vgs
+		devmem(0x12030070, 0x56266666, NULL); // each module 4bit  gdc       usb3/pcie  vedu  usb2   cipher  dma2  dma1    gsf
 
-		devmem(0x120641f0, 0x1);	// use pri_map
+		devmem(0x120641f0, 0x1, NULL);	// use pri_map
 		//write timeout select
-		devmem(0x1206409c, 0x00000040);	
-		devmem(0x120640a0, 0x00000000);	 
+		devmem(0x1206409c, 0x00000040, NULL);	
+		devmem(0x120640a0, 0x00000000, NULL);	 
 		
 		//read timeout select
-		devmem(0x120640ac, 0x00000040);	// each module 8bit
-		devmem(0x120640b0, 0x00000000);
+		devmem(0x120640ac, 0x00000040, NULL);	// each module 8bit
+		devmem(0x120640b0, 0x00000000, NULL);
 	#endif
 
 
-        devmem(0x120300e0, 0xd); // internal codec: AIO MCLK out, CODEC AIO TX MCLK 
+        devmem(0x120300e0, 0xd, NULL); // internal codec: AIO MCLK out, CODEC AIO TX MCLK 
         //#himm 0x120300e0 0xe		//# external codec: AIC31 AIO MCLK out, CODEC AIO TX MCLK
         //fflush(stdout);
         ///////////////////////////////////////////////////
@@ -150,23 +164,23 @@ int himpp3_ko_init() {
         
         //imx274)
         //tmp=0x11;
-        devmem(0x12010040, 0x11);       //sensor0 clk_en, 72MHz
+        devmem(0x12010040, 0x11, NULL);       //sensor0 clk_en, 72MHz
         //SDK config:     IVE:396M,  GDC:475M,  VGS:500M,  VEDU:600M,   VPSS:300M 
         //imx274:viu0: 600M,isp0:300M, viu1:300M,isp1:300M
-        devmem(0x1201004c, 0x00094c23);
-        devmem(0x12010054, 0x0004041);
+        devmem(0x1201004c, 0x00094c23, NULL);
+        devmem(0x12010054, 0x0004041, NULL);
         // spi0_4wire_pin_mux;
         //pinmux
-        devmem(0x1204018c, 0x1); //  #SPI0_SCLK
-        devmem(0x12040190, 0x1); // #SPI0_SD0
-        devmem(0x12040194, 0x1); // #SPI0_SDI
-        devmem(0x12040198, 0x1); // #SPI0_CSN
+        devmem(0x1204018c, 0x1, NULL); //  #SPI0_SCLK
+        devmem(0x12040190, 0x1, NULL); // #SPI0_SD0
+        devmem(0x12040194, 0x1, NULL); // #SPI0_SDI
+        devmem(0x12040198, 0x1, NULL); // #SPI0_CSN
     
         //drive capability
-        devmem(0x12040998, 0x150); // #SPI0_SCLK
-        devmem(0x1204099c, 0x160); // #SPI0_SD0
-        devmem(0x120409a0, 0x160); // #SPI0_SDI
-        devmem(0x120409a4, 0x160); // #SPI0_CSN
+        devmem(0x12040998, 0x150, NULL); // #SPI0_SCLK
+        devmem(0x1204099c, 0x160, NULL); // #SPI0_SD0
+        devmem(0x120409a0, 0x160, NULL); // #SPI0_SDI
+        devmem(0x120409a4, 0x160, NULL); // #SPI0_CSN
 
         //fflush(stdout);
 
@@ -181,21 +195,23 @@ int himpp3_ko_init() {
 	
 
         //single_pipe)
-        devmem(0x12040184, 0x1); //   # SENSOR0 HS from VI0 HS
-        devmem(0x12040188, 0x1); //   # SENSOR0 VS from VI0 VS
-        devmem(0x12040010, 0x2); //   # SENSOR1 HS from VI1 HS
-        devmem(0x12040014, 0x2); //   # SENSOR1 VS from VI1 VS
+        devmem(0x12040184, 0x1, NULL); //   # SENSOR0 HS from VI0 HS
+        devmem(0x12040188, 0x1, NULL); //   # SENSOR0 VS from VI0 VS
+        devmem(0x12040010, 0x2, NULL); //   # SENSOR1 HS from VI1 HS
+        devmem(0x12040014, 0x2, NULL); //   # SENSOR1 VS from VI1 VS
 
         //////////////////////////////////////////////////
-        devmem(0x12010044, 0x4ff0);
-        devmem(0x12010044, 0x4);    
+        devmem(0x12010044, 0x4ff0, NULL);
+        devmem(0x12010044, 0x4, NULL);    
 
         //fflush(stdout);
+	inittemperature();
+
 
 	return 0;
 }
 
-int devmem(uint32_t target, unsigned long value) {
+int devmem(uint32_t target, uint32_t value, uint32_t * read) {
         //reference https://github.com/pavel-a/devmemX/blob/master/devmem2.c
 
         unsigned int pagesize = (unsigned)getpagesize(); /* or sysconf(_SC_PAGESIZE)  */
@@ -232,10 +248,13 @@ int devmem(uint32_t target, unsigned long value) {
 
         virt_addr = map_base + offset;
 
-        unsigned long read_result;
-
-        *((volatile uint32_t *) virt_addr) = value;
-        read_result = *((volatile uint32_t *) virt_addr);
+        //unsigned long read_result;
+	if (read == NULL ) {
+        	*((volatile uint32_t *) virt_addr) = value;
+	}
+	if (read != NULL) {
+        	*read = *((volatile uint32_t *) virt_addr);
+	}
         //printf("0x%lx value 0x%lx\n", target, read_result);
 
         if (munmap(map_base, map_size) != 0) {
@@ -272,8 +291,8 @@ int himpp3_sys_init() {
         
         memset(&stVbConf, 0, sizeof(VB_CONF_S));
         stVbConf.u32MaxPoolCnt                  = 128;
-        stVbConf.astCommPool[0].u32BlkSize      = (CEILING_2_POWER(3840, 64) * CEILING_2_POWER(2160, 64) * 3);
-        stVbConf.astCommPool[0].u32BlkCnt       = 5;
+        stVbConf.astCommPool[0].u32BlkSize      = (CEILING_2_POWER(3840, 64) * CEILING_2_POWER(2160, 64) * 1.5);
+        stVbConf.astCommPool[0].u32BlkCnt       = 10;
 
         error_code = HI_MPI_VB_SetConf(&stVbConf);
 	if(error_code != HI_SUCCESS) {
@@ -546,7 +565,7 @@ int himpp3_vi_init() {
 
         //#define CMOS_LDC
         //#ifdef CMOS_LDC
-
+	/*
         VI_LDC_ATTR_S stLDCAttr;
         //First enable VI devices and VI channel.
         //Initialize LDC attributes.
@@ -573,6 +592,7 @@ int himpp3_vi_init() {
         }
         printf("HI_MPI_VI_GetLDCAttr ok\n");
         //#endif
+	*/
 
         error_code = HI_MPI_VI_EnableChn(0);
         if (error_code != HI_SUCCESS) {
@@ -638,16 +658,16 @@ int himpp3_vpss_init() {
 
         /////
 
-        VPSS_CHN VpssChn = 0;
+        VPSS_CHN VpssChn;
         VPSS_CHN_ATTR_S stVpssChnAttr;
         VPSS_CHN_MODE_S stVpssChnMode;
 
-	VpssChn = 0;
+	VpssChn = 1;
         stVpssChnMode.enChnMode      = VPSS_CHN_MODE_USER;
         stVpssChnMode.bDouble        = HI_FALSE;
         stVpssChnMode.enPixelFormat  = PIXEL_FORMAT_YUV_SEMIPLANAR_420;
-        stVpssChnMode.u32Width       = 3840;// 
-        stVpssChnMode.u32Height      = 2160;
+        stVpssChnMode.u32Width       = 1920;// 
+        stVpssChnMode.u32Height      = 1080;
         stVpssChnMode.enCompressMode = COMPRESS_MODE_NONE;//COMPRESS_MODE_SEG;
     
         memset(&stVpssChnAttr, 0, sizeof(stVpssChnAttr));
@@ -665,6 +685,22 @@ int himpp3_vpss_init() {
     	        printf("%s failed with %#x\n", __FUNCTION__, error_code);
                 return -1;
         }         
+
+	/*
+        VPSS_CROP_INFO_S CropInfo;
+        CropInfo.bEnable = 1;
+        CropInfo.enCropCoordinate = VPSS_CROP_ABS_COOR;
+        CropInfo.stCropRect.s32X = 0;
+        CropInfo.stCropRect.s32Y = 0;
+        CropInfo.stCropRect.u32Width = 640;
+        CropInfo.stCropRect.u32Height = 480;
+
+        error_code = HI_MPI_VPSS_SetChnCrop(VpssGrp, VpssChn, &CropInfo);
+    	if (error_code != HI_SUCCESS) {
+        	printf("HI_MPI_VPSS_SetChnCrop failed with %#x\n", error_code);
+        	return -1;
+    	}
+	*/
 
 	error_code = HI_MPI_VPSS_EnableChn(VpssGrp, VpssChn);
         if (error_code != HI_SUCCESS) {
@@ -693,8 +729,8 @@ int himpp3_venc_init() {
 
         stMjpegAttr.u32MaxPicWidth = 3840;
         stMjpegAttr.u32MaxPicHeight = 2160;
-        stMjpegAttr.u32PicWidth = 3840;
-        stMjpegAttr.u32PicHeight = 2160;
+        stMjpegAttr.u32PicWidth = 640;
+        stMjpegAttr.u32PicHeight = 480;
         stMjpegAttr.u32BufSize = 3840 * 2160 * 3;
         stMjpegAttr.bByFrame = HI_TRUE;  /*get stream mode is field mode  or frame mode*/
         memcpy(&stVencChnAttr.stVeAttr.stAttrMjpege, &stMjpegAttr, sizeof(VENC_ATTR_MJPEG_S));
@@ -741,7 +777,7 @@ int himpp3_venc_init() {
 
         stSrcChn.enModId = HI_ID_VPSS;
         stSrcChn.s32DevId = 0;
-        stSrcChn.s32ChnId = 0;
+        stSrcChn.s32ChnId = 1;
 
         stDestChn.enModId = HI_ID_VENC;
         stDestChn.s32DevId = 0;

@@ -29,6 +29,11 @@ func init() {
 	C.himpp3_ko_init()
 }
 
+//TempGet dsfdsfsdf
+func TempGet() float32 {
+	return (float32)(C.gettemperature())
+}
+
 //SysInit dfsdf
 func SysInit() {
 	//var tmp C.
@@ -81,7 +86,7 @@ func jpegVencGetDataCallback(stStream * C.struct_jpegFrame) {
 	Mutex.Lock()
 	B1.Reset()
 	B1.Write(data1)
-        B1.Write(data2)
+	B1.Write(data2)
 	Mutex.Unlock()
 
 	//fmt.Println("b1 cap = ", B1.Cap(), " len = ", B1.Len())

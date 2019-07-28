@@ -33,6 +33,8 @@ int himpp3_mipi_isp_init();
 int himpp3_vpss_init();
 int himpp3_venc_init();
 
+float gettemperature();
+
 //int himpp3_venc_jpeg_export_frame();
 
 //char * himpp3_test_func(char ** buffer);
