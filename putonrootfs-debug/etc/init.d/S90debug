@@ -5,6 +5,7 @@
 
 start() {
 	#gdbserver :2345 /opt/mpp_version &
+	echo "..."
 	#/opt/app_sample &
 }
 

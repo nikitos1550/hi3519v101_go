@@ -3,6 +3,7 @@
 ## About
 * / - get hello world
 * /image.jpeg - get jpeg from camera
+* /t - internal SoC temperature sensor
 
 ## Notes
 

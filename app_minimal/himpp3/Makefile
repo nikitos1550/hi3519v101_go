@@ -18,7 +18,7 @@ BUILDFLAGS := -ldflags="-extldflags '-static'"
 
 all: libhimpp3 himpp3
 
-SOURCES = $(wildcard ./o/*.o)
+#SOURCES = $(wildcard ./o/*.o)
 KO = $(wildcard ./ko/*.o)
 
 #-ldflags="-X 'company/buildinfo.BuildTime=$(date)'"
@@ -44,7 +44,7 @@ LIBS=   ${THIS_DIR}/../../mpp_hi3519_v101/lib/libsns_imx274.a \
         ${THIS_DIR}/../../mpp_hi3519_v101/lib/lib_hidefog.a
 
 test:
-	$(CC) -DTEST_C_APP $(CFLAGS) ./himpp3.c -o ./himpp3-test-c-app1 $(SOURCES) 
+	#$(CC) -DTEST_C_APP $(CFLAGS) ./himpp3.c -o ./himpp3-test-c-app1 $(SOURCES) 
 	$(CC) -DTEST_C_APP $(CFLAGS) ./himpp3.c -o ./himpp3-test-c-app2 $(LIBS)
 
 clean:

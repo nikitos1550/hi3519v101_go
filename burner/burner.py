@@ -325,6 +325,9 @@ uimage_rootfs_size = uimage_size_e + rootfs_size
 ###########################
 
 data = serial.Serial(DATA_PORT,      SPEED, timeout = 0.5)
+#data.flush()
+#data.flushInput()
+#data.flushOutput()
 #power = serial.Serial(POWER_PORT,      SPEED, timeout = 1)
 #time.sleep(3)
 
@@ -354,10 +357,10 @@ else:
 
     if args.servercamera != None:
 	power = serial.Serial(POWER_PORT,      SPEED, timeout = 0.1)
-	time.sleep(2)
+	time.sleep(3)
 	print "Server camera "+str(args.servercamera)+" setted, auto power reset"
     	power.write("reset "+str(args.servercamera)+"\n")
-	power.close()
+	#power.close()
     else:
     	print "Please plug power to module"
 
@@ -373,6 +376,9 @@ else:
         print "DATA: " + answer
         datawrite("\x03") #data.write("\x03")
     
+    if args.servercamera != None:
+	power.close()
+
     #if answer.find("Err:   serial") != -1:#if answer.find("U-Boot 2010.06 (May 11 2018 - 15:06:27)") != -1:
     #    print "-->Pressing Ctrl+C"
     #    data.write("\x03")
@@ -458,7 +464,8 @@ if args.action in ["load", "burn"]:
 
     bootargs = bootargs + "console=" + lserial + " "
     #if rootfs == "file":
-    bootargs = bootargs + "root=/dev/ram rw initrd="+hex(0x82000000 + uimage_size_e)+"," + initrd
+    bootargs = bootargs + "ip="+str(ip)+":"+str(server_ip)+":"+str(server_ip)+":"+str(mask)+":camera"+str(args.servercamera)+"::off; "
+    bootargs = bootargs + "mtdparts=hi_sfc:512k(boot) root=/dev/ram rw initrd="+hex(0x82000000 + uimage_size_e)+"," + initrd
 
     #if rootfs == "nfs":
 	#    bootargs = bootargs + "root=/dev/nfs rw nfsrootdebug nfsroot=" + args.nfs + ",v3"

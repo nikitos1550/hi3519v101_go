@@ -18,10 +18,10 @@ test: $(OBJECTS)
 ./%.o: ./%.ko
 	$(LD) -r -b binary $< -o $@
 
+clean:
+	rm ./*.o
+
 #list: ./*.ko
 #	$(LD) -r -b binary $@ -o $@.o
 
 #.PHONY: *.ko
-
-clean:
-	rm ./*.o
