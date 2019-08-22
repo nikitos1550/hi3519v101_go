@@ -6,10 +6,8 @@ import argparse
 import os
 import tftpy
 import thread
-import random
 
-import netifaces
-#from netifaces import interfaces, ifaddresses, AF_INET
+import utils
 
 ###############################################################################
 
@@ -172,35 +170,6 @@ def threadtftd():
 	server.listen(server_ip, 69)
 
 
-# The first line is defined for specified vendor
-def randommac():
-    #00:00:23:34:45:66
-    mac = [ 0x00, 0x00, 0x23,
-            random.randint(0x01, 0xfe),
-            random.randint(0x01, 0xfe),
-            random.randint(0x01, 0xfe) ]
-    return ':'.join(map(lambda x: "%02x" % x, mac))
-
-
-def get_iface_ip_and_mask(iface):
-    try:
-        addrs = netifaces.ifaddresses(iface).get(netifaces.AF_INET)
-        if (addrs is None) or (len(addrs) == 0):
-            raise ValueError("iface has no addresses")
-
-        print(addrs[0])
-        addr = addrs[0]["addr"]
-        netmask = addrs[0]["netmask"]
-        #gateway = addrs[0]["gateway"]
-        return addr, netmask #, gateway
-    except StandardError as err:
-        raise ValueError(
-            "Network interface '{}' address and mask wasn't defined: {}\nAvailable interfaces: {}".format(
-                iface, err.message, ", ".join(netifaces.interfaces())
-            )
-        )
-
-
 ###############################################################################
 
 
@@ -240,8 +209,7 @@ print args
 
 validate_ip_address(args.ip)
 ip = args.ip
-server_ip, mask = get_iface_ip_and_mask(args.iface)
-gateway = "192.168.10.1"
+server_ip, mask = utils.get_iface_ip_and_mask(args.iface)
 
 print("Iface " + args.iface)
 print("- Server IP: {}\n- Mask: {}\n- Target device IP: {}".format(server_ip, mask, ip))
@@ -279,7 +247,7 @@ if args.action in ["load"]:
 if args.action not in ["load", "burn", "uboot", "mac"]: exit("Action should be load|burn|uboot")
 
 if args.action in ["mac"]:
-    mac = randommac()
+    mac = utils.random_mac()
     print str(mac) + " mac address will be setuped"
 
 if args.action in ["load", "burn"]:
