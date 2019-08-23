@@ -3,6 +3,9 @@ package main
 import (
     "fmt"
     "flag"
+    
+    "net"
+
     "net/http"
     "time"
 
@@ -18,7 +21,7 @@ import (
     //"io"
     //"io/ioutil"
     "log"
-    //"os"
+    "os"
 )
 
 var BuildTime string
@@ -140,6 +143,17 @@ func main() {
 
 	//http.ListenAndServe(":80", nil)
 
+    log.Println("Starting USD HTTP server")
+
+    os.Remove("/tmp/app_minimal.sock")
+    l, err := net.Listen("unix", "/tmp/app_minimal.sock")
+    if err != nil {
+        log.Printf("error: %v\n", err)
+        return
+    }
+    go http.Serve(l, mux)
+
+    log.Println("Starting NET HTTP server")
     srv := &http.Server{
         Addr:           ":80",
         Handler:        mux,
@@ -148,4 +162,5 @@ func main() {
         MaxHeaderBytes: 1 << 20,
     }
     srv.ListenAndServe()
+
 }
