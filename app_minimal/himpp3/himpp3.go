@@ -44,38 +44,38 @@ func TempGet() float32 {
 func SysInit() {
 	//var tmp C.
 	var tmp = C.himpp3_sys_init()
-	log.Println("SysInit %d", tmp)
+	log.Println("SysInit ", tmp)
 }
 
 //ViInit sdfsdf
 func ViInit() {
 	var tmp = C.himpp3_vi_init()
-	log.Println("ViInit %d", tmp)
+	log.Println("ViInit ", tmp)
 }
 
 //MipiIspInit sdf sdfsd
 func MipiIspInit() {
 	var tmp = C.himpp3_mipi_isp_init()
-	log.Println("MipiIspInit %d", tmp)
+	log.Println("MipiIspInit ", tmp)
 }
 
 //VpssInit sdfsdf sd
 func VpssInit() {
 	var tmp = C.himpp3_vpss_init()
-	log.Println("VpssInit %d", tmp)
+	log.Println("VpssInit ", tmp)
 }
 
 //VencInit sdfsd f
 func VencInit() {
 	var tmp = C.himpp3_venc_init()
-	log.Println("VencInit %d", tmp)
+	log.Println("VencInit ", tmp)
 }
 
 //vencMJpegSetBitrate description
 func vencMJpegSetBitrate(b uint) int {
     var bitrate C.uint = C.uint(b)
     var tmp = C.himpp3_venc_mjpeg_params(bitrate)
-    log.Println("VencMJpegSetBitrate %d", tmp)
+    log.Println("VencMJpegSetBitrate ", tmp)
     return int(tmp)
 }
 

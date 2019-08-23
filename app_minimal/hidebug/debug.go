@@ -55,7 +55,7 @@ func ApiListHandler (w http.ResponseWriter, r *http.Request) {
 }
 
 func ApiFileHandler (w http.ResponseWriter, r *http.Request) {
-    fmt.Println(r.URL.Path)
+    log.Println(r.URL.Path)
 
     //rr, _       := regexp.Compile("^/experimental/hidebug/(.+).(raw|json)$")
     rr, _       := regexp.Compile("^/experimental/hidebug/(chnl|h265e|jpege|rgn|venc|vo|fisheye|hi_mipi|logmpp|sys|vgs|vpss|h264e|isp|rc|vb|vi).(raw|json)$")

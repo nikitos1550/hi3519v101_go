@@ -55,6 +55,8 @@ func main() {
     //Error.Println("Something has failed")
 
 	log.Println(BuildTime)
+    log.Println(BuildBranch)
+    log.Println(BuildUser)
 
 	himpp3.SysInit()
 	himpp3.MipiIspInit()
