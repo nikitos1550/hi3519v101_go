@@ -5,8 +5,11 @@ GO := $(THIS_DIR)../buildroot-2019.05.1-debug/output/host/bin/go
 
 CFLAGS := -std=gnu11 -mcpu=cortex-a7 -mfloat-abi=softfp -mfpu=neon-vfpv4 -mno-unaligned-access -fno-aggressive-loop-optimizations
 
+NOW=$(shell date)
+BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
+
 #DNODEBUG -s -w
-BUILDFLAGS := -ldflags="-extldflags '-static' -X 'main.BuildTime=__________1231231231'"
+BUILDFLAGS := -ldflags="-extldflags '-static' -X 'main.BuildTime=$(NOW)' -X 'main.BuildUser=$(USER)' -X 'main.BuildBranch=$(BRANCH)'"
 #BUILDFLAGS := -ldflags="-s -w -extldflags '-static'"
 
 test:

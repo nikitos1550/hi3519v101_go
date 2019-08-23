@@ -80,23 +80,28 @@ func vencMJpegSetBitrate(b uint) int {
 }
 
 func ApiHandler (w http.ResponseWriter, r *http.Request) {
-        log.Println("himpp3.ApiHandler")
+    log.Println("himpp3.ApiHandler")
 
-        rr, _ := regexp.Compile("^/experimental/himpp3/bitrate/([0-9]+)$")
-        match := rr.FindStringSubmatch(r.URL.Path)
-        log.Println(match)
+    rr, _ := regexp.Compile("^/experimental/himpp3/bitrate/([0-9]+)$")
+    match := rr.FindStringSubmatch(r.URL.Path)
+    log.Println(match)
 
-        if match != nil {
-            var bitrate int
-            bitrate, _ = strconv.Atoi(match[1])
-            tmp := vencMJpegSetBitrate(uint(bitrate))
-            if tmp == 0 {
-                fmt.Fprintf(w, "bitrate %d is OK", bitrate)
-            } else {
-                fmt.Fprintf(w, "bitrate %d is bad %X", tmp)
-            }
+    if match != nil {
+        var bitrate int
+        bitrate, _ = strconv.Atoi(match[1])
+        tmp := vencMJpegSetBitrate(uint(bitrate))
+        if tmp == 0 {
+            fmt.Fprintf(w, "bitrate %d is OK", bitrate)
+        } else {
+            fmt.Fprintf(w, "bitrate %d is bad %X", tmp)
         }
-
+        return
+    }
+    
+    match2, _ := regexp.MatchString("^/experimental/himpp3/venc$", r.URL.Path)
+    if match2 == true {
+        fmt.Fprintf(w, "Maximum amount of venc channels is %d", int(C.himpp3_venc_max_chn_num()))
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////

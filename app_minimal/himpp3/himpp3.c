@@ -715,6 +715,13 @@ int himpp3_vpss_init() {
 
 static pthread_t gs_JpegPid;
 
+//EXTERNAL
+int himpp3_venc_max_chn_num() {
+    return VENC_MAX_CHN_NUM;
+}
+
+
+//EXTERNAL
 int himpp3_venc_mjpeg_params(unsigned int bitrate){
     int error_code;
 

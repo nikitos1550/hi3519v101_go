@@ -22,6 +22,8 @@ import (
 )
 
 var BuildTime string
+var BuildBranch string
+var BuildUser string
 
 /*
 var (
@@ -75,7 +77,10 @@ func main() {
 
 	mux.Get("/", func (w http.ResponseWriter, r *http.Request) {
 		log.Println("Requested url /")
-		fmt.Fprintf(w, "Camera go webserver!")
+		fmt.Fprintf(w, "Camera go webserver!\n")
+        fmt.Fprintf(w, "BuildTime %s\n", BuildTime)
+        fmt.Fprintf(w, "BuildBranch %s\n", BuildBranch)
+        fmt.Fprintf(w, "BuildUser %s\n", BuildUser)
 	})
 
     mux.Get("/t", func (w http.ResponseWriter, r *http.Request) {
