@@ -7,3 +7,4 @@ buildroot-2019.05.1-toolchain
 screenlog*
 
 *.code-workspace
+screenlog.*

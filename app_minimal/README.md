@@ -9,4 +9,5 @@
 
 ## Notes
 
-App can`t rerun, you have to reset camera. Need improve ko module loading and sensor register to fix it.
+* ~~App can`t rerun, you have to reset camera. Need improve ko module loading and sensor register to fix it.~~ fixed.
+* First time run ```app_minimal/himpp3/ko make```, even it is envoked in app_minimal Makefile, it is not working. Need fixing.
