@@ -12,6 +12,8 @@ import (
     "./hidebug"
 
     "strconv"
+
+    "regexp"
 )
 
 var BuildTime string
@@ -68,6 +70,23 @@ func main() {
 		himpp3.Mutex.Unlock()
 		fmt.Println("done!")
    	})
+
+    mux.Get("^/experimental/date.(text|sec|nano)$", func (w http.ResponseWriter, r *http.Request) {
+        rr, _ := regexp.Compile("^/experimental/date.(text|sec|nano)$")
+        match := rr.FindStringSubmatch(r.URL.Path)
+        fmt.Println(match)
+    
+        t := time.Now()
+        switch match[1] {
+            case "text":
+                fmt.Fprintf(w, t.String())
+            case "sec" :
+                fmt.Fprintf(w, "%d", t.Unix())
+            case "nano":
+                fmt.Fprintf(w, "%d", t.UnixNano())
+        }
+
+    })
 
     mux.Get("^/experimental/hidebug/?$", hidebug.ApiListHandler)
     mux.Get("^/experimental/hidebug/(.+).(raw|json)$", hidebug.ApiFileHandler)
