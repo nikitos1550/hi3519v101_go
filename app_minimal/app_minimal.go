@@ -61,20 +61,21 @@ func main() {
     log.Println(BuildBranch)
     log.Println(BuildUser)
 
+    portPtr := flag.Int("port", 80, "http port")
+    socketpathPtr := flag.String("socket path", "/tmp/app_minimal.sock", "UDS socket file path")
+
+    flag.Parse()
+
+    log.Printf("minimal application\n");
+    log.Printf("http port %d\n", *portPtr);
+    log.Printf("UDS socket file path %s\n", *socketpathPtr);
+
+
 	himpp3.SysInit()
 	himpp3.MipiIspInit()
 	himpp3.ViInit()
 	himpp3.VpssInit()
 	himpp3.VencInit()
-	
-	
-
-	portPtr := flag.Int("port", 80, "http port")
-
-	flag.Parse()
-
-	log.Printf("minimal application\n");
-	log.Printf("http port %d\n", *portPtr);
 
     /////
 

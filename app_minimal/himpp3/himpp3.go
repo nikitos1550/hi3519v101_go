@@ -31,9 +31,11 @@ import (
 // #cgo CFLAGS: -mcpu=cortex-a7 -mfloat-abi=softfp -mfpu=neon-vfpv4 -mno-unaligned-access -fno-aggressive-loop-optimizations
 import "C"
 
+/*
 func init() {
 	C.himpp3_ko_init()
 }
+*/
 
 //TempGet dsfdsfsdf
 func TempGet() float32 {
@@ -42,6 +44,8 @@ func TempGet() float32 {
 
 //SysInit dfsdf
 func SysInit() {
+    C.himpp3_ko_init()
+
 	//var tmp C.
 	var tmp = C.himpp3_sys_init()
 	log.Println("SysInit ", tmp)
