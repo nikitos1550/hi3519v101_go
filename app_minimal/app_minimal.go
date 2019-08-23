@@ -14,12 +14,45 @@ import (
     "strconv"
 
     "regexp"
+
+    //"io"
+    //"io/ioutil"
+    "log"
+    //"os"
 )
 
 var BuildTime string
 
+/*
+var (
+    Trace   *log.Logger
+    Info    *log.Logger
+    Warning *log.Logger
+    Error   *log.Logger
+)
+
+func Init(
+    traceHandle io.Writer,
+    infoHandle io.Writer,
+    warningHandle io.Writer,
+    errorHandle io.Writer) {
+
+    Trace = log.New(traceHandle, "TRACE: ", log.Ldate|log.Ltime|log.Lshortfile)
+    Info = log.New(infoHandle, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
+    Warning = log.New(warningHandle, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
+    Error = log.New(errorHandle, "ERROR: ",log.Ldate|log.Ltime|log.Lshortfile)
+}
+*/
+
 func main() {
-	fmt.Println(BuildTime)
+    //Init(ioutil.Discard, os.Stdout, os.Stdout, os.Stderr)
+
+    //Trace.Println("I have something standard to say")
+    //Info.Println("Special Information")
+    //Warning.Println("There is something you need to know about")
+    //Error.Println("Something has failed")
+
+	log.Println(BuildTime)
 
 	himpp3.SysInit()
 	himpp3.MipiIspInit()
@@ -33,20 +66,20 @@ func main() {
 
 	flag.Parse()
 
-	fmt.Printf("minimal application\n");
-	fmt.Printf("http port %d\n", *portPtr);
+	log.Printf("minimal application\n");
+	log.Printf("http port %d\n", *portPtr);
 
     /////
 
     mux := routes.New()
 
 	mux.Get("/", func (w http.ResponseWriter, r *http.Request) {
-		fmt.Println("Requested url /")
+		log.Println("Requested url /")
 		fmt.Fprintf(w, "Camera go webserver!")
 	})
 
     mux.Get("/t", func (w http.ResponseWriter, r *http.Request) {
-        fmt.Println("Requested url /t")
+        log.Println("Requested url /t")
         fmt.Fprintf(w, "%.1fC", himpp3.TempGet())
     })
 
@@ -57,25 +90,25 @@ func main() {
             //log.Println("unable to encode image.")
         //}
 
-		fmt.Println("Serving jpeg... ", len(himpp3.B1.Bytes()))
+		log.Println("Serving jpeg... ", len(himpp3.B1.Bytes()))
 
 		himpp3.Mutex.Lock()
         w.Header().Set("Content-Type", "image/jpeg")
         w.Header().Set("Content-Length", strconv.Itoa(len(himpp3.B1.Bytes())))
         
         if _, err := w.Write(himpp3.B1.Bytes()); err != nil {
-            fmt.Println("unable to write image.")
+            log.Println("unable to write image.")
         }
 
 		himpp3.Mutex.Unlock()
-		fmt.Println("done!")
+		log.Println("done!")
    	})
 
     mux.Get("^/experimental/date.(text|sec|nano)$", func (w http.ResponseWriter, r *http.Request) {
         rr, _ := regexp.Compile("^/experimental/date.(text|sec|nano)$")
         match := rr.FindStringSubmatch(r.URL.Path)
-        fmt.Println(match)
-    
+        log.Println(match)
+
         t := time.Now()
         switch match[1] {
             case "text":
@@ -90,6 +123,8 @@ func main() {
 
     mux.Get("^/experimental/hidebug/?$", hidebug.ApiListHandler)
     mux.Get("^/experimental/hidebug/(.+).(raw|json)$", hidebug.ApiFileHandler)
+
+    mux.Get("^/experimental/himpp3(.*)$", himpp3.ApiHandler)
 
 	//fs := http.FileServer(http.Dir("static/"))
 	//http.Handle("/static/", http.StripPrefix("/static/", fs))

@@ -10,6 +10,7 @@ import (
 //    "os"
 
     "regexp"
+    "log"
 )
 
 func check(e error) {
@@ -60,10 +61,10 @@ func ApiFileHandler (w http.ResponseWriter, r *http.Request) {
     rr, _       := regexp.Compile("^/experimental/hidebug/(chnl|h265e|jpege|rgn|venc|vo|fisheye|hi_mipi|logmpp|sys|vgs|vpss|h264e|isp|rc|vb|vi).(raw|json)$")
 
     match       := rr.FindStringSubmatch(r.URL.Path)
-    fmt.Println(match)
+    log.Println(match)
     if match != nil {
-        fmt.Println(match[1])
-        fmt.Println(match[2])
+        log.Println(match[1])
+        log.Println(match[2])
 
         if match[2] == "raw" {
             dat, err := ioutil.ReadFile("/proc/umap/" + match[1])

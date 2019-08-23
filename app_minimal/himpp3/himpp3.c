@@ -673,7 +673,7 @@ int himpp3_vpss_init() {
     
         memset(&stVpssChnAttr, 0, sizeof(stVpssChnAttr));
         stVpssChnAttr.s32SrcFrameRate = 30;
-        stVpssChnAttr.s32DstFrameRate = 30;
+        stVpssChnAttr.s32DstFrameRate = 1;
 
 	error_code = HI_MPI_VPSS_SetChnAttr(VpssGrp, VpssChn, &stVpssChnAttr);
 	if (error_code != HI_SUCCESS) {
@@ -715,6 +715,30 @@ int himpp3_vpss_init() {
 
 static pthread_t gs_JpegPid;
 
+int himpp3_venc_mjpeg_params(unsigned int bitrate){
+    int error_code;
+
+    VENC_CHN_ATTR_S stVencChnAttr;
+
+
+    error_code = HI_MPI_VENC_GetChnAttr(0, &stVencChnAttr);
+    if (error_code != HI_SUCCESS) {
+                printf("HI_MPI_VENC_GetChnAttr faild with%#x!\n", error_code);
+                return -1;
+    }
+
+    printf("C DEBUG: try to set %d bitrate\n", bitrate);
+    stVencChnAttr.stRcAttr.stAttrMjpegeCbr.u32BitRate = bitrate;
+
+    error_code = HI_MPI_VENC_SetChnAttr(0, &stVencChnAttr);
+    if (error_code != HI_SUCCESS) {
+                printf("HI_MPI_VENC_SetChnAttr faild with%#x!\n", error_code);
+                return -1;
+    }
+
+    return 0;
+}
+
 
 int himpp3_venc_init() {
         int error_code;
@@ -730,18 +754,17 @@ int himpp3_venc_init() {
 
         stMjpegAttr.u32MaxPicWidth = 3840;
         stMjpegAttr.u32MaxPicHeight = 2160;
-        stMjpegAttr.u32PicWidth = 640;
-        stMjpegAttr.u32PicHeight = 480;
+        stMjpegAttr.u32PicWidth = 1920;//640;
+        stMjpegAttr.u32PicHeight = 1080;//480;
         stMjpegAttr.u32BufSize = 3840 * 2160 * 3;
         stMjpegAttr.bByFrame = HI_TRUE;  /*get stream mode is field mode  or frame mode*/
         memcpy(&stVencChnAttr.stVeAttr.stAttrMjpege, &stMjpegAttr, sizeof(VENC_ATTR_MJPEG_S));
 
         stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_MJPEGCBR;
         stVencChnAttr.stRcAttr.stAttrMjpegeCbr.u32StatTime       = 1;
-        stVencChnAttr.stRcAttr.stAttrMjpegeCbr.u32SrcFrmRate      = 30;
+        stVencChnAttr.stRcAttr.stAttrMjpegeCbr.u32SrcFrmRate      = 1;
         stVencChnAttr.stRcAttr.stAttrMjpegeCbr.fr32DstFrmRate = 1;
         stVencChnAttr.stRcAttr.stAttrMjpegeCbr.u32FluctuateLevel = 1;
-
         stVencChnAttr.stRcAttr.stAttrMjpegeCbr.u32BitRate = 1024 * 5;  
 
         /*

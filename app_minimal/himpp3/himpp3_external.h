@@ -35,6 +35,8 @@ int himpp3_venc_init();
 
 float gettemperature();
 
+int himpp3_venc_mjpeg_params(unsigned int bitrate);
+
 //int himpp3_venc_jpeg_export_frame();
 
 //char * himpp3_test_func(char ** buffer);
