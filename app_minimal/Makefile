@@ -13,6 +13,9 @@ test:
 	cd himpp3; make clean; make
 	CGO_CFLAGS='$(CFLAGS)' CGO_CFLAGS_ALLOW='.*' GOOS=linux GOARCH=arm GOARM=7 CGO_ENABLED=1 $(GO) build -a $(BUILDFLAGS) ./app_minimal.go
 
+godeps:
+	$(GO) get github.com/drone/routes
+
 clean:
 	cd himpp3; make clean
 	rm -f ./app_minimal

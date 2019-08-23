@@ -4,6 +4,7 @@
 * / - get hello world
 * /image.jpeg - get jpeg from camera
 * /t - internal SoC temperature sensor
+* /experimental/hidebug[/(filename).(raw|json)] - HiMPP /proc/umap debug
 
 ## Notes
 

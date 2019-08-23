@@ -28,7 +28,7 @@ environment-buildroot-2019.05.1-debug:
 	cd buildroot-2019.05.1-debug; make defconfig BR2_DEFCONFIG=$(THIS_DIR)/defconfig-debug.buildroot
 	cp -r ./buildroot-2019.05.1-patch/* ./buildroot-2019.05.1-debug
 
-enviroiment-buildroot-2019.05.1-debug-update-config:
+enviroment-buildroot-2019.05.1-debug-update-config:
 	cd buildroot-2019.05.1-debug; make defconfig BR2_DEFCONFIG=$(THIS_DIR)/defconfig-debug.buildroot
 
 #buildroot-2019.05.1-release:
