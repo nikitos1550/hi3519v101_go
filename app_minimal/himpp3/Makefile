@@ -23,6 +23,7 @@ KO = $(wildcard ./ko/*.o)
 #-ldflags="-X 'company/buildinfo.BuildTime=$(date)'"
 
 libhimpp3:
+	cd ko; make
 	$(CC) $(CFLAGS) -c ./himpp3.c -o himpp3.o
 	$(AR) rc libhimpp3.a himpp3.o $(KO)
 	rm ./himpp3.o

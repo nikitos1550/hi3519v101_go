@@ -4,6 +4,8 @@
 * / - get hello world
 * /image.jpeg - get jpeg from camera
 * /t - internal SoC temperature sensor
+* /experimental/hidebug[/(filename).(raw|json)] - HiMPP /proc/umap debug
+* /experimental/himpp3/bitrate/{value} - test method set bitrate for mjpeg channel
 
 ## Notes
 

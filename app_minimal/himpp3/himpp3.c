@@ -47,13 +47,14 @@ int inittemperature() {
 float gettemperature() {
         uint32_t read;
         devmem(0x120A0118, -1, &read);
-        printf("temperature code 0x%lx\n", read & 0x3FF);
-        printf("temperature C %.1f\n", (float)((( (read & 0x3FF)-125) / 806.0 ) * 165) - 40 );
+        printf("C DEBUG: temperature code 0x%lx\n", read & 0x3FF);
+        printf("C DEBUG: temperature C %.1f\n", (float)((( (read & 0x3FF)-125) / 806.0 ) * 165) - 40 );
         return (float)(((( (read & 0x3FF) - 125) / 806.0 ) *165) - 40);
 }
 
 
 #define init_module(module_image, len, param_values) syscall(__NR_init_module, module_image, len, param_values)
+#define delete_module(name, flags) syscall(__NR_delete_module, name, flags)
 
 int himpp3_ko_init() {
         //sensor0 pinmux
@@ -150,12 +151,33 @@ int himpp3_ko_init() {
         ///////////////////////////////////////////////////
 
         unsigned char i = 0; 
+        /*
+        while(modules[i].start != NULL) {
+                i++;
+        }
+        i--;
+
+        while(i>0) {
+                if (delete_module(modules[i].name, NULL) != 0) {
+                        printf("C DEBUG: delete_module %s failed\n", modules[i].name);
+                        //return 1;//return EXIT_FAILURE;
+                }
+                printf("delete_module %s OK!\n", modules[i].name);
+                i--;
+        }
+        */
+
+        delete_module("hi3519v101_isp", NULL);//ATTENTION THIS IS NEED FOR PROPER APP RERUN, also some info here
+        //http://bbs.ebaina.com/forum.php?mod=viewthread&tid=13925&extra=&highlight=run%2Bae%2Blib%2Berr%2B0xffffffff%21&page=1
+        ///////////////////////////////////////////////////
+
+        //unsigned char i = 0; 
         while(modules[i].start != NULL) {
                 if (init_module(modules[i].start, 
                                 modules[i].end-modules[i].start, 
                                 modules[i].params) != 0) {
-                        printf("init_module %s failed\n", modules[i].name);
-                        return 1;//return EXIT_FAILURE;
+                        printf("C DEBUG: init_module %s failed\n", modules[i].name);
+                        //return 1;//return EXIT_FAILURE;
                 }
                 //printf("init_module %s loaded OK!\n", modules[i].name);
                 i++;
@@ -190,8 +212,8 @@ int himpp3_ko_init() {
         if (init_module(_binary_hi_ssp_sony_ko_start, 
                                 _binary_hi_ssp_sony_ko_end -_binary_hi_ssp_sony_ko_start, 
                                 "") != 0) {
-                        printf("init_module hi_ssp_sony.ko failed\n");
-                        return 1;//return EXIT_FAILURE;
+                        printf("C DEBUG: init_module hi_ssp_sony.ko failed\n");
+                        //return 1;//return EXIT_FAILURE;
                 }
 	
 
@@ -233,7 +255,7 @@ int devmem(uint32_t target, uint32_t value, uint32_t * read) {
 
         fd = open("/dev/mem", O_RDWR | O_SYNC);
         if (fd == -1) {
-                printf("Error opening /dev/mem (%d) : %s\n", errno, strerror(errno));
+                printf("C DEBUG: Error opening /dev/mem (%d) : %s\n", errno, strerror(errno));
                 return 1;
         }
 
@@ -242,7 +264,7 @@ int devmem(uint32_t target, uint32_t value, uint32_t * read) {
                     target & ~((typeof(target))pagesize-1));
 
         if (map_base == (void *) -1) {
-                printf("Error mapping (%d) : %s\n", errno, strerror(errno));
+                printf("C DEBUG: Error mapping (%d) : %s\n", errno, strerror(errno));
                 return 1;//exit(1);
         }
         //printf("Memory mapped at address %p.\n", map_base);
@@ -259,7 +281,7 @@ int devmem(uint32_t target, uint32_t value, uint32_t * read) {
         //printf("0x%lx value 0x%lx\n", target, read_result);
 
         if (munmap(map_base, map_size) != 0) {
-                printf("ERROR munmap (%d) %s\n", errno, strerror(errno));
+                printf("C DEBUG: ERROR munmap (%d) %s\n", errno, strerror(errno));
         }
 
         close(fd);
@@ -273,19 +295,98 @@ int himpp3_sys_init() {
         // *error_func = HIMPP3_ERROR_FUNC_NONE;
         // *error_code = 0;
 
+
+        //error_code = HI_MPI_ISP_Exit(0);
+        //if (error_code != HI_SUCCESS) {
+        //        printf("C DEBUG: %s: HI_MPI_ISP_Exit failed with %#x!\n", __FUNCTION__, error_code);
+        //        return -1;
+        //}      
+
+
+       error_code = HI_MPI_ISP_Exit(0);
+        if (error_code != HI_SUCCESS) {
+                printf("C DEBUG: %s: HI_MPI_ISP_Exit failed with %#x!\n", __FUNCTION__, error_code);
+                return -1;
+        }  
+
+
+        ISP_DEV IspDev = 0;
+    
+        ISP_PUB_ATTR_S stPubAttr;
+        ALG_LIB_S stLib;
+
+
+    const ISP_SNS_OBJ_S *g_pstSnsObj[2] =  {&stSnsImx274Obj, HI_NULL};
+
+       ALG_LIB_S stAeLib;
+        ALG_LIB_S stAwbLib;
+        ALG_LIB_S stAfLib;
+
+        stAeLib.s32Id = 0;
+        stAwbLib.s32Id = 0;
+        stAfLib.s32Id = 0;
+        strncpy(stAeLib.acLibName, HI_AE_LIB_NAME, sizeof(HI_AE_LIB_NAME));
+        strncpy(stAwbLib.acLibName, HI_AWB_LIB_NAME, sizeof(HI_AWB_LIB_NAME));
+        strncpy(stAfLib.acLibName, HI_AF_LIB_NAME, sizeof(HI_AF_LIB_NAME)); 
+
+
+        stLib.s32Id = 0;
+        strcpy(stLib.acLibName, HI_AE_LIB_NAME);
+        error_code = HI_MPI_AE_UnRegister(IspDev, &stLib);
+        if (error_code != HI_SUCCESS) {
+                printf("C DEBUG: %s: HI_MPI_AE_UnRegister failed!\n", __FUNCTION__);
+                //return -1;
+        }
+        stLib.s32Id = 0;
+        strcpy(stLib.acLibName, HI_AWB_LIB_NAME);
+        error_code = HI_MPI_AWB_UnRegister(IspDev, &stLib);
+        if (error_code != HI_SUCCESS) {
+                printf("C DEBUG: %s: HI_MPI_AWB_UnRegister failed!\n", __FUNCTION__);
+                //return -1;
+        }
+        stLib.s32Id = 0;
+        strcpy(stLib.acLibName, HI_AF_LIB_NAME);
+        error_code = HI_MPI_AF_UnRegister(IspDev, &stLib);
+        if (error_code != HI_SUCCESS) {
+                printf("C DEBUG: %s: HI_MPI_AF_UnRegister failed!\n", __FUNCTION__);
+                //return -1;
+        }
+
+   printf("C DEBUG: Try to unregister SENSOR callback\n");
+
+
+    if (g_pstSnsObj[0]->pfnUnRegisterCallback != HI_NULL)
+    {
+        error_code = g_pstSnsObj[0]->pfnUnRegisterCallback(IspDev, &stAeLib, &stAwbLib);
+        if (error_code != HI_SUCCESS)
+        {
+            printf("C DEBUG: %s: sensor_unregister_callback failed with %#x!\n", __FUNCTION__, error_code);
+            //return error_code;
+        }
+    }
+    else
+    {
+        printf("C DEBUG: %s: sensor_unregister_callback failed with HI_NULL!\n", __FUNCTION__);
+    }
+
+    printf("C DEBUG: Try to unregister SENSOR callback DONE\n");
+
+
+////////////////////////////////////////////
+
 	error_code = HI_MPI_SYS_Exit();
         if (error_code != HI_SUCCESS) {
                 // *error_func = HIMPP3_ERROR_FUNC_HI_MPI_SYS_Exit;
                 return -1;
         }
-        printf("HI_MPI_SYS_Exit ok\n");
+        printf("C DEBUG: HI_MPI_SYS_Exit ok\n");
 
         error_code = HI_MPI_VB_Exit();
         if (error_code != HI_SUCCESS) {
                 // *error_func = HIMPP3_ERROR_FUNC_HI_MPI_VB_Exit;
                 return -1;
         }
-        printf("HI_MPI_VB_Exit ok\n");
+        printf("C DEBUG: HI_MPI_VB_Exit ok\n");
 
 
         VB_CONF_S stVbConf;
@@ -300,14 +401,14 @@ int himpp3_sys_init() {
 		// *error_func = HIMPP3_ERROR_FUNC_HI_MPI_VB_SetConf;
 		return -1;
 	}
-        printf("HI_MPI_VB_SetConf ok\n");
+        printf("C DEBUG: HI_MPI_VB_SetConf ok\n");
 
 	error_code = HI_MPI_VB_Init();
 	if (error_code != HI_SUCCESS) {
 		// *error_func = HIMPP3_ERROR_FUNC_???;
 		return -1;
 	}
-        printf("HI_MPI_VB_Init ok\n");
+        printf("C DEBUG: HI_MPI_VB_Init ok\n");
 
         MPP_SYS_CONF_S	stSysConf;
 	
@@ -318,14 +419,14 @@ int himpp3_sys_init() {
 		// *error_func = HIMPP3_ERROR_FUNC_HI_MPI_SYS_SetConf;
 		return -1;
 	}
-        printf("HI_MPI_SYS_SetConf ok\n");
+        printf("C DEBUG: HI_MPI_SYS_SetConf ok\n");
 
 	error_code = HI_MPI_SYS_Init();
 	if(error_code != HI_SUCCESS) {
 		// *error_func = HIMPP3_ERROR_FUNC_HI_MPI_SYS_Init;
 		return -1;
 	}
-        printf("HI_MPI_SYS_Init ok\n");
+        printf("C DEBUG: HI_MPI_SYS_Init ok\n");
 
         return 0;
 }
@@ -333,9 +434,9 @@ int himpp3_sys_init() {
 HI_VOID* Test_ISP_Run(HI_VOID *param){
         int error_code;
         ISP_DEV IspDev = 0;
-        printf("starting HI_MPI_ISP_Run...\n");
+        printf("C DEBUG: starting HI_MPI_ISP_Run...\n");
         error_code = HI_MPI_ISP_Run(IspDev);
-        printf("HI_MPI_ISP_Run %d\n", error_code);
+        printf("C DEBUG: HI_MPI_ISP_Run %d\n", error_code);
 
         return HI_NULL;
 }
@@ -346,6 +447,18 @@ int himpp3_mipi_isp_init() {
 
         int fd;
         combo_dev_attr_t *pstcomboDevAttr, stcomboDevAttr;
+
+
+/*
+       error_code = HI_MPI_ISP_Exit(0);
+        if (error_code != HI_SUCCESS) {
+                printf("C DEBUG: %s: HI_MPI_ISP_Exit failed with %#x!\n", __FUNCTION__, error_code);
+                return -1;
+        }        
+
+        */
+
+
 
         /* mipi reset unrest */
         fd = open("/dev/hi_mipi", O_RDWR);
@@ -395,20 +508,22 @@ int himpp3_mipi_isp_init() {
 
         close(fd);
  
-        error_code = HI_MPI_ISP_Exit(0);
+/*
+       error_code = HI_MPI_ISP_Exit(0);
         if (error_code != HI_SUCCESS) {
-                printf("%s: HI_MPI_ISP_Exit failed with %#x!\n", __FUNCTION__, error_code);
+                printf("C DEBUG: %s: HI_MPI_ISP_Exit failed with %#x!\n", __FUNCTION__, error_code);
                 return -1;
         }        
-        
+  */      
         ISP_DEV IspDev = 0;
     
         ISP_PUB_ATTR_S stPubAttr;
         ALG_LIB_S stLib;
 
+
 	const ISP_SNS_OBJ_S *g_pstSnsObj[2] =  {&stSnsImx274Obj, HI_NULL};
-	
-        ALG_LIB_S stAeLib;
+
+       ALG_LIB_S stAeLib;
         ALG_LIB_S stAwbLib;
         ALG_LIB_S stAfLib;
 
@@ -419,14 +534,73 @@ int himpp3_mipi_isp_init() {
         strncpy(stAwbLib.acLibName, HI_AWB_LIB_NAME, sizeof(HI_AWB_LIB_NAME));
         strncpy(stAfLib.acLibName, HI_AF_LIB_NAME, sizeof(HI_AF_LIB_NAME)); 
 
+/*
+        printf("C DEBUG: Try to unregister SENSOR callback\n");
+
+
+    if (g_pstSnsObj[0]->pfnUnRegisterCallback != HI_NULL)
+    {
+        error_code = g_pstSnsObj[0]->pfnUnRegisterCallback(IspDev, &stAeLib, &stAwbLib);
+        if (error_code != HI_SUCCESS)
+        {
+            printf("C DEBUG: %s: sensor_unregister_callback failed with %#x!\n", __FUNCTION__, error_code);
+            //return error_code;
+        }
+    }
+    else
+    {
+        printf("C DEBUG: %s: sensor_unregister_callback failed with HI_NULL!\n", __FUNCTION__);
+    }
+
+    printf("C DEBUG: Try to unregister SENSOR callback DONE\n");
+
+
+*/
+	/*
+        ALG_LIB_S stAeLib;
+        ALG_LIB_S stAwbLib;
+        ALG_LIB_S stAfLib;
+
+        stAeLib.s32Id = 0;
+        stAwbLib.s32Id = 0;
+        stAfLib.s32Id = 0;
+        strncpy(stAeLib.acLibName, HI_AE_LIB_NAME, sizeof(HI_AE_LIB_NAME));
+        strncpy(stAwbLib.acLibName, HI_AWB_LIB_NAME, sizeof(HI_AWB_LIB_NAME));
+        strncpy(stAfLib.acLibName, HI_AF_LIB_NAME, sizeof(HI_AF_LIB_NAME)); 
+    */
+/*
+        stLib.s32Id = 0;
+        strcpy(stLib.acLibName, HI_AE_LIB_NAME);
+        error_code = HI_MPI_AE_UnRegister(IspDev, &stLib);
+        if (error_code != HI_SUCCESS) {
+                printf("C DEBUG: %s: HI_MPI_AE_UnRegister failed!\n", __FUNCTION__);
+                //return -1;
+        }
+        stLib.s32Id = 0;
+        strcpy(stLib.acLibName, HI_AWB_LIB_NAME);
+        error_code = HI_MPI_AWB_UnRegister(IspDev, &stLib);
+        if (error_code != HI_SUCCESS) {
+                printf("C DEBUG: %s: HI_MPI_AWB_UnRegister failed!\n", __FUNCTION__);
+                //return -1;
+        }
+        stLib.s32Id = 0;
+        strcpy(stLib.acLibName, HI_AF_LIB_NAME);
+        error_code = HI_MPI_AF_UnRegister(IspDev, &stLib);
+        if (error_code != HI_SUCCESS) {
+                printf("C DEBUG: %s: HI_MPI_AF_UnRegister failed!\n", __FUNCTION__);
+                //return -1;
+        }
+*/
+
+
 	if (g_pstSnsObj[0]->pfnRegisterCallback != HI_NULL) {
                 error_code = g_pstSnsObj[0]->pfnRegisterCallback(IspDev, &stAeLib, &stAwbLib);
                 if (error_code != HI_SUCCESS) {
-                        printf("%s: sensor_register_callback failed with %#x!\n", __FUNCTION__, error_code);
+                        printf("C DEBUG: %s: sensor_register_callback failed with %#x!\n", __FUNCTION__, error_code);
                         return -1;
                 }
         } else {
-                printf("%s: sensor_register_callback failed with HI_NULL!\n",  __FUNCTION__);
+                printf("C DEBUG: %s: sensor_register_callback failed with HI_NULL!\n",  __FUNCTION__);
                 return -1;
         }
 
@@ -435,8 +609,8 @@ int himpp3_mipi_isp_init() {
         strcpy(stLib.acLibName, HI_AE_LIB_NAME);
         error_code = HI_MPI_AE_Register(IspDev, &stLib);
         if (error_code != HI_SUCCESS) {
-                printf("%s: HI_MPI_AE_Register failed!\n", __FUNCTION__);
-                return -1;
+                printf("C DEBUG: %s: HI_MPI_AE_Register failed!\n", __FUNCTION__);
+                //return -1;
         }
 
         /* 3. register hisi awb lib */
@@ -444,8 +618,8 @@ int himpp3_mipi_isp_init() {
         strcpy(stLib.acLibName, HI_AWB_LIB_NAME);
         error_code = HI_MPI_AWB_Register(IspDev, &stLib);
         if (error_code != HI_SUCCESS) {
-                printf("%s: HI_MPI_AWB_Register failed!\n", __FUNCTION__);
-                return -1;
+                printf("C DEBUG: %s: HI_MPI_AWB_Register failed!\n", __FUNCTION__);
+                //return -1;
         }
 
         /* 4. register hisi af lib */
@@ -453,14 +627,14 @@ int himpp3_mipi_isp_init() {
         strcpy(stLib.acLibName, HI_AF_LIB_NAME);
         error_code = HI_MPI_AF_Register(IspDev, &stLib);
         if (error_code != HI_SUCCESS) {
-                printf("%s: HI_MPI_AF_Register failed!\n", __FUNCTION__);
-                return -1;
+                printf("C DEBUG: %s: HI_MPI_AF_Register failed!\n", __FUNCTION__);
+                //return -1;
         }
 
         /* 5. isp mem init */
         error_code = HI_MPI_ISP_MemInit(IspDev);
         if (error_code != HI_SUCCESS) {
-                printf("%s: HI_MPI_ISP_Init failed!\n", __FUNCTION__);
+                printf("C DEBUG: %s: HI_MPI_ISP_Init failed!\n", __FUNCTION__);
                 return -1;
         }
 
@@ -470,7 +644,7 @@ int himpp3_mipi_isp_init() {
 	
         error_code = HI_MPI_ISP_SetWDRMode(0, &stWdrMode);    
         if (error_code != HI_SUCCESS) {
-                printf("start ISP WDR failed!\n");
+                printf("C DEBUG: start ISP WDR failed!\n");
                 return -1;
         }
 
@@ -485,19 +659,19 @@ int himpp3_mipi_isp_init() {
 
         error_code = HI_MPI_ISP_SetPubAttr(IspDev, &stPubAttr);
         if (error_code != HI_SUCCESS) {
-                printf("%s: HI_MPI_ISP_SetPubAttr failed with %#x!\n", __FUNCTION__, error_code);
+                printf("C DEBUG: %s: HI_MPI_ISP_SetPubAttr failed with %#x!\n", __FUNCTION__, error_code);
                 return -1;
         }
 
         /* 8. isp init */
         error_code = HI_MPI_ISP_Init(IspDev);
         if (error_code != HI_SUCCESS) {
-                printf("%s: HI_MPI_ISP_Init failed!\n", __FUNCTION__);
+                printf("C DEBUG: %s: HI_MPI_ISP_Init failed!\n", __FUNCTION__);
                 return -1;
         }
 
         if (0 != pthread_create(&gs_IspPid, 0, (void* (*)(void*))Test_ISP_Run, NULL)) {
-                printf("%s: create isp running thread failed!\n", __FUNCTION__);
+                printf("C DEBUG: %s: create isp running thread failed!\n", __FUNCTION__);
                 return -1;
         }
 
@@ -522,13 +696,13 @@ int himpp3_vi_init() {
 
         error_code = HI_MPI_VI_SetDevAttr(0, &stViDevAttr);
         if (error_code != HI_SUCCESS) {
-                printf("HI_MPI_VI_SetDevAttr failed with %#x!\n", error_code);
+                printf("C DEBUG: HI_MPI_VI_SetDevAttr failed with %#x!\n", error_code);
                 return -1;
         }
  
         error_code = HI_MPI_VI_EnableDev(0);
         if (error_code != HI_SUCCESS) {
-                printf("HI_MPI_VI_EnableDev failed with %#x!\n", error_code);
+                printf("C DEBUG: HI_MPI_VI_EnableDev failed with %#x!\n", error_code);
                 return -1;
         }
 
@@ -560,7 +734,7 @@ int himpp3_vi_init() {
 
         error_code = HI_MPI_VI_SetChnAttr(0, &stChnAttr);
         if (error_code != HI_SUCCESS) {
-                printf("HI_MPI_VI_SetChnAttr failed with %#x!\n", error_code);
+                printf("C DEBUG: HI_MPI_VI_SetChnAttr failed with %#x!\n", error_code);
                 return -1;
         }
 
@@ -597,7 +771,7 @@ int himpp3_vi_init() {
 
         error_code = HI_MPI_VI_EnableChn(0);
         if (error_code != HI_SUCCESS) {
-                printf(" HI_MPI_VI_EnableChn failed with %#x!\n", error_code);
+                printf("C DEBUG: HI_MPI_VI_EnableChn failed with %#x!\n", error_code);
                 return -1;
         }
 
@@ -630,13 +804,13 @@ int himpp3_vpss_init() {
 
         error_code = HI_MPI_VPSS_CreateGrp(VpssGrp, &stVpssGrpAttr);
         if (error_code != HI_SUCCESS) {
-                printf("HI_MPI_VPSS_CreateGrp failed with %#x!\n", error_code);
+                printf("C DEBUG: HI_MPI_VPSS_CreateGrp failed with %#x!\n", error_code);
                 return -1;
         }
 
         error_code = HI_MPI_VPSS_StartGrp(VpssGrp);
         if (error_code != HI_SUCCESS) {
-                printf("HI_MPI_VPSS_StartGrp failed with %#x\n", error_code);
+                printf("C DEBUG: HI_MPI_VPSS_StartGrp failed with %#x\n", error_code);
                 return -1;
         }
 
@@ -653,7 +827,7 @@ int himpp3_vpss_init() {
     
         error_code = HI_MPI_SYS_Bind(&stSrcChn, &stDestChn);
         if (error_code != HI_SUCCESS) {
-                printf("HI_MPI_SYS_Bind failed with %#x!\n", error_code);
+                printf("C DEBUG: HI_MPI_SYS_Bind failed with %#x!\n", error_code);
                 return -1;
         }
 
@@ -673,17 +847,17 @@ int himpp3_vpss_init() {
     
         memset(&stVpssChnAttr, 0, sizeof(stVpssChnAttr));
         stVpssChnAttr.s32SrcFrameRate = 30;
-        stVpssChnAttr.s32DstFrameRate = 30;
+        stVpssChnAttr.s32DstFrameRate = 1;
 
 	error_code = HI_MPI_VPSS_SetChnAttr(VpssGrp, VpssChn, &stVpssChnAttr);
 	if (error_code != HI_SUCCESS) {
-    	        printf("HI_MPI_VPSS_SetChnAttr failed with %#x\n", error_code);
+    	        printf("C DEBUG: HI_MPI_VPSS_SetChnAttr failed with %#x\n", error_code);
                 return -1;
         }
 
 	error_code = HI_MPI_VPSS_SetChnMode(VpssGrp, VpssChn, &stVpssChnMode);
         if (error_code != HI_SUCCESS) {
-    	        printf("%s failed with %#x\n", __FUNCTION__, error_code);
+    	        printf("C DEBUG: %s failed with %#x\n", __FUNCTION__, error_code);
                 return -1;
         }         
 
@@ -705,7 +879,7 @@ int himpp3_vpss_init() {
 
 	error_code = HI_MPI_VPSS_EnableChn(VpssGrp, VpssChn);
         if (error_code != HI_SUCCESS) {
-                printf("HI_MPI_VPSS_EnableChn failed with %#x\n", error_code);
+                printf("C DEBUG: HI_MPI_VPSS_EnableChn failed with %#x\n", error_code);
                 return -1;
         }
 
@@ -714,6 +888,37 @@ int himpp3_vpss_init() {
 }
 
 static pthread_t gs_JpegPid;
+
+//EXTERNAL
+int himpp3_venc_max_chn_num() {
+    return VENC_MAX_CHN_NUM;
+}
+
+
+//EXTERNAL
+int himpp3_venc_mjpeg_params(unsigned int bitrate){
+    int error_code;
+
+    VENC_CHN_ATTR_S stVencChnAttr;
+
+
+    error_code = HI_MPI_VENC_GetChnAttr(0, &stVencChnAttr);
+    if (error_code != HI_SUCCESS) {
+                printf("C DEBUG: HI_MPI_VENC_GetChnAttr faild with%#x!\n", error_code);
+                return -1;
+    }
+
+    printf("C DEBUG: try to set %d bitrate\n", bitrate);
+    stVencChnAttr.stRcAttr.stAttrMjpegeCbr.u32BitRate = bitrate;
+
+    error_code = HI_MPI_VENC_SetChnAttr(0, &stVencChnAttr);
+    if (error_code != HI_SUCCESS) {
+                printf("C DEBUG: HI_MPI_VENC_SetChnAttr faild with%#x!\n", error_code);
+                return -1;
+    }
+
+    return 0;
+}
 
 
 int himpp3_venc_init() {
@@ -730,18 +935,17 @@ int himpp3_venc_init() {
 
         stMjpegAttr.u32MaxPicWidth = 3840;
         stMjpegAttr.u32MaxPicHeight = 2160;
-        stMjpegAttr.u32PicWidth = 640;
-        stMjpegAttr.u32PicHeight = 480;
+        stMjpegAttr.u32PicWidth = 1920;//640;
+        stMjpegAttr.u32PicHeight = 1080;//480;
         stMjpegAttr.u32BufSize = 3840 * 2160 * 3;
         stMjpegAttr.bByFrame = HI_TRUE;  /*get stream mode is field mode  or frame mode*/
         memcpy(&stVencChnAttr.stVeAttr.stAttrMjpege, &stMjpegAttr, sizeof(VENC_ATTR_MJPEG_S));
 
         stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_MJPEGCBR;
         stVencChnAttr.stRcAttr.stAttrMjpegeCbr.u32StatTime       = 1;
-        stVencChnAttr.stRcAttr.stAttrMjpegeCbr.u32SrcFrmRate      = 30;
+        stVencChnAttr.stRcAttr.stAttrMjpegeCbr.u32SrcFrmRate      = 1;
         stVencChnAttr.stRcAttr.stAttrMjpegeCbr.fr32DstFrmRate = 1;
         stVencChnAttr.stRcAttr.stAttrMjpegeCbr.u32FluctuateLevel = 1;
-
         stVencChnAttr.stRcAttr.stAttrMjpegeCbr.u32BitRate = 1024 * 5;  
 
         /*
@@ -763,13 +967,13 @@ int himpp3_venc_init() {
 
 	error_code = HI_MPI_VENC_CreateChn(0, &stVencChnAttr);
         if (error_code != HI_SUCCESS) {
-                printf("HI_MPI_VENC_CreateChn [%d] faild with %#x!\n", 0, error_code);
+                printf("C DEBUG: HI_MPI_VENC_CreateChn [%d] faild with %#x!\n", 0, error_code);
                 return -1;
         }
 
         error_code = HI_MPI_VENC_StartRecvPic(0);
         if (error_code != HI_SUCCESS) {
-                printf("HI_MPI_VENC_StartRecvPic faild with%#x!\n", error_code);
+                printf("C DEBUG: HI_MPI_VENC_StartRecvPic faild with%#x!\n", error_code);
                 return -1;
         }
 
@@ -786,7 +990,7 @@ int himpp3_venc_init() {
 
         error_code = HI_MPI_SYS_Bind(&stSrcChn, &stDestChn);
         if (error_code != HI_SUCCESS) {
-                printf("HI_MPI_SYS_Bind failed with %#x!\n", error_code);
+                printf("C DEBUG: HI_MPI_SYS_Bind failed with %#x!\n", error_code);
                 return -1;
         }
 
@@ -828,7 +1032,7 @@ int himpp3_venc_init() {
         //////////////////////////////////////////
 
         if (0 != pthread_create(&gs_JpegPid, 0, &himpp3_venc_jpeg_test_loop, &fd)) {
-                printf("%s: create jpeg running thread failed!\n", __FUNCTION__);
+                printf("C DEBUG: %s: create jpeg running thread failed!\n", __FUNCTION__);
                 return -1;
         }
 
@@ -842,7 +1046,7 @@ int himpp3_venc_init() {
 void * himpp3_venc_jpeg_test_loop(void * arg) {
 	int fd = *((int *)arg);
 
-	printf("himpp3_venc_jpeg_test_loop fd %d\n", fd);
+	printf("C DEBUG: himpp3_venc_jpeg_test_loop fd %d\n", fd);
 
 	//return 0;
 
@@ -857,7 +1061,7 @@ while(1) {
 
 	error_code = select(fd + 1, &read_fds, NULL, NULL, NULL);
 	if (error_code < 0) {
-		printf("select failed\n");
+		printf("C DEBUG: select failed\n");
 	}
 
 	if (FD_ISSET(fd, &read_fds)) {
@@ -866,7 +1070,7 @@ while(1) {
 
                 error_code = HI_MPI_VENC_Query(0, &stStat);
                 if (error_code != HI_SUCCESS) {
-                        printf("HI_MPI_VENC_Query chn[%d] failed with %#x!\n", 0, error_code);
+                        printf("C DEBUG: HI_MPI_VENC_Query chn[%d] failed with %#x!\n", 0, error_code);
                         return 0;
                 }
 
@@ -875,7 +1079,7 @@ while(1) {
 
                 error_code = HI_MPI_VENC_GetStream(0, &stStream, -1);
                 if (error_code != HI_SUCCESS) {
-                        printf("HI_MPI_VENC_GetStream failed with %#x!\n", error_code);
+                        printf("C DEBUG: HI_MPI_VENC_GetStream failed with %#x!\n", error_code);
                 }
                 //printf("got frame\n");
 		/////
@@ -900,7 +1104,7 @@ while(1) {
 
                 error_code = HI_MPI_VENC_ReleaseStream(0, &stStream);
                 if (error_code != HI_SUCCESS) {
-                        printf("failed to release stream: %#x\n", error_code);
+                        printf("C DEBUG: failed to release stream: %#x\n", error_code);
                 }
                 //printf("frame released\n");
 	}
