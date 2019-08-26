@@ -24,6 +24,10 @@
 int devmem(uint32_t target, uint32_t value, uint32_t * read);
 void * himpp3_venc_jpeg_test_loop(void * arg);
 
+char * getChipFamily() {
+    return "hi3516av200";
+}
+
 #ifdef TEST_C_APP
 int main(void) {
         //devmem(0x120100e4);

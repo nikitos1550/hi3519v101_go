@@ -3,13 +3,9 @@ package himpp3
 import (
 	"fmt"
 	"unsafe"
-//	"syscall"
-//	"../external/github.com/creack/goselect"
 	"bytes"
 	"sync"
-
     "log"
-
     "net/http"
     "regexp"
     "strconv"
@@ -18,16 +14,16 @@ import (
 // #include "himpp3_external.h"
 // #include "himpp3_mpp_includes.h"
 // #cgo LDFLAGS: ${SRCDIR}/libhimpp3.a
-// #cgo LDFLAGS: ${SRCDIR}/../../mpp_hi3519_v101/lib/libsns_imx274.a
-// #cgo LDFLAGS: ${SRCDIR}/../../mpp_hi3519_v101/lib/libisp.a
-// #cgo LDFLAGS: ${SRCDIR}/../../mpp_hi3519_v101/lib/libmpi.a
-// #cgo LDFLAGS: ${SRCDIR}/../../mpp_hi3519_v101/lib/libVoiceEngine.a
-// #cgo LDFLAGS: ${SRCDIR}/../../mpp_hi3519_v101/lib/lib_hiae.a
-// #cgo LDFLAGS: ${SRCDIR}/../../mpp_hi3519_v101/lib/lib_hiawb.a
-// #cgo LDFLAGS: ${SRCDIR}/../../mpp_hi3519_v101/lib/lib_hiaf.a
-// #cgo LDFLAGS: ${SRCDIR}/../../mpp_hi3519_v101/lib/libupvqe.a
-// #cgo LDFLAGS: ${SRCDIR}/../../mpp_hi3519_v101/lib/libdnvqe.a
-// #cgo LDFLAGS: ${SRCDIR}/../../mpp_hi3519_v101/lib/lib_hidefog.a
+// #cgo LDFLAGS: ${SRCDIR}/../../../mpp_hi3519_v101/lib/libsns_imx274.a
+// #cgo LDFLAGS: ${SRCDIR}/../../../mpp_hi3519_v101/lib/libisp.a
+// #cgo LDFLAGS: ${SRCDIR}/../../../mpp_hi3519_v101/lib/libmpi.a
+// #cgo LDFLAGS: ${SRCDIR}/../../../mpp_hi3519_v101/lib/libVoiceEngine.a
+// #cgo LDFLAGS: ${SRCDIR}/../../../mpp_hi3519_v101/lib/lib_hiae.a
+// #cgo LDFLAGS: ${SRCDIR}/../../../mpp_hi3519_v101/lib/lib_hiawb.a
+// #cgo LDFLAGS: ${SRCDIR}/../../../mpp_hi3519_v101/lib/lib_hiaf.a
+// #cgo LDFLAGS: ${SRCDIR}/../../../mpp_hi3519_v101/lib/libupvqe.a
+// #cgo LDFLAGS: ${SRCDIR}/../../../mpp_hi3519_v101/lib/libdnvqe.a
+// #cgo LDFLAGS: ${SRCDIR}/../../../mpp_hi3519_v101/lib/lib_hidefog.a
 // #cgo CFLAGS: -mcpu=cortex-a7 -mfloat-abi=softfp -mfpu=neon-vfpv4 -mno-unaligned-access -fno-aggressive-loop-optimizations
 import "C"
 
@@ -36,6 +32,18 @@ func init() {
 	C.himpp3_ko_init()
 }
 */
+
+func GetChipFamily() string {
+    return C.GoString(C.getChipFamily())
+}
+
+func GetChip() string {
+    return "hi3519v101"
+}
+func GetCMOS() string {
+    return "imx274"
+}
+
 
 //TempGet dsfdsfsdf
 func TempGet() float32 {
@@ -86,6 +94,7 @@ func vencMJpegSetBitrate(b uint) int {
 func ApiHandler (w http.ResponseWriter, r *http.Request) {
     log.Println("himpp3.ApiHandler")
 
+
     rr, _ := regexp.Compile("^/experimental/himpp3/bitrate/([0-9]+)$")
     match := rr.FindStringSubmatch(r.URL.Path)
     log.Println(match)
@@ -104,7 +113,17 @@ func ApiHandler (w http.ResponseWriter, r *http.Request) {
     
     match2, _ := regexp.MatchString("^/experimental/himpp3/venc$", r.URL.Path)
     if match2 == true {
-        fmt.Fprintf(w, "Maximum amount of venc channels is %d", int(C.himpp3_venc_max_chn_num()))
+        fmt.Fprintf(w, "Maximum amount of venc channels is %d\n", int(C.himpp3_venc_max_chn_num()))
+        
+        for i := 0; i < int(C.himpp3_venc_max_chn_num()); i++ {
+            var encoder C.struct_encoder
+            err := C.himpp3_venc_info_chn(C.uint(i), &encoder)
+            if err != 0 {
+                fmt.Fprintf(w, "Some error querying info for venc chn %d", i)
+            } else {
+                fmt.Fprintf(w, "VENC chn %d: enabled = %d, type = %d\n", i, encoder.enabled, encoder.etype)
+            }
+        }
     }
 }
 

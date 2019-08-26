@@ -1,0 +1,510 @@
+
+openapi: 3.0.0
+info:
+  title: Camera EXPERIMENTAL API
+  version: 1.0.0
+  description: |
+    This is experimental HTTP API for Open sIpCam project. \
+    This file supposed to be deployed to the camera wrapped by **swagger ui**. \
+    All method can queryed from this page, several typical examples included.
+servers:
+  - url: '/api/'
+    description: This camera
+paths:
+  /system:
+    get:
+      tags:
+        - system
+      summary: 'Get application general build information'
+      operationId: 'System'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            text/plain:
+              schema: 
+               type: string
+
+  /system/temperature:
+    get:
+      tags:
+        - system
+      summary: 'Get internal sensor temperature'
+      operationId: 'SystemTemperature'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemTemperatureResponce'          
+        '501':
+          description: 'Not implemented or not supported'
+          
+  /system/date:
+    get:
+      tags:
+        - system
+      summary: 'Get system date and time'
+      operationId: 'SystemDate'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemDateResponce'            
+  /debug/go:
+    get:
+      tags:
+        - debug
+      summary: 'Golang runtime statistics'
+      operationId: 'DebugGo'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            text/plain:
+              schema: 
+               type: string
+               
+  /debug/umap:
+    get:
+      tags:
+        - debug
+      summary: 'MPP debug avalible information overview'
+      operationId: 'DebugUmap'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            text/plain:
+              schema: 
+               type: string
+              
+  /debug/umap/{file}:
+    parameters:
+      - name: file
+        in: path
+        schema:
+            type: string
+        description: File name
+        required: true  
+    get:
+      tags:
+        - debug
+      summary: 'Show debug information'
+      operationId: 'DebugUmapFile'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            text/plain:
+              schema: 
+               type: string
+        '404':
+          description: 'File not found'
+          
+  /encoders:
+    get:
+      tags:
+        - encoders    
+      summary: 'List all encoders'
+      operationId: 'EncodersList'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EncodersListResponce'
+    post:
+      tags:
+        - encoders    
+      summary: 'Create encoder'
+      operationId: 'EncoderCreate'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EncoderUpdateQuery"    
+            examples:
+              mjpeg_640x480_cbr:
+                summary: 'MJpeg 640x480 1fps CBR'
+                value:
+                  codec: 'mjpeg'
+                  rc: 'cbr'
+                  width: 640
+                  height: 480
+                  fps: 1
+                  bitrate: 1024
+              mjpeg_1920x1080_vbr:
+                summary: 'MJpeg 1920x1080 1fps VBR'
+                value:
+                  codec: 'mjpeg'
+                  rc: 'vbr'
+                  width: 1920
+                  height: 1080
+                  fps: 1
+                  maxbitrate: 2048
+              mjpeg_1280x720_fixqp:
+                summary: 'MJpeg 1280x720 1fps FixQP'
+                value:
+                  codec: 'mjpeg'
+                  rc: 'fixqp'
+                  width: 1280
+                  height: 720
+                  fps: 1
+                  qp: 50
+              h264_1280x480_cbr:
+                summary: 'H.264 1280x720 30fps CBR'
+                value:
+                  codec: 'h264'
+                  rc: 'cbr'
+                  width: 1280
+                  height: 720
+                  fps: 30
+                  bitrate: 4096
+                  gop: 60
+              h264_1280x480_vbr:
+                summary: 'H.264 1280x720 30fps VBR'
+                value:
+                  codec: 'h264'
+                  rc: 'vbr'
+                  width: 1280
+                  height: 720
+                  fps: 30
+                  maxbitrate: 4096
+                  gop: 60
+              h264_1280x480_fixqp:
+                summary: 'H.264 1280x720 30fps FixQp'
+                value:
+                  codec: 'h264'
+                  rc: 'fixqp'
+                  width: 1280
+                  height: 720
+                  fps: 30
+                  gop: 60         
+      responses:
+        '204':
+          description: 'Success'
+        '400':
+          description: 'Bad parameters'
+        '404':
+          description: 'Encoder not found'
+        '423':
+          description: 'Maximum encoders amount exceed'
+          
+  /encoders/{id}:
+    parameters:
+      - name: id
+        in: path
+        schema:
+            type: integer
+        description: Encoder id
+        required: true
+    get:
+      tags:
+        - encoders
+      summary: 'Get encoder information'
+      operationId: 'EncoderInfo'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:          
+                $ref: "#/components/schemas/EncoderInfoResponce"
+        '404':
+          description: 'Encoder not found'
+    put:
+      tags:
+        - encoders    
+      summary: 'Update encoder settings'
+      operationId: 'EncoderUpdate'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EncoderUpdateQuery"     
+      responses:
+        '204':
+          description: 'Success'
+        '400':
+          description: "Bad parameters"
+        '404':
+          description: 'Encoder not found'          
+    delete:
+      tags:
+        - encoders    
+      summary: 'Delete encoder'
+      operationId: 'EncoderDelete'
+      responses:
+        '204':
+          description: 'Deleted succesfully'
+        '404':
+          description: 'Encoder not found'
+  /encoders/{id}/image.jpeg:
+    parameters:
+      - name: id
+        in: path
+        schema:
+            type: integer
+        description: Encoder id
+        required: true
+    get:
+      tags:
+        - serve
+      summary: 'Get jpeg image'
+      operationId: 'EncoderServeJpeg'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            image/jpeg:
+              schema: 
+               type: string
+               format: binary
+        '404':
+          description: 'Encoder not found'
+        '405':
+          description: 'Not jpeg encoder'
+tags:
+  - name: system
+    description: General system information and control
+  - name: debug
+    description: Useful debug information
+  - name: encoders
+    description: Encoders control
+  - name: serve
+    description: Data serve
+
+          
+components:
+  schemas:
+    SystemTemperatureResponce:
+      type: object
+      properties:
+        temperature_c:
+          type: number
+          format: float
+        temperature_f:
+          type: number
+          format: float
+        temperature_k:
+          type: number
+          format: float
+          
+    SystemDateResponce:
+      type: object
+      properties:
+        formatted:
+          type: string
+          format: date-time
+        secs: 
+          type: integer
+          format: uint64
+        nanosecs: 
+          type: integer
+          format: uint64
+
+    EncodersListResponce:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: integer
+          encoder:
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/Encoder'
+              - oneOf:
+                - $ref: '#/components/schemas/MJCbr'
+                - $ref: '#/components/schemas/MJVbr'
+                - $ref: '#/components/schemas/MJFixQp'     
+                - $ref: '#/components/schemas/HCbr'
+                - $ref: '#/components/schemas/HVbr'
+                - $ref: '#/components/schemas/HFixQp'               
+
+    EncoderInfoResponce:
+      type: object
+      properties:
+        id:
+          type: integer
+        encoder:
+          $ref: '#/components/schemas/Encoder'
+        settings:
+          type: object
+          oneOf:
+            - $ref: '#/components/schemas/MJCbr'
+            - $ref: '#/components/schemas/MJVbr'
+            - $ref: '#/components/schemas/MJFixQp'     
+            - $ref: '#/components/schemas/HCbr'
+            - $ref: '#/components/schemas/HVbr'
+            - $ref: '#/components/schemas/HFixQp'        
+
+#    EncoderCreateQuery:
+#      type: object
+#      allOf:
+#        - $ref: '#/components/schemas/Encoder'
+#        - oneOf:
+#          - $ref: '#/components/schemas/MJCbr'
+#          - $ref: '#/components/schemas/MJVbr'
+#          - $ref: '#/components/schemas/MJFixQp'     
+#          - $ref: '#/components/schemas/HCbr'
+#          - $ref: '#/components/schemas/HVbr'
+#          - $ref: '#/components/schemas/HFixQp' 
+
+          
+    EncoderUpdateQuery:
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/MJCbr'
+        - $ref: '#/components/schemas/MJVbr'
+        - $ref: '#/components/schemas/MJFixQp'     
+        - $ref: '#/components/schemas/HCbr'
+        - $ref: '#/components/schemas/HVbr'
+        - $ref: '#/components/schemas/HFixQp'   
+
+################################################################################
+    Encoder:
+      type: object
+      properties:
+        codec:
+          type: string
+          enum: ['mjpeg', 'h264', 'h265']
+        rc:
+          type: string
+          enum: ['cbr', 'vbr', 'fixqp']
+        width:
+          type: integer
+          description: 'Width of the output image'
+        height:
+          type: integer
+          description: 'Height of the output image'
+        fps:
+          type: integer
+          description: 'Framerate of the output image'
+      required:
+        - codec
+        - rc
+        - width
+        - height
+        - fps
+        
+    MJCbr:
+      title: 'MJpeg Cbr paramers'
+      type: object
+      properties:
+        bitrate:
+          type: integer
+          description: 'Width of the output image'
+        stattime:
+          type: integer
+          description: 'Framerate of the output image'
+          default: 1
+        fluctuate:
+          type: integer
+          description: 'Framerate of the output image'
+          default: 1
+      required:
+        - bitrate
+    MJVbr:
+      title: 'MJpeg Vbr parameters'
+      type: object
+      properties:
+        maxbitrate:
+          type: integer
+          description: 'Width of the output image'
+        maxqp:
+          type: integer
+          description: 'Framerate of the output image'
+          default: 30
+        minqp:
+          type: integer
+          description: 'Framerate of the output image'
+          default: 50
+        stattime:
+          type: integer
+          description: 'Framerate of the output image'
+          default: 1
+      required:
+        - maxbitrate
+    MJFixQp:
+      title: 'MJpeg FixQp parameters'
+      type: object
+      properties:
+        qp:
+          type: integer
+          description: 'Framerate of the output image'
+          default: 30
+    HCbr:
+      title: 'H.264/H.265 Cbr parameters'
+      type: object
+      properties:
+        bitrate:
+          type: integer
+          description: 'Width of the output image'
+        gop:
+          type: integer
+          description: 'Height of the output image'
+        stattime:
+          type: integer
+          description: 'Framerate of the output image'
+          default: 1
+        fluctuate:
+          type: integer
+          description: 'Framerate of the output image'
+          default: 1
+      required:
+        - bitrate
+        - gop
+    HVbr:
+      title: 'H.264/H.265 Vbr parameters'
+      type: object
+      properties:
+        maxbitrate:
+          type: integer
+          description: 'Width of the output image'
+        gop:
+          type: integer
+          description: 'Height of the output image'
+        maxqp:
+          type: integer
+          description: 'Framerate of the output image'
+          default: 30
+        minqp:
+          type: integer
+          description: 'Framerate of the output image'
+          default: 50
+        stattime:
+          type: integer
+          description: 'Framerate of the output image'
+          default: 1
+      required:
+        - maxbitrate
+        - gop
+    HFixQp:
+      title: 'H.264/H.265 FixQp parameters'
+      type: object
+      properties:
+        gop:
+          type: integer
+          description: 'Height of the output image'
+        iqp:
+          type: integer
+          description: 'Framerate of the output image'
+          default: 30
+        pqp:
+          type: integer
+          description: 'Framerate of the output image'
+          default: 50
+        stattime:
+          type: integer
+          description: 'Framerate of the output image'
+          default: 1
+      required:
+        - gop
