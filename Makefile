@@ -45,7 +45,7 @@ environment-deploy-debug: environment-buildroot-2019.05.1-debug
 
 app-build-debug:
 	cd $(APP); make
-	cd $(APP); cp ./$(APP) ../putonrootfs-debug/opt
+	cd $(APP); cp ./$(APP) ../putonrootfs-debug/opt; cp -r ./www ../putonrootfs-debug/opt
 	cd $(BUILDROOT); make rootfs-$(ROOTFS)
 	cp $(BUILDROOT)/output/images/rootfs.$(ROOTFS) ./burner/images
 

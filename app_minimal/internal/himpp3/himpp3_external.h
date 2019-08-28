@@ -33,6 +33,18 @@ char * getChipFamily();
 int himpp3_venc_mjpeg_params(unsigned int bitrate);
 int himpp3_venc_max_chn_num();
 
+//channels functions
+struct channel {
+    unsigned int    id;
+    unsigned char   enabled;
+    unsigned int    width;
+    unsigned int    height;
+    unsigned int    fps;
+
+};
+int himpp3_vpss_info_chn(unsigned int chn, struct channel * c);
+
+
 //venc structs and funcs
 enum enc_type       {enc_type_none, enc_type_jpeg, enc_type_mjpeg, enc_type_h264, enc_type_h265};
 enum rc_type        {rc_type_none, rc_type_cbr, rc_type_vbr, rc_type_fixqp, rc_type_avbr, rc_type_qvbr, rc_type_qmap};

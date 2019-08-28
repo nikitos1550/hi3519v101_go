@@ -10,7 +10,7 @@ import (
     "encoding/json"
 )
 
-func encodersServeJpeg (w http.ResponseWriter, r *http.Request) {
+func encoderServeJpeg (w http.ResponseWriter, r *http.Request) {
     params := mux.Vars(r)
     id, _ := strconv.Atoi(params["id"])
     log.Println(id)
@@ -59,3 +59,30 @@ func encodersList (w http.ResponseWriter, r *http.Request) {
     test, _ := json.Marshal(enc)
     fmt.Fprintf(w, "%s", string(test))
 }
+
+func encoderCreate (w http.ResponseWriter, r *http.Request) {
+    //w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+    w.WriteHeader(http.StatusNotImplemented)
+}
+
+func encoderInfo (w http.ResponseWriter, r *http.Request) {
+    //w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+    w.WriteHeader(http.StatusNotImplemented)
+
+    params := mux.Vars(r)
+    id, _ := strconv.Atoi(params["id"])
+    log.Println("encoderInfo ", id)
+
+    himpp3.GetEncoderInfo(uint(id))
+}
+
+func encoderUpdate (w http.ResponseWriter, r *http.Request) {
+    //w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+    w.WriteHeader(http.StatusNotImplemented)
+}
+
+func encoderDelete (w http.ResponseWriter, r *http.Request) {
+    //w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+    w.WriteHeader(http.StatusNotImplemented)
+}
+

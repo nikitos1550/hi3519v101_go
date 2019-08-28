@@ -34,7 +34,7 @@ paths:
       tags:
         - system
       summary: 'Get application general build information'
-      operationId: 'System'
+      operationId: 'system'
       responses:
         '200':
           description: 'Success'
@@ -48,7 +48,7 @@ paths:
       tags:
         - system
       summary: 'Get internal sensor temperature'
-      operationId: 'SystemTemperature'
+      operationId: 'systemTemperature'
       responses:
         '200':
           description: 'Success'
@@ -64,20 +64,31 @@ paths:
       tags:
         - system
       summary: 'Get system date and time'
-      operationId: 'SystemDate'
+      operationId: 'systemDate'
       responses:
         '200':
           description: 'Success'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SystemDateResponce'            
+                $ref: '#/components/schemas/SystemDateResponce'       
+
+  /system/network:
+    get:
+      tags:
+        - system
+      summary: 'Get network information'
+      operationId: 'systemNetwork'
+      responses:
+        '200':
+          description: 'Success'
+                
   /debug/go:
     get:
       tags:
         - debug
       summary: 'Golang runtime statistics'
-      operationId: 'DebugGo'
+      operationId: 'debugGo'
       responses:
         '200':
           description: 'Success'
@@ -91,7 +102,7 @@ paths:
       tags:
         - debug
       summary: 'MPP debug avalible information overview'
-      operationId: 'DebugUmap'
+      operationId: 'debugUmap'
       responses:
         '200':
           description: 'Success'
@@ -112,7 +123,7 @@ paths:
       tags:
         - debug
       summary: 'Show debug information'
-      operationId: 'DebugUmapFile'
+      operationId: 'debugUmapFile'
       responses:
         '200':
           description: 'Success'
@@ -123,63 +134,63 @@ paths:
         '404':
           description: 'File not found'
           
-#  /channels:
-#    get:
-#      tags:
-#        - channels    
-#      summary: 'List all channels'
-#      operationId: 'ChannelsList'
-#      responses:
-#        '200':
-#          description: 'Success'
-#          
-#  /channels/{id}:
-#    parameters:
-#      - name: id
-#        in: path
-#        schema:
-#            type: integer
-#        description: Channel id
-#        required: true
-#    get:
-#      tags:
-#        - channels
-#      summary: 'Get channel information'
-#      operationId: 'ChannelInfo'
-#      responses:
-#        '200':
-#          description: 'Success'
-#    post:
-#      tags:
-#        - channels
-#      summary: 'Start channel'
-#      operationId: 'ChannelStart'
-#      responses:
-#        '200':
-#          description: 'Success'
+  /channels:
+    get:
+      tags:
+        - channels    
+      summary: 'List all channels'
+      operationId: 'channelsList'
+      responses:
+        '200':
+          description: 'Success'
+          
+  /channels/{id}:
+    parameters:
+      - name: id
+        in: path
+        schema:
+            type: integer
+        description: Channel id
+        required: true
+    get:
+      tags:
+        - channels
+      summary: 'Get channel information'
+      operationId: 'channelInfo'
+      responses:
+        '200':
+          description: 'Success'
+    post:
+      tags:
+        - channels
+      summary: 'Start channel'
+      operationId: 'channelStart'
+      responses:
+        '200':
+          description: 'Success'
 #    put:
 #      tags:
 #        - channels
 #      summary: 'Update channel settings'
-#      operationId: 'ChannelUpdate'
+#      operationId: 'channelUpdate'
 #      responses:
 #        '200':
 #          description: 'Success'
-#    delete:
-#      tags:
-#        - channels
-#      summary: 'Stop channel'
-#      operationId: 'ChannelStop'
-#      responses:
-#        '200':
-#          description: 'Success'
+    delete:
+      tags:
+        - channels
+      summary: 'Stop channel'
+      operationId: 'channelStop'
+      responses:
+        '200':
+          description: 'Success'
                 
   /encoders:
     get:
       tags:
         - encoders    
       summary: 'List all encoders'
-      operationId: 'EncodersList'
+      operationId: 'encodersList'
       responses:
         '200':
           description: 'Success'
@@ -187,134 +198,134 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EncodersListResponce'
-#    post:
-#      tags:
-#        - encoders    
-#      summary: 'Create encoder'
-#      operationId: 'EncoderCreate'
-#      requestBody:
-#        required: true
-#        content:
-#          application/json:
-#            schema:
-#              $ref: "#/components/schemas/EncoderUpdateQuery"    
-#            examples:
-#              mjpeg_640x480_cbr:
-#                summary: 'MJpeg 640x480 1fps CBR'
-#                value:
-#                  codec: 'mjpeg'
-#                  rc: 'cbr'
-#                  width: 640
-#                  height: 480
-#                  fps: 1
-#                  bitrate: 1024
-#              mjpeg_1920x1080_vbr:
-#                summary: 'MJpeg 1920x1080 1fps VBR'
-#                value:
-#                  codec: 'mjpeg'
-#                  rc: 'vbr'
-#                  width: 1920
-#                  height: 1080
-#                  fps: 1
-#                  maxbitrate: 2048
-#              mjpeg_1280x720_fixqp:
-#                summary: 'MJpeg 1280x720 1fps FixQP'
-#                value:
-#                  codec: 'mjpeg'
-#                  rc: 'fixqp'
-#                  width: 1280
-#                  height: 720
-#                  fps: 1
-#                  qp: 50
-#              h264_1280x480_cbr:
-#                summary: 'H.264 1280x720 30fps CBR'
-#                value:
-#                  codec: 'h264'
-#                  rc: 'cbr'
-#                  width: 1280
-#                  height: 720
-#                  fps: 30
-#                  bitrate: 4096
-#                  gop: 60
-#              h264_1280x480_vbr:
-#                summary: 'H.264 1280x720 30fps VBR'
-#                value:
-#                  codec: 'h264'
-#                  rc: 'vbr'
-#                  width: 1280
-#                  height: 720
-#                  fps: 30
-#                  maxbitrate: 4096
-#                  gop: 60
-#              h264_1280x480_fixqp:
-#                summary: 'H.264 1280x720 30fps FixQp'
-#                value:
-#                  codec: 'h264'
-#                  rc: 'fixqp'
-#                  width: 1280
-#                  height: 720
-#                  fps: 30
-#                  gop: 60         
-#      responses:
-#        '204':
-#          description: 'Success'
-#        '400':
-#          description: 'Bad parameters'
-#        '404':
-#          description: 'Encoder not found'
-#        '423':
-#          description: 'Maximum encoders amount exceed'
+    post:
+      tags:
+        - encoders    
+      summary: 'Create encoder'
+      operationId: 'encoderCreate'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EncoderUpdateQuery"    
+            examples:
+              mjpeg_640x480_cbr:
+                summary: 'MJpeg 640x480 1fps CBR'
+                value:
+                  codec: 'mjpeg'
+                  rc: 'cbr'
+                  width: 640
+                  height: 480
+                  fps: 1
+                  bitrate: 1024
+              mjpeg_1920x1080_vbr:
+                summary: 'MJpeg 1920x1080 1fps VBR'
+                value:
+                  codec: 'mjpeg'
+                  rc: 'vbr'
+                  width: 1920
+                  height: 1080
+                  fps: 1
+                  maxbitrate: 2048
+              mjpeg_1280x720_fixqp:
+                summary: 'MJpeg 1280x720 1fps FixQP'
+                value:
+                  codec: 'mjpeg'
+                  rc: 'fixqp'
+                  width: 1280
+                  height: 720
+                  fps: 1
+                  qp: 50
+              h264_1280x480_cbr:
+                summary: 'H.264 1280x720 30fps CBR'
+                value:
+                  codec: 'h264'
+                  rc: 'cbr'
+                  width: 1280
+                  height: 720
+                  fps: 30
+                  bitrate: 4096
+                  gop: 60
+              h264_1280x480_vbr:
+                summary: 'H.264 1280x720 30fps VBR'
+                value:
+                  codec: 'h264'
+                  rc: 'vbr'
+                  width: 1280
+                  height: 720
+                  fps: 30
+                  maxbitrate: 4096
+                  gop: 60
+              h264_1280x480_fixqp:
+                summary: 'H.264 1280x720 30fps FixQp'
+                value:
+                  codec: 'h264'
+                  rc: 'fixqp'
+                  width: 1280
+                  height: 720
+                  fps: 30
+                  gop: 60         
+      responses:
+        '204':
+          description: 'Success'
+        '400':
+          description: 'Bad parameters'
+        '404':
+          description: 'Encoder not found'
+        '423':
+          description: 'Maximum encoders amount exceed'
           
-#  /encoders/{id}:
-#    parameters:
-#      - name: id
-#        in: path
-#        schema:
-#            type: integer
-#        description: Encoder id
-#        required: true
-#    get:
-#      tags:
-#        - encoders
-#      summary: 'Get encoder information'
-#      operationId: 'EncoderInfo'
-#      responses:
-#        '200':
-#          description: 'Success'
-#          content:
-#            application/json:
-#              schema:          
-#                $ref: "#/components/schemas/EncoderInfoResponce"
-#        '404':
-#          description: 'Encoder not found'
-#    put:
-#      tags:
-#        - encoders    
-#      summary: 'Update encoder settings'
-#      operationId: 'EncoderUpdate'
-#      requestBody:
-#        required: true
-#        content:
-#          application/json:
-#            schema:
-#              $ref: "#/components/schemas/EncoderUpdateQuery"     
-#      responses:
-#        '204':
-#          description: 'Success'
-#        '400':
-#          description: "Bad parameters"
-#        '404':
-#          description: 'Encoder not found'          
-#    delete:
-#      tags:
-#        - encoders    
-#      summary: 'Delete encoder'
-#      operationId: 'EncoderDelete'
-#      responses:
-#        '204':
-#          description: 'Deleted succesfully'
-#        '404':
-#          description: 'Encoder not found'
+  /encoders/{id}:
+    parameters:
+      - name: id
+        in: path
+        schema:
+            type: integer
+        description: Encoder id
+        required: true
+    get:
+      tags:
+        - encoders
+      summary: 'Get encoder information'
+      operationId: 'encoderInfo'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:          
+                $ref: "#/components/schemas/EncoderInfoResponce"
+        '404':
+          description: 'Encoder not found'
+    put:
+      tags:
+        - encoders    
+      summary: 'Update encoder settings'
+      operationId: 'encoderUpdate'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EncoderUpdateQuery"     
+      responses:
+        '204':
+          description: 'Success'
+        '400':
+          description: "Bad parameters"
+        '404':
+          description: 'Encoder not found'          
+    delete:
+      tags:
+        - encoders    
+      summary: 'Delete encoder'
+      operationId: 'encoderDelete'
+      responses:
+        '204':
+          description: 'Deleted succesfully'
+        '404':
+          description: 'Encoder not found'
 
   /encoders/{id}/image.jpeg:
     parameters:
@@ -328,7 +339,7 @@ paths:
       tags:
         - serve
       summary: 'Get jpeg image'
-      operationId: 'EncoderServeJpeg'
+      operationId: 'encoderServeJpeg'
       responses:
         '200':
           description: 'Success'
@@ -341,6 +352,119 @@ paths:
           description: 'Encoder not found'
         '405':
           description: 'Not jpeg encoder'
+          
+  /encoders/{id}/rtp:
+    parameters:
+      - name: id
+        in: path
+        schema:
+            type: integer
+        description: Encoder id
+        required: true
+    get:
+      tags:
+        - serve
+      summary: 'RTP push status'
+      operationId: 'encoderRtpStatus'
+      responses:
+        '200':
+          description: 'Success'
+        '404':
+          description: 'Encoder not found'
+    post:
+      tags:
+        - serve
+      summary: 'RTP push start'
+      operationId: 'encoderRtpStart'
+      responses:
+        '200':
+          description: 'Success'
+        '404':
+          description: 'Encoder not found'
+    delete:
+      tags:
+        - serve
+      summary: 'RTP push stop'
+      operationId: 'encoderRtpStop'
+      responses:
+        '200':
+          description: 'Success'
+        '404':
+          description: 'Encoder not found'          
+          
+  /encoders/{id}/record:
+    parameters:
+      - name: id
+        in: path
+        schema:
+            type: integer
+        description: Encoder id
+        required: true
+    get:
+      tags:
+        - storage
+      summary: 'Get record status'
+      operationId: 'encoderRecordStatus'
+      responses:
+        '200':
+          description: 'Success'
+        '405':
+          description: 'Can`t be used with encoder'
+    post:
+      tags:
+        - storage
+      summary: 'Plan or replan record'
+      operationId: 'encoderRecordStart'
+      responses:
+        '200':
+          description: 'Success'          
+        '405':
+          description: 'Can`t be used with encoder'          
+    delete:
+      tags:
+        - storage
+      summary: 'Stop or unplan record'
+      operationId: 'encoderRecordStop'
+      responses:
+        '200':
+          description: 'Success'        
+        '405':
+          description: 'Can`t be used with encoder'          
+        
+  /storage:
+    get:
+      tags:
+        - storage
+      summary: 'Get recordings list'
+      operationId: 'storageList'
+      responses:
+        '200':
+          description: 'Success'
+          
+  /storage/{uid}:
+    parameters:
+      - name: uid
+        in: path
+        schema:
+            type: integer
+        description: Recording uid
+        required: true
+    get:
+      tags:
+        - storage
+      summary: 'Get recording info'
+      operationId: 'storageRecordInfo'
+      responses:
+        '200':
+          description: 'Success'
+    delete:
+      tags:
+        - storage
+      summary: 'Delete recording'
+      operationId: 'storageRecordDelete'
+      responses:
+        '200':
+          description: 'Success'
   
 tags:
   - name: system
@@ -353,6 +477,8 @@ tags:
     description: Encoders control
   - name: serve
     description: Data serve
+  - name: storage
+    description: Recording storage
 
           
 components:
@@ -392,7 +518,7 @@ components:
             type: integer
           encoder:
             type: object
-            allOf:
+            allOf:  
               - $ref: '#/components/schemas/Encoder'
               - oneOf:
                 - $ref: '#/components/schemas/MJCbr'

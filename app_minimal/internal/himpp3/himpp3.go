@@ -33,6 +33,29 @@ func init() {
 }
 */
 
+func GetChannelInfo(id uint) {
+    var channel C.struct_channel
+    err := C.himpp3_vpss_info_chn(C.uint(id), &channel)
+    if err == 0 {
+        log.Println("id ", channel.id)
+        log.Println("enabled ", channel.enabled)
+        log.Println("width ", channel.width)
+        log.Println("height ", channel.height)
+        log.Println("fps ", channel.fps)
+    }
+}
+
+func GetEncoderInfo(id uint) {
+    var encoder C.struct_encoder
+    err := C.himpp3_venc_info_chn(C.uint(id), &encoder)
+    if err == 0 {
+        log.Println("id ", encoder.id)
+        log.Println("enabled ", encoder.enabled)
+        log.Println("type ", encoder.etype)
+    }
+}
+
+
 func GetChipFamily() string {
     return C.GoString(C.getChipFamily())
 }

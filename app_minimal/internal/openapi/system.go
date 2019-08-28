@@ -8,6 +8,7 @@ import (
     "time"
     "../himpp3"
     "../info"
+    "net"
 )
 
 func system (w http.ResponseWriter, r *http.Request) {
@@ -66,5 +67,33 @@ func systemDate (w http.ResponseWriter, r *http.Request) {
     log.Println("systemDate")
     test, _ := json.Marshal(tmp)
     fmt.Fprintf(w, "%s", string(test))
+}
+
+func systemNetwork (w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
+    w.WriteHeader(http.StatusOK)
+
+    ifaces, err := net.Interfaces()
+    if err != nil {
+        log.Printf("localAddresses: %+v\n", err.Error())
+        return
+    }
+    for _, i := range ifaces {
+        addrs, err := i.Addrs()
+        if err != nil {
+            log.Printf("localAddresses: %+v\n", err.Error())
+            continue
+        }
+        for _, a := range addrs {
+            switch v := a.(type) {
+            case *net.IPAddr:
+                fmt.Fprintf(w, "%v : %s (%s)\n", i.Name, v, v.IP.DefaultMask())
+
+            case *net.IPNet:
+                fmt.Fprintf(w, "%v : %s [%v/%v]\n", i.Name, v, v.IP, v.Mask)
+            }
+
+        }
+    }
 }
 

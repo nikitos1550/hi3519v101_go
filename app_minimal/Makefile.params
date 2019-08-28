@@ -1,0 +1,17 @@
+THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+
+BUILDROOT := buildroot-2019.05.1-debug
+TOOLCHAIN := arm-buildroot-linux-uclibcgnueabi
+
+CC := $(THIS_DIR)../$(BUILDROOT)/output/host/bin/$(TOOLCHAIN)-gcc
+AR := $(THIS_DIR)../$(BUILDROOT)/output/host/bin/$(TOOLCHAIN)-ar
+LD := $(THIS_DIR)../$(BUILDROOT)/output/host/bin/$(TOOLCHAIN)-ld
+RANLIB := $(THIS_DIR)../$(BUILDROOT)/output/host/bin/$(TOOLCHAIN)-ranlib
+GO := $(THIS_DIR)../$(BUILDROOT)/output/host/bin/go
+M4 := $(THIS_DIR)../$(BUILDROOT)/output/host/bin/m4
+NM := $(THIS_DIR)../$(BUILDROOT)/output/host/bin/$(TOOLCHAIN)-nm
+
+CFLAGS := -std=gnu11 -fPIC -mcpu=cortex-a7 -mfloat-abi=softfp -mfpu=neon-vfpv4 -mno-unaligned-access -fno-aggressive-loop-optimizations
+
+GOFLAGS := -ldflags="-s -w -extldflags '-static'"
+#GOFLAGS := -ldflags="-extldflags '-static'"

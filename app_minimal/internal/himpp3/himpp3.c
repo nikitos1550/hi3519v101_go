@@ -950,7 +950,7 @@ int himpp3_venc_init() {
         stVencChnAttr.stRcAttr.stAttrMjpegeCbr.u32SrcFrmRate      = 1;
         stVencChnAttr.stRcAttr.stAttrMjpegeCbr.fr32DstFrmRate = 1;
         stVencChnAttr.stRcAttr.stAttrMjpegeCbr.u32FluctuateLevel = 1;
-        stVencChnAttr.stRcAttr.stAttrMjpegeCbr.u32BitRate = 1024 * 5;  
+        stVencChnAttr.stRcAttr.stAttrMjpegeCbr.u32BitRate = 512 * 1;  
 
         /*
         stJpegAttr.u32PicWidth  = 3840;

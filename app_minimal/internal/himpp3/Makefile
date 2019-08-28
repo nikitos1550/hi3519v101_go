@@ -26,7 +26,8 @@ libhimpp3:
 	cd ko; make
 	$(CC) $(CFLAGS) -c ./himpp3.c  -o himpp3.o
 	$(CC) $(CFLAGS) -c ./himpp3_encoders.c  -o himpp3_encoders.o
-	$(AR) rc libhimpp3.a himpp3.o himpp3_encoders.o $(KO)
+	$(CC) $(CFLAGS) -c ./himpp3_channels.c  -o himpp3_channels.o
+	$(AR) rc libhimpp3.a himpp3.o himpp3_encoders.o himpp3_channels.o $(KO)
 	rm ./himpp3.o
 	$(RANLIB) libhimpp3.a
 

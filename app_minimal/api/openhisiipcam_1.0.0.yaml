@@ -1,22 +1,40 @@
-
 openapi: 3.0.0
 info:
   title: Camera EXPERIMENTAL API
   version: 1.0.0
   description: |
-    This is experimental HTTP API for Open sIpCam project. \
+    This is experimental HTTP API for OpenHisiIpCam project. \
     This file supposed to be deployed to the camera wrapped by **swagger ui**. \
     All method can queryed from this page, several typical examples included.
 servers:
   - url: '/api/'
-    description: This camera
+    description: 'Standalone camera'
+  - url: '/cam1/api/'
+    description: 'NGINX proxy #1'
+  - url: '/cam2/api/'
+    description: 'NGINX proxy #2'
+  - url: '/cam3/api/'
+    description: 'NGINX proxy #3'
+  - url: '/cam4/api/'
+    description: 'NGINX proxy #4'
+  - url: '/cam5/api/'
+    description: 'NGINX proxy #5'
+  - url: '/cam6/api/'
+    description: 'NGINX proxy #6'
+  - url: '/cam7/api/'
+    description: 'NGINX proxy #7'
+  - url: '/cam8/api/'
+    description: 'NGINX proxy #8'
+  - url: '/cam9/api/'
+    description: 'NGINX proxy #9'
+    
 paths:
   /system:
     get:
       tags:
         - system
       summary: 'Get application general build information'
-      operationId: 'System'
+      operationId: 'system'
       responses:
         '200':
           description: 'Success'
@@ -30,7 +48,7 @@ paths:
       tags:
         - system
       summary: 'Get internal sensor temperature'
-      operationId: 'SystemTemperature'
+      operationId: 'systemTemperature'
       responses:
         '200':
           description: 'Success'
@@ -46,20 +64,31 @@ paths:
       tags:
         - system
       summary: 'Get system date and time'
-      operationId: 'SystemDate'
+      operationId: 'systemDate'
       responses:
         '200':
           description: 'Success'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SystemDateResponce'            
+                $ref: '#/components/schemas/SystemDateResponce'       
+
+  /system/network:
+    get:
+      tags:
+        - system
+      summary: 'Get network information'
+      operationId: 'systemNetwork'
+      responses:
+        '200':
+          description: 'Success'
+                
   /debug/go:
     get:
       tags:
         - debug
       summary: 'Golang runtime statistics'
-      operationId: 'DebugGo'
+      operationId: 'debugGo'
       responses:
         '200':
           description: 'Success'
@@ -73,7 +102,7 @@ paths:
       tags:
         - debug
       summary: 'MPP debug avalible information overview'
-      operationId: 'DebugUmap'
+      operationId: 'debugUmap'
       responses:
         '200':
           description: 'Success'
@@ -94,7 +123,7 @@ paths:
       tags:
         - debug
       summary: 'Show debug information'
-      operationId: 'DebugUmapFile'
+      operationId: 'debugUmapFile'
       responses:
         '200':
           description: 'Success'
@@ -105,12 +134,63 @@ paths:
         '404':
           description: 'File not found'
           
+  /channels:
+    get:
+      tags:
+        - channels    
+      summary: 'List all channels'
+      operationId: 'channelsList'
+      responses:
+        '200':
+          description: 'Success'
+          
+  /channels/{id}:
+    parameters:
+      - name: id
+        in: path
+        schema:
+            type: integer
+        description: Channel id
+        required: true
+    get:
+      tags:
+        - channels
+      summary: 'Get channel information'
+      operationId: 'channelInfo'
+      responses:
+        '200':
+          description: 'Success'
+    post:
+      tags:
+        - channels
+      summary: 'Start channel'
+      operationId: 'channelStart'
+      responses:
+        '200':
+          description: 'Success'
+#    put:
+#      tags:
+#        - channels
+#      summary: 'Update channel settings'
+#      operationId: 'channelUpdate'
+#      responses:
+#        '200':
+#          description: 'Success'
+    delete:
+      tags:
+        - channels
+      summary: 'Stop channel'
+      operationId: 'channelStop'
+      responses:
+        '200':
+          description: 'Success'
+                
   /encoders:
     get:
       tags:
         - encoders    
       summary: 'List all encoders'
-      operationId: 'EncodersList'
+      operationId: 'encodersList'
       responses:
         '200':
           description: 'Success'
@@ -122,7 +202,7 @@ paths:
       tags:
         - encoders    
       summary: 'Create encoder'
-      operationId: 'EncoderCreate'
+      operationId: 'encoderCreate'
       requestBody:
         required: true
         content:
@@ -208,7 +288,7 @@ paths:
       tags:
         - encoders
       summary: 'Get encoder information'
-      operationId: 'EncoderInfo'
+      operationId: 'encoderInfo'
       responses:
         '200':
           description: 'Success'
@@ -222,7 +302,7 @@ paths:
       tags:
         - encoders    
       summary: 'Update encoder settings'
-      operationId: 'EncoderUpdate'
+      operationId: 'encoderUpdate'
       requestBody:
         required: true
         content:
@@ -240,12 +320,13 @@ paths:
       tags:
         - encoders    
       summary: 'Delete encoder'
-      operationId: 'EncoderDelete'
+      operationId: 'encoderDelete'
       responses:
         '204':
           description: 'Deleted succesfully'
         '404':
           description: 'Encoder not found'
+
   /encoders/{id}/image.jpeg:
     parameters:
       - name: id
@@ -258,7 +339,7 @@ paths:
       tags:
         - serve
       summary: 'Get jpeg image'
-      operationId: 'EncoderServeJpeg'
+      operationId: 'encoderServeJpeg'
       responses:
         '200':
           description: 'Success'
@@ -271,15 +352,133 @@ paths:
           description: 'Encoder not found'
         '405':
           description: 'Not jpeg encoder'
+          
+  /encoders/{id}/rtp:
+    parameters:
+      - name: id
+        in: path
+        schema:
+            type: integer
+        description: Encoder id
+        required: true
+    get:
+      tags:
+        - serve
+      summary: 'RTP push status'
+      operationId: 'encoderRtpStatus'
+      responses:
+        '200':
+          description: 'Success'
+        '404':
+          description: 'Encoder not found'
+    post:
+      tags:
+        - serve
+      summary: 'RTP push start'
+      operationId: 'encoderRtpStart'
+      responses:
+        '200':
+          description: 'Success'
+        '404':
+          description: 'Encoder not found'
+    delete:
+      tags:
+        - serve
+      summary: 'RTP push stop'
+      operationId: 'encoderRtpStop'
+      responses:
+        '200':
+          description: 'Success'
+        '404':
+          description: 'Encoder not found'          
+          
+  /encoders/{id}/record:
+    parameters:
+      - name: id
+        in: path
+        schema:
+            type: integer
+        description: Encoder id
+        required: true
+    get:
+      tags:
+        - storage
+      summary: 'Get record status'
+      operationId: 'encoderRecordStatus'
+      responses:
+        '200':
+          description: 'Success'
+        '405':
+          description: 'Can`t be used with encoder'
+    post:
+      tags:
+        - storage
+      summary: 'Plan or replan record'
+      operationId: 'encoderRecordStart'
+      responses:
+        '200':
+          description: 'Success'          
+        '405':
+          description: 'Can`t be used with encoder'          
+    delete:
+      tags:
+        - storage
+      summary: 'Stop or unplan record'
+      operationId: 'encoderRecordStop'
+      responses:
+        '200':
+          description: 'Success'        
+        '405':
+          description: 'Can`t be used with encoder'          
+        
+  /storage:
+    get:
+      tags:
+        - storage
+      summary: 'Get recordings list'
+      operationId: 'storageList'
+      responses:
+        '200':
+          description: 'Success'
+          
+  /storage/{uid}:
+    parameters:
+      - name: uid
+        in: path
+        schema:
+            type: integer
+        description: Recording uid
+        required: true
+    get:
+      tags:
+        - storage
+      summary: 'Get recording info'
+      operationId: 'storageRecordInfo'
+      responses:
+        '200':
+          description: 'Success'
+    delete:
+      tags:
+        - storage
+      summary: 'Delete recording'
+      operationId: 'storageRecordDelete'
+      responses:
+        '200':
+          description: 'Success'
+  
 tags:
   - name: system
     description: General system information and control
   - name: debug
     description: Useful debug information
+  - name: channels
+    description: Channels control    
   - name: encoders
     description: Encoders control
   - name: serve
     description: Data serve
+  - name: storage
+    description: Recording storage
 
           
 components:
@@ -319,7 +518,7 @@ components:
             type: integer
           encoder:
             type: object
-            allOf:
+            allOf:  
               - $ref: '#/components/schemas/Encoder'
               - oneOf:
                 - $ref: '#/components/schemas/MJCbr'
@@ -508,3 +707,4 @@ components:
           default: 1
       required:
         - gop
+

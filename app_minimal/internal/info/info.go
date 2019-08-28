@@ -1,6 +1,6 @@
 package info
 const (
-  DATE = "Mon Aug 26 14:38:52 UTC 2019"
+  DATE = "Wed Aug 28 15:08:40 UTC 2019"
   BRANCH = "venc_api"
   USER = "nikitos1550"
 )
