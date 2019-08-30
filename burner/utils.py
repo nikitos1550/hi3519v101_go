@@ -1,4 +1,21 @@
-import random, logging, sys
+import random, logging, sys, time
+import serial
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Constants
+
+CTRL_C = "\x03"
+
+DUPLEX_FULL = 1
+DUPLEX_HALF = 2
+
+PROMPTS = ("xmtech #", "hisilicon #")
+
+def line_has_prompt(line):
+    return any(map(lambda p: p in line, PROMPTS))
+
+# ----------------------------------------------------------------------------------------------------------------------
 
 
 def __init_logger(
@@ -22,21 +39,75 @@ __conn_logger = __init_logger("conn", fmt="[%(name)s %(asctime)s.%(msecs)d] %(me
 __dev_logger = __init_logger("dev", level=logging.DEBUG, fmt="[%(name)s:%(levelname)s][%(filename)s:%(lineno)d] - %(message)s")
 
 
-def DEV_WARN(msg):
+# Develop/debug logging
+def DLOG_WARN(msg):
     __dev_logger.warning(msg)
 
-def DEV_INFO(msg):
+def DLOG_INFO(msg):
     __dev_logger.info(msg)
 
-def DEV_DBG(msg):
+def DLOG(msg):
     __dev_logger.debug(msg)
 
 
-def CONN_INCOMING(msg):
+# Logging of interaction with device
+def CLOG_INCOMING(msg):
     __conn_logger.info("<- " + msg)
 
-def CONN_OUTGOING(msg):
+def CLOG_OUTGOING(msg):
     __conn_logger.info("-> " + msg)
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+class Device:
+    def __init__(self, port, baudrate, timeout, duplex = DUPLEX_FULL):
+        self._serial_port = serial.Serial(
+            port=port,
+            baudrate=baudrate,
+            timeout=timeout
+        )
+        self._duplex = duplex
+    
+    def close():
+        self._serial_port.close()
+
+    def write_data(self, data):
+        time.sleep(0.1)
+        for item in send:
+            self._serial_port.write(item)
+            time.sleep(0.1)
+
+    def write_cmd(self, cmd):
+        cmd = (cmd.replace(";", "\;") + "\n").encode("ascii")
+        if self._duplex == DUPLEX_HALF:
+            self.write_data(cmd)
+        else:
+            self._serial_port.write(cmd)
+        CLOG_OUTGOING(cmd)
+
+    def write_ctrlc(self):
+        """ Send Ctrl+C to device
+        """
+        self.write_data(CTRL_C)
+
+    def wait_prompt(self, clear=True):
+        """If 'clear' then we wait for a line contains only prompt, otherwise any
+        line with prompt is fine.
+        """
+        while True:
+            line = self.read_line()
+            if clear:
+                if (line in PROMPTS):
+                    break
+            elif line_has_prompt(line):
+                break
+            
+    def read_line(self):
+        line = self._serial_port.readline().strip()
+        CLOG_INCOMING(line)
+        return line
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -59,7 +130,7 @@ def get_iface_ip_and_mask(if_name, ipv6=False):
             raise ValueError("Network interface '{}' has no addresses".format(if_name))
 
         addr, netmask = addrs[0]["addr"], addrs[0]["netmask"]
-        DEV_DBG("Interface '{}' has {} addresses, use the first: addr={} netmask={}".format(
+        DLOG("Interface '{}' has {} addresses, use the first: addr={} netmask={}".format(
             if_name, len(addrs), addr, netmask))
         return addr, netmask
     except ValueError:
@@ -67,5 +138,5 @@ def get_iface_ip_and_mask(if_name, ipv6=False):
             if_name, ", ".join(netifaces.interfaces())
         ))
     except ImportError:
-        DEV_WARN("'netifaces' module not found")
+        DLOG_WARN("'netifaces' module not found")
         raise
