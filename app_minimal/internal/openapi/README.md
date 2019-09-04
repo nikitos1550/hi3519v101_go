@@ -1,2 +1,0 @@
-# openapi
-## HTTP API

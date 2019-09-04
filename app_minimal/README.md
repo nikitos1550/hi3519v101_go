@@ -1,5 +1,19 @@
 # Minimal application
 
+## Files structure
+|Path|Description|
+|----|-------|
+|/cmd|main GO package|
+|/go|GOPATH|
+|/go/src/openhisiipcam.org/*|internal GO packages|
+|/api|openapi3 api specs|
+|/www|static web files|
+|/lua|LUA scripts|
+|libhisi|C hw abstraction layer|
+
+## Conditioanal compilation
+See Makefile.tags for details
+
 ## About
 * / - get hello world
 * /image.jpeg - get jpeg from camera

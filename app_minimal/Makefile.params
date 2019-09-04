@@ -8,10 +8,14 @@ AR := $(THIS_DIR)../$(BUILDROOT)/output/host/bin/$(TOOLCHAIN)-ar
 LD := $(THIS_DIR)../$(BUILDROOT)/output/host/bin/$(TOOLCHAIN)-ld
 RANLIB := $(THIS_DIR)../$(BUILDROOT)/output/host/bin/$(TOOLCHAIN)-ranlib
 GO := $(THIS_DIR)../$(BUILDROOT)/output/host/bin/go
+GOFMT := $(THIS_DIR)../$(BUILDROOT)/output/host/bin/gofmt
 M4 := $(THIS_DIR)../$(BUILDROOT)/output/host/bin/m4
 NM := $(THIS_DIR)../$(BUILDROOT)/output/host/bin/$(TOOLCHAIN)-nm
+STRIP := $(THIS_DIR)../$(BUILDROOT)/output/host/bin/$(TOOLCHAIN)-strip
 
-CFLAGS := -std=gnu11 -fPIC -mcpu=cortex-a7 -mfloat-abi=softfp -mfpu=neon-vfpv4 -mno-unaligned-access -fno-aggressive-loop-optimizations
+CFLAGS := -std=gnu11 -fPIC -mcpu=cortex-a7 -mfloat-abi=softfp -mfpu=neon-vfpv4 -mno-unaligned-access -fno-aggressive-loop-optimizations -Os
 
 GOFLAGS := -ldflags="-s -w -extldflags '-static'"
 #GOFLAGS := -ldflags="-extldflags '-static'"
+#GOFLAGS := -ldflags="-s -w"
+
