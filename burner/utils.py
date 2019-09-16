@@ -25,21 +25,31 @@ def __init_logger(
     datefmt="%H:%M:%S",
     stream=sys.stdout
 ):
-    handler = logging.StreamHandler(stream)
-    handler.setFormatter(logging.Formatter(fmt=fmt, datefmt=datefmt))
     logger = logging.getLogger(name)
-    logger.propagate = False
-    logger.setLevel(level)
-    logger.addHandler(handler)
-
+    if logger.propagate:
+        # means the logger hasn't been initialized yet
+        handler = logging.StreamHandler(stream)
+        handler.setFormatter(logging.Formatter(fmt=fmt, datefmt=datefmt))
+        logger.propagate = False
+        logger.setLevel(level)
+        logger.addHandler(handler)
     return logger
 
 
+def get_device_logger(name, level=logging.DEBUG):
+    return __init_logger(name, level, fmt="[%(levelname)s at %(asctime)s.%(msecs)d] %(name)s %(message)s")
+
+
 __conn_logger = __init_logger("conn", fmt="[%(name)s %(asctime)s.%(msecs)d] %(message)s")
-__dev_logger = __init_logger("dev", level=logging.DEBUG, fmt="[%(name)s:%(levelname)s][%(filename)s:%(lineno)d] - %(message)s")
 
 
-# Develop/debug logging
+# Developer's logger
+__dev_logger = __init_logger(
+    name="develop",
+    level=logging.DEBUG,
+    fmt="[%(name)s:%(levelname)s][%(filename)s:%(lineno)d] %(message)s"
+)
+
 def DLOG_WARN(msg):
     __dev_logger.warning(msg)
 
@@ -71,6 +81,7 @@ class Device:
         self._duplex = duplex
     
     def close():
+
         self._serial_port.close()
 
     def write_data(self, data):

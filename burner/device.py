@@ -1,89 +1,156 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import serial
-from utils import CLOG_INCOMING, CLOG_OUTGOING, DLOG_INFO
+import sys
 
 
 class Device:
-    def __init__(self, port, baudrate, timeout=0.1):
-        self._serial_port = serial.Serial(
+    def _log_data(self, prefix, data):
+        if self._logger is None:
+            return
+        if isinstance(data, bytes):
+            data = data.decode("ascii")
+        for r in (("\n", "\\n"), ("\r", "\\r")):
+            data = data.replace(r[0], r[1])
+        self._logger.info(prefix + data)
+
+    def log_out(self, data):
+        self._log_data("-> ", data)
+    
+    def log_in(self, data):
+        self._log_data("<- ", data)
+
+    def dlog(self, message):
+        if self._logger is not None:
+            self._logger.debug(str(self) + ": " + message)
+
+    def __str__(self):
+        return self.serial.port
+
+    def __del__(self):
+        self.close()
+
+    def __init__(self, port, baudrate, read_timeout=None, logger=None):
+        self._logger = logger
+        self.serial = serial.Serial(
             port=port,
             baudrate=baudrate,
-            timeout=timeout
+            timeout=read_timeout
         )
-        DLOG_INFO("Serial connection for {} made".format(port))
+        self.dlog("serial connection made")
     
-    def close():
-        self._serial_port.close()
+    def close(self):
+        self.serial.close()
+        self.dlog("serial connection closed")
+
+    def clear_input_buff(self):
+        self.serial.reset_input_buffer()
+        self.dlog("clear input buffer")
 
     def write_data(self, data):
-        self._serial_port.write(data)
-        CLOG_OUTGOING(data)
+        self.serial.write(data)
+        self.log_out(data)
 
-    def write_cmd(self, cmd):
-        data = (cmd.replace(";", "\;") + "\n").encode("ascii")
-        self.write_data(data)
-
-    def write_ctrlc(self):
-        """ Send Ctrl+C to device
-        """
-        self.write_data(CTRL_C)
-
-    def wait_prompt(self, clear=True):
-        """If 'clear' then we wait for a line contains only prompt, otherwise any
-        line with prompt is fine.
-        """
-        while True:
-            line = self.read_line()
-            if clear:
-                if (line in PROMPTS):
-                    break
-            elif line_has_prompt(line):
-                break
-            
     def read_line(self):
-        line = self._serial_port.readline().strip()
+        line = self.serial.readline()
         if line:
-            CLOG_INCOMING(line)
+            self.log_in(line)
         return line
 
 
 def read(dev, args):
-    DLOG_INFO("Read from {}...".format(dev))
+    dev.dlog("Read from {}...".format(dev))
     while True:
-        dev.read_line()
+        line = dev.read_line()
+        try:
+            line = line.decode("utf-8")
+        except:
+            pass
+        sys.stdout.write(line)
+        sys.stdout.flush()
 
 
 def write(dev, args):
     if args.wait_for is not None:
-        DLOG_INFO("Wait for '{}' from {}...".format(args.wait_for, dev))
-        while dev.read_line() != args.wait_for: pass
-    DLOG_INFO("Write '{}' to {}...".format(args.data, dev))
-    dev.write_data(args.data + "\n")
+        dev.dlog("Wait for '{}' from {}...".format(args.wait_for, dev))
+        while args.wait_for not in dev.read_line().decode("ascii"):
+            pass
+    dev.dlog("Write '{}' to {}...".format(args.data, dev))
+    dev.write_data(args.data.encode("ascii") + b"\n")
+
+
+def console(dev, args):
+    import signal, termios, tty, asyncio
+
+    dev.serial.timeout = 0.05
+
+    # prepare TTY
+    term_fd = sys.stdin.fileno()
+    orig_term_attrs = termios.tcgetattr(term_fd)
+    tty_attrs = orig_term_attrs[:]
+    tty_attrs[tty.LFLAG] &= ~(termios.ECHO | termios.ICANON)
+    termios.tcsetattr(term_fd, termios.TCSADRAIN, tty_attrs)
+
+    # handle Ctrl+C
+    running = True
+    def signal_handler(signal, frame):
+        nonlocal running
+        running = False
+    signal.signal(signal.SIGINT, signal_handler)
+
+    def on_stdin():
+        try:
+            s = sys.stdin.read(1).encode("ascii")
+            dev.write_data(s)
+        except: pass
+
+    async def read_from_dev():
+        dev.write_data(b"\n")
+        while running:
+            line = dev.read_line()
+            if line:
+                sys.stdout.write(line.decode("ascii"))
+            else:
+                sys.stdout.flush()
+                await asyncio.sleep(0.1)
+        
+    loop = asyncio.get_event_loop()
+    loop.add_reader(sys.stdin, on_stdin)
+    loop.run_until_complete(read_from_dev())
+
+    # restore terminal
+    termios.tcsetattr(term_fd, termios.TCSAFLUSH, orig_term_attrs)
 
 
 def main():
     import argparse
+    import utils
     
     parser = argparse.ArgumentParser(description="Simple interaction via serial port")
     parser.add_argument("--port", required=True, help="Device that represents serial connection")
-    parser.add_argument("--br", required=True, type=int, help="Serial baud rate", metavar="BAUDRATE", default=115200)
+    parser.add_argument("--br", type=int, help="Serial baud rate", metavar="BAUDRATE", default=115200)
+    parser.add_argument("--verbose", action="store_true", help="Enable logging", default=False)
+    parser.set_defaults(act=console)
 
     action_parsers = parser.add_subparsers(title="Action")
 
-    # read action
+    # read
     read_parser = action_parsers.add_parser("read", help="Read data from serial port and print it")
     read_parser.set_defaults(act=read)
 
-    # write action
+    # write
     write_parser = action_parsers.add_parser("write", help="Write data into serial port")
-    write_parser.add_argument("--wait-for", help="Write data when this has been received", required=False)
+    write_parser.add_argument("--wait-for", metavar="LINE", help="Write data when LINE has been received", required=False)
     write_parser.add_argument("--data", help="Data to be written into serial port", required=False)
-
     write_parser.set_defaults(act=write)
+
+    # console
+    console_parser = action_parsers.add_parser("console", help="Simple interactive console")
+    console_parser.set_defaults(act=console)
 
     args = parser.parse_args()
 
-    device = Device(port=args.port, baudrate=args.br)
+    logger = utils.get_device_logger(args.port) if args.verbose else None
+    device = Device(port=args.port, baudrate=args.br, logger=logger)
     args.act(device, args)
 
 
