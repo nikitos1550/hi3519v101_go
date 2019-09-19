@@ -5,13 +5,13 @@ import sys
 
 class Device:
     def _log_data(self, prefix, data):
-        if self._logger is None:
+        if self.logger is None:
             return
         if isinstance(data, bytes):
             data = data.decode("ascii")
         for r in (("\n", "\\n"), ("\r", "\\r")):
             data = data.replace(r[0], r[1])
-        self._logger.info(prefix + data)
+        self.logger.info(prefix + data)
 
     def log_out(self, data):
         self._log_data("-> ", data)
@@ -19,9 +19,9 @@ class Device:
     def log_in(self, data):
         self._log_data("<- ", data)
 
-    def dlog(self, message):
-        if self._logger is not None:
-            self._logger.debug(str(self) + ": " + message)
+    def dlog(self, message, *args, **kwargs):
+        if self.logger is not None:
+            self.logger.debug(str(self) + ": " + message.format(*args, **kwargs))
 
     def __str__(self):
         return self.serial.port
@@ -30,7 +30,7 @@ class Device:
         self.close()
 
     def __init__(self, port, baudrate, read_timeout=None, logger=None):
-        self._logger = logger
+        self.logger = logger
         self.serial = serial.Serial(
             port=port,
             baudrate=baudrate,
@@ -39,8 +39,9 @@ class Device:
         self.dlog("serial connection made")
     
     def close(self):
-        self.serial.close()
-        self.dlog("serial connection closed")
+        if hasattr(self, "serial"):
+            self.serial.close()
+            self.dlog("serial connection closed")
 
     def clear_input_buff(self):
         self.serial.reset_input_buffer()
@@ -58,7 +59,7 @@ class Device:
 
 
 def read(dev, args):
-    dev.dlog("Read from {}...".format(dev))
+    dev.dlog("Read from {}...", dev)
     while True:
         line = dev.read_line()
         try:
@@ -71,10 +72,10 @@ def read(dev, args):
 
 def write(dev, args):
     if args.wait_for is not None:
-        dev.dlog("Wait for '{}' from {}...".format(args.wait_for, dev))
+        dev.dlog("Wait for '{}' from {}...", args.wait_for, dev)
         while args.wait_for not in dev.read_line().decode("ascii"):
             pass
-    dev.dlog("Write '{}' to {}...".format(args.data, dev))
+    dev.dlog("Write '{}' to {}...", args.data, dev)
     dev.write_data(args.data.encode("ascii") + b"\n")
 
 
