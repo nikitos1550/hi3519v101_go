@@ -23,6 +23,13 @@ def get_device_logger(name, level=logging.DEBUG):
     return __init_logger(name, level, fmt="[%(levelname)s at %(asctime)s.%(msecs)d] %(name)s %(message)s")
 
 
+# =====================================================================================================================
+def dlog(message, *args, **kwargs):
+    if True:  # TODO: should be configurable
+        logging.debug(message.format(*args, **kwargs))
+
+
+# =====================================================================================================================
 def random_mac():
     mac = [ 0x00, 0x00, 0x23,  # first line is defined for specified vendor
             random.randint(0x01, 0xfe),
@@ -31,6 +38,7 @@ def random_mac():
     return ':'.join(map(lambda x: "%02x" % x, mac))
 
 
+# =====================================================================================================================
 def get_iface_ip_and_mask(if_name, ipv6=False):
     try:
         import netifaces
@@ -40,7 +48,7 @@ def get_iface_ip_and_mask(if_name, ipv6=False):
             raise ValueError("Network interface '{}' has no addresses".format(if_name))
 
         addr, netmask = addrs[0]["addr"], addrs[0]["netmask"]
-        DLOG("Interface '{}' has {} addresses, use the first: addr={} netmask={}".format(
+        dlog("Interface '{}' has {} addresses, use the first: addr={} netmask={}".format(
             if_name, len(addrs), addr, netmask))
         return addr, netmask
     except ValueError:
@@ -48,5 +56,5 @@ def get_iface_ip_and_mask(if_name, ipv6=False):
             if_name, ", ".join(netifaces.interfaces())
         ))
     except ImportError:
-        DLOG_WARN("'netifaces' module not found")
+        dlog("'netifaces' module not found")
         raise
