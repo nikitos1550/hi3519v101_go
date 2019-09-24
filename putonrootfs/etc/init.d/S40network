@@ -6,7 +6,10 @@
 # Debian ifupdown needs the /run/network lock directory
 mkdir -p /run/network
 
-MAC=`fw_printenv -n ethaddr`
+MAC     = `fw_printenv -n ethaddr`
+IP      = `fw_printenv -n ipaddr`
+MASK    = `fw_printenv -n netmask`
+GATEWAY = `fw_printenv -n gateway`
 
 case "$1" in
   start)

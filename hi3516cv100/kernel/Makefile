@@ -3,15 +3,12 @@ THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 TOOLCHAIN=$(THIS_DIR)../toolchain/host/bin/arm-buildroot-linux-uclibcgnueabi-
 
 unpack:
-	test -e linux-3.0.y || mkdir linux-3.0.y; tar -xzf ./linux-3.0.y.b0.patched2.tgz -C ./linux-3.0.y
-	#mv ./linux-3.18.20 ./linux-3.18.y
-	#cd ./linux-3.18.y; patch -p1 < ../hi3516cv300_for_linux_v3.18.y.patch
+	test -e linux || mkdir linux; tar -xzf ./linux-3.0.y.b0.patched2.tgz -C ./linux
 	#cp -r ./patch/* ./linux-3.18.y
-	#mv ./linux-3.18.y/linux.config ./linux-3.18.y/.config
 
 build:
-	cd linux-3.18.y; make clean; make -j4 ARCH=arm CROSS_COMPILE=$(TOOLCHAIN) uImage
-	cp linux-3.18.y/arch/arm/boot/uImage ./uImage
+	cd linux; make clean; make -j4 ARCH=arm CROSS_COMPILE=$(TOOLCHAIN) uImage
+	cp linux/arch/arm/boot/uImage ./uImage
 
-
-
+clean:
+	rm -rf ./linux

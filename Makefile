@@ -24,13 +24,19 @@ pack-app:
 	cd $(APP); make FAMILY=$(FAMILY) build
 	#@echo "FAMILY = $(FAMILY)"
 	#@echo "CAMERA FACILITY ID = $(CAMERA)"
+
 	test -e boards/$(BOARD)/build/ || mkdir boards/$(BOARD)/build
 	test -e boards/$(BOARD)/build/$(APP) || mkdir boards/$(BOARD)/build/$(APP)
-	cp $(FAMILY)/kernel/uImage boards/$(BOARD)/build/$(APP)/uImage
+
+	#cp $(FAMILY)/kernel/uImage boards/$(BOARD)/build/$(APP)/uImage
+	cp boards/$(BOARD)/kernel/uImage boards/$(BOARD)/build/$(APP)/uImage
+
 	rm -f boards/$(BOARD)/build/$(APP)/rootfs.squashfs
 	rm -rf boards/$(BOARD)/build/$(APP)/rootfs.tmp; mkdir boards/$(BOARD)/build/$(APP)/rootfs.tmp
 	cp -r $(FAMILY)/rootfs/target/* boards/$(BOARD)/build/$(APP)/rootfs.tmp/
 	test ! -e boards/$(BOARD)/putonrootfs || cp -r boards/$(BOARD)/putonrootfs/* boards/$(BOARD)/build/$(APP)/rootfs.tmp/
+	cp -r $(APP)/distrib/* boards/$(BOARD)/build/$(APP)/rootfs.tmp/opt
+
 	mksquashfs  boards/$(BOARD)/build/$(APP)/rootfs.tmp \
                 boards/$(BOARD)/build/$(APP)/rootfs.squashfs \
                 -all-root
@@ -52,11 +58,33 @@ pack-app:
     #        --servercamera $(CAMERA)
 	#screen -L /dev/ttyCAM$(CAMERA) 115200
 
-board-kernel:
-	@echo "todo"
+build-kernel:
+	test -e ./boards/$(BOARD)/kernel || mkdir ./boards/$(BOARD)/kernel
+	test ! -e ./boards/$(BOARD)/kernel/uImage || ( echo "Kernel already built"; exit 1 )
+	cd ./$(FAMILY)/kernel; make clean
+	test ! -e ./boards/$(BOARD)/kernel/patch || cp -r ./boards/$(BOARD)/kernel/patch/* ./$(FAMILY)/kernel/linux
+	test ! -e ./boards/$(BOARD)/kernel/kernel.config \
+        || cp ./boards/$(BOARD)/kernel/kernel.config ./$(FAMILY)/kernel/linux/.config \
+        && cp ./$(FAMILY)/kernel/$(CHIP).generic.config ./$(FAMILY)/kernel/linux/.config
+	cd ./$(FAMILY)/kernel; make build
+	cp ./$(FAMILY)/kernel/uImage ./boards/$(BOARD)/kernel
 
-deploy-app: pack-app deploy-burner
-	@echo "deploy-app"
+deploy-app: pack-app
+	cp boards/$(BOARD)/build/$(APP)/uImage burner/images/uImage
+	cp boards/$(BOARD)/build/$(APP)/rootfs.squashfs burner/images/rootfs.squashfs
+	cd burner; \
+        authbind --deep ./burner.py \
+            load \
+            --port /dev/ttyCAM$(CAMERA) \
+            --uimage ./images/uImage \
+            --rootfs ./images/rootfs.squashfs \
+            --ip $(CAMERA_IP) \
+            --skip $(UBOOT_SIZE) \
+            --initrd 8 \
+            --memory $(RAM_LINUX) \
+            --servercamera $(CAMERA)
+	screen -L /dev/ttyCAM$(CAMERA) 115200
+
 
 ########################################################################
 
@@ -78,9 +106,8 @@ rootfs: toolchain
 enviroiment-setup:
 	tar -xzf $(BR).tar.gz -C $(THIS_DIR)
 	cp -r ./$(BR)-patch/* ./$(BR)
-
+	@echo "RUN prepare-env.sh to build all toolchains and base rootfses!"
 ########################################################################
-
 deploy-burner:
 	cd burner; \
 		authbind --deep ./burner.py \
@@ -92,10 +119,10 @@ deploy-burner:
 			--memory $(RAM_LINUX) \
 			--servercamera $(CAMERA)
 	screen /dev/ttyCAM$(CAMERA) 115200
-
 ########################################################################
 camera-serial:
 	screen -L /dev/ttyCAM$(CAMERA) 115200
 
 camera-serial-%:
 	screen -L /dev/ttyCAM$(subst camera-serial-,,$@) 115200
+########################################################################
