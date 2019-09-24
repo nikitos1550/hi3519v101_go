@@ -1,0 +1,6 @@
+FAMILY      =hi3516av200
+CHIP        =hi3519v101
+MEM_TOTAL   =512
+MEM_LINUX   =256
+MEM_MPP     =256
+CMOS        =imx274

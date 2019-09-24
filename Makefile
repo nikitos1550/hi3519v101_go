@@ -5,82 +5,84 @@ THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 APP := app_minimal
 CAMERA := 1             # NUMBER OF CAMERA ATTACHED TO SERVER TO TEST ON
 
-#ROOTFS := romfs
-ROOTFS := squashfs
-
-CAMERA_LOCAL_LOAD_IP := 192.169.0.102 #ONLY FOR LOCAL USAGE, SERVER DOESN'T USE IT
+CAMERA_LOCAL_LOAD_IP := 192.168.0.200 #ONLY FOR LOCAL USAGE, SERVER DOESN'T USE IT
 ########################################################################
-BUILDROOT := buildroot-2019.05.1-debug
-#BUILDROOT := buildroot-2019.05.1-musl
+
+-include ./boards/$(BOARD)/config
+
+ttest:
+	@[ "$(BOARD)" ] && echo "all good" || ( echo "var is not set"; exit 1 )
+	@echo "FAMILY = $(FAMILY)"
+	@echo "CAMERA FACILITY ID = $(CAMERA)"
+	test -e boards/$(BOARD)/build || mkdir boards/$(BOARD)/build
+	cp $(FAMILY)/kernel/uImage boards/$(BOARD)/build/uImage
+	rm -f boards/$(BOARD)/build/rootfs.squashfs
+	rm -rf boards/$(BOARD)/build/rootfs.tmp; mkdir boards/$(BOARD)/build/rootfs.tmp
+	cp -r $(FAMILY)/rootfs/target/* boards/$(BOARD)/build/rootfs.tmp/
+	test ! -e boards/$(BOARD)/putonrootfs || cp -r boards/$(BOARD)/putonrootfs/* boards/$(BOARD)/build/rootfs.tmp/
+	mksquashfs  boards/$(BOARD)/build/rootfs.tmp \
+                boards/$(BOARD)/build/rootfs.squashfs \
+                -all-root
+                #-info
+	cp boards/$(BOARD)/build/uImage burner/images/uImage
+	cp boards/$(BOARD)/build/rootfs.squashfs burner/images/rootfs.squashfs
+	#cp $(FAMILY)/rootfs/images/rootfs.squashfs burner/images/rootfs.squashfs
+	exit
+	cd burner; \
+        authbind --deep ./burner.py \
+            load \
+            --port /dev/ttyCAM$(CAMERA) \
+            --uimage ./images/uImage \
+            --rootfs ./images/rootfs.squashfs \
+            --ip 192.169.0.10$(CAMERA) \
+            --skip 1024 \
+            --initrd 4 \
+            --memory $(MEM_LINUX) \
+            --servercamera $(CAMERA)
+	screen -L /dev/ttyCAM$(CAMERA) 115200
+
+
 ########################################################################
-#buildroot-2019.05.1-toolchain:
-#	tar -xzf buildroot-2019.05.1.tar.gz -C $(THIS_DIR)
-#	mv buildroot-2019.05.1 buildroot-2019.05.1-toolchain
-#	cd buildroot-2019.05.1-toolchain; rm dl; ln -s ../buildroot-dl dl
-#	cd buildroot-2019.05.1-toolchain; make defconfig BR2_DEFCONFIG=$(THIS_DIR)/defconfig-toolchain.buildroot
-#	cp -r ./buildroot-2019.05.1-patch/* ./buildroot-2019.05.1-debug
-
-environment-buildroot-2019.05.1-debug:
-	tar -xzf buildroot-2019.05.1.tar.gz -C $(THIS_DIR)
-	mv buildroot-2019.05.1 buildroot-2019.05.1-debug
-	test -e buildroot-dl || mkdir buildroot-dl
-	cd buildroot-2019.05.1-debug; ln -s ../buildroot-dl dl
-	cd buildroot-2019.05.1-debug; make defconfig BR2_DEFCONFIG=$(THIS_DIR)/defconfig-debug.buildroot
-	cp -r ./buildroot-2019.05.1-patch/* ./buildroot-2019.05.1-debug
-
-enviroment-buildroot-2019.05.1-debug-update-config:
-	cd buildroot-2019.05.1-debug; make defconfig BR2_DEFCONFIG=$(THIS_DIR)/defconfig-debug.buildroot
-
-#buildroot-2019.05.1-release:
-#	test -e buildroot-2019.05.1-release || tar -xzf buildroot-2019.05.1.tar.gz -C $(THIS_DIR)
-#	mv buildroot-2019.05.1 buildroot-2019.05.1-release
-#	cd buildroot-2019.05.1-release; rm dl; ln -s ../buildroot-dl dl
-#	cd buildroot-2019.05.1-release; make defconfig BR2_DEFCONFIG=$(THIS_DIR)/defconfig-release.buildroot
-#	cp -r ./buildroot-2019.05.1-patch/* ./buildroot-2019.05.1-release
-
-environment-deploy-debug: environment-buildroot-2019.05.1-debug
-	cd buildroot-2019.05.1-debug; make clean; make
+enviroiment-buildroot-2019.08:
+	tar -xzf buildroot-2019.08.tar.gz -C $(THIS_DIR)
+	cp -r ./buildroot-2019.08-patch/* ./buildroot-2019.08
 
 ########################################################################
 
 app-build-debug:
-	cd $(APP); make
-	cd $(APP); cp ./$(APP) ../putonrootfs-debug/opt
-	cd $(BUILDROOT); make rootfs-$(ROOTFS)
-	cp $(BUILDROOT)/output/images/rootfs.$(ROOTFS) ./burner/images
+	#cd $(APP); make
+	#cd $(APP); cp ./$(APP) ../putonrootfs/opt
+	cd buildroot-2019.05.1-debug; make
+	cp buildroot-2019.05.1-debug/output/images/rootfs.squashfs ./burner/images
 
 app-deploy-debug-server: app-build-debug deploy-no-build
 
 app-deploy-debug-local: app-build-debug
 	cd burner; \
-		sudo ./burner.py \
-				load \
-				--port /dev/ttyCAM$(CAMERA) \
-				--uimage ./images/uImage \
-				--rootfs ./images/rootfs.$(ROOTFS) \
-				--ip $(CAMERA_LOCAL_LOAD_IP) \
-				--skip 1024 \
-				--memory 96
+		sudo ./burner.py load --uimage ./images/uImage --rootfs ./images/rootfs.squashfs --ip $(CAMERA_LOCAL_LOAD_IP) --skip 1024 --memory 96
 
 deploy-no-build:
 	cd burner; \
 		authbind --deep ./burner.py \
 			load \
-			--port /dev/ttyCAM$(CAMERA) \
 			--uimage ./images/uImage \
-			--rootfs ./images/rootfs.$(ROOTFS) \
+			--rootfs ./images/rootfs.squashfs \
 			--ip 192.169.0.10$(CAMERA) \
 			--skip 1024 \
 			--memory 96 \
 			--servercamera $(CAMERA)
-	screen -L /dev/ttyCAM$(CAMERA) 115200
+	screen /dev/ttyCAM$(CAMERA) 115200
 
 ########################################################################
 camera-serial:
 	screen -L /dev/ttyCAM$(CAMERA) 115200
 
-camera-serial-1:
-	screen -L /dev/ttyCAM1 115200
-camera-serial-2:
-	screen -L /dev/ttyCAM2 115200
+camera-serial-7:
+	screen -L /dev/ttyCAM7 115200
+########################################################################
 
+
+#APP
+#BOARD
+
+#newbuild:
