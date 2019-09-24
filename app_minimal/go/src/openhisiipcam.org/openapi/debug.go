@@ -1,4 +1,4 @@
-// +build openapi debug
+// +build openapi, debug
 
 package openapi
 

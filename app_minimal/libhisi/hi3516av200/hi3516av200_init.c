@@ -437,7 +437,7 @@ int hi3516av200_isp_init(struct hi3516av200_cmos * c) {
     stAfLib.s32Id = 0;
     strncpy(stAeLib.acLibName,  HI_AE_LIB_NAME,     sizeof(HI_AE_LIB_NAME));
     strncpy(stAwbLib.acLibName, HI_AWB_LIB_NAME,    sizeof(HI_AWB_LIB_NAME));
-    strncpy(stAfLib.acLibName,  HI_AF_LIB_NAME,     sizeof(HI_AF_LIB_NAME)); 
+    strncpy(stAfLib.acLibName,  HI_AF_LIB_NAME,     sizeof(HI_AF_LIB_NAME));
 
     if (c->snsobj->pfnRegisterCallback != HI_NULL) {
         error_code = c->snsobj->pfnRegisterCallback(0, &stAeLib, &stAwbLib);

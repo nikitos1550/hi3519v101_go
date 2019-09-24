@@ -5,6 +5,6 @@
 #   hi3516av200     - hi3516av200/hi3519v101 chips support
 #   hi35XXXvXXX     - chip family
 
-GOTAGS := "openapi debug hi3516av200 lua"
-#GOTAGS := ""
+GOTAGS := "netgo openapi debug hi3516av200 lua onvif"
+#GOTAGS := "netgo"
 

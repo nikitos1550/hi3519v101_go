@@ -11,12 +11,16 @@ import (
 	_ "time"
 
     "openhisiipcam.org/buildinfo"
-	"openhisiipcam.org/hisi"
+	//"openhisiipcam.org/hisi"
 	"openhisiipcam.org/openapi"
 
 	//_ "openhisiipcam.org/scripts"
 
 	//"github.com/yuin/gopher-lua"
+
+    //_ "openhisiipcam.org/onvif"
+
+    "openhisiipcam.org/hisi"
 )
 
 func main() {
@@ -43,6 +47,10 @@ func main() {
 
 	///////////////////////////////////////////////////////////////////////////
 
+    //log.Println("hi3516av200 swig check")
+    //log.Println("HI_FALSE: ", hi3516av200.HI_FALSE)
+
+    //hi3516av200.HI_MPI_SYS_Exit()
 	hisi.MppInit()
 
 	//himpp3.SysInit()

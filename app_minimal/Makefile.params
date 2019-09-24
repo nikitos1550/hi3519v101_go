@@ -12,10 +12,20 @@ GOFMT := $(THIS_DIR)../$(BUILDROOT)/output/host/bin/gofmt
 M4 := $(THIS_DIR)../$(BUILDROOT)/output/host/bin/m4
 NM := $(THIS_DIR)../$(BUILDROOT)/output/host/bin/$(TOOLCHAIN)-nm
 STRIP := $(THIS_DIR)../$(BUILDROOT)/output/host/bin/$(TOOLCHAIN)-strip
+SWIG := $(THIS_DIR)../$(BUILDROOT)/output/host/bin/swig
 
-CFLAGS := -std=gnu11 -fPIC -mcpu=cortex-a7 -mfloat-abi=softfp -mfpu=neon-vfpv4 -mno-unaligned-access -fno-aggressive-loop-optimizations -Os
+CFLAGS :=   -std=gnu11 \
+            -fPIC \
+            -mcpu=cortex-a7 \
+            -mfloat-abi=softfp \
+            -mfpu=neon-vfpv4 \
+            -mno-unaligned-access \
+            -fno-aggressive-loop-optimizations \
+            -O2 \
+            -fno-common -ffunction-sections
 
-GOFLAGS := -ldflags="-s -w -extldflags '-static'"
+GOFLAGS := -ldflags="-s -w -extldflags '-static -Wl,--gc-sections'"
+
 #GOFLAGS := -ldflags="-extldflags '-static'"
 #GOFLAGS := -ldflags="-s -w"
 

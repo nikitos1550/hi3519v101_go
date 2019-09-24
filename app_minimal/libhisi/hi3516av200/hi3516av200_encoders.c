@@ -43,7 +43,44 @@ int hisi_encoder_fetch  (unsigned int id,
 }
 
 int hisi_encoder_delete (unsigned int id) {
+    if (id > VENC_MAX_CHN_NUM) return ERR_OBJECT_NOT_FOUND;
 
+    if (encoders_enable[id] != ENCODER_ENABLED) return ERR_OBJECT_NOT_FOUND;
+
+    int error_code = 0;
+
+    MPP_CHN_S stSrcChn;
+    MPP_CHN_S stDestChn;
+
+    stDestChn.enModId  = HI_ID_VENC;
+    stDestChn.s32DevId = 0;
+    stDestChn.s32ChnId = id;
+
+    error_code =  HI_MPI_SYS_GetBindbyDest(&stDestChn, &stSrcChn);
+    if (error_code != HI_SUCCESS) {
+        printf("C DEBUG: hisi_encoder_delete: HI_MPI_SYS_GetBindbyDest %d failed %#x\n", id, error_code);
+        return ERR_MPP;
+    }
+
+    error_code = HI_MPI_SYS_UnBind(&stSrcChn, &stDestChn);
+    if (error_code != HI_SUCCESS) {
+        printf("C DEBUG: hisi_encoder_delete: HI_MPI_SYS_UnBind %d failed %#x\n", id, error_code);
+        return ERR_MPP;
+    }
+
+    error_code = HI_MPI_VENC_StopRecvPic(id);
+    if (error_code != HI_SUCCESS) {
+        printf("C DEBUG: hisi_encoder_delete: HI_MPI_VENC_StopRecvPic %d failed %#x\n", id, error_code);
+        return ERR_MPP;
+    }
+
+    error_code = HI_MPI_VENC_DestroyChn(id);
+    if (error_code != HI_SUCCESS) {
+        printf("C DEBUG: hisi_encoder_delete: HI_MPI_VENC_DestroyChn %d failed %#x\n", id, error_code);
+        return ERR_MPP;
+    }
+
+    return ERR_NONE;
 }
 
 int hi3516av200_encoder_create(unsigned int id, unsigned int channel, VENC_CHN_ATTR_S * mpp_venc) {

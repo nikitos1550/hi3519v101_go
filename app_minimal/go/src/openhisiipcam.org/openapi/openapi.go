@@ -45,6 +45,10 @@ func init() {
 func Init() {
 	log.Println("Openapi is ON!")
 
+    //log.Println("Starting lompp")
+    //go logMpp()
+    logMppInit()
+
 	router := NewRouter()
 
 	log.Println("Starting USD HTTP server")

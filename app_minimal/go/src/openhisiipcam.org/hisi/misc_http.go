@@ -15,7 +15,8 @@ import (
 )
 
 func init() {
-    openapi.AddRoute("systemTemperature", "/api/system/temperature", "GET", systemTemperature)
+    openapi.AddRoute("systemTemperature",   "/api/system/temperature",  "GET", systemTemperature)
+    openapi.AddRoute("systemChipId",        "/api/system/chipid",       "GET", systemChipId)
 }
 
 type systemTemperatureSchema struct {
@@ -44,4 +45,14 @@ func systemTemperature(w http.ResponseWriter, r *http.Request) {
     fmt.Fprintf(w, "%s", string(tSchemaJson))
 }
 
+func systemChipId(w http.ResponseWriter, r *http.Request) {
+    log.Println("systemChipId")
 
+    var chip C.uint
+    C.hisi_get_chipid(&chip)
+
+    w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
+    w.WriteHeader(http.StatusOK)
+
+    fmt.Fprintf(w, "ChipID %d\n",    uint(chip))
+}

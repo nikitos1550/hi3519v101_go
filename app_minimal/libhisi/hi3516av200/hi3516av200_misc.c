@@ -1,6 +1,8 @@
 #include "../hisi_external.h"
 #include "../hisi_utils.h"
 
+#include "hi3516av200_mpp.h"
+
 #include <stddef.h>
 #include <stdio.h>
 
@@ -12,6 +14,11 @@
 //        devmem(0x120A0110, 0x60FA0000, NULL);
 //        return 0;
 //}
+
+int hisi_get_chipid(unsigned int * chip) {
+    HI_MPI_SYS_GetChipId(chip);
+    return ERR_NONE;
+}
 
 int hisi_get_temperature(float * t) {
     uint32_t read;

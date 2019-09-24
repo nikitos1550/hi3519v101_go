@@ -1,4 +1,3 @@
-github.com  
-gopkg.in  
-golang.org
+*
+!openhisiipcam.org
 

@@ -143,6 +143,21 @@ paths:
               schema:
                type: string
 
+  /debug/logmpp:
+    get:
+      tags:
+        - debug
+      summary: 'Show /dev/logmpp debug information'
+      operationId: 'debugLogMpp'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            text/plain:
+              schema:
+               type: string
+
+
 ################################################################################
 
   /channels:
