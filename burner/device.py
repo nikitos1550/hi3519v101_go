@@ -11,7 +11,7 @@ class Device:
             data = data.decode("ascii")
         for r in (("\n", "\\n"), ("\r", "\\r")):
             data = data.replace(r[0], r[1])
-        self.logger.info(prefix + data)
+        self.logger.debug(prefix + data)
 
     def log_out(self, data):
         self._log_data("-> ", data)
@@ -21,7 +21,7 @@ class Device:
 
     def dlog(self, message, *args, **kwargs):
         if self.logger is not None:
-            self.logger.debug(str(self) + ": " + message.format(*args, **kwargs))
+            self.logger.info(str(self) + ": " + message.format(*args, **kwargs))
 
     def __str__(self):
         return self.serial.port

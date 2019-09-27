@@ -1,9 +1,9 @@
-if __name__ == "__main__":
-    from device import Device
-    from utils import get_device_logger
-else:
-    from .device import Device
-    from .utils import get_device_logger
+# if __name__ == "__main__":
+from device import Device
+from utils import get_device_logger
+# else:
+#     from .device import Device
+#     from .utils import get_device_logger
 
 
 class UBootConsole:

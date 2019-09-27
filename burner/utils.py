@@ -58,3 +58,12 @@ def get_iface_ip_and_mask(if_name, ipv6=False):
     except ImportError:
         dlog("'netifaces' module not found")
         raise
+
+
+# =====================================================================================================================
+def validate_ip_address(ip_str):  # throw on error
+    import socket
+    try:
+        socket.inet_aton(ip_str)
+    except socket.error:
+        raise ValueError("Invalid IP address: {}".format(ip_str))
