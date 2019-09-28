@@ -1,24 +1,26 @@
-include ../Makefile.params
+THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
-CHIPFAMILY = hi3516av200
+include $(THIS_DIR)/../../$(FAMILY)/Makefile.params
+
+#CHIPFAMILY = hi3516av200
 #CHIPFAMILY = hi3516cv100 #TODO
 #CHIPFAMILY = hi3516av100 #TODO
 
-SOURCES = $(wildcard *.c) $(wildcard $(CHIPFAMILY)/*.c) $(wildcard $(CHIPFAMILY)/cmos/*/*.c)
+SOURCES = $(wildcard *.c) $(wildcard $(FAMILY)/*.c) $(wildcard $(FAMILY)/cmos/*/*.c)
 OBJECTS = $(patsubst %.c, %.o, $(SOURCES))
-LIBS    = $(wildcard $(CHIPFAMILY)/lib/*.a)
+LIBS    = $(wildcard $(FAMILY)/lib/*.a)
 
 #KO = $(wildcard hi3516av200/ko/*.o)
-KO = $(shell CHIPFAMILY=$(CHIPFAMILY) ./ko.sh) #TODO make it pretty way & inline
+KO = $(shell FAMILY=$(FAMILY) ./ko.sh) #TODO make it pretty way & inline
 
 libhisi.a: clean $(OBJECTS) ko
 	$(AR) rcsT libhisi.a $(OBJECTS) $(KO) $(CMOS) $(LIBS)
 
 ./%.o: ./%.c
-	$(CC) $(CFLAGS) -I$(CHIPFAMILY)/include -c $< -o $@
+	$(CC) $(CFLAGS) -I$(FAMILY)/include -c $< -o $@
 
 ko:
-	make -C $(CHIPFAMILY)/ko -j4
+	make -C $(FAMILY)/ko -j4
 
 #showko:
 #	@echo $(KO)

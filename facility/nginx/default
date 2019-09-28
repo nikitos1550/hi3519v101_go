@@ -94,7 +94,7 @@ server {
 		# First attempt to serve request as file, then
 		# as directory, then fall back to displaying a 404.
 		rewrite /cam([1-9])/(.*) /$2 break;
-		proxy_pass http://192.169.0.10$1:80;
+		proxy_pass http://192.168.10.10$1:80;
 		#proxy_redirect     off;
 	}
 

@@ -115,11 +115,6 @@ typedef enum hiEN_ERR_CODE_E
 }EN_ERR_CODE_E;
 
 
-/* 
-** following is an example for defining error code of VDA module
-** #define HI_ERR_MD_INVALID_CHNID HI_DEF_ERR(HI_ID_VDA, EN_ERR_LEVEL_ERROR, EN_ERR_INVALID_CHNID)
-**
-*/
 
 #ifdef __cplusplus
 #if __cplusplus

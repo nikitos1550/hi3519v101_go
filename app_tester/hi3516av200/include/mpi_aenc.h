@@ -7,11 +7,11 @@
   Version       : Initial Draft
   Author        : Hisilicon multimedia software group
   Created       : 2009/6/15
-  Description   : 
+  Description   :
   History       :
   1.Date        : 2009/6/15
     Author      : p00123320
-    Modification: Created file    
+    Modification: Created file
 ******************************************************************************/
 #ifndef __MPI_AENC_H__
 #define __MPI_AENC_H__
@@ -29,21 +29,24 @@ extern "C"
 
 #define AENC_ADAPT_MAGIC 0Xfcfcfcfc
 
-HI_S32 HI_MPI_AENC_CreateChn(AENC_CHN AeChn, const AENC_CHN_ATTR_S *pstAttr);
-HI_S32 HI_MPI_AENC_DestroyChn(AENC_CHN AeChn);
+    HI_S32 HI_MPI_AENC_CreateChn(AENC_CHN AeChn, const AENC_CHN_ATTR_S* pstAttr);
+    HI_S32 HI_MPI_AENC_DestroyChn(AENC_CHN AeChn);
 
-HI_S32 HI_MPI_AENC_SendFrame(AENC_CHN AeChn, const AUDIO_FRAME_S *pstFrm, const AEC_FRAME_S *pstAecFrm);
+    HI_S32 HI_MPI_AENC_SendFrame(AENC_CHN AeChn, const AUDIO_FRAME_S* pstFrm, const AEC_FRAME_S* pstAecFrm);
 
-HI_S32 HI_MPI_AENC_GetStream(AENC_CHN AeChn, AUDIO_STREAM_S *pstStream, HI_S32 s32MilliSec); 
-HI_S32 HI_MPI_AENC_ReleaseStream(AENC_CHN AeChn, const AUDIO_STREAM_S *pstStream);
+    HI_S32 HI_MPI_AENC_GetStream(AENC_CHN AeChn, AUDIO_STREAM_S* pstStream, HI_S32 s32MilliSec);
+    HI_S32 HI_MPI_AENC_ReleaseStream(AENC_CHN AeChn, const AUDIO_STREAM_S* pstStream);
 
-HI_S32 HI_MPI_AENC_GetFd(AENC_CHN AeChn);
+    HI_S32 HI_MPI_AENC_GetFd(AENC_CHN AeChn);
 
-HI_S32 HI_MPI_AENC_RegeisterEncoder(HI_S32 *ps32Handle, AENC_ENCODER_S *pstEncoder);
-HI_S32 HI_MPI_AENC_UnRegisterEncoder(HI_S32 s32Handle);
+    HI_S32 HI_MPI_AENC_RegeisterEncoder(HI_S32* ps32Handle, AENC_ENCODER_S* pstEncoder);
+    HI_S32 HI_MPI_AENC_UnRegisterEncoder(HI_S32 s32Handle);
 
-HI_S32 HI_MPI_AENC_SaveFile(AENC_CHN AeChn, AUDIO_SAVE_FILE_INFO_S *pstSaveFileInfo);
-HI_S32 HI_MPI_AENC_QueryFileStatus(AENC_CHN AeChn, AUDIO_FILE_STATUS_S* pstFileStatus);
+    HI_S32 HI_MPI_AENC_SaveFile(AENC_CHN AeChn, AUDIO_SAVE_FILE_INFO_S* pstSaveFileInfo);
+    HI_S32 HI_MPI_AENC_QueryFileStatus(AENC_CHN AeChn, AUDIO_FILE_STATUS_S* pstFileStatus);
+
+    HI_S32 HI_MPI_AENC_GetStreamBufInfo(AENC_CHN AeChn, HI_U32* pu32PhysAddr, HI_U32* pu32Size);
+
 
 #ifdef __cplusplus
 #if __cplusplus

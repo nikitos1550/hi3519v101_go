@@ -35,7 +35,7 @@ pack-app:
 	rm -rf boards/$(BOARD)/build/$(APP)/rootfs.tmp; mkdir boards/$(BOARD)/build/$(APP)/rootfs.tmp
 	cp -r $(FAMILY)/rootfs/target/* boards/$(BOARD)/build/$(APP)/rootfs.tmp/
 	test ! -e boards/$(BOARD)/putonrootfs || cp -r boards/$(BOARD)/putonrootfs/* boards/$(BOARD)/build/$(APP)/rootfs.tmp/
-	cp -r $(APP)/distrib/* boards/$(BOARD)/build/$(APP)/rootfs.tmp
+	cp -r $(APP)/distrib/$(FAMILY)/* boards/$(BOARD)/build/$(APP)/rootfs.tmp
 
 	mksquashfs  boards/$(BOARD)/build/$(APP)/rootfs.tmp \
                 boards/$(BOARD)/build/$(APP)/rootfs.squashfs \
@@ -130,17 +130,17 @@ enviroiment-setup: $(BR)
 
 ########################################################################
 
-deploy-burner:
-	cd burner; \
-		authbind --deep ./burner.py \
-			load \
-			--uimage ./images/uImage \
-			--rootfs ./images/rootfs.squashfs \
-			--ip $(CAMERA_IP) \
-            --initrd 16 \
-			--memory $(RAM_LINUX) \
-			--servercamera $(CAMERA)
-	screen /dev/ttyCAM$(CAMERA) 115200
+#deploy-burner:
+#	cd burner; \
+#		authbind --deep ./burner.py \
+#			load \
+#			--uimage ./images/uImage \
+#			--rootfs ./images/rootfs.squashfs \
+#			--ip $(CAMERA_IP) \
+#           --initrd 16 \
+#			--memory $(RAM_LINUX) \
+#			--servercamera $(CAMERA)
+#	screen /dev/ttyCAM$(CAMERA) 115200
 
 ########################################################################
 

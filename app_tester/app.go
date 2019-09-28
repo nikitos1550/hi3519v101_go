@@ -27,7 +27,7 @@ func versionHandler(w http.ResponseWriter, r *http.Request) {
     schema.App      = "app_tester"
     schema.Family   = chipFamily
     schema.Mpp      = version()
-    //schema.ChipId   = chipId()
+    schema.ChipId   = chipId()
 
     w.Header().Set("Content-Type", "application/json; charset=UTF-8")
     w.WriteHeader(http.StatusOK)

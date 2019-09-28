@@ -123,6 +123,7 @@ typedef HI_S32 FD_CHN;
 typedef HI_S32 MD_CHN;
 typedef HI_S32 ISP_DEV;
 typedef HI_S32 SENSOR_ID;
+typedef HI_S32 MIPI_DEV;
 
 
 
@@ -188,6 +189,9 @@ typedef enum hiMOD_ID_E
     HI_ID_VQA	  = 49, //Video quality  analysis
     HI_ID_LPR 	  = 50, // License Plate Recognition
 	HI_ID_FISHEYE = 51,
+    HI_ID_PHOTO   = 52,
+
+    HI_ID_EXTAO,
 	
     HI_ID_BUTT,
 } MOD_ID_E;
@@ -230,6 +234,7 @@ typedef enum hiPROFILE_TYPE_E
 #define MPP_MOD_H265E     "h265e"
 #define MPP_MOD_JPEGE     "jpege"
 #define MPP_MOD_MPEG4E    "mpeg4e"
+#define MPP_MOD_VEDU      "vedu"
 
 #define MPP_MOD_VDEC      "vdec"
 #define MPP_MOD_H264D     "h264d"

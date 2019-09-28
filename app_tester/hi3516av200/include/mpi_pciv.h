@@ -118,12 +118,47 @@ HI_S32  HI_MPI_PCIV_DmaTask(PCIV_DMA_TASK_S *pTask);
  Return Value    : HI_SUCCESS if success.
                    HI_FAILURE if failure
 
- See Also        : HI_MPI_PCIV_Free
+ See Also        : None
 *****************************************************************************/
-HI_U32  HI_MPI_PCIV_Malloc(HI_U32 u32BlkSize, HI_U32 u32BlkCnt, HI_U32 u32PhyAddr[]);
+HI_S32  HI_MPI_PCIV_Malloc(HI_U32 u32BlkSize, HI_U32 u32BlkCnt, HI_U32 u32PhyAddr[]);
+
+/*****************************************************************************
+ Description     : free memory with the physical address
+ Input             : u32BlkCnt      ** The count of memory block
+                       u32PhyAddr   ** The physical address of the memory
+ Output           : None
+ Return Value    : HI_SUCCESS if success.
+                   HI_FAILURE if failure
+
+ See Also        : None
+*****************************************************************************/
 HI_S32  HI_MPI_PCIV_Free(HI_U32 u32BlkCnt, HI_U32 u32PhyAddr[]);
 
-HI_U32  HI_MPI_PCIV_MallocChnBuffer(PCIV_CHN pcivChn, HI_U32 u32BlkSize, HI_U32 u32BlkCnt, HI_U32 u32PhyAddr[]);
+/*****************************************************************************
+ Description     : Alloc 'u32BlkSize' bytes memory and give the physical address for one pciv channel
+                   The memory used by PCI host, pciv slave cann't use this interface.
+ Input           : pcivChn        **pciv channel
+ 			   u32BlkSize    ** The size of each memory block
+                      u32BlkCnt     ** The count of memory block
+ Output         : u32PhyAddr  ** The physical address of the memory
+ Return Value    : HI_SUCCESS if success.
+                   HI_FAILURE if failure
+
+ See Also        : None
+*****************************************************************************/
+HI_S32  HI_MPI_PCIV_MallocChnBuffer(PCIV_CHN pcivChn, HI_U32 u32BlkSize, HI_U32 u32BlkCnt, HI_U32 u32PhyAddr[]);
+
+/*****************************************************************************
+ Description     : free pciv channel memory with the physical address
+                   The memory used by PCI host, pciv slave cann't use this interface.
+ Input           : pcivChn    ** pciv channel 
+                      u32BlkCnt     ** The count of memory block
+ Output         : None
+ Return Value    : HI_SUCCESS if success.
+                   HI_FAILURE if failure
+
+ See Also        : None
+*****************************************************************************/
 HI_S32  HI_MPI_PCIV_FreeChnBuffer(PCIV_CHN pcivChn, HI_U32 u32BlkCnt);
 
 
@@ -231,14 +266,28 @@ HI_S32 HI_MPI_PCIV_Show(PCIV_CHN pcivChn);
 HI_S32 HI_MPI_PCIV_Hide(PCIV_CHN pcivChn);
 
 /*****************************************************************************
- Description  : Get and Set pre-processing parameter, e.g. filter coef.
+ Description  : Get pre-processing parameter, e.g. filter coef.
  Input        : pcivChn ** The pciv channel id
- Output       : None
- Return Value :
+ Output       : PCIV_PREPROC_CFG_S  ** The pre-processing parameter of pciv channel
+ Return Value :HI_SUCCESS if success.
+                   HI_FAILURE if failure
+                   
+  See Also        : HI_MPI_PCIV_SetPreProcCfg
 *****************************************************************************/
 HI_S32 HI_MPI_PCIV_GetPreProcCfg(PCIV_CHN pcivChn, PCIV_PREPROC_CFG_S *pstCfg);
-HI_S32 HI_MPI_PCIV_SetPreProcCfg(PCIV_CHN pcivChn, PCIV_PREPROC_CFG_S *pstCfg);
 
+/*****************************************************************************
+ Description  : Set pre-processing parameter, e.g. filter coef.
+ Input        : pcivChn ** The pciv channel id
+ 		     PCIV_PREPROC_CFG_S  ** The pre-processing parameter of pciv channel
+ Output       : NONE
+ Return Value :HI_SUCCESS if success.
+                   HI_FAILURE if failure
+                   
+See Also        : HI_MPI_PCIV_GetPreProcCfg                   
+*****************************************************************************/
+
+HI_S32 HI_MPI_PCIV_SetPreProcCfg(PCIV_CHN pcivChn, PCIV_PREPROC_CFG_S *pstCfg);
 
 #ifdef __cplusplus
 #if __cplusplus

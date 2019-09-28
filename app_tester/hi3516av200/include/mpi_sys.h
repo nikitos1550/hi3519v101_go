@@ -31,8 +31,8 @@ extern "C" {
 #endif
 #endif /* End of #ifdef __cplusplus */
 
-HI_S32 HI_MPI_SYS_Init();
-HI_S32 HI_MPI_SYS_Exit();
+HI_S32 HI_MPI_SYS_Init(HI_VOID);
+HI_S32 HI_MPI_SYS_Exit(HI_VOID);
 
 HI_S32 HI_MPI_SYS_SetConf(const MPP_SYS_CONF_S* pstSysConf);
 HI_S32 HI_MPI_SYS_GetConf(MPP_SYS_CONF_S* pstSysConf);
@@ -42,6 +42,8 @@ HI_S32  HI_MPI_SYS_UnBind(MPP_CHN_S* pstSrcChn, MPP_CHN_S* pstDestChn);
 HI_S32  HI_MPI_SYS_GetBindbyDest(MPP_CHN_S* pstDestChn, MPP_CHN_S* pstSrcChn);
 
 HI_S32 HI_MPI_SYS_GetVersion(MPP_VERSION_S* pstVersion);
+
+HI_S32 HI_MPI_SYS_GetChipId(HI_U32 *pu32ChipId);
 
 /*
 ** u64Base is the global PTS of the system.
@@ -78,13 +80,10 @@ HI_VOID* HI_MPI_SYS_MmapCache(HI_U32 u32PhyAddr, HI_U32 u32Size);
 HI_S32 HI_MPI_SYS_Munmap(HI_VOID* pVirAddr, HI_U32 u32Size);
 HI_S32 HI_MPI_SYS_MflushCache(HI_U32 u32PhyAddr, HI_VOID *pVirAddr, HI_U32 u32Size);
 
-
 /*
 ** Access the physical address.
 ** You can use this function to access memory address or register address.
 */
-HI_S32 HI_MPI_SYS_SetReg(HI_U32 u32Addr, HI_U32 u32Value);
-HI_S32 HI_MPI_SYS_GetReg(HI_U32 u32Addr, HI_U32* pu32Value);
 
 HI_S32 HI_MPI_SYS_SetMemConf(MPP_CHN_S* pstMppChn, const HI_CHAR* pcMmzName);
 HI_S32 HI_MPI_SYS_GetMemConf(MPP_CHN_S* pstMppChn, HI_CHAR* pcMmzName);
@@ -108,6 +107,19 @@ HI_S32 HI_MPI_SYS_GetScaleCoefLevel(SCALE_RANGE_S *pstScaleRange,SCALE_COEFF_LEV
 /* Set/Get local timezone, range: [-86400, 86400] seconds (that is: [-24, 24] hours)  */
 HI_S32 HI_MPI_SYS_SetTimeZone(HI_S32 s32TimeZone);
 HI_S32 HI_MPI_SYS_GetTimeZone(HI_S32 *ps32TimeZone);
+
+HI_S32 HI_MPI_SYS_SetGPSInfo(GPS_INFO_S *pstGPSInfo);
+HI_S32 HI_MPI_SYS_GetGPSInfo(GPS_INFO_S *pstGPSInfo);
+
+HI_S32 HI_MPI_SYS_SetCheckResult(HI_S32 s32Result);
+HI_S32 HI_MPI_SYS_GetCheckResult(HI_S32* ps32Result);
+HI_S32 HI_MPI_SYS_GetCustomCode(HI_U32 *pu32CustomCode);
+
+HI_S32 HI_MPI_LOG_SetLevelConf(LOG_LEVEL_CONF_S *pstConf);
+HI_S32 HI_MPI_LOG_SetWaitFlag(HI_BOOL bWait);
+HI_S32 HI_MPI_LOG_GetLevelConf(LOG_LEVEL_CONF_S *pstConf);
+HI_S32 HI_MPI_LOG_Read(HI_CHAR *pBuf, HI_U32 u32Size);
+HI_VOID HI_MPI_LOG_Close(HI_VOID);
 
 #ifdef __cplusplus
 #if __cplusplus

@@ -78,7 +78,7 @@ HI_S32 HI_MPI_VGS_CancelJob(VGS_HANDLE hHandle);
 
 /*****************************************************************************
  Prototype    : HI_MPI_VGS_AddScaleTask
- Description  : Add a task to a vgs job 
+ Description  : Add a Scale task to a vgs job 
  Input        : VGS_HANDLE  hHandle   
  Output       : None
  Return Value : 
@@ -113,7 +113,7 @@ HI_S32 HI_MPI_VGS_AddDrawLineTask(VGS_HANDLE hHandle, VGS_TASK_ATTR_S *pstTask, 
 
 /*****************************************************************************
  Prototype    : HI_MPI_VGS_AddCoverTask
- Description  : add a draw point task into a job
+ Description  : add a Cover task into a job
  Input        : VGS_HANDLE  hHandle   
  Output       : None
  Return Value : 
@@ -130,7 +130,7 @@ HI_S32 HI_MPI_VGS_AddCoverTask(VGS_HANDLE hHandle, VGS_TASK_ATTR_S *pstTask, VGS
 
 /*****************************************************************************
  Prototype    : HI_MPI_VGS_AddOsdTask
- Description  : add a draw point task into a job
+ Description  : add a Osd task into a job
  Input        : VGS_HANDLE  hHandle   
  Output       : None
  Return Value : 
@@ -194,6 +194,59 @@ HI_S32 HI_MPI_VGS_AddCoverTaskArray(VGS_HANDLE hHandle, VGS_TASK_ATTR_S * pstTas
 <$/>
 *****************************************************************************/
 HI_S32 HI_MPI_VGS_AddOsdTaskArray(VGS_HANDLE hHandle, VGS_TASK_ATTR_S * pstTask, VGS_ADD_OSD_S astVgsAddOsd[], HI_U32 u32ArraySize);
+
+/*****************************************************************************
+ Prototype    : HI_MPI_VGS_AddQuickCopyTask
+ Description  : add Quick Copy tasks into a job
+ Input        : VGS_HANDLE  hHandle   
+ Output       : None
+ Return Value : 
+ Calls        : 
+ Called By    : 
+</$> 
+  History        :
+  1.Date         : 2014/01/27
+    Author       : 
+    Modification : Created function
+<$/>
+*****************************************************************************/
+HI_S32 HI_MPI_VGS_AddQuickCopyTask(VGS_HANDLE hHandle, VGS_TASK_ATTR_S * pstTask, VGS_ADD_QUICK_COPY_S * pstAddQuickCopy);
+
+
+/*****************************************************************************
+ Prototype    : HI_MPI_VGS_AddRevertTask
+ Description  : add Revert tasks into a job
+ Input        : VGS_HANDLE  hHandle   
+ Output       : None
+ Return Value : 
+ Calls        : 
+ Called By    : 
+</$> 
+  History        :
+  1.Date         : 2014/01/27
+    Author       : 
+    Modification : Created function
+<$/>
+*****************************************************************************/
+HI_S32 HI_MPI_VGS_AddRevertTask(VGS_HANDLE hHandle, VGS_TASK_ATTR_S * pstTask, VGS_ADD_REVERT_S * pstAddRevert);
+
+/*****************************************************************************
+ Prototype    : HI_MPI_VGS_AddRotateTask
+ Description  : add Rotate tasks into a job
+ Input        : VGS_HANDLE  hHandle   
+ Output       : None
+ Return Value : 
+ Calls        : 
+ Called By    : 
+</$> 
+  History        :
+  1.Date         : 2017/07/07
+    Author       : 
+    Modification : Created function
+<$/>
+*****************************************************************************/
+
+HI_S32 HI_MPI_VGS_AddRotateTask(VGS_HANDLE hHandle,VGS_TASK_ATTR_S *pstTask, const ROTATE_E enRotate);
 
 #ifdef __cplusplus
 #if __cplusplus

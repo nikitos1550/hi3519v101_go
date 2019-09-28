@@ -15,7 +15,7 @@ History       :
 
 2.Date        : 2008/03/03
   Author      : c42025
-  Modification: 1. mv definition LOG_ERRLEVEL_E to here form file "hi_errno.h", 
+  Modification: 1. mv definition LOG_ERRLEVEL_E to here form file "hi_errno.h",
   but it will be obsolete in next version.
   2. add new macro definition for debug levle.
   3. change macro defintion HI_TRACE
@@ -31,12 +31,13 @@ History       :
 5.Date        :   2010/11/03
   Author      :   z44949
   Modification:   Remove some unnecessary typedef
-   
+
 ******************************************************************************/
 #ifndef __HI_DEBUG_H__
 #define __HI_DEBUG_H__
 
 #ifndef __KERNEL__
+#include <stdio.h>
 #include <stdarg.h>
 #endif
 
@@ -54,7 +55,6 @@ extern "C"{
 #define __FILE_LINE__ EX__FILE_LINE(__FILE__, __LINE__)
 
 #define HI_MOD_NAME_MAX_LEN		16
-
 #define HI_DBG_EMERG      0   /* system is unusable                   */
 #define HI_DBG_ALERT      1   /* action must be taken immediately     */
 #define HI_DBG_CRIT       2   /* critical conditions                  */
@@ -71,7 +71,7 @@ typedef struct hiLOG_LEVEL_CONF_S
     HI_CHAR   cModName[HI_MOD_NAME_MAX_LEN];
 } LOG_LEVEL_CONF_S;
 
-#ifndef __KERNEL__ 
+#ifndef __KERNEL__
 /******************************************************************************
 ** For User Mode : HI_PRINT, HI_ASSERT, HI_TRACE
 ******************************************************************************/
@@ -107,12 +107,13 @@ typedef struct hiLOG_LEVEL_CONF_S
 /******************************************************************************
 ** For Linux Kernel : HI_PRINT, HI_ASSERT, HI_TRACE
 ******************************************************************************/
-
-#define HI_PRINT printk
+//#include "hi_osal.h"
+#define HI_PRINT osal_printk
+extern void osal_panic(const char *fmt, const char * file, const char * fun, int line, const char *);
 
 extern HI_S32 HI_ChkLogLevel(HI_S32 s32Levle, MOD_ID_E enModId);
 extern HI_S32 g_power_save_enable;
-asmlinkage int HI_LOG(HI_S32 level, MOD_ID_E enModId,const char *fmt, ...);
+int HI_LOG(HI_S32 level, MOD_ID_E enModId,const char *fmt, ...);
 
 /* #ifdef HI_DEBUG */
 #if 1
@@ -120,7 +121,7 @@ asmlinkage int HI_LOG(HI_S32 level, MOD_ID_E enModId,const char *fmt, ...);
     #define HI_ASSERT(expr)               \
     do{                                   \
         if (!(expr)) {                    \
-            panic("\nASSERT failed at:\n" \
+            osal_panic("\nASSERT failed at:\n" \
                   "  >File name: %s\n"    \
                   "  >Function : %s\n"    \
                   "  >Line No. : %d\n"    \
@@ -129,14 +130,20 @@ asmlinkage int HI_LOG(HI_S32 level, MOD_ID_E enModId,const char *fmt, ...);
         } \
     }while(0)
 
-    /* Using samples: 
+    /* Using samples:
     ** HI_TRACE(HI_DBG_DEBUG, HI_ID_CMPI, "Test %d, %s\n", 12, "Test");
     **/
+#ifndef DISABLE_DEBUG_INFO
     #define HI_TRACE HI_LOG
+#else
+    #define HI_TRACE(level, enModId, fmt...)
+#endif
+
 #else
     #define HI_ASSERT(expr)
     #define HI_TRACE(level, enModId, fmt...)
 #endif
+
 
 #endif  /* end of __KERNEL__ */
 

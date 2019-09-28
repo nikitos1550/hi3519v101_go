@@ -17,3 +17,7 @@ func version() string {
     return C.GoString(&ver.aVersion[0])
 }
 
+func chipId() uint64 {
+    return 0
+}
+

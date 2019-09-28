@@ -34,6 +34,8 @@ HI_U32 HI_MPI_VB_Handle2PhysAddr(VB_BLK Block);
 VB_POOL HI_MPI_VB_Handle2PoolId(VB_BLK Block);
 
 HI_S32 HI_MPI_VB_GetSupplementAddr(VB_BLK Block, VIDEO_SUPPLEMENT_S *pstSupplement);
+HI_S32 HI_MPI_VB_SetSupplementConf(const VB_SUPPLEMENT_CONF_S *pstSupplementConf);
+HI_S32 HI_MPI_VB_GetSupplementConf(VB_SUPPLEMENT_CONF_S *pstSupplementConf);
 
 
 HI_S32 HI_MPI_VB_Init(HI_VOID);
@@ -52,8 +54,10 @@ HI_S32 HI_MPI_VB_ExitModCommPool(VB_UID_E enVbUid);
 HI_S32 HI_MPI_VB_SetModPoolConf(VB_UID_E enVbUid, const VB_CONF_S *pstVbConf);
 HI_S32 HI_MPI_VB_GetModPoolConf(VB_UID_E enVbUid, VB_CONF_S *pstVbConf);
 
-HI_S32 HI_MPI_VB_SetSupplementConf(const VB_SUPPLEMENT_CONF_S *pstSupplementConf);
-HI_S32 HI_MPI_VB_GetSupplementConf(VB_SUPPLEMENT_CONF_S *pstSupplementConf);
+HI_S32 HI_MPI_VB_SetModParam(VB_MOD_PARAM_S *pstModParam);
+HI_S32 HI_MPI_VB_GetModParam(VB_MOD_PARAM_S *pstModParam);
+
+
 
 
 #ifdef __cplusplus

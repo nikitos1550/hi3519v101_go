@@ -116,6 +116,46 @@ HI_S32 HI_MPI_FISHEYE_AddCorrectionTask(FISHEYE_HANDLE hHandle, FISHEYE_TASK_ATT
 
 HI_S32 HI_MPI_FISHEYE_SetConfig(FISHEYE_HANDLE hHandle,const FISHEYE_JOB_CONFIG_S *pstJobConfig);
 
+
+/*****************************************************************************
+ Prototype    : HI_MPI_FISHEYE_AddCylindExTask
+ Description  : Add CylindEx Task 
+ Input        : FISHEYE_HANDLE  hHandle
+		     FISHEYE_CYLIND_ATTR_EX_S *pstCylindExAttr
+
+ Output       : None
+ Return Value : 
+ Calls        : 
+ Called By    : 
+</$> 
+  History        :
+  1.Date         : 2017/07/06
+    Author       : 
+    Modification : Created function
+<$/>
+*****************************************************************************/
+
+
+HI_S32 HI_MPI_FISHEYE_AddCylindExTask(FISHEYE_HANDLE hHandle, FISHEYE_TASK_ATTR_S *pstTask, const FISHEYE_CYLIND_ATTR_EX_S *pstCylindExAttr);
+
+
+/*****************************************************************************
+ Prototype    : HI_MPI_FISHEYE_AddPmfTask
+ Description  : Add a task to a fisheye job
+ Input        : FISHEYE_HANDLE  hHandle
+ Output       : None
+ Return Value :
+ Calls        :
+ Called By    :
+</$>
+  History        :
+  1.Date         : 2017/07/19
+    Author       : 
+    Modification : Created function
+<$/>
+*****************************************************************************/
+HI_S32 HI_MPI_FISHEYE_AddPmfTask(FISHEYE_HANDLE hHandle, FISHEYE_TASK_ATTR_S *pstTask, const FISHEYE_PMF_ATTR_S *pstPMFAttr);
+
 #ifdef __cplusplus
 #if __cplusplus
 }

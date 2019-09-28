@@ -13,14 +13,12 @@
 *
 *
 *  History:
-* 
+*
 *       1.  Date         : 2010/12/13
 *           Author       : j00169368
 *           Modification : Created file
 *
 ******************************************************************************/
-
-
 #ifndef __HI_COMM_REGION_H__
 #define __HI_COMM_REGION_H__
 
@@ -29,16 +27,11 @@
 #include "hi_errno.h"
 #include "hi_defines.h"
 
-
 #ifdef __cplusplus
 #if __cplusplus
 extern "C"{
 #endif
 #endif /* End of #ifdef __cplusplus */
-
-
-
-
 
 typedef HI_U32 RGN_HANDLE;
 
@@ -49,12 +42,13 @@ typedef enum hiRGN_TYPE_E
     COVER_RGN,
     COVEREX_RGN,
     OVERLAYEX_RGN,
+    MOSAIC_RGN,
     RGN_BUTT
 } RGN_TYPE_E;
 
 typedef enum hiINVERT_COLOR_MODE_E
 {
-    LESSTHAN_LUM_THRESH = 0,   /* the lum of the video is less than the lum threshold which is set by u32LumThresh  */ 
+    LESSTHAN_LUM_THRESH = 0,   /* the lum of the video is less than the lum threshold which is set by u32LumThresh  */
     MORETHAN_LUM_THRESH,       /* the lum of the video is more than the lum threshold which is set by u32LumThresh  */
     INVERT_COLOR_BUTT
 }INVERT_COLOR_MODE_E;
@@ -70,7 +64,7 @@ typedef struct hiOVERLAY_INVERT_COLOR_S
 {
     SIZE_S stInvColArea;                //It must be multipe of 16 but not more than 64.
     HI_U32 u32LumThresh;                //The threshold to decide whether invert the OSD's color or not.
-    INVERT_COLOR_MODE_E enChgMod;      
+    INVERT_COLOR_MODE_E enChgMod;
     HI_BOOL bInvColEn;                  //The switch of inverting color.
 }OVERLAY_INVERT_COLOR_S;
 
@@ -82,22 +76,23 @@ typedef struct hiOVERLAY_ATTR_S
     /* background color, pixel format depends on "enPixelFmt" */
     HI_U32 u32BgColor;
 
-    /* region size,W:[4,4096],align:2,H:[4,4096],align:2 */
+    /* region size,W:[2,RGN_OVERLAY_MAX_WIDTH],align:2,H:[2,RGN_OVERLAY_MAX_HEIGHT],align:2 */
     SIZE_S stSize;
+	HI_U32 u32CanvasNum;
 }OVERLAY_ATTR_S;
 
 typedef struct hiOVERLAY_CHN_ATTR_S
 {
-    /* X:[0,4096],align:4,Y:[0,4096],align:4 */
+    /* X:[0,OVERLAY_MAX_X_VENC],align:2,Y:[0,OVERLAY_MAX_Y_VENC],align:2 */
     POINT_S stPoint;
-    
-    /* background an foreground transparence when pixel format is ARGB1555 
+
+    /* background an foreground transparence when pixel format is ARGB1555
       * the pixel format is ARGB1555,when the alpha bit is 1 this alpha is value!
       * range:[0,128]
       */
     HI_U32 u32FgAlpha;
 
-	/* background an foreground transparence when pixel format is ARGB1555 
+	/* background an foreground transparence when pixel format is ARGB1555
       * the pixel format is ARGB1555,when the alpha bit is 0 this alpha is value!
       * range:[0,128]
       */
@@ -148,6 +143,22 @@ typedef struct hiCOVEREX_CHN_ATTR_S
     HI_U32 u32Layer;   /* COVEREX region layer range */
 }COVEREX_CHN_ATTR_S;
 
+typedef enum hiMOSAIC_BLK_SIZE_E
+{
+    MOSAIC_BLK_SIZE_8 = 0,    /*block size 8*8 of MOSAIC*/
+    MOSAIC_BLK_SIZE_16,       /*block size 16*16 of MOSAIC*/
+    MOSAIC_BLK_SIZE_32,       /*block size 32*32 of MOSAIC*/
+    MOSAIC_BLK_SIZE_64,       /*block size 64*64 of MOSAIC*/
+    MOSAIC_BLK_SIZE_BUTT
+}MOSAIC_BLK_SIZE_E;
+
+typedef struct hiMOSAIC_CHN_ATTR_S
+{
+    RECT_S stRect;                 /*location of MOSAIC*/
+    MOSAIC_BLK_SIZE_E enBlkSize;   /*block size of MOSAIC*/
+    HI_U32 u32Layer;               /*MOSAIC region layer range:[0,3] */
+}MOSAIC_CHN_ATTR_S;
+
 typedef struct hiOVERLAYEX_COMM_ATTR_S
 {
     PIXEL_FORMAT_E enPixelFmt;
@@ -155,22 +166,23 @@ typedef struct hiOVERLAYEX_COMM_ATTR_S
     /* background color, pixel format depends on "enPixelFmt" */
     HI_U32 u32BgColor;
 
-    /* region size,W:[4,1920],align:2,H:[4,1080],align:2 */
+    /* region size,W:[2,RGN_OVERLAY_MAX_WIDTH],align:2,H:[2,RGN_OVERLAY_MAX_HEIGHT],align:2 */
     SIZE_S stSize;
+    HI_U32 u32CanvasNum;
 }OVERLAYEX_ATTR_S;
 
 typedef struct hiOVERLAYEX_CHN_ATTR_S
 {
-    /* X:[0,4096],align:4,Y:[0,4636],align:4 */
+    /* X:[0,RGN_OVERLAY_MAX_X],align:2,Y:[0,RGN_OVERLAY_MAX_Y],align:2 */
     POINT_S stPoint;
-    
-    /* background an foreground transparence when pixel format is ARGB1555 
+
+    /* background an foreground transparence when pixel format is ARGB1555
       * the pixel format is ARGB1555,when the alpha bit is 1 this alpha is value!
       * range:[0,255]
       */
     HI_U32 u32FgAlpha;
 
-	/* background an foreground transparence when pixel format is ARGB1555 
+	/* background an foreground transparence when pixel format is ARGB1555
       * the pixel format is ARGB1555,when the alpha bit is 0 this alpha is value!
       * range:[0,255]
       */
@@ -182,7 +194,7 @@ typedef struct hiOVERLAYEX_CHN_ATTR_S
 typedef union hiRGN_ATTR_U
 {
     OVERLAY_ATTR_S      stOverlay;      /* attribute of overlay region */
-    OVERLAYEX_ATTR_S    stOverlayEx;    /* attribute of overlayex region */ 
+    OVERLAYEX_ATTR_S    stOverlayEx;    /* attribute of overlayex region */
 } RGN_ATTR_U;
 
 typedef union hiRGN_CHN_ATTR_U
@@ -191,6 +203,7 @@ typedef union hiRGN_CHN_ATTR_U
     COVER_CHN_ATTR_S        stCoverChn;        /* attribute of cover region */
     COVEREX_CHN_ATTR_S      stCoverExChn;      /* attribute of coverex region */
     OVERLAYEX_CHN_ATTR_S    stOverlayExChn;    /* attribute of overlayex region */
+    MOSAIC_CHN_ATTR_S       stMosaicChn;       /* attribute of mosic region */
 } RGN_CHN_ATTR_U;
 
 /* attribute of a region */
@@ -207,8 +220,6 @@ typedef struct hiRGN_CHN_ATTR_S
     RGN_TYPE_E        enType;     /* region type */
     RGN_CHN_ATTR_U    unChnAttr;  /* region attribute */
 } RGN_CHN_ATTR_S;
-
-
 
 #define RGN_MAX_BMP_UPDATE_NUM 16
 
@@ -229,9 +240,9 @@ typedef struct hiRGN_CANVAS_INFO_S
 {
     HI_U32         u32PhyAddr;
     HI_U32         u32VirtAddr;
-    SIZE_S         stSize;              
+    SIZE_S         stSize;
     HI_U32         u32Stride;
-    PIXEL_FORMAT_E enPixelFmt;  
+    PIXEL_FORMAT_E enPixelFmt;
 } RGN_CANVAS_INFO_S;
 
 /* PingPong buffer change when set attr, it needs to remap memory in mpi interface */

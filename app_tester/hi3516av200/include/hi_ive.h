@@ -30,7 +30,7 @@ extern "C"{
 #define IVE_HIST_NUM		     256
 #define IVE_MAP_NUM		         256
 #define IVE_MAX_REGION_NUM       254
-#define IVE_ST_MAX_CORNER_NUM    200
+#define IVE_ST_MAX_CORNER_NUM    500
 
 /*
 *DMA mode ,created by Chen Quanfu 2013-07-19
@@ -342,13 +342,44 @@ typedef struct hiIVE_ORD_STAT_FILTER_CTRL_S
 }IVE_ORD_STAT_FILTER_CTRL_S; 
 
 /*
-* Map LUT memory struct
+*Type of the Map
 */
-typedef struct hiIVE_MAP_LUT_MEM_S
+typedef enum hiIVE_MAP_MODE_E 
+{ 
+    IVE_MAP_MODE_U8  =  0x0,
+    IVE_MAP_MODE_S16 =  0x1,
+    IVE_MAP_MODE_U16 =  0x2,
+
+    IVE_MAP_MODE_BUTT 
+}IVE_MAP_MODE_E;
+/*
+* Map control struct
+*/
+typedef struct hiIVE_MAP_CTRL_S
+{
+    IVE_MAP_MODE_E enMode;
+}IVE_MAP_CTRL_S;
+/*
+* Map unsigned 8 bit LUT memory struct
+*/
+typedef struct hiIVE_MAP_U8BIT_LUT_MEM_S
 {
     HI_U8  au8Map[IVE_MAP_NUM];
-}IVE_MAP_LUT_MEM_S;
-
+}IVE_MAP_U8BIT_LUT_MEM_S;
+/*
+* Map unsigned 16 bit LUT memory struct
+*/
+typedef struct hiIVE_MAP_U16BIT_LUT_MEM_S
+{
+    HI_U16  au16Map[IVE_MAP_NUM];
+}IVE_MAP_U16BIT_LUT_MEM_S;
+/*
+* Map signed 16 bit LUT memory struct
+*/
+typedef struct hiIVE_MAP_S16BIT_LUT_MEM_S
+{
+    HI_S16  as16Map[IVE_MAP_NUM];
+}IVE_MAP_S16BIT_LUT_MEM_S;
 /*
 * Equalizehist control member struct
 */
@@ -410,10 +441,21 @@ typedef struct hiIVE_CCBLOB_S
 }IVE_CCBLOB_S;
 
 /*
+*Type of the CCL
+*/
+typedef enum hiIVE_CCL_MODE_E 
+{ 
+	IVE_CCL_MODE_4C  =  0x0,/*4-connected*/
+	IVE_CCL_MODE_8C  =  0x1,/*8-connected*/
+
+	IVE_CCL_MODE_BUTT 
+}IVE_CCL_MODE_E;
+/*
 *CCL control struct
 */
 typedef struct hiIVE_CCL_CTRL_S
 {
+	IVE_CCL_MODE_E enMode;	  /*Mode*/
     HI_U16 u16InitAreaThr;    /*Init threshold of region area*/
     HI_U16 u16Step;           /*Increase area step for once*/
 }IVE_CCL_CTRL_S;
@@ -432,6 +474,48 @@ typedef struct hiIVE_GMM_CTRL_S
     HI_U0Q16     u0q16InitWeight;       /*Initial Weight*/
     HI_U8        u8ModelNum;            /*Model number: 3 or 5*/
 }IVE_GMM_CTRL_S;
+
+/*
+*Type of the GMM2 sensitivity factor mode
+*/
+typedef enum hiIVE_GMM2_SNS_FACTOR_MODE_E 
+{ 
+	IVE_GMM2_SNS_FACTOR_MODE_GLB   =  0x0,   /*Global sensitivity factor mode*/
+	IVE_GMM2_SNS_FACTOR_MODE_PIX   =  0x1,   /*Pixel sensitivity factor mode*/
+
+	IVE_GMM2_SNS_FACTOR_MODE_BUTT 
+}IVE_GMM2_SNS_FACTOR_MODE_E;
+
+/*
+*Type of the GMM2 life update factor mode
+*/
+typedef enum hiIVE_GMM2_LIFE_UPDATE_FACTOR_MODE_E 
+{ 
+	IVE_GMM2_LIFE_UPDATE_FACTOR_MODE_GLB  =  0x0, /*Global life update factor mode*/
+	IVE_GMM2_LIFE_UPDATE_FACTOR_MODE_PIX  =  0x1, /*Pixel life update factor mode*/
+
+	IVE_GMM2_LIFE_UPDATE_FACTOR_MODE_BUTT 
+}IVE_GMM2_LIFE_UPDATE_FACTOR_MODE_E ;
+
+/*
+*GMM2 control struct
+*/
+typedef struct hiIVE_GMM2_CTRL_S 
+{
+	IVE_GMM2_SNS_FACTOR_MODE_E			enSnsFactorMode;		  /*Sensitivity factor mode*/
+	IVE_GMM2_LIFE_UPDATE_FACTOR_MODE_E	enLifeUpdateFactorMode;   /*Life update factor mode*/
+	HI_U16								u16GlbLifeUpdateFactor;   /*Global life update factor (default: 4)*/
+	HI_U16								u16LifeThr;               /*Life threshold (default: 5000)*/
+	HI_U16								u16FreqInitVal;           /*Initial frequency (default: 20000)*/
+	HI_U16								u16FreqReduFactor;        /*Frequency reduction factor (default: 0xFF00)*/
+	HI_U16								u16FreqAddFactor;         /*Frequency adding factor (default: 0xEF)*/
+	HI_U16								u16FreqThr;               /*Frequency threshold (default: 12000)*/
+	HI_U16								u16VarRate;               /*Variation update rate (default: 1)*/
+	HI_U9Q7								u9q7MaxVar;               /*Max variation (default: (16 * 16)<<7)*/
+	HI_U9Q7								u9q7MinVar;               /*Min variation (default: ( 8 *  8)<<7)*/
+	HI_U8								u8GlbSnsFactor;           /*Global sensitivity factor (default: 8)*/
+	HI_U8								u8ModelNum;               /*Model number (range: 1~5, default: 3)*/
+}IVE_GMM2_CTRL_S;
 
 /*
 *CannyHysEdge control struct
@@ -496,24 +580,36 @@ typedef struct hiIVE_NORM_GRAD_CTRL_S
 	HI_U8 u8Norm;
 }IVE_NORM_GRAD_CTRL_S;
 
+
 /*
-* LKOpticalFlow  movement
+* LKOpticalFlowPyr output mode
 */
-typedef struct hiIVE_MV_S9Q7_S
+typedef enum hiIVE_LK_OPTICAL_FLOW_PYR_OUT_MODE_E
 {
-    HI_S32      s32Status;         /*Result of tracking: 0-success; -1-failure*/
-    HI_S9Q7     s9q7Dx;           /*X-direction component of the movement*/
-    HI_S9Q7     s9q7Dy;           /*Y-direction component of the movement*/
-}IVE_MV_S9Q7_S;
+	IVE_LK_OPTICAL_FLOW_PYR_OUT_MODE_NONE   = 0,	/*Output none*/
+	IVE_LK_OPTICAL_FLOW_PYR_OUT_MODE_STATUS = 1,	/*Output status*/
+	IVE_LK_OPTICAL_FLOW_PYR_OUT_MODE_BOTH   = 2,	/*Output status and err*/
 
-typedef struct hiIVE_LK_OPTICAL_FLOW_CTRL_S
+	IVE_LK_OPTICAL_FLOW_PYR_OUT_MODE_BUTT
+}IVE_LK_OPTICAL_FLOW_PYR_OUT_MODE_E;
+
+/*
+* LKOpticalFlowPyr control parameters
+*/
+typedef struct hiIVE_LK_OPTICAL_FLOW_PYR_CTRL_S
 {
-    HI_U16		u16CornerNum;		/*Number of the feature points,<200*/ 
+	IVE_LK_OPTICAL_FLOW_PYR_OUT_MODE_E enOutMode;
+    HI_BOOL     bUseInitFlow;		/*where to use initial flow*/
+    HI_U16	    u16PtsNum;		    /*Number of the feature points,<=500*/ 
+    HI_U8       u8MaxLevel;         /*0<=u8MaxLevel<=3*/
     HI_U0Q8     u0q8MinEigThr;		/*Minimum eigenvalue threshold*/
-    HI_U8	    u8IterCount;        /*Maximum iteration times*/
-    HI_U0Q8     u0q8Epsilon;        /*Threshold of iteration for dx^2 + dy^2 < u0q8Epsilon */
-}IVE_LK_OPTICAL_FLOW_CTRL_S;
+    HI_U8	    u8IterCnt;          /*Maximum iteration times, <=20*/
+    HI_U0Q8     u0q8Eps;            /*Used for exit criteria: dx^2 + dy^2 < u0q8Eps */
+}IVE_LK_OPTICAL_FLOW_PYR_CTRL_S;
 
+/*
+* Shi-Tomasi maximum eigenvalue
+*/
 typedef struct hiIVE_ST_MAX_EIG_S
 {
     HI_U16 u16MaxEig;           /*Shi-Tomasi second step output MaxEig*/
@@ -660,16 +756,25 @@ typedef enum hiIVE_ANN_MLP_ACTIV_FUNC_E
 
     IVE_ANN_MLP_ACTIV_FUNC_BUTT
 }IVE_ANN_MLP_ACTIV_FUNC_E;
+typedef enum hiIVE_ANN_MLP_ACCURATE_E
+{
+    IVE_ANN_MLP_ACCURATE_SRC16_WGT16    = 0x0,  /*input decimals' accurate 16 bit, weight 16bit*/
+    IVE_ANN_MLP_ACCURATE_SRC14_WGT20    = 0x1,  /*input decimals' accurate 14 bit, weight 20bit*/
+
+    IVE_ANN_MLP_ACCURATE_BUTT
+}IVE_ANN_MLP_ACCURATE_E;
 
 typedef struct hiIVE_ANN_MLP_MODEL_S
 {
     IVE_ANN_MLP_ACTIV_FUNC_E enActivFunc;
+    IVE_ANN_MLP_ACCURATE_E   enAccurate;
     IVE_MEM_INFO_S stWeight;
     HI_U32 u32TotalWeightSize;
 
-    HI_U16 au16LayerCount[8];    /*8 layers, including input and output layer, every layerCount<=256*/
-    HI_U16 u16MaxCount;          /*MaxCount<=256*/
+    HI_U16 au16LayerCount[8];    /*8 layers, including input and output layer*/
+    HI_U16 u16MaxCount;          /*MaxCount<=1024*/
     HI_U8 u8LayerNum;		     /*2<layerNum<=8*/
+    HI_U8 u8Reserved;
 }IVE_ANN_MLP_MODEL_S;
 
 typedef enum hiIVE_SVM_TYPE_E 
@@ -739,6 +844,123 @@ typedef struct hiIVE_SAD_CTRL_S
 	HI_U8 u8MinVal;				/*Min value*/
 	HI_U8 u8MaxVal;				/*Max value*/
 }IVE_SAD_CTRL_S; 
+
+/*
+* Resize zoom mode
+*/
+typedef enum hiIVE_RESIZE_MODE_E
+{
+	IVE_RESIZE_MODE_LINEAR   =  0x0, /*Bilinear interpolation*/
+	IVE_RESIZE_MODE_AREA	 =  0x1, /*Area-based (or super) interpolation*/
+
+	IVE_RESIZE_MODE_BUTT
+}IVE_RESIZE_MODE_E;
+
+/*
+* Resize ctrl param
+*/
+typedef struct hiIVE_RESIZE_CTRL_S
+{
+	IVE_RESIZE_MODE_E enMode;	
+    IVE_MEM_INFO_S stMem;
+	HI_U16  u16Num;
+}IVE_RESIZE_CTRL_S;
+
+/*
+* CNN active function mode
+*/
+typedef enum hiIVE_CNN_ACTIV_FUNC_E
+{
+    IVE_CNN_ACTIV_FUNC_NONE	   = 0x0,  /*Do not taking a activation, equivalent f(x)=x*/
+    IVE_CNN_ACTIV_FUNC_RELU    = 0x1,  /*f(x)=max(0, x)*/
+    IVE_CNN_ACTIV_FUNC_SIGMOID = 0x2,  /*f(x)=1/(1+exp(-x)), not support*/
+
+    IVE_CNN_ACTIV_FUNC_BUTT
+}IVE_CNN_ACTIV_FUNC_E;
+
+/*
+* CNN pooling mode
+*/
+typedef enum hiIVE_CNN_POOLING_E
+{
+    IVE_CNN_POOLING_NONE =0x0, /*Do not taking a pooling action*/
+    IVE_CNN_POOLING_MAX  =0x1, /*Using max value of every pooling area*/
+    IVE_CNN_POOLING_AVG  =0x2, /*Using average value of every pooling area*/
+
+    IVE_CNN_POOLING_BUTT
+}IVE_CNN_POOLING_E;
+
+/*
+* CNN Conv-ReLU-Pooling layer control parameters
+*/
+typedef struct hiIVE_CNN_CONV_POOLING_S
+{
+    IVE_CNN_ACTIV_FUNC_E enActivFunc; /*Type of activation function*/
+    IVE_CNN_POOLING_E    enPooling;   /*Mode of pooling method*/
+
+	HI_U8  u8FeatureMapNum;	    /*Number of feature maps*/
+    HI_U8  u8KernelSize;		/*Kernel size, only support 3 currently*/
+    HI_U8  u8ConvStep;			/*Convolution step, only support 1 currently*/
+    
+    HI_U8  u8PoolSize;			/*Pooling size, only support 2 currently*/ 
+    HI_U8  u8PoolStep;			/*Pooling step, only support 2 currently*/
+    HI_U8  u8Reserved[3];
+
+}IVE_CNN_CONV_POOLING_S;
+
+/*
+* CNN fully connected layer control parameters
+*/
+typedef struct hiIVE_CNN_FULL_CONNECT_S
+{
+    HI_U16 au16LayerCnt[8];		/*Neuron number of every fully connected layers*/
+    HI_U16 u16MaxCnt;			/*Max neuron number in all fully connected layers*/
+    HI_U8 u8LayerNum;			/*Number of fully connected layer*/
+    HI_U8 u8Reserved;    
+}IVE_CNN_FULL_CONNECT_S;
+
+/*
+* CNN model info
+*/
+typedef struct hiIVE_CNN_MODEL_S
+{
+    IVE_CNN_CONV_POOLING_S astConvPool[8];  /*Conv-ReLU-Pooling layers info*/
+    IVE_CNN_FULL_CONNECT_S stFullConnect;   /*Fully connected layers info*/
+
+    IVE_MEM_INFO_S stConvKernelBias;	    /*Conv-ReLU-Pooling layers' kernels and bias*/
+    HI_U32 u32ConvKernelBiasSize;           /*Size of Conv-ReLU-Pooling layer' kernels and bias*/
+
+    IVE_MEM_INFO_S stFCLWgtBias;		    /*Fully Connection Layers' weights and bias*/
+    HI_U32 u32FCLWgtBiasSize;               /*Size of fully connection layers weights and bias*/
+
+    HI_U32 u32TotalMemSize;                 /*Total memory size of all kernels, weights, bias*/
+
+    IVE_IMAGE_TYPE_E enType;		        /*Image type used for the CNN model*/
+    HI_U16 u16Width;                        /*Image width used for the model*/
+    HI_U16 u16Height;                       /*Image height used for the model*/
+
+	HI_U16 u16ClassCount;                   /*Number of classes*/
+    HI_U8  u8ConvPoolLayerNum;              /*Number of Conv-ReLU-Pooling layers*/
+    HI_U8  u8Reserved;
+}IVE_CNN_MODEL_S;
+
+/*
+* CNN ctrl param
+*/
+typedef struct hiIVE_CNN_CTRL_S
+{
+	IVE_MEM_INFO_S stMem;   /*Assist memory*/
+    HI_U32 u32Num;			/*Input image number*/
+}IVE_CNN_CTRL_S;
+
+/*
+* CNN result struct
+*/
+typedef struct hiIVE_CNN_RESULT_S
+{
+    HI_S32 s32ClassIdx;     /*The most possible index of the classification*/
+    HI_S32 s32Confidence;   /*The confidence of the classification*/
+}IVE_CNN_RESULT_S;
 
 #ifdef __cplusplus
 #if __cplusplus

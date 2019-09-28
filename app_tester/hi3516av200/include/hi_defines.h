@@ -21,17 +21,38 @@ extern "C"{
 
 
 #define HI3516A_V100 0x3516A100
+#define HI3516A_V200 0x3516A200
 #define HI3516D_V100 0x3516D100
 #define HI3518E_V200 0x3518E200
 #define HI3519_V100  0x3519100
-#define HI35xx_Vxxx  0x35000000
+#define HI3516C_V300 0x3516C300
+#define HI3519_V101  0x35190101
+#define HI3559_V100  0x35590100
+#define HI3556_V100  0x35560100
+
+#define HI35xx_Vxxx 0x35000000
 
 #ifndef HICHIP
-    #define HICHIP HI3516A_V100
+    #define HICHIP HI3519_V101
 #endif
 
 #if HICHIP==HI3516A_V100
     #define CHIP_NAME    "Hi3516A"
+    #define MPP_VER_PRIX "_MPP_V"
+#elif HICHIP==HI3516A_V200
+    #define CHIP_NAME    "Hi3516AV200"
+    #define MPP_VER_PRIX "_MPP_V"
+#elif HICHIP==HI3518E_V200
+    #define CHIP_NAME    "Hi3518EV200"
+    #define MPP_VER_PRIX "_MPP_V"
+#elif HICHIP==HI3519_V100
+    #define CHIP_NAME    "Hi3519V100"
+    #define MPP_VER_PRIX "_MPP_V"
+#elif HICHIP==HI3519_V101
+    #define CHIP_NAME    "Hi3519V101"
+    #define MPP_VER_PRIX "_MPP_V"
+#elif HICHIP==HI3559_V100
+    #define CHIP_NAME    "Hi3559"
     #define MPP_VER_PRIX "_MPP_V"
 #elif HICHIP==HI35xx_Vxxx
     #error HuHu, I am an dummy chip
@@ -39,141 +60,105 @@ extern "C"{
     #error HICHIP define may be error
 #endif
 
-#define LINE_LEN_BIT            5
-#define LINE_LEN                (1<<LINE_LEN_BIT)
-#define LINE_BASE_MASK          (~(LINE_LEN-1))
-static inline void InvalidateDcache(unsigned long addr, unsigned long len)
-{
-    unsigned long end;
-    //TODO: cache refresh need rewrite
-    return ;
-    
-    addr &= LINE_BASE_MASK;
-    len >>= LINE_LEN_BIT;
-    end   = addr + len*LINE_LEN;
+#define VEDU_MAX_CNT 2                 /*max vedu number,3531/3521(2), 3521(1)*/
 
-    while(addr != end)
-    {
-        asm("mcr p15, 0, %0, c7, c6, 1"::"r"(addr));
-        addr += LINE_LEN;
-    }
-    return;
-}
 
-static inline  void FlushDcache(unsigned long addr, unsigned long len)
-{
-    unsigned long end;
+#define DEFAULT_ALIGN                16
+#define MAX_MMZ_NAME_LEN             16
 
-    //TODO: cache refresh need rewrite
-    return ;
+#define MAX_NODE_NUM                 16
 
-    addr &= LINE_BASE_MASK;
-    len >>= LINE_LEN_BIT;
-    end   = addr + len*LINE_LEN;
-
-    while(addr != end)
-    {
-        asm("mcr p15, 0, %0, c7, c10, 1"::"r"(addr));
-        addr += LINE_LEN;
-    }
-    return;
-}
-
-#define DEFAULT_ALIGN           16
-#define MAX_MMZ_NAME_LEN        16
-
-#define MAX_NODE_NUM            16
-
+#define VIU_ROTATE_MAX_WIDTH         4608
 /* For VDA */
-#define VDA_MAX_NODE_NUM        32
-#define VDA_MAX_INTERNAL        256
-#define VDA_CHN_NUM_MAX         32
-#define VDA_MAX_WIDTH           960
-#define VDA_MAX_HEIGHT          960
-#define VDA_MIN_WIDTH           32
-#define VDA_MIN_HEIGHT          32
+#define VDA_MAX_NODE_NUM             32
+#define VDA_MAX_INTERNAL             256
+#define VDA_CHN_NUM_MAX              32
+#define VDA_MAX_WIDTH                960
+#define VDA_MAX_HEIGHT               960
+#define VDA_MIN_WIDTH                32
+#define VDA_MIN_HEIGHT               32
 
 /* For VENC */
-#define VENC_MAX_NAME_LEN       16
-#define VENC_MAX_CHN_NUM        16
-#define VENC_MAX_GRP_NUM        16
-#define H264E_MAX_WIDTH         2592
-#define H264E_MAX_HEIGHT        2592
-#define H264E_MIN_WIDTH         160
-#define H264E_MIN_HEIGHT        64
-#define H265E_MAX_WIDTH         2592
-#define H265E_MAX_HEIGHT        2592
-#define H265E_MIN_WIDTH         128
-#define H265E_MIN_HEIGHT        128
-#define JPEGE_MAX_WIDTH         8192
-#define JPEGE_MAX_HEIGHT        8192
-#define JPEGE_MIN_WIDTH         32
-#define JPEGE_MIN_HEIGHT        32
-#define VENC_MAX_ROI_NUM        8               /* The max numbers of ROI region support */
-#define H264E_MIN_HW_INDEX      0
-#define H264E_MAX_HW_INDEX      11
-#define H264E_MIN_VW_INDEX      0
-#define H264E_MAX_VW_INDEX      3
-
-
-
+#define VENC_MAX_NAME_LEN            16
+#define VENC_MAX_CHN_NUM             16
+#define VENC_MAX_GRP_NUM             16
+#define VEDU_NUM                     1
+#define H264E_MAX_WIDTH              4608
+#define H264E_MAX_HEIGHT             4608
+#define H264E_MIN_WIDTH              256
+#define H264E_MIN_HEIGHT             128
+#define H265E_MAX_WIDTH              4608
+#define H265E_MAX_HEIGHT             4608
+#define H265E_MIN_WIDTH              128
+#define H265E_MIN_HEIGHT             128
+#define JPEGE_MAX_WIDTH              8192
+#define JPEGE_MAX_HEIGHT             8192
+#define JPEGE_MIN_WIDTH              32
+#define JPEGE_MIN_HEIGHT             32
+#define VENC_MAX_ROI_NUM             8
+#define H264E_MIN_HW_INDEX           0
+#define H264E_MAX_HW_INDEX           11
+#define H264E_MIN_VW_INDEX           0
+#define H264E_MAX_VW_INDEX           3
+#define VENC_QP_HISGRM_NUM           52
 
 /* For RC */
-#define RC_TEXTURE_THR_SIZE     12
-#define RC_RQRATIO_SIZE         8
+#define RC_TEXTURE_THR_SIZE          16
+//#define RC_RQRATIO_SIZE            8
 
-
-/* For VDEC, hi3516a not support */
-#define VDEC_MAX_CHN_NUM        0
+/* For VDEC, this chip not support */
+#define VDEC_MAX_CHN_NUM             0
 
 /* For Region */
-#define RGN_MIN_WIDTH             2
-#define RGN_MIN_HEIGHT            2
-#define RGN_MIN_X                 0
-#define RGN_MIN_Y                 0
-#define RGN_MAX_X                 2592
-#define RGN_MAX_Y                 2592
-#define RGN_MAX_WIDTH             2592
-#define RGN_MAX_HEIGHT            2592
+/* For Region */
+#define RGN_MIN_WIDTH                2
+#define RGN_MIN_HEIGHT               2
+
+#define RGN_COVER_MIN_X              -8190
+#define RGN_COVER_MIN_Y              -8190
+#define RGN_COVER_MAX_X              8190
+#define RGN_COVER_MAX_Y              8190
+#define RGN_COVER_MAX_WIDTH          8190
+#define RGN_COVER_MAX_HEIGHT         8190
+
+#define RGN_OVERLAY_MIN_X            0
+#define RGN_OVERLAY_MIN_Y            0
+#define RGN_OVERLAY_MAX_X            8190
+#define RGN_OVERLAY_MAX_Y            8190
+#define RGN_OVERLAY_MAX_WIDTH        4094
+#define RGN_OVERLAY_MAX_HEIGHT       4094
+
+#define RGN_ALIGN                    2
+
+#define RGN_HANDLE_MAX               1024
+#define RGN_MAX_BUF_NUM 			 6
+
+#define COVER_MAX_NUM_VI             0
+#define COVEREX_MAX_NUM_VI           16
+#define OVERLAY_MAX_NUM_VI           0
+#define OVERLAYEX_MAX_NUM_VI         16
+
+#define OVERLAY_MAX_NUM_VENC         8
+#define OVERLAY_MAX_X_VENC           8190
+#define OVERLAY_MAX_Y_VENC           8190
+
+#define OVERLAYEX_MAX_NUM_VENC         8
+#define OVERLAYEX_MAX_X_VENC           8190
+#define OVERLAYEX_MAX_Y_VENC           8190
 
 
-#define RGN_COVER_MIN_X           0
-#define RGN_COVER_MIN_Y           0
-#define RGN_COVER_MAX_X           2592
-#define RGN_COVER_MAX_Y           2592
-#define RGN_COVER_MAX_WIDTH       2592
-#define RGN_COVER_MAX_HEIGHT      2592
+#define COVER_MAX_NUM_VPSS           8
+#define COVEREX_MAX_NUM_VPSS         8
+#define OVERLAY_MAX_NUM_VPSS         1
+#define OVERLAYEX_MAX_NUM_VPSS       8
 
-#define RGN_OVERLAY_MIN_X         0
-#define RGN_OVERLAY_MIN_Y         0
-#define RGN_OVERLAY_MAX_X         2592
-#define RGN_OVERLAY_MAX_Y         2592
-#define RGN_OVERLAY_MAX_WIDTH     2592
-#define RGN_OVERLAY_MAX_HEIGHT    2592
+#define COVEREX_MAX_NUM_VO           1
+#define OVERLAYEX_MAX_NUM_VO         1
 
-#define RGN_ALIGN                 2
+#define OVERLAYEX_MAX_NUM_PCIV       1
 
-#define RGN_HANDLE_MAX            1024
-
-#define COVER_MAX_NUM_VI          0
-#define COVEREX_MAX_NUM_VI        16
-#define OVERLAY_MAX_NUM_VI        0
-#define OVERLAYEX_MAX_NUM_VI      16
-
-#define OVERLAY_MAX_NUM_VENC      8
-#define OVERLAY_MAX_X_VENC        8190
-#define OVERLAY_MAX_Y_VENC        8190
-
-#define COVER_MAX_NUM_VPSS        8
-#define COVEREX_MAX_NUM_VPSS      8
-#define OVERLAY_MAX_NUM_VPSS      1
-#define OVERLAYEX_MAX_NUM_VPSS    8
-
-
-#define COVEREX_MAX_NUM_VO         1
-#define OVERLAYEX_MAX_NUM_VO       1
-
-#define OVERLAYEX_MAX_NUM_PCIV    0
+#define VENC_MAX_SSE_NUM             8
+#define HISI_MAX_SENSOR_NUM          2
 
 /* For VI */
 /* number of channle and device on video input unit of chip
@@ -181,41 +166,46 @@ static inline  void FlushDcache(unsigned long addr, unsigned long len)
  * multiplied by VIU_MAX_CHN_NUM, because all VI devices
  * can't work at mode of 4 channles at the same time.
  */
-#define VIU_MAX_DEV_NUM              1
+#define VIU_MAX_DEV_NUM              2
 #define VIU_MAX_WAY_NUM_PER_DEV      1
 #define VIU_MAX_CHN_NUM_PER_DEV      1
-#define VIU_MAX_PHYCHN_NUM           1
-#define VIU_MAX_RAWCHN_NUM           1      /* raw data chn, DVR/NVR: 0 */
+#define VIU_MAX_PHYCHN_NUM           2
+#define VIU_MAX_RAWCHN_NUM           5      /* dev0: 0,1,2; dev1:3,4*/
 #define VIU_EXT_CHN_START            VIU_MAX_PHYCHN_NUM
 #define VIU_MAX_EXT_CHN_NUM          16
 #define VIU_MAX_EXTCHN_BIND_PER_CHN  8
 
 #define VIU_MAX_CHN_NUM              (VIU_MAX_PHYCHN_NUM + VIU_MAX_EXT_CHN_NUM)
 #define VIU_MAX_UFLIST_NUM           (VIU_MAX_CHN_NUM + VIU_MAX_RAWCHN_NUM)
+#define VIU_MAX_RAWLIST_NUM 		 8
 
 #define VIU_DEV_MIN_WIDTH       64
 #define VIU_DEV_MIN_HEIGHT      64
-#define VIU_DEV_MAX_WIDTH       2592
-#define VIU_DEV_MAX_HEIGHT      2200
+#define VIU_DEV_MAX_WIDTH       4608
+#define VIU_DEV_MAX_HEIGHT      4096
 #define VIU_CHN_MIN_WIDTH       64
 #define VIU_CHN_MIN_HEIGHT      64
 #define VIU_CHN_MAX_WIDTH       VIU_DEV_MAX_WIDTH
 #define VIU_CHN_MAX_HEIGHT      VIU_DEV_MAX_HEIGHT
 #define VIU_EXTCHN_MIN_WIDTH    64
 #define VIU_EXTCHN_MIN_HEIGHT   64
-#define VIU_EXTCHN_MAX_WIDTH    2592
-#define VIU_EXTCHN_MAX_HEIGHT   2592
+#define VIU_EXTCHN_MAX_WIDTH    4608
+#define VIU_EXTCHN_MAX_HEIGHT   4608
 #define VIU_EXTCHN_MINIFICATION 13  /* The maximum minification for the ext chn */
-
 #define VIU_CHNID_DEV_FACTOR    2
+
 /* Don't support cascade. The definition of Macro is just for compiling */
 #define VIU_MAX_CAS_CHN_NUM     2
-#define VIU_SUB_CHN_START       16    /* The starting number of sub channel*/
-#define VIU_CAS_CHN_START       32    /* The starting number of cascade channel */
+#define VIU_SUB_CHN_START       16      /* The starting number of sub channel */
+#define VIU_CAS_CHN_START       32      /* The starting number of cascade channel */
+
 /* max number of VBI region*/
 #define VIU_MAX_VBI_NUM         2
 /* max length of one VBI region (by word) */
 #define VIU_MAX_VBI_LEN         8
+
+/* For DIS*/
+#define DIS_PYRAMID_LAYER_NUM   5
 
 /* For VO */
 #define VO_MIN_CHN_WIDTH        32      /* channel minimal width */
@@ -224,7 +214,7 @@ static inline  void FlushDcache(unsigned long addr, unsigned long len)
 #define VO_MAX_DEV_NUM          1       /* max dev num */
 #define VO_MAX_LAYER_NUM        1       /* max layer num */
 #define PIP_MAX_CHN_NUM         8
-#define VHD_MAX_CHN_NUM         32       /* max VHD chn num */
+#define VHD_MAX_CHN_NUM         8       /* max VHD chn num */
 #define VO_MAX_CHN_NUM          VHD_MAX_CHN_NUM      /* max chn num */
 #define VO_MAX_LAYER_IN_DEV     1      /* max layer num of each dev */
 #define VO_MIN_CHN_LINE         3
@@ -246,48 +236,85 @@ static inline  void FlushDcache(unsigned long addr, unsigned long len)
 
 /* For VPSS */
 #define VPSS_MAX_GRP_NUM   		128
+#define VPSS_MAX_GRP_PIPE_NUM   2
+
 
 #define VPSS_MAX_PHY_CHN_NUM	4
 #define VPSS_MAX_EXT_CHN_NUM  	8
 #define VPSS_MAX_CHN_NUM   		(VPSS_MAX_PHY_CHN_NUM + VPSS_MAX_EXT_CHN_NUM)
 
+
 #define VPSS_MIN_IMAGE_WIDTH    64
 #define VPSS_MIN_IMAGE_HEIGHT   64
 
-#define VPSS_MAX_IMAGE_WIDTH    2592
-#define VPSS_MAX_IMAGE_HEIGHT   2592
+#define VPSS_STITCH_BLEND_MAX_IMAGE_WIDTH     8188
+#define VPSS_STITCH_BLEND_MAX_IMAGE_HEIGHT    4608
+#define VPSS_OFFLINE_MAX_IMAGE_WIDTH          8192
+#define VPSS_OFFLINE_MAX_IMAGE_HEIGHT         4608
+#define VPSS_ONLINE_MAX_IMAGE_WIDTH           4096
+#define VPSS_ONLINE_MAX_IMAGE_HEIGHT          4096
 
-#define VPSS_EXTCHN_MAX_IMAGE_WIDTH      4096
-#define VPSS_EXTCHN_MAX_IMAGE_HEIGHT     4096
+#define VPSS_EXTCHN_MAX_IMAGE_WIDTH     8192
+#define VPSS_EXTCHN_MAX_IMAGE_HEIGHT    8192
 
-#define VPSS_MAX_ZOOMIN 1
-#define VPSS_MAX_ZOOMOUT 15  
+#define VPSS_3DNR_MAD_NUM		3
+
+#define VPSS_3DNR_REF_RFR_NUM	3
+#define VPSS_SNAP_START_NUM	    3
+#define VPSS_3DNR_MAX_REF_NUM	2
+#define VPSS_3DNR_MAX_AUTO_PARAM_NUM  16
+
+
+
+#define VPSS_MAX_ZOOMIN             16
+#define VPSS_MAX_ZOOMOUT            15   //16
+/* For PCIV */
+#define PCIV_MAX_CHN_NUM        16       /* max pciv channel number in each pciv device */
+
 
 #define VPSS_EXT_CHN_MAX_ZOOMIN  16
-#define VPSS_EXT_CHN_MAX_ZOOMOUT  15
+#define VPSS_EXT_CHN_MAX_ZOOMOUT  30
 
 
-#define VPSS_BSTR_CHN     		0
-#define VPSS_LSTR_CHN     		1
-#define VPSS_PRE0_CHN			2
+/*For FD*/
+#define FD_MAX_CHN_NUM                 32
+#define FD_MAX_WIDTH                   1280
+#define FD_MAX_HEIGHT                  720
+#define FD_MIN_WIDTH                   64
+#define FD_MIN_HEIGHT                  64
+#define FD_MAX_STRIDE				   1280
+/*For IVS_MD*/
+#define MD_MAX_CHN				64
+#define MD_MAX_WIDTH			1920
+#define MD_MAX_HEIGHT			1080
+#define MD_MIN_WIDTH			64
+#define MD_MIN_HEIGHT			64
 
-#define VPSS_COVER_POINT_NUM    4
+/*For Fisheye*/
+#define FISHEYE_MIN_IN_IMAGE_WIDTH 	   1920
+#define FISHEYE_MIN_IN_IMAGE_HEIGHT    1080
+#define FISHEYE_MIN_OUT_IMAGE_WIDTH    640
+#define FISHEYE_MIN_OUT_IMAGE_HEIGHT   360
 
-/* For pciv, hi3516a not support */
-#define PCIV_MAX_CHN_NUM        0       /* max pciv channel number in each pciv device */
+#define LDC_MIN_IMAGE_WIDTH 		   640
+#define LDC_MIN_IMAGE_HEIGHT  		   480
 
-/* VB size align */
-#define VB_ALIGN_LEN        16
+#define CYLIND_MIN_IMAGE_WIDTH 		   640
+#define CYLIND_MIN_IMAGE_HEIGHT  	   480
 
-/* VB size calculate for compressed frame.
+#define FISHEYE_MAX_IMAGE_WIDTH        4608
+#define FISHEYE_MAX_IMAGE_HEIGHT       3456
+
+/**************************************************************
+VB size calculate for compressed frame.
 	[param input]
 		w: 	width
 		h: 	height
 		fmt:	pixel format, 0: SP420, 1: SP422
 		z:	compress mode, 0: no compress, 1: default compress
 	[param output]
-		size: vb blk size		
- */
+		size: vb blk size
+***************************************************************/
 #define VB_W_ALIGN		    16
 #define VB_H_ALIGN		    2
 #define VB_HEADER_STRIDE    16
@@ -304,9 +331,13 @@ static inline  void FlushDcache(unsigned long addr, unsigned long len)
             {\
 		        size = VB_HEADER_STRIDE * (Height) * 2;\
             }\
-            else\
+            else if(PIXEL_FORMAT_YUV_SEMIPLANAR_420 == Type)\
             {\
                 size = (VB_HEADER_STRIDE * (Height) * 3) >> 1;\
+            }\
+            else if(PIXEL_FORMAT_YUV_400 == Type)\
+            {\
+                size = VB_HEADER_STRIDE * (Height);\
             }\
 	}while(0)
 
@@ -334,8 +365,52 @@ static inline  void FlushDcache(unsigned long addr, unsigned long len)
 
 #define VIU_GET_RAW_CHN(ViDev, RawChn)\
     do{\
+			if(0 == ViDev)\
+			{\
 			RawChn = VIU_MAX_CHN_NUM + ViDev;\
+			}\
+			else if(1 == ViDev)\
+			{\
+				RawChn = VIU_MAX_CHN_NUM + 3;\
+			}\
 	}while(0)
+
+
+#define VENC_H264_BLK_SIZE(Width, Height, size)\
+    do{\
+        HI_U32 u32AlignWidth, u32AlignHeight, u32Align256Width, u32Align2048Width;\
+        HI_U32 u32PmeSize, u32PmeInfoSize;\
+        HI_U32 u32YSize, u32CSize, u32HeaderSize;\
+        u32AlignWidth     = ((Width  +   63)>> 6)<<6;\
+        u32AlignHeight    = ((Height +   15)>> 4)<<4;\
+        u32Align256Width  = ((Width  +  255)>> 8)<<8;\
+        u32Align2048Width = ((Width  + 2047)>>11)<<11;\
+        u32HeaderSize  = (u32Align256Width>>4) * (u32AlignHeight>>4) * 4;  \
+        u32YSize       = u32AlignWidth * u32AlignHeight;\
+        u32CSize       = u32YSize >> 1;  \
+        u32PmeSize     = (u32AlignWidth * u32AlignHeight) >> 4;  \
+        u32PmeInfoSize = (u32Align2048Width * u32AlignHeight) >> 11;    \
+        size = u32YSize + u32CSize + u32HeaderSize + u32PmeSize + u32PmeInfoSize;\
+    }while(0)
+
+
+#define VENC_H265_BLK_SIZE(Width, Height, size)\
+    do{\
+        HI_U32 u32AlignWidth, u32AlignHeight, u32Align512Width;\
+        HI_U32 u32TmvSize, u32PmeSize, u32PmeInfoSize, u32LcuNum;\
+        HI_U32 u32YSize, u32CSize, u32HeaderSize;\
+        u32AlignWidth    = ((Width  +  63)>>6)<<6;\
+        u32AlignHeight   = ((Height +  63)>>6)<<6;\
+        u32Align512Width = ((Width  + 511)>>9)<<9;\
+        u32LcuNum = (u32AlignWidth>>6) * (u32AlignHeight>>6);\
+        u32TmvSize     = u32LcuNum << 7;\
+        u32PmeSize     = u32LcuNum << 8;\
+        u32PmeInfoSize = ((u32Align512Width * u32AlignHeight) >> 10);\
+        u32HeaderSize  = u32LcuNum << 6;  \
+        u32YSize       = u32AlignWidth * u32AlignHeight;\
+        u32CSize       = u32YSize >> 1;\
+        size = u32YSize + u32CSize + u32HeaderSize + u32TmvSize + u32PmeSize + u32PmeInfoSize;\
+    }while(0)
 
 #ifdef __cplusplus
 #if __cplusplus
