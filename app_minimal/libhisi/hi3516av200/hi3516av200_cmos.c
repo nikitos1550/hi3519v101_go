@@ -1,5 +1,5 @@
 #include "hi3516av200_cmos.h"
-#include "../hisi_external.h"
+//#include "../hisi_external.h"
 
 #include "cmos/imx226/imx226_vi.h"
 #include "cmos/imx265/imx265_vi.h"
@@ -71,20 +71,5 @@ struct hi3516av200_cmos hi3516av200_cmoses[] = {
     {0, NULL, NULL, 0, 0, 0, NULL, NULL, BAYER_BUTT}
 };
 
-//struct vpss_setup vpss;
-
-
-
-//int hisi_cmos_fetch(unsigned int id, struct cmos * c) {
-//
-//}
-
-//int hisi_cmos_status(unsigned int * id) {
-//
-//}
-
-//int hisi_cmos_init(unsigned int id) {
-//
-//}
 
 

@@ -6,9 +6,6 @@
 
 #include "hi3516av200_cmos.h"
 
-#include "hi3516av200_channels.h"
-#include "hi3516av200_encoders.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,15 +35,6 @@ int hi3516av200_vpss_init   (struct capture_params   * cp);
 
 int hi3516av200_init_temperature();
 
-int hisi_cmos(struct cmos * c) {
-
-    c->width = vpss.width;
-    c->height = vpss.height;
-    c->fps = vpss.fps;
-
-    return ERR_NONE;
-}
-
 int hisi_init(unsigned int cid, struct capture_params * cp) {
     int error_code = 0;
 
@@ -61,6 +49,7 @@ int hisi_init(unsigned int cid, struct capture_params * cp) {
 
     error_code = hi3516av200_init(c, &cp_tmp);
 
+    /*
     for(int i=0; i<VPSS_MAX_PHY_CHN_NUM; i++) {
         channels_enable[i] = CHANNEL_DISABLED;
     }
@@ -68,6 +57,7 @@ int hisi_init(unsigned int cid, struct capture_params * cp) {
     for(int i=0; i<VENC_MAX_CHN_NUM; i++) {
         encoders_enable[i] = ENCODER_DISABLED;
     }
+    */
 
     return error_code;
 }
@@ -116,6 +106,44 @@ int hi3516av200_init_temperature() {
 #define delete_module(name, flags) syscall(__NR_delete_module, name, flags)
 
 int hi3516av200_ko_init(struct hi3516av200_cmos * c) {
+    
+    int error_code = 0;
+
+    error_code = HI_MPI_SYS_Exit();
+    if (error_code != HI_SUCCESS) {
+        printf("C DEBUG: in ko_init HI_MPI_SYS_Exit failed\n");
+        //return ERR_MPP;
+    }
+    printf("C DEBUG: HI_MPI_SYS_Exit ok\n");
+
+    error_code = HI_MPI_VB_Exit();
+    if (error_code != HI_SUCCESS) {
+        printf("C DEBUG: in ko_init HI_MPI_VB_Exit failed\n");
+        //return ERR_MPP;
+    }
+    printf("C DEBUG: HI_MPI_VB_Exit ok\n");
+    
+
+    unsigned int i = 0;
+
+    
+    while(modules[i].start != NULL) {
+        delete_module(modules[i].name, NULL);
+        //if (init_module(modules[i].start,
+        //                modules[i].end-modules[i].start,
+        //                modules[i].default_params) != 0) {
+        //    printf("C DEBUG: init_module %s failed\n", modules[i].name);
+        //    //return ERR_GENERAL; //TODO for proper restart
+        //}
+        //printf("init_module %s loaded OK!\n", modules[i].name);
+        i++;
+    }
+    
+
+    //delete_module("hi3519v101_isp", NULL);//ATTENTION THIS IS NEED FOR PROPER APP RERUN, also some info here
+    //http://bbs.ebaina.com/forum.php?mod=viewthread&tid=13925&extra=&highlight=run%2Bae%2Blib%2Berr%2B0xffffffff%21&page=1
+    /////
+
     //sensor0 pinmux
     devmem(0x1204017c, 0x1, NULL);  //#SENSOR0_CLK
     devmem(0x12040180, 0x0, NULL);  //#SENSOR0_RSTN
@@ -207,12 +235,13 @@ int hi3516av200_ko_init(struct hi3516av200_cmos * c) {
 
     devmem(0x120300e0, 0xd, NULL); // internal codec: AIO MCLK out, CODEC AIO TX MCLK 
 
-    delete_module("hi3519v101_isp", NULL);//ATTENTION THIS IS NEED FOR PROPER APP RERUN, also some info here
+    //delete_module("hi3519v101_isp", NULL);//ATTENTION THIS IS NEED FOR PROPER APP RERUN, also some info here
     //http://bbs.ebaina.com/forum.php?mod=viewthread&tid=13925&extra=&highlight=run%2Bae%2Blib%2Berr%2B0xffffffff%21&page=1
     /////
 
-    unsigned int i = 0;
+    //unsigned int i = 0;
 
+    i=0;
     while(modules[i].start != NULL) {
         if (init_module(modules[i].start,
                         modules[i].end-modules[i].start,
@@ -426,8 +455,6 @@ int hi3516av200_isp_init(struct hi3516av200_cmos * c) {
         return ERR_MPP;
     }
 
-    //const ISP_SNS_OBJ_S *g_pstSnsObj[2] =  {&stSnsImx274Obj, &stSnsImx226Obj};
-
     ALG_LIB_S stAeLib;
     ALG_LIB_S stAwbLib;
     ALG_LIB_S stAfLib;
@@ -526,9 +553,10 @@ int hi3516av200_vi_init(struct hi3516av200_cmos * c, struct capture_params * cp)
 
     VI_DEV_ATTR_S  stViDevAttr;
 
-    memset(&stViDevAttr,0,sizeof(stViDevAttr));
+    memset(&stViDevAttr, 0, sizeof(stViDevAttr));
     memcpy(&stViDevAttr, c->videv, sizeof(stViDevAttr));
 
+    //stViDevAttr.stDevRect.s32X                              = 0;
     //stViDevAttr.stDevRect.s32Y                              = 0;
     stViDevAttr.stDevRect.u32Width                          = c->width;
     stViDevAttr.stDevRect.u32Height                         = c->height;
@@ -585,10 +613,6 @@ int hi3516av200_vi_init(struct hi3516av200_cmos * c, struct capture_params * cp)
         printf("C DEBUG: HI_MPI_VI_EnableChn failed with %#x!\n", error_code);
         return ERR_MPP;
     }
-
-    vpss.width = cp->width;
-    vpss.height = cp->height;
-    vpss.fps = cp->fps;
 
     return ERR_NONE;
 }

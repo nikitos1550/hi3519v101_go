@@ -9,7 +9,7 @@
 #define KOLIST(F, F_NO) \
     F(hi_osal,              "mmz=anonymous,0,0x90000000,256M anony=1") \
     F(hi3519v101_base,      "") \
-    F(hi3519v101_sys,       "vi_vpss_online=0 sensor=imx274,NULL mem_total=512") \
+    F(hi3519v101_sys,       "vi_vpss_online=0 sensor=imxXXX,NULL mem_total=512") \
     F_NO(hi3519v101_tde,    "") \
     F(hi3519v101_region,    "") \
     F(hi3519v101_fisheye,   "") \
@@ -53,8 +53,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 KOLIST(EXTERN, EXTERN_NO)
-
-//EXTERN(hi_ssp_sony, "")
 
 struct ko_modules {
     char *name;

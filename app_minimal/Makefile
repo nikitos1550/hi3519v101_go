@@ -10,6 +10,9 @@ BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 
 VERSIONFILE=$(GOPATH)/src/openhisiipcam.org/buildinfo/buildinfo.go
 
+test:
+	echo $(GO)
+
 build: clean genversion
 	make -C libhisi -j4
 	GOPRIVATE=openhisiipcam.org \

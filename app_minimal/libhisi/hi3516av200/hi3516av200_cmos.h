@@ -3,16 +3,6 @@
 
 #include "hi3516av200_mpp.h"
 
-////////////////////////////////////////////////////////////////////////////////
-
-//struct vpss_setup { //Temporary structure to save configured vpss state
-//    unsigned int width;
-//    unsigned int height;
-//    unsigned int fps;
-//};
-
-//extern struct vpss_setup vpss;
-
 struct hi3516av200_cmos {
     unsigned int        id;
     char                *name;
