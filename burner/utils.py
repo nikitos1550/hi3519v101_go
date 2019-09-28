@@ -67,3 +67,24 @@ def validate_ip_address(ip_str):  # throw on error
         socket.inet_aton(ip_str)
     except socket.error:
         raise ValueError("Invalid IP address: {}".format(ip_str))
+
+
+# =====================================================================================================================
+def from_hsize(val):  # throw on error
+    suffixes = {"B": 1, "K": 1 << 10, "M": 1 << 20, "G": 1 << 30}
+    if val[-1].isalpha():
+        mul = suffixes.get(val[-1].upper())
+        if mul is None:
+            raise ValueError("Couldn't parse {}".format(val))
+        return mul * int(val[:-1])
+    else:
+        return int(val)
+
+
+# =====================================================================================================================
+def to_hsize(val):
+    for suf in ("B", "K", "M", "G"):
+        if val == 0 or val % 1024:
+            break
+        val //= 1024
+    return str(val) + suf

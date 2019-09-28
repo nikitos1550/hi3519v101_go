@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import utils
+import logging
 from uboot_console import UBootConsole
 
 
 class Defaults:
     dev_baudrate = 115200
+    initrd_mem_size = "32M"
+    uboot_mem_size = "512K"
 
 
 
@@ -55,21 +58,28 @@ class LoadAction:
         parser = aps.add_parser("load", help="Load image onto device and boot it (without burning)")
 
         NetworkContext.add_args(parser)
-        parser.add_argument("--uimage", help="Kernel's uImage file")
-        parser.add_argument("--rootfs", help="RootFS file")
+        parser.add_argument("--uimage", required=True, help="Kernel's uImage file")
+        parser.add_argument("--rootfs", required=True, help="RootFS file")
+        parser.add_argument("--skip", type=utils.from_hsize, default=Defaults.uboot_mem_size,
+            help="U-Boot size to skip (default: {})".format(Defaults.uboot_mem_size), metavar="SIZE")
+        parser.add_argument("--initrd-size", type=utils.from_hsize, default=Defaults.initrd_mem_size,
+            help="Amount of RAM for initrd (default: {})".format(Defaults.initrd_mem_size), metavar="SIZE")
 
         parser.set_defaults(action=cls.run)
     
     @staticmethod
     def run(uboot, args):
         network = NetworkContext(args)
+
+        logging.info("U-Boot size is {}; it'll be skipped".format(utils.to_hsize(args.skip)))
+
         print("Wanna boot {} from {} you bastard?".format(args.port, args.uimage))
 
 
 # =====================================================================================================================
 def main():
     import argparse
-    import logging
+
 
     parser = argparse.ArgumentParser(description="Interact with devices via serial port")
     parser.set_defaults(action=lambda *_: parser.print_help())
