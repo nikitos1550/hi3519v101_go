@@ -1,0 +1,7 @@
+FAMILY      =hi3516av100
+CHIP        =hi3516av100
+MEM_TOTAL   =256
+MEM_LINUX   =256
+MEM_MPP     =0
+CMOS        =imx178
+
