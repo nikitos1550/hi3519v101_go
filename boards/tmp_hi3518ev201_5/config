@@ -1,0 +1,7 @@
+FAMILY      =hi3516cv200
+CHIP        =hi3518ev201
+MEM_TOTAL   =32
+MEM_LINUX   =32
+MEM_MPP     =0
+CMOS        =unknown
+

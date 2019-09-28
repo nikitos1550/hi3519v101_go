@@ -1,0 +1,7 @@
+FAMILY      =hi3516cv300
+CHIP        =hi3516cv300
+MEM_TOTAL   =64
+MEM_LINUX   =64
+MEM_MPP     =0
+CMOS        =unknown
+

@@ -5,5 +5,6 @@ buildroot-2019.05.1-release
 buildroot-2019.05.1-debug
 buildroot-2019.05.1-toolchain
 screenlog*
+buildroot-2019.08
+Makefile.params
 
-*.code-workspace
