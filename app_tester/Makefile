@@ -25,6 +25,7 @@ build: hisi
 	rm -rf ./distrib/$(FAMILY)
 	test -e distrib || mkdir distrib
 	test -e distrib/$(FAMILY) || mkdir distrib/$(FAMILY)
+	test ! -e ./putonrootfs || cp -r ./putonrootfs/* distrib/$(FAMILY)
 	test ! -e ./$(FAMILY)/putonrootfs || cp -r ./$(FAMILY)/putonrootfs/* distrib/$(FAMILY)
 	test -e distrib/$(FAMILY)/opt || mkdir distrib/$(FAMILY)/opt
 	$(GOPARAMS) GOARM=$(ARMV) $(GO) build $(GOFLAGS) -a -tags "$(FAMILY)" -o distrib/$(FAMILY)/opt/$(APP)

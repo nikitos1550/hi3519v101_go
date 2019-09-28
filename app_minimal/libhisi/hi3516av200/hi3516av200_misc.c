@@ -6,15 +6,6 @@
 #include <stddef.h>
 #include <stdio.h>
 
-//int hisi_get_cmos_info(unsigned int * width, unsigned int * height, unsigned int * fps) {
-//    return ERR_NOT_IMPLEMENTED;
-//}
-
-//int hi3516av200_init_temperature() {
-//        devmem(0x120A0110, 0x60FA0000, NULL);
-//        return 0;
-//}
-
 int hisi_get_chipid(unsigned int * chip) {
     HI_MPI_SYS_GetChipId(chip);
     return ERR_NONE;
