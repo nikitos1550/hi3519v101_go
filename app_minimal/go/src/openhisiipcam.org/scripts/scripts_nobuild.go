@@ -1,0 +1,3 @@
+// +build !lua
+
+package scripts

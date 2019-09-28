@@ -1,24 +1,83 @@
+include Makefile.params
+include Makefile.tags
+
 THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
-GO := $(THIS_DIR)../buildroot-2019.05.1-debug/output/host/bin/go
-#GO := $(THIS_DIR)../buildroot-2019.05.1-musl/output/host/bin/go
-
-CFLAGS := -std=gnu11 -mcpu=cortex-a7 -mfloat-abi=softfp -mfpu=neon-vfpv4 -mno-unaligned-access -fno-aggressive-loop-optimizations
+GOPATH := $(THIS_DIR)go
 
 NOW=$(shell date)
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 
-#DNODEBUG -s -w
-BUILDFLAGS := -ldflags="-extldflags '-static' -X 'main.BuildTime=$(NOW)' -X 'main.BuildUser=$(USER)' -X 'main.BuildBranch=$(BRANCH)'"
-#BUILDFLAGS := -ldflags="-s -w -extldflags '-static'"
+VERSIONFILE=$(GOPATH)/src/openhisiipcam.org/buildinfo/buildinfo.go
 
 test:
-	cd himpp3; make clean; make
-	CGO_CFLAGS='$(CFLAGS)' CGO_CFLAGS_ALLOW='.*' GOOS=linux GOARCH=arm GOARM=7 CGO_ENABLED=1 $(GO) build -a $(BUILDFLAGS) ./app_minimal.go
+	echo $(GO)
+
+build: clean genversion
+	make -C libhisi -j4
+	GOPRIVATE=openhisiipcam.org \
+	GOPATH=$(GOPATH) \
+    CGO_CFLAGS='$(CFLAGS)' \
+    CGO_CFLAGS_ALLOW='.*' \
+    GOOS=linux \
+    GOARCH=arm \
+    GOARM=7 \
+    CGO_ENABLED=1 \
+    $(GO) build \
+        -gcflags "all=-l" \
+        -tags $(GOTAGS) \
+        $(GOFLAGS) \
+        -o app_minimal \
+        ./cmd
+
+genversion:
+	rm -f $(VERSIONFILE)
+	@echo "#THIS FILE WAS GENERATED AUTOMATICLY. PLEASE DO NOT EDIT!" > $(VERSIONFILE)
+	@echo "package buildinfo" > $(VERSIONFILE)
+	@echo "" >> $(VERSIONFILE)
+	@echo "const (" >> $(VERSIONFILE)
+	@echo "  Date = \"$(NOW)\"" >> $(VERSIONFILE)
+	@echo "  Branch = \"$(BRANCH)\"" >> $(VERSIONFILE)
+	@echo "  User = \"$(USER)\"" >> $(VERSIONFILE)
+	@echo "  ChipFamily = \"hi3516av200\"" >> $(VERSIONFILE) #TODO cross chip build
+	@echo ")" >> $(VERSIONFILE)
+
+#gohi3516av200:
+#	GOPRIVATE=openhisiipcam.org \
+#    GOPATH=$(GOPATH) \
+#    CGO_CFLAGS='$(CFLAGS)' \
+#    CGO_CFLAGS_ALLOW='.*' \
+#    GOOS=linux \
+#    GOARCH=arm \
+#    GOARM=7 \
+#    CGO_ENABLED=1 \
+#	$(GO) install \
+#        -gcflags "all=-l" \
+#        -tags $(GOTAGS) \
+#        -a \
+#        -ldflags="-extldflags '-static -Wl,--gc-sections'" \
+#        openhisiipcam.org/hi3516av200
+
+#gofmt:
+	#@GOPATH=$(GOPATH) $(GOFMT) -l cmd/*.go
+	#@GOPATH=$(GOPATH) $(GOFMT) -l $(GOPATH)/src/openhisiipcam.org/*/*.go
+	#$(GOPATH)/bin/golint cmd
+	#$(GOPATH)/bin/golint $(GOPATH)/src/openhisiipcam.org/*
+	#GOPATH=$(GOPATH) $(GO) vet $(GOPATH)/src/openhisiipcam.org/*
+	#GOPATH=$(GOPATH) $(GO) vet cmd/*
 
 godeps:
-	$(GO) get github.com/drone/routes
+	GOPATH=$(GOPATH) $(GO) get -u github.com/gorilla/mux
+	GOPATH=$(GOPATH) $(GO) get -u github.com/yuin/gopher-lua
+	GOPATH=$(GOPATH) $(GO) get -u github.com/divan/expvarmon
+	GOPATH=$(GOPATH) $(GO) get -u golang.org/x/lint/golint
+	GOPATH=$(GOPATH) $(GO) get -u github.com/paultag/go-modprobe
+	GOPATH=$(GOPATH) $(GO) get -u github.com/freman/goterm
+	GOPATH=$(GOPATH) $(GO) get -u github.com/pion/webrtc
+
+gover:
+	$(GO) version
 
 clean:
-	cd himpp3; make clean
+	make -C libhisi clean -j4
 	rm -f ./app_minimal

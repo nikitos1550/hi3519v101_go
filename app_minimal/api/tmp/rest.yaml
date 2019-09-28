@@ -1,0 +1,113 @@
+  /encoders/{id}/rtp:
+    parameters:
+      - name: id
+        in: path
+        schema:
+            type: integer
+        description: Encoder id
+        required: true
+    get:
+      tags:
+        - serve
+      summary: 'RTP push status'
+      operationId: 'encoderRtpStatus'
+      responses:
+        '200':
+          description: 'Success'
+        '404':
+          description: 'Encoder not found'
+    post:
+      tags:
+        - serve
+      summary: 'RTP push start'
+      operationId: 'encoderRtpStart'
+      responses:
+        '200':
+          description: 'Success'
+        '404':
+          description: 'Encoder not found'
+    delete:
+      tags:
+        - serve
+      summary: 'RTP push stop'
+      operationId: 'encoderRtpStop'
+      responses:
+        '200':
+          description: 'Success'
+        '404':
+          description: 'Encoder not found'
+
+  /encoders/{id}/record:
+    parameters:
+      - name: id
+        in: path
+        schema:
+            type: integer
+        description: Encoder id
+        required: true
+    get:
+      tags:
+        - storage
+      summary: 'Get record status'
+      operationId: 'encoderRecordStatus'
+      responses:
+        '200':
+          description: 'Success'
+        '405':
+          description: 'Can`t be used with encoder'
+    post:
+      tags:
+        - storage
+      summary: 'Plan or replan record'
+      operationId: 'encoderRecordStart'
+      responses:
+        '200':
+          description: 'Success'
+        '405':
+          description: 'Can`t be used with encoder'
+    delete:
+      tags:
+        - storage
+      summary: 'Stop or unplan record'
+      operationId: 'encoderRecordStop'
+      responses:
+        '200':
+          description: 'Success'
+        '405':
+          description: 'Can`t be used with encoder'
+
+  /storage:
+    get:
+      tags:
+        - storage
+      summary: 'Get recordings list'
+      operationId: 'storageList'
+      responses:
+        '200':
+          description: 'Success'
+
+  /storage/{uid}:
+    parameters:
+      - name: uid
+        in: path
+        schema:
+            type: integer
+        description: Recording uid
+        required: true
+    get:
+      tags:
+        - storage
+      summary: 'Get recording info'
+      operationId: 'storageRecordInfo'
+      responses:
+        '200':
+          description: 'Success'
+    delete:
+      tags:
+        - storage
+      summary: 'Delete recording'
+      operationId: 'storageRecordDelete'
+      responses:
+        '200':
+          description: 'Success'
+

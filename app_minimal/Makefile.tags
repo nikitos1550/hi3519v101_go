@@ -1,0 +1,10 @@
+#   Build configuration
+#   openapi         - http/uds api
+#   lua             - lua scripts support
+#   debug           - enables debug via http/uds (most debug avalible only via api, so openapi tag also required)
+#   hi3516av200     - hi3516av200/hi3519v101 chips support
+#   hi35XXXvXXX     - chip family
+
+GOTAGS := "netgo openapi debug hi3516av200 lua onvif"
+#GOTAGS := "netgo"
+
