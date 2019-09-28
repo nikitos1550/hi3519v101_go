@@ -1,9 +1,8 @@
 # OpenHisiIpCam development facility
 
-
 ## Chips families information
 
-| chips                                                 | shortcode     | status |
+| chips                                                 | shortcode     | status       |
 |-------------------------------------------------------|---------------|--------------|
 | hi3516av100, hi3516dv100                              | hi3516av100   | ++           |
 | hi3519v101,  hi3516av200                              | hi3516av200   | ++++         |
@@ -41,8 +40,6 @@
  pl2303 usb-uart adapter                                                           
 ```
 
-
-
 ## Repo structure
 
 * **api**
@@ -52,7 +49,7 @@
 * **burner** - tool for automated upload software to device
 * **docs** - documentation files, image storage used by github wiki
 * **facility** - files that are used on server to organize enviroiment
-* **hi35XXXvXXX** - chip family specific toolchain, default rootfs and kernel build env
+* **hi35XXxvXXX** - chip family specific toolchain, default rootfs and kernel build env
 * **putonrootfs** - default rootfs overlay
 
 ## Boards
@@ -65,12 +62,35 @@ Current build system is targeted to specific boards to make it easy checking sof
 | xm_hi3516av100_imx178 | app_tester              |
 | other                 | n/a                     |
 
+## Build model
+### Terms:
+* family - shortname for chips set with same cpu architecture and same videopipeline implementation, shared SDK
+* chip - exact SoC model
+
+### Rootfs layers (from top to bottom)
+
+1. application
+   1. rootfs overlay (```app_xxx/putonrootfs```)
+   2. family dependent rootfs overlay (```app_xxx/hi35XXxvXXX/putonrootfs```)
+2. board rootfs overlay (```boards/XXX/putonrootfs```)
+3. shared rootfs overlay (```putonrootfs```)
+4. generic family rootfs (```hi35XXxvXXX/rootfs```)
+
+### Kernel customization
+
+1. apply board patch for kernel source tree (should be used only for DTS customization)
+2. use custom board kernel.config if exist or further
+3. use custom board kernel.config.patch for chip generic config if exist or go further
+2. use chip generic kernel config as default option
+
 ### Sample board config
 
-* config file
-* kernel dir
-  * kernel.config
-  * patch
+* ```config``` file
+* ```kernel``` dir
+  * ```kernel.config``` file, should replace generic chip kernel config
+  * ```kernel.config.patch``` file, should be merged with generic chip kernel config (TODO)
+  * ```patch``` dir, used for custom dts
+* ```putonrootfs``` dir, rootfs overlay
 
 ```
 VENDOR      =JVT
@@ -103,35 +123,10 @@ If you want to save time comment lines in *enviroiment-setup* target to exclude 
 ### Kernel
 
 Kernel should be built for each board. 
-```make kernl-build``` command will build kernel for your board.
-
+```make kernl-build``` command will build kernel according your config file.
 
 ## How to deploy software to camera attached to server
-
-Before you start, please edit Makefile. In the bottom of file you will find:
-
-```
-#THIS IS YOUR CUSTOM SETTINGS
-APP := app_sample       # TARGET APPLICATION
-#APP := app_minimal
-CAMERA := 1             # NUMBER OF CAMERA ATTACHED TO SERVER TO TEST ON
-
-CAMERA_LOCAL_LOAD_IP := 192.168.0.200 #ONLY FOR LOCAL USAGE, SERVER DOESN'T USE IT
-```
-
-Set application name accroding that one you want to use.
-
-Set camera number according free one, to prevent interference with other user.
-
-Finally run ```make app-deploy-debug-server```
-
-This command will do following:
-1. Build application
-2. Copy application to rootfs overlay (putonrootfs-debug dir)
-3. Pack everything with buildroot
-4. Copy built rootfs image to burner dir
-5. Run burner.py to load software to camera
-6. Start serial console attached to camera
+* ```make deploy-app``` to build and deploy app according your config file
 
 ## FAQ
 
@@ -165,4 +160,5 @@ start() {
 * Don`t forget about git-lfs to clone this repo fully
 * For clean ubuntu server 19.04 I installed mc build-essential make cmake u-boot-tools python libncurses5-dev packages
 * hisi-build webserver basic auth - test/hisilicon
+
 

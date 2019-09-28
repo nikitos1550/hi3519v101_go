@@ -13,22 +13,18 @@ CAMERA_IP = 192.168.10.1$(shell printf '%02d' $(CAMERA))
 guard:
 	@echo "USAGE:"
 	@echo "prepare env:"
-	@echo "make enviroiment-setup, make FAMILY=XXX toolchain, make FAMILY=XXX rootfs"
+	@echo "make enviroiment-setup - all-in-one target"
 	@echo "build and deploy:"
-	@echo "make BOARD=XXX pack-app"
-	#@echo "family $(FAMILY)"
-	#@echo $(CAMERA_IP)
+	@echo "make deploy-app - build and deploy app on board according Makefile.params"
+	@echo "make deploy-empty - deploy generic rootfs on board according Makefile.params"
 
 pack-app:
 	@[ "$(BOARD)" ] && echo "all good" || ( echo "var is not set"; exit 1 )
 	cd $(APP); make FAMILY=$(FAMILY) build
-	#@echo "FAMILY = $(FAMILY)"
-	#@echo "CAMERA FACILITY ID = $(CAMERA)"
 
 	test -e boards/$(BOARD)/build/ || mkdir boards/$(BOARD)/build
 	test -e boards/$(BOARD)/build/$(APP) || mkdir boards/$(BOARD)/build/$(APP)
 
-	#cp $(FAMILY)/kernel/uImage boards/$(BOARD)/build/$(APP)/uImage
 	cp boards/$(BOARD)/kernel/uImage boards/$(BOARD)/build/$(APP)/uImage
 
 	rm -f boards/$(BOARD)/build/$(APP)/rootfs.squashfs
