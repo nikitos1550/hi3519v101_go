@@ -117,6 +117,11 @@ HI_S32 HI_MPI_VO_GetGraphicLayerCSC(GRAPHIC_LAYER GraphicLayer, VO_CSC_S *pstCSC
 HI_S32 HI_MPI_VO_SetDevFrameRate(VO_DEV VoDev, HI_U32 u32FrameRate);
 HI_S32 HI_MPI_VO_GetDevFrameRate(VO_DEV VoDev, HI_U32 *pu32FrameRate);
 
+HI_S32 HI_MPI_VO_SetVideoLayerRotate(VO_LAYER VoLayer, const ROTATE_E enRotate);
+HI_S32 HI_MPI_VO_GetVideoLayerRotate(VO_LAYER VoLayer, ROTATE_E * penRotate);
+
+
+
 
 #ifdef __cplusplus
 #if __cplusplus

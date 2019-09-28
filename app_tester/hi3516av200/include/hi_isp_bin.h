@@ -19,6 +19,7 @@
 #define __HI_ISP_BIN_H__
 
 #include "hi_type.h"
+#include "hi_comm_isp.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -29,7 +30,7 @@ extern "C"{
 /****************************************************************************
  * MACRO DEFINITION                                                         *
  ****************************************************************************/
-#define MAX_BIN_REG_NUM 6
+#define MAX_BIN_REG_NUM 7
 
 /****************************************************************************
  * GENERAL STRUCTURES                                                       *
@@ -41,21 +42,30 @@ typedef struct hiISP_BIN_REG_ATTR_S
     HI_U8   u8EndBit;   /* end bit of register addr */
 } ISP_BIN_REG_ATTR_S;
 
-/* The base addr of ISP logic register is 0x205A0000 */
-/* The base addr of ISP ext register is 0x10000 */
-/* The base addr of Hisi AE ext register is 0x20000 */
-/* The base addr of Hisi AWB ext register is 0x30000 */
-ISP_BIN_REG_ATTR_S g_astIspBinRegAttr[MAX_BIN_REG_NUM] = 
+/* The base addr of ISP0/ISP1 logic register is 0x113A0000/0x114A0000 */
+/* The base addr of ISP ext register is 0x200000 */
+/* The base addr of Hisi AE ext register is 0x250000 */
+/* The base addr of Hisi AWB ext register is 0x260000 */
+ISP_BIN_REG_ATTR_S g_astIspBinRegAttr[ISP_MAX_DEV_NUM][MAX_BIN_REG_NUM] = 
 {
-    {0x205A0010,  0, 15},   /* ISP image width */
-    {0x205A0014,  0, 15},   /* ISP image height */
-
-    {0x205A0110,  0, 15},   /* ISP crop width */
-    {0x205A0124,  0, 15},   /* ISP crop height */
-
-    {0x11400,     0, 31},   /* ISP fps */
-
-    {0x20180,     0, 31}    /* AE fps */
+    {
+        {0x113A0010,  0, 15},   /* ISP0 image width */
+        {0x113A0014,  0, 15},   /* ISP0 image height */
+        {0x113A0124,  0, 15},   /* ISP0 image height */
+        {0x113E003c,  0, 15},   /* ISP0 crop width */
+        {0x113E003e,  0, 15},   /* ISP0 crop height */
+        {0x201400,    0, 31},   /* ISP0 fps */
+        {0x250180,    0, 31}    /* AE0 fps */
+    },
+    {
+        {0x114A0010,  0, 15},   /* ISP1 image width */
+        {0x114A0014,  0, 15},   /* ISP1 image height */
+        {0x114A0124,  0, 15},   /* ISP1 image height */
+        {0x114E003c,  0, 15},   /* ISP1 crop width */
+        {0x114E003e,  0, 15},   /* ISP1 crop height */
+        {0x211400,    0, 31},   /* ISP1 fps */
+        {0x251180,    0, 31}    /* AE1 fps */
+    }
 };
 
 

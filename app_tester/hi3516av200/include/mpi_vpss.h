@@ -41,6 +41,22 @@ HI_S32 HI_MPI_VPSS_ResetGrp(VPSS_GRP VpssGrp);
 HI_S32 HI_MPI_VPSS_GetGrpAttr(VPSS_GRP VpssGrp, VPSS_GRP_ATTR_S *pstGrpAttr);
 HI_S32 HI_MPI_VPSS_SetGrpAttr(VPSS_GRP VpssGrp, VPSS_GRP_ATTR_S *pstGrpAttr);
 
+HI_S32 HI_MPI_VPSS_SetGrpParam(VPSS_GRP VpssGrp, VPSS_GRP_PARAM_S *pstVpssParam);
+HI_S32 HI_MPI_VPSS_GetGrpParam(VPSS_GRP VpssGrp, VPSS_GRP_PARAM_S *pstVpssParam);
+
+HI_S32 HI_MPI_VPSS_SetGrpNRSParam(VPSS_GRP VpssGrp, VPSS_GRP_NRS_PARAM_S *pstNRSParam);
+HI_S32 HI_MPI_VPSS_GetGrpNRSParam(VPSS_GRP VpssGrp, VPSS_GRP_NRS_PARAM_S *pstNRSParam);
+
+HI_S32 HI_MPI_VPSS_SetGrpNRXParam(VPSS_GRP VpssGrp, VPSS_GRP_NRX_PARAM_S *pstNRXParam);
+HI_S32 HI_MPI_VPSS_GetGrpNRXParam(VPSS_GRP VpssGrp, VPSS_GRP_NRX_PARAM_S *pstNRXParam);
+
+HI_S32 HI_MPI_VPSS_SetGrpSnapNRSParam(VPSS_GRP VpssGrp, VPSS_GRP_SNAP_NRS_PARAM_S *pstSnapNRSParam);
+HI_S32 HI_MPI_VPSS_GetGrpSnapNRSParam(VPSS_GRP VpssGrp, VPSS_GRP_SNAP_NRS_PARAM_S *pstSnapNRSParam);
+
+HI_S32 HI_MPI_VPSS_GetGrpNRSAutoInfo(VPSS_GRP VpssGrp, VPSS_GRP_NRS_AUTO_INFO_S *pstNRSAutoInfo);
+
+HI_S32 HI_MPI_VPSS_GrpQuery(VPSS_GRP VpssGrp, VPSS_GRP_QUERY_S *pstGrpQuery);
+
 HI_S32 HI_MPI_VPSS_SetGrpDelay(VPSS_GRP VpssGrp, HI_U32 u32Delay);
 HI_S32 HI_MPI_VPSS_GetGrpDelay(VPSS_GRP VpssGrp, HI_U32 *pu32Delay);
 
@@ -50,17 +66,18 @@ HI_S32 HI_MPI_VPSS_GetGrpFrameRate(VPSS_GRP VpssGrp, VPSS_FRAME_RATE_S *pstVpssF
 HI_S32 HI_MPI_VPSS_SetGrpCrop(VPSS_GRP VpssGrp,  VPSS_CROP_INFO_S *pstCropInfo);
 HI_S32 HI_MPI_VPSS_GetGrpCrop(VPSS_GRP VpssGrp,  VPSS_CROP_INFO_S *pstCropInfo);
 
-HI_S32 HI_MPI_VPSS_SendFrame(VPSS_GRP VpssGrp,  VIDEO_FRAME_INFO_S *pstVideoFrame, HI_S32 s32MilliSec);
+HI_S32 HI_MPI_VPSS_SendFrame(VPSS_GRP VpssGrp, VIDEO_FRAME_INFO_S *pstVideoFrame, HI_S32 s32MilliSec);
+HI_S32 HI_MPI_VPSS_GetGrpFrame(VPSS_GRP VpssGrp,VIDEO_FRAME_INFO_S *pstVideoFrame, HI_U32 u32FrameIndex);
+HI_S32 HI_MPI_VPSS_ReleaseGrpFrame(VPSS_GRP VpssGrp, VIDEO_FRAME_INFO_S *pstVideoFrame);
 
-HI_S32 HI_MPI_VPSS_GetGrpFrame(VPSS_GRP VpssGrp, VIDEO_FRAME_INFO_S *pstVideoFrame, HI_U32 u32FrameIndex);
-HI_S32 HI_MPI_VPSS_ReleaseGrpFrame(VPSS_GRP VpssGrp,  VIDEO_FRAME_INFO_S *pstVideoFrame);
+HI_S32 HI_MPI_VPSS_SendFrameEx(VPSS_GRP VpssGrp, VPSS_GRP_PIPE VpssGrpPipe, VIDEO_FRAME_INFO_S *pstVideoFrame, HI_S32 s32MilliSec);
+HI_S32 HI_MPI_VPSS_GetGrpFrameEx(VPSS_GRP VpssGrp,VPSS_GRP_PIPE VpssGrpPipe,  VIDEO_FRAME_INFO_S *pstVideoFrame, HI_U32 u32FrameIndex);
+HI_S32 HI_MPI_VPSS_ReleaseGrpFrameEx(VPSS_GRP VpssGrp,  VPSS_GRP_PIPE VpssGrpPipe, VIDEO_FRAME_INFO_S *pstVideoFrame);
 
 HI_S32 HI_MPI_VPSS_EnableBackupFrame(VPSS_GRP VpssGrp);
 HI_S32 HI_MPI_VPSS_DisableBackupFrame(VPSS_GRP VpssGrp);
 
-
 /* Chn Settings */
-
 HI_S32 HI_MPI_VPSS_EnableChn(VPSS_GRP VpssGrp, VPSS_CHN VpssChn);
 HI_S32 HI_MPI_VPSS_DisableChn(VPSS_GRP VpssGrp, VPSS_CHN VpssChn);
 
@@ -80,9 +97,6 @@ HI_S32 HI_MPI_VPSS_GetChnFrame(VPSS_GRP VpssGrp, VPSS_CHN VpssChn,
                                VIDEO_FRAME_INFO_S *pstVideoFrame, HI_S32 s32MilliSec);
 HI_S32 HI_MPI_VPSS_ReleaseChnFrame(VPSS_GRP VpssGrp, VPSS_CHN VpssChn,  VIDEO_FRAME_INFO_S *pstVideoFrame);
 
-HI_S32 HI_MPI_VPSS_SetChnNR(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, HI_BOOL bEnable);
-HI_S32 HI_MPI_VPSS_GetChnNR(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, HI_BOOL *pbEnable);
-
 HI_S32 HI_MPI_VPSS_SetChnCrop(VPSS_GRP VpssGrp, VPSS_CHN VpssChn,  VPSS_CROP_INFO_S *pstCropInfo);
 HI_S32 HI_MPI_VPSS_GetChnCrop(VPSS_GRP VpssGrp, VPSS_CHN VpssChn,  VPSS_CROP_INFO_S *pstCropInfo);
 
@@ -101,8 +115,14 @@ HI_S32 HI_MPI_VPSS_GetFisheyeConfig(VPSS_GRP VpssGrp, FISHEYE_CONFIG_S *pstFishe
 HI_S32 HI_MPI_VPSS_SetFisheyeAttr(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, const FISHEYE_ATTR_S *pstFisheyeAttr);
 HI_S32 HI_MPI_VPSS_GetFisheyeAttr(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, FISHEYE_ATTR_S *pstFisheyeAttr);
 
+HI_S32 HI_MPI_VPSS_SetSpreadAttr(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, const SPREAD_ATTR_S *pstSpreadAttr);
+HI_S32 HI_MPI_VPSS_GetSpreadAttr(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, SPREAD_ATTR_S *pstSpreadAttr);
+
 HI_S32 HI_MPI_VPSS_SetRotate(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, ROTATE_E enRotate);
 HI_S32 HI_MPI_VPSS_GetRotate(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, ROTATE_E *penRotate);	
+HI_S32 HI_MPI_VPSS_SetRotateEx(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, const VPSS_ROTATE_EX_ATTR_S* pstRotateEx);
+
+HI_S32 HI_MPI_VPSS_GetRotateEx(VPSS_GRP VpssGrp,VPSS_CHN  VpssChn, VPSS_ROTATE_EX_ATTR_S *pstRotateEx);
 
 HI_S32 HI_MPI_VPSS_GetRegionLuma(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, VPSS_REGION_INFO_S *pstRegionInfo,                                                
                                                 HI_U32 *pu32LumaData,HI_S32 s32MilliSec);
@@ -110,41 +130,15 @@ HI_S32 HI_MPI_VPSS_GetRegionLuma(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, VPSS_REGION
 HI_S32 HI_MPI_VPSS_SetLowDelayAttr(VPSS_GRP VpssGrp,  VPSS_CHN VpssChn,  VPSS_LOW_DELAY_INFO_S *pstLowDelayInfo);
 HI_S32 HI_MPI_VPSS_GetLowDelayAttr(VPSS_GRP VpssGrp,  VPSS_CHN VpssChn,  VPSS_LOW_DELAY_INFO_S *pstLowDelayInfo);
 
+/* ExtChn Settings */
 HI_S32 HI_MPI_VPSS_SetExtChnAttr(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, VPSS_EXT_CHN_ATTR_S *pstExtChnAttr);
 HI_S32 HI_MPI_VPSS_GetExtChnAttr(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, VPSS_EXT_CHN_ATTR_S *pstExtChnAttr);
 
 HI_S32 HI_MPI_VPSS_SetExtChnCrop(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, const VPSS_CROP_INFO_S *pstCropInfo);
 HI_S32 HI_MPI_VPSS_GetExtChnCrop(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, VPSS_CROP_INFO_S *pstCropInfo);
 
-
-/* For 3DNR */
-HI_S32 HI_MPI_VPSS_SetRefSelect(VPSS_GRP VpssGrp, const VPSS_REF_SEL_MODE_E enRefSelMode);	
-HI_S32 HI_MPI_VPSS_GetRefSelect(VPSS_GRP VpssGrp, VPSS_REF_SEL_MODE_E *penRefSelMode);
-
-/* only for HI3516AV100 */
-HI_S32 HI_MPI_VPSS_SetGrpParam(VPSS_GRP VpssGrp, VPSS_GRP_PARAM_S *pstVpssParam);
-HI_S32 HI_MPI_VPSS_GetGrpParam(VPSS_GRP VpssGrp, VPSS_GRP_PARAM_S *pstVpssParam);
-
-HI_S32 HI_MPI_VPSS_SetNRV3Param(VPSS_GRP VpssGrp, VPSS_GRP_VPPNRBEX_S *pstVpssNrParam);
-HI_S32 HI_MPI_VPSS_GetNRV3Param(VPSS_GRP VpssGrp, VPSS_GRP_VPPNRBEX_S *pstVpssNrParam);
-
-HI_S32 HI_MPI_VPSS_SetGrpParamV2(VPSS_GRP VpssGrp, VPSS_GRP_PARAM_V2_S *pstVpssParamV2);
-HI_S32 HI_MPI_VPSS_GetGrpParamV2(VPSS_GRP VpssGrp, VPSS_GRP_PARAM_V2_S *pstVpssParamV2);
-
-/* only for HI3518EV200 HI3518EV201 HI3516CV200*/
-HI_S32 HI_MPI_VPSS_SetNRParam(VPSS_GRP VpssGrp, VPSS_NR_PARAM_U *punNrParam);   
-HI_S32 HI_MPI_VPSS_GetNRParam(VPSS_GRP VpssGrp, VPSS_NR_PARAM_U *punNrParam);
-
-/* only for HI3519V100*/
-HI_S32 HI_MPI_VPSS_SetNRBParam(VPSS_GRP VpssGrp, VPSS_GRP_VPPNRB_S *pstVpssNrBParam);
-HI_S32 HI_MPI_VPSS_GetNRBParam(VPSS_GRP VpssGrp, VPSS_GRP_VPPNRB_S *pstVpssNrBParam);
-
-/* for all chip except Hi3516A */
-HI_S32 HI_MPI_VPSS_SetGrpNRSParam(VPSS_GRP VpssGrp, VPSS_GRP_NRS_PARAM_S *pstNRSParam);
-HI_S32 HI_MPI_VPSS_GetGrpNRSParam(VPSS_GRP VpssGrp, VPSS_GRP_NRS_PARAM_S *pstNRSParam);
-
-HI_S32 HI_MPI_VPSS_SetGrpNRBParam(VPSS_GRP VpssGrp, VPSS_GRP_NRB_PARAM_S *pstNRBParam);
-HI_S32 HI_MPI_VPSS_GetGrpNRBParam(VPSS_GRP VpssGrp, VPSS_GRP_NRB_PARAM_S *pstNRBParam);
+HI_S32 HI_MPI_VPSS_SetStitchBlendParam(VPSS_GRP VpssGrp, VPSS_STITCH_BLEND_PARAM_S *pstStitchBlendParam);
+HI_S32 HI_MPI_VPSS_GetStitchBlendParam(VPSS_GRP VpssGrp, VPSS_STITCH_BLEND_PARAM_S *pstStitchBlendParam);
 
 /* Module Param Settings */
 HI_S32 HI_MPI_VPSS_SetModParam(VPSS_MOD_PARAM_S *pstModParam);

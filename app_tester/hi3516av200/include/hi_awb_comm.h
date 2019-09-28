@@ -27,18 +27,6 @@ extern "C"{
 
 #define HI_AWB_LIB_NAME "hisi_awb_lib"
 
-/************************** isp ctrl cmd *************************************/
-typedef enum hiAWB_CTRL_CMD_E
-{
-    AWB_SATURATION_SET,
-    AWB_SATURATION_GET,
-    
-    AWB_DEBUG_ATTR_SET,
-    AWB_DEBUG_ATTR_GET,
-
-    AWB_CTRL_BUTT,
-} AWB_CTRL_CMD_E;
-
 typedef struct hiAWB_DBG_ATTR_S
 {
     HI_U16 u16WhiteLevel;
@@ -114,10 +102,10 @@ typedef struct hiAWB_DBG_STATUS_S
     HI_U16 u16Rgain;
     HI_U16 u16Ggain;
     HI_U16 u16Bgain;
-    HI_U16 au16CCM[9];
+    HI_U16 au16CCM[CCM_MATRIX_SIZE];
 
     HI_U32 au32HistInfo[256];
-    AWB_ZONE_DBG_S astZoneDebug[AWB_ZONE_ROW * AWB_ZONE_COLUMN];
+    AWB_ZONE_DBG_S astZoneDebug[AWB_ZONE_NUM];
 
     HI_U32 u32FrmNumEnd;    
 } AWB_DBG_STATUS_S;
@@ -126,33 +114,43 @@ typedef struct hiAWB_DBG_STATUS_S
 typedef struct hiAWB_CCM_S
 {    
     HI_U16 u16HighColorTemp;    /* D50 lighting source is  recommended */
-    HI_U16 au16HighCCM[9];
+    HI_U16 au16HighCCM[CCM_MATRIX_SIZE];
     HI_U16 u16MidColorTemp;     /* D32 lighting source is  recommended */
-    HI_U16 au16MidCCM[9];       
+    HI_U16 au16MidCCM[CCM_MATRIX_SIZE];       
     HI_U16 u16LowColorTemp;     /* A lighting source is  recommended */
-    HI_U16 au16LowCCM[9];
+    HI_U16 au16LowCCM[CCM_MATRIX_SIZE];
 }AWB_CCM_S;
 
 typedef struct hiAWB_AGC_TABLE_S
 {
     HI_BOOL bValid;
     
-    HI_U8   au8Saturation[16];   /* adjust saturation, different iso with different saturation */
+    HI_U8   au8Saturation[ISP_AUTO_STENGTH_NUM];   /* adjust saturation, different iso with different saturation */
 } AWB_AGC_TABLE_S;
 
 typedef struct hiAWB_SENSOR_DEFAULT_S
 {
     HI_U16  u16WbRefTemp;       /* reference color temperature for WB  */    
-    HI_U16  au16GainOffset[4];  /* gain offset for white balance */
-    HI_S32  as32WbPara[6];      /* parameter for wb curve,p1,p2,q1,a1,b1,c1 */
+    HI_U16  au16GainOffset[ISP_BAYER_CHN_NUM];  /* gain offset for white balance */
+    HI_S32  as32WbPara[AWB_CURVE_PARA_NUM];      /* parameter for wb curve,p1,p2,q1,a1,b1,c1 */
+    HI_U16  u16GoldenRgain;      /* Rgain for the golden sample */
+    HI_U16  u16GoldenBgain;      /* Bgain for the golden sample */
+    HI_U16  u16SampleRgain;     /* Rgain for the current sample */
+    HI_U16  u16SampleBgain;     /* Bgain for the current sample */
 
     AWB_AGC_TABLE_S stAgcTbl;
     AWB_CCM_S stCcm;
+
+    HI_U16    u16InitRgain;           /*Init WB gain*/
+    HI_U16    u16InitGgain;	
+    HI_U16    u16InitBgain;	
+
+    HI_U8     u8AWBRunInterval;       /*AWB Run Interval*/	
 } AWB_SENSOR_DEFAULT_S;
 
 typedef struct hiAWB_SENSOR_EXP_FUNC_S
 {
-    HI_S32(*pfn_cmos_get_awb_default)(AWB_SENSOR_DEFAULT_S *pstAwbSnsDft);
+    HI_S32(*pfn_cmos_get_awb_default)(ISP_DEV IspDev, AWB_SENSOR_DEFAULT_S *pstAwbSnsDft);
 } AWB_SENSOR_EXP_FUNC_S;
 
 typedef struct hiAWB_SENSOR_REGISTER_S

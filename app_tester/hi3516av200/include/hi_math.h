@@ -41,7 +41,7 @@ extern "C"{
 ** CMP(x,y)               0 if x==y; 1 if x>y; -1 if x<y
 ******************************************************************************/
 #define ABS(x)          ( (x) >= 0 ? (x) : (-(x)) )
-#define SIGN(x)         ( (x) >= 0 ? 1 : -1 )
+#define _SIGN(x)         ( (x) >= 0 ? 1 : -1 )
 #define CMP(x,y)        (((x) == (y)) ? 0 : (((x) > (y)) ? 1 : -1))
 
 /******************************************************************************
@@ -66,6 +66,7 @@ extern "C"{
 ** VALUE_BETWEEN(x,min.max)   True if x is between [min,max] inclusively.
 ******************************************************************************/
 #define CLIP3(x,min,max)         ( (x)< (min) ? (min) : ((x)>(max)?(max):(x)) )
+#define CLIP_MAX(x,max)          ((x)>(max)?(max):(x)) 
 #define WRAP_MAX(x,max,min)      ( (x)>=(max) ? (min) : (x) )
 #define WRAP_MIN(x,min,max)      ( (x)<=(min) ? (max) : (x) )
 #define VALUE_BETWEEN(x,min,max) (((x)>=(min)) && ((x) <= (max)))
@@ -230,6 +231,10 @@ typedef struct hiFPS_CTRL_S
 __inline static HI_VOID InitFps(FPS_CTRL_S *pFrmCtrl, HI_U32 u32FullFps,
                                 HI_U32 u32TagFps)
 {
+    if(HI_NULL == pFrmCtrl)
+    {
+        return;
+    }
     pFrmCtrl->u32Ffps   = u32FullFps;
     pFrmCtrl->u32Tfps   = u32TagFps;
     pFrmCtrl->u32FrmKey = 0;
@@ -238,6 +243,11 @@ __inline static HI_VOID InitFps(FPS_CTRL_S *pFrmCtrl, HI_U32 u32FullFps,
 __inline static HI_BOOL FpsControl(FPS_CTRL_S *pFrmCtrl)
 {
     HI_BOOL   bReturn       = HI_FALSE;
+    
+    if(HI_NULL == pFrmCtrl)
+    {
+        return HI_FALSE;
+    }
 
     pFrmCtrl->u32FrmKey += pFrmCtrl->u32Tfps;
     if (pFrmCtrl->u32FrmKey >= pFrmCtrl->u32Ffps)
@@ -249,37 +259,170 @@ __inline static HI_BOOL FpsControl(FPS_CTRL_S *pFrmCtrl)
     return bReturn;
 }
 
-/*******************************************************************************
-** GetSysTimeBySec   
-** GetSysTimeByUsec 
-*******************************************************************************/
-#ifdef __KERNEL__
-    #include <linux/ktime.h>
-#else
-    #include <sys/time.h>
+#ifndef __KERNEL__
+#include <time.h>
 #endif
-__inline static HI_U32 GetSysTimeBySec(void)
+#define hi_usleep(usec) \
+do { \
+	struct timespec req; \
+	req.tv_sec 	= (usec) / 1000000; \
+	req.tv_nsec = ((usec) % 1000000) * 1000; \
+	nanosleep (&req, NULL); \
+} while (0)
+
+#ifdef __HuaweiLite__
+
+#include <stdio.h>
+#include <stdarg.h>
+
+/* define the max length of the string */
+#define SECUREC_STRING_MAX_LEN (0x7fffffffUL)
+
+/*******************************************************************************
+ * <NAME>
+ *    snprintf_s
+ *
+ * <SYNOPSIS>
+ *    __inline static HI_S32 snprintf_s(HI_CHAR* strDest, HI_U32 destMax, HI_U32 count, const HI_CHAR* format, ...);
+ *
+ * <FUNCTION DESCRIPTION>
+ *    The snprintf_s function formats and stores count or fewer characters in 
+ *    strDest and appends a terminating null. Each argument (if any) is converted
+ *    and output according to the corresponding format specification in format.
+ *    The formatting is consistent with the printf family of functions; If copying
+ *    occurs between strings that overlap, the behavior is undefined.
+ *
+ * <INPUT PARAMETERS>
+ *    strDest                 Storage location for the output.
+ *    destMax                 The size of the storage location for output. Size 
+ *                            in bytes for snprintf_s.
+ *    count                   Maximum number of character to store.
+ *    format                  Format-control string.
+ *
+ * <OUTPUT PARAMETERS>
+ *    strDest                 is updated
+ *
+ * <RETURN VALUE>
+ *    snprintf_s returns the number of characters stored in strDest, not counting
+ *    the terminating null character.
+ *    If the storage required to store the data and a terminating null exceeds 
+ *    destMax, format will be truncated as the first (destMax-1) characters and a terminating null. return (destMax-1).
+ *    If strDest or format is a NULL pointer, or if destMax  is equal
+ *    to zero or greater than SECUREC_STRING_MAX_LEN, or if count is greater than (SECUREC_STRING_MAX_LEN - 1), the function return -1.
+ *******************************************************************************
+*/
+
+__inline static HI_S32 snprintf_s (HI_CHAR* strDest, HI_U32 destMax, HI_U32 count, const HI_CHAR* format, ...)
 {
-    struct timeval stTime;
-    #ifdef __KERNEL__
-        do_gettimeofday(&stTime);
-    #else
-        gettimeofday(&stTime, NULL);
-    #endif
-    return stTime.tv_sec;
+	va_list args;
+	HI_S32 s32Ret;
+	
+	if (format == NULL || strDest == NULL || destMax == 0 || destMax > SECUREC_STRING_MAX_LEN || count > (SECUREC_STRING_MAX_LEN - 1))
+    {
+        if (strDest != NULL && destMax > 0)
+        {
+            strDest[0] = '\0';
+        }
+        return -1;
+    }
+
+	
+	va_start(args, format);
+
+    if (destMax > count)
+    {
+        s32Ret = vsnprintf(strDest, count + 1, format, args);
+		s32Ret = ((s32Ret < 0) || (s32Ret < count)) ? s32Ret : count;
+    }
+    else /* destMax <= count */
+    {
+        s32Ret = vsnprintf(strDest, destMax, format, args);
+		s32Ret = ((s32Ret < 0) || (s32Ret < destMax-1)) ? s32Ret : destMax-1;
+	}
+	
+	va_end(args);
+
+	return s32Ret;
 }
 
-__inline static HI_U64 GetSysTimeByUsec(void)
+#else
+
+#ifndef __KERNEL__
+#include <stdio.h>
+#include <stdarg.h>
+
+/* define the max length of the string */
+#define SECUREC_STRING_MAX_LEN (0x7fffffffUL)
+
+/*******************************************************************************
+ * <NAME>
+ *    snprintf_s
+ *
+ * <SYNOPSIS>
+ *    __inline static HI_S32 snprintf_s(HI_CHAR* strDest, HI_U32 destMax, HI_U32 count, const HI_CHAR* format, ...);
+ *
+ * <FUNCTION DESCRIPTION>
+ *    The snprintf_s function formats and stores count or fewer characters in 
+ *    strDest and appends a terminating null. Each argument (if any) is converted
+ *    and output according to the corresponding format specification in format.
+ *    The formatting is consistent with the printf family of functions; If copying
+ *    occurs between strings that overlap, the behavior is undefined.
+ *
+ * <INPUT PARAMETERS>
+ *    strDest                 Storage location for the output.
+ *    destMax                 The size of the storage location for output. Size 
+ *                            in bytes for snprintf_s.
+ *    count                   Maximum number of character to store.
+ *    format                  Format-control string.
+ *
+ * <OUTPUT PARAMETERS>
+ *    strDest                 is updated
+ *
+ * <RETURN VALUE>
+ *    snprintf_s returns the number of characters stored in strDest, not counting
+ *    the terminating null character.
+ *    If the storage required to store the data and a terminating null exceeds 
+ *    destMax, format will be truncated as the first (destMax-1) characters and a terminating null. return (destMax-1).
+ *    If strDest or format is a NULL pointer, or if destMax  is equal
+ *    to zero or greater than SECUREC_STRING_MAX_LEN, or if count is greater than (SECUREC_STRING_MAX_LEN - 1), the function return -1.
+ *******************************************************************************
+*/
+
+__inline static HI_S32 snprintf_s (HI_CHAR* strDest, HI_U32 destMax, HI_U32 count, const HI_CHAR* format, ...)
 {
-    struct timeval stTime;
-    #ifdef __KERNEL__
-        do_gettimeofday(&stTime);
-    #else
-        gettimeofday(&stTime, NULL);
-    #endif
-    return  (stTime.tv_sec * 1000000LLU) + stTime.tv_usec;
+	va_list args;
+	HI_S32 s32Ret;
+	
+	if (format == NULL || strDest == NULL || destMax == 0 || destMax > SECUREC_STRING_MAX_LEN || count > (SECUREC_STRING_MAX_LEN - 1))
+    {
+        if (strDest != NULL && destMax > 0)
+        {
+            strDest[0] = '\0';
+        }
+        return -1;
+    }
+
+	
+	va_start(args, format);
+
+    if (destMax > count)
+    {
+        s32Ret = vsnprintf(strDest, count + 1, format, args);
+		s32Ret = ((s32Ret < 0) || (s32Ret < count)) ? s32Ret : count;
+    }
+    else /* destMax <= count */
+    {
+        s32Ret = vsnprintf(strDest, destMax, format, args);
+		s32Ret = ((s32Ret < 0) || (s32Ret < destMax-1)) ? s32Ret : destMax-1;
+	}
+	
+	va_end(args);
+
+	return s32Ret;
 }
 
+#endif
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus

@@ -10,11 +10,11 @@
   Description   : 
   History       :
   1.Date        : 2011/05/16
-    Author      : j00169368
+    Author      : 
     Modification: Created file
 
   2.Date        : 2013/07/01~2014/08/08
-    Author      : t00228657\c00211359\c00206215
+    Author      : 
     Modification: Add MPI function
 ******************************************************************************/
 #ifndef _HI_MPI_IVE_H_
@@ -32,12 +32,12 @@ extern "C"{
 *   Prototype    : HI_MPI_IVE_DMA
 *   Description  : Direct memory access (DMA):
 *                  1.Direct memory copy;
-*				   2. Copy with interval bytes;
+*				     2. Copy with interval bytes;
 *                  3. Memset using 3 bytes; 
-*				   4. Memset using 8 bytes;
+*				     4. Memset using 8 bytes;
 *   Parameters   : IVE_HANDLE          *pIveHandle        Returned handle ID of a task.
 *                  IVE_DATA_S          *pstSrc            Input source data.The input data is treated as U8C1 data.
-*				   IVE_DATA_S          *pstDst            Output result data.
+*				     IVE_DATA_S          *pstDst            Output result data.
 *                  IVE_DMA_CTRL_S      *pstDmaCtrl        DMA control parameter.
 *                  HI_BOOL              bInstant          Flag indicating whether to generate an interrupt.
 *                                                         If the output result blocks the next operation,
@@ -48,10 +48,10 @@ extern "C"{
 *   History:
 * 
 *       1.  Date         : 2011-05-16
-*           Author       : Jiang Xiaohua (employee ID: 00169368)
+*           Author       : 
 *           Modification : Created function
 *		2.  Data		 : 2013-07-19
-*			Author		 : Chen Quanfu
+*			Author		 : 
 *			Modification : Modify parameters
 *
 *****************************************************************************/
@@ -74,10 +74,10 @@ HI_S32 HI_MPI_IVE_DMA(IVE_HANDLE *pIveHandle, IVE_DATA_S *pstSrc,
 *   History:
 * 
 *       1.  Date         : 2011-05-16
-*           Author       : Jiang Xiaohua (employee ID: 00169368)
+*           Author       : 
 *           Modification : Created function
 *       2.  Date         : 2013-07-23
-*           Author       : Chen Quanfu
+*           Author       : 
 *           Modification : Modified function parameters
 
 *
@@ -104,10 +104,10 @@ HI_S32 HI_MPI_IVE_Filter(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
 *   History:
 * 
 *       1.  Date         : 2011-05-16
-*           Author       : Jiang Xiaohua (employee ID: 00169368)
+*           Author       : 
 *           Modification : Created function
 *       2.  Date         : 2013-08-09
-*           Author       : Tan Bing
+*           Author       : 
 *           Modification : Modified function
 *
 *****************************************************************************/
@@ -129,10 +129,10 @@ HI_S32 HI_MPI_IVE_CSC(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
 *   History:
 * 
 *       1.  Date         : 2011-05-16
-*           Author       : Jiang Xiaohua (employee ID: 00169368)
+*           Author       : 
 *           Modification : Created function
 *       2.  Date         : 2013-08-09
-*           Author       : Tan Bing
+*           Author       : 
 *           Modification : Modified function
 *
 *****************************************************************************/
@@ -155,10 +155,10 @@ HI_S32 HI_MPI_IVE_FilterAndCSC(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
 *   History:
 * 
 *       1.  Date         : 2011-05-16
-*           Author       : Jiang Xiaohua (employee ID: 00169368)
+*           Author       : 
 *           Modification : Created function
-*       1.  Date         : 2013-07-23
-*           Author       : Chen Quanfu
+*       2.  Date         : 2013-07-23
+*           Author       : 
 *           Modification : Modified function parameters
 *		
 *
@@ -185,13 +185,13 @@ HI_S32 HI_MPI_IVE_Sobel(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
 *   History:
 * 
 *       1.  Date         : 2011-05-16
-*           Author       : Jiang Xiaohua (employee ID: 00169368)
+*           Author       : 
 *           Modification : Created function
 *		2.  Date         : 2013-07-17
-*			Author       : Chen Quanfu
+*			Author       : 
 *			Modification : Modified function and control parameter name
 *		3.  Date         : 2013-07-23
-*			Author       : Chen Quanfu
+*			Author       : 
 *			Modification : Modified function parameters
 *
 *****************************************************************************/
@@ -215,10 +215,10 @@ HI_S32 HI_MPI_IVE_MagAndAng(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
 *   History:
 * 
 *       1.  Date         : 2011-05-16
-*           Author       : Jiang Xiaohua (employee ID: 00169368)
+*           Author       : 
 *           Modification : Created function
 *       2.  Date         : 2013-07-23
-*           Author       : Chen Quanfu
+*           Author       : 
 *           Modification : Modified parameters
 *
 *****************************************************************************/
@@ -241,10 +241,10 @@ HI_S32 HI_MPI_IVE_Dilate(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
 *   History:
 * 
 *       1.  Date         : 2011-05-16
-*           Author       : Jiang Xiaohua (employee ID: 00169368)
+*           Author       : 
 *           Modification : Created function
 *       2.  Date         : 2013-07-23
-*           Author       : Chen Quanfu
+*           Author       : 
 *           Modification : Modified parameters
 *
 *****************************************************************************/
@@ -265,11 +265,11 @@ HI_S32 HI_MPI_IVE_Erode(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
 *   History:
 * 
 *       1.  Date         : 2011-05-16
-*           Author       : Jiang Xiaohua (employee ID: 00169368)
+*           Author       : 
 *           Modification : Created function
-*		2.  Date		 : 2013-07-23
-*           Author		 : Tan Bing 
-*			Modification : Modification
+*		2.   Date         : 2013-07-23
+*           Author		: 
+*			 Modification  : Modification
 *
 *****************************************************************************/
 HI_S32 HI_MPI_IVE_Thresh(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc, 
@@ -290,7 +290,7 @@ HI_S32 HI_MPI_IVE_Thresh(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
 *   History:
 * 
 *       1.  Date         : 2011-05-16
-*           Author       : Jiang Xiaohua (employee ID: 00169368)
+*           Author       : 
 *           Modification : Created function
 *
 *****************************************************************************/
@@ -313,10 +313,10 @@ HI_S32 HI_MPI_IVE_And(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc1,
 *   History:
 * 
 *       1.  Date         : 2011-05-16
-*           Author       : Jiang Xiaohua (employee ID: 00169368)
+*           Author       : 
 *           Modification : Created function
 *       2.  Date         : 2013-08-09
-*           Author       : Tan Bing
+*           Author       : 
 *           Modification : Modified function parameter
 *
 *****************************************************************************/
@@ -338,10 +338,10 @@ HI_S32 HI_MPI_IVE_Sub(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc1,
 *   History:
 * 
 *       1.  Date         : 2011-05-16
-*           Author       : Jiang Xiaohua (employee ID: 00169368)
+*           Author       : 
 *           Modification : Created function
 *       2.  Date         : 2013-08-09
-*           Author       : Tan Bing
+*           Author       : 
 *           Modification : Modified function parameter
 *
 *****************************************************************************/
@@ -364,17 +364,17 @@ HI_S32 HI_MPI_IVE_Or(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc1,
 *   History:
 * 
 *       1.  Date         : 2011-05-16
-*           Author       : Jiang Xiaohua (employee ID: 00169368)
+*           Author       : 
 *           Modification : Created function
-*       2.	Date		 : 2013-03-18
-*			Author		 : Tan  Bing
+*       2.	 Date		   : 2013-03-18
+*			 Author		   : 
+*			 Modification : Modified function
+*		3.  Date		   : 2013-07-15
+*		    Author		   : 
 *			Modification : Modified function
-*		3. Date			 : 2013-07-15
-*		    Author		 : Chen Quanfu
-*			Modification : Modified function
-*			Spec		 : Modify IVE_INTEG_OUT_FMT_E to  IVE_INTEG_CTRL_S
-*       4.	Date		 : 2013-07-23
-*			Author		 : Chen Quanfu
+*			Spec		  : Modify IVE_INTEG_OUT_FMT_E to  IVE_INTEG_CTRL_S
+*       4.	Date		  : 2013-07-23
+*			Author		  : 
 *			Modification : Modified parameters
 *
 *****************************************************************************/
@@ -395,7 +395,7 @@ HI_S32 HI_MPI_IVE_Integ(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
 *   History:
 * 
 *       1.  Date         : 2011-05-16
-*           Author       : Jiang Xiaohua (employee ID: 00169368)
+*           Author       : 
 *           Modification : Created function
 *
 *****************************************************************************/
@@ -417,7 +417,7 @@ HI_S32 HI_MPI_IVE_Hist(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
 *   History:
 * 
 *       1.  Date         : 2013-05-16
-*           Author       : Tan bing 
+*           Author       : 
 *           Modification : Created function
 *
 *****************************************************************************/
@@ -439,10 +439,10 @@ HI_S32 HI_MPI_IVE_Thresh_S16(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
 *   History:
 * 
 *       1.  Date         : 2013-05-16
-*           Author       : Tan bing 
+*           Author       :  
 *           Modification : Created function
 *       2.  Date         : 2013-08-07
-*           Author       : Chen Quanfu 
+*           Author       : 
 *           Modification : Implement function
 *
 *****************************************************************************/
@@ -464,7 +464,7 @@ HI_S32 HI_MPI_IVE_Thresh_U16(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
 *   History:
 * 
 *       1.  Date         : 2013-08-12
-*           Author       : Tan Bing 
+*           Author       : 
 *           Modification : Created function
 *
 *****************************************************************************/
@@ -486,7 +486,7 @@ HI_S32 HI_MPI_IVE_16BitTo8Bit(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
 *   History:
 * 
 *       1.  Date         : 2013-08-12
-*           Author       : Tan Bing 
+*           Author       :  
 *           Modification : Created function
 *
 *****************************************************************************/
@@ -500,6 +500,7 @@ HI_S32 HI_MPI_IVE_OrdStatFilter(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
 *                  IVE_SRC_IMAGE_S      *pstSrc          Input source. Only the U8C1 input format is supported.
 *                  IVE_SRC_MEM_INFO_S   *pstMap          Input lookup table. Must be an U8 array of size 256.
 *                  IVE_DST_IMAGE_S      *pstDst          Output result.
+*				   IVE_MAP_CTRL_S       *pstMapCtrl      Map control parameter.
 *                  HI_BOOL               bInstant        For details, see HI_MPI_IVE_DMA.
 *   Return Value : HI_SUCCESS: Success;Error codes: Failure.
 *   Spec         : The size of the input data ranges from 64x64 pixels to 1920x1080 pixels.
@@ -508,12 +509,16 @@ HI_S32 HI_MPI_IVE_OrdStatFilter(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
 *   History:
 * 
 *       1.  Date         : 2013-08-17
-*           Author       : Chen Quanfu
+*           Author       : 
 *           Modification : Created function
+*       2.  Date         : 2015-03-02
+*           Author       : 
+*           Modification : Add s16/u16 map
 *
 *****************************************************************************/
 HI_S32 HI_MPI_IVE_Map(IVE_HANDLE *pIveHandle,IVE_SRC_IMAGE_S *pstSrc, 
-	IVE_SRC_MEM_INFO_S *pstMap, IVE_DST_IMAGE_S *pstDst,HI_BOOL bInstant);
+	IVE_SRC_MEM_INFO_S *pstMap, IVE_DST_IMAGE_S *pstDst,IVE_MAP_CTRL_S *pstMapCtrl,HI_BOOL bInstant);
+
 
 /*****************************************************************************
 *   Prototype    : HI_MPI_IVE_EqualizeHist
@@ -530,7 +535,7 @@ HI_S32 HI_MPI_IVE_Map(IVE_HANDLE *pIveHandle,IVE_SRC_IMAGE_S *pstSrc,
 *   History:
 * 
 *       1.  Date         : 2013-07-17
-*           Author       : Chen Quanfu
+*           Author       : 
 *           Modification : Created function
 *
 *****************************************************************************/
@@ -544,7 +549,7 @@ HI_S32 HI_MPI_IVE_EqualizeHist(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
 *                  IVE_SRC_IMAGE_S     *pstSrc1         Augend of the input source.Only the U8C1 input format is supported.
 *                  IVE_SRC_IMAGE_S     *pstSrc2         Addend of the input source.Only the U8C1 input format is supported.
 *                  IVE_DST_IMAGE_S     *pstDst          Output result of src1 plus src2
-*				   IVE_ADD_CTRL_S      *pstAddCtrl      Control parameter
+*				     IVE_ADD_CTRL_S      *pstAddCtrl      Control parameter
 *                  HI_BOOL              bInstant        For details, see HI_MPI_IVE_DMA.
 *   Return Value : HI_SUCCESS: Success;Error codes: Failure.
 *   Spec         : The size of the input data ranges from 64x64 pixels to 1920x1080 pixels.
@@ -553,7 +558,7 @@ HI_S32 HI_MPI_IVE_EqualizeHist(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
 *   History:
 * 
 *       1.  Date         : 2013-07-17
-*           Author       : Chen Quanfu
+*           Author       : 
 *           Modification : Created function
 *
 *****************************************************************************/
@@ -575,7 +580,7 @@ HI_S32 HI_MPI_IVE_Add(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc1,
 *   History:
 * 
 *       1.  Date         : 2013-07-17
-*           Author       : Chen Quanfu
+*           Author       : 
 *           Modification : Created function
 *
 *****************************************************************************/
@@ -597,7 +602,7 @@ HI_S32 HI_MPI_IVE_Xor(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc1,
 *   History:
 * 
 *       1.  Date         : 2013-08-16
-*           Author       : Chen Quanfu
+*           Author       : 
 *           Modification : Created function
 *
 *****************************************************************************/
@@ -619,7 +624,7 @@ HI_S32 HI_MPI_IVE_NCC(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc1,
 *   History:
 * 
 *       1.  Date         : 2013-08-1
-*           Author       : Cheng Jianmin
+*           Author       : 
 *           Modification : Created function
 *****************************************************************************/
 HI_S32 HI_MPI_IVE_CCL(IVE_HANDLE *pIveHandle, IVE_IMAGE_S *pstSrcDst,
@@ -643,11 +648,38 @@ HI_S32 HI_MPI_IVE_CCL(IVE_HANDLE *pIveHandle, IVE_IMAGE_S *pstSrcDst,
 *   History:
 * 
 *       1.  Date         : 2013-08-07
-*           Author       : Cheng Jianmin
+*           Author       : 
 *           Modification : Created function
 *****************************************************************************/
 HI_S32 HI_MPI_IVE_GMM(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_DST_IMAGE_S *pstFg, 
 	IVE_DST_IMAGE_S *pstBg, IVE_MEM_INFO_S *pstModel, IVE_GMM_CTRL_S *pstGmmCtrl, HI_BOOL bInstant);
+
+/*****************************************************************************
+*   Prototype    : HI_MPI_IVE_GMM2
+*   Description  : Separate foreground and background using GMM(Gaussian Mixture Model) method;
+*                  Gray or RGB GMM are supported.
+*   Parameters   : IVE_HANDLE          *pIveHandle			Returned handle ID of a task
+*                  IVE_SRC_IMAGE_S     *pstSrc				Only U8C1 or U8C3_PACKAGE input are supported.
+*				   IVE_SRC_IMAGE_S	   *pstFactor			U16C1 input, low-8bits is sensitivity factor, and high-8bits is life update factor. 
+*				   IVE_DST_IMAGE_S     *pstFg				Output foreground (Binary) image.
+*				   IVE_DST_IMAGE_S     *pstBg				Output background image. With same type of pstSrc.
+*				   IVE_DST_IMAGE_S     *pstMatchModelInfo	Output U8C1 match model info image. Low-1bit is match flag,and high-7bits is max freq index.
+*				   IVE_MEM_INFO_S      *pstModel			Model data.
+*				   IVE_GMM2_CTRL_S     *pstGmm2Ctrl			Control parameter.
+*                  HI_BOOL              bInstant			For details, see HI_MPI_IVE_DMA.
+*   Return Value : HI_SUCCESS: Success;Error codes: Failure.
+*   Spec         : The size of the input data ranges from 64x64 pixels to 1280x720 pixels.
+*                  The physical addresses of the input data and output data must be 16-byte-aligned. 
+*                  The stride must be 16-pixel-aligned.
+*   History:
+* 
+*       1.  Date         : 2015-04-16
+*           Author       : 
+*           Modification : Created function
+*****************************************************************************/
+HI_S32 HI_MPI_IVE_GMM2(IVE_HANDLE *pIveHandle,IVE_SRC_IMAGE_S *pstSrc,IVE_SRC_IMAGE_S *pstFactor,              
+	IVE_DST_IMAGE_S *pstFg,IVE_DST_IMAGE_S *pstBg,IVE_DST_IMAGE_S *pstMatchModelInfo,      
+	IVE_MEM_INFO_S  *pstModel,IVE_GMM2_CTRL_S *pstGmm2Ctrl,HI_BOOL bInstant);
 
 /*****************************************************************************
 *   Prototype    : HI_MPI_IVE_CannyHysEdge
@@ -666,7 +698,7 @@ HI_S32 HI_MPI_IVE_GMM(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_DST_I
 *   History:
 * 
 *       1.  Date         : 2013-08-12
-*           Author       : Chen Quanfu
+*           Author       : 
 *           Modification : Created function
 *
 *****************************************************************************/
@@ -685,7 +717,7 @@ HI_S32 HI_MPI_IVE_CannyHysEdge(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc, 
 *   History:
 * 
 *       1.  Date         : 2013-08-12
-*           Author       : Chen Quanfu
+*           Author       : 
 *           Modification : Created function
 *
 *****************************************************************************/
@@ -706,7 +738,7 @@ HI_S32 HI_MPI_IVE_CannyEdge(IVE_IMAGE_S *pstEdge, IVE_MEM_INFO_S *pstStack);
 *   History:
 * 
 *       1.  Date         : 2013-09-22
-*           Author       : Tan Bing
+*           Author       : 
 *           Modification : Created function
 *
 *****************************************************************************/
@@ -730,7 +762,7 @@ HI_S32 HI_MPI_IVE_LBP(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
 *   History:
 * 
 *       1.  Date         : 2013-08-12
-*           Author       : Tan Bing 
+*           Author       :  
 *           Modification : Created function
 *
 *****************************************************************************/
@@ -739,31 +771,29 @@ HI_S32 HI_MPI_IVE_NormGrad(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
 	IVE_NORM_GRAD_CTRL_S *pstNormGradCtrl, HI_BOOL bInstant);
 
 /*****************************************************************************
-*   Prototype    : HI_MPI_IVE_LKOpticalFlow
-*   Description  : Calculate LK-Optical Flow in single-layer of the pyramid. 
-*   Parameters   : IVE_HANDLE                  *pIveHandle          Returned handle ID of a task
-*                  IVE_SRC_IMAGE_S             *pstSrcPre           Pre-frame input source.Must be U8C1 image
-*				   IVE_SRC_IMAGE_S             *pstSrcCur			Cur-frame input source.Same size,type with pstPreSrc.
-*                  IVE_SRC_MEM_INFO_S          *pstPoint		    Intresting points coordinates in the cur-layer
-*                                                                   for LKOpticalFlow tracking.
-*                  IVE_MEM_INFO_S              *pstMv               Accumlative movements of the interesting points in pre-layers
-*                                                                   or init 0s for the first-layer as input.                                                                init 0s .
-*                                                                   Movements of the interesting points being tracked in cur-layer
-*                                                                   as output.
-*                  IVE_LKOPTICALFLOW_CTRL_S    *pstLkOptiFlowCtrl   Control parameters.
-*                  HI_BOOL                      bInstant            For details, see HI_MPI_IVE_DMA.
+*   Prototype    : HI_MPI_IVE_LKOpticalFlowPyr
+*   Description  : Calculate LK Optical Flow using multi-layer of the pyramid-images. 
+*   Parameters   : IVE_HANDLE						*pIveHandle          Returned handle ID of a task
+*                  IVE_SRC_IMAGE_S					astSrcPrevPyr        Prev-frame's pyramid. Must be U8C1 images.
+*				   IVE_SRC_IMAGE_S					astSrcNextPyr		 Next-frame's pyramid. Same size and type with astSrcPrePyr.
+*                  IVE_SRC_MEM_INFO_S				*pstPrevPts		     Intresting points on astSrcPrePyr[0].
+*                  IVE_MEM_INFO_S					*pstNextPts          Output points. When bUseInitFlow is true, must have the same
+*																		 size of pstPrevPts as input.  
+*                  IVE_LK_OPTICAL_FLOW_PYR_CTRL_S	*pstLkOptiFlowCtrl   Control parameters.
+*                  HI_BOOL							bInstant             For details, see HI_MPI_IVE_DMA.
 *   Return Value : HI_SUCCESS: Success;Error codes: Failure.
-*   Spec         : The size of the input data ranges from 64x64 pixels to 720x576 pixels.
+*   Spec         : The size of the input data ranges from 64x64 pixels to 1280x720 pixels.
 *                  The physical addresses of the input data and output data must be 16-byte-aligned. 
 *                  The stride must be 16-pixel-aligned.
 *   History:
 * 
-*       1.  Date         : 2013-08-23
-*           Author       : Cheng Jianmin
+*       1.  Date         : 2015-03-20
+*           Author       : 
 *           Modification : Created function
 ****************************************************************************/
-HI_S32 HI_MPI_IVE_LKOpticalFlow(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrcPre, IVE_SRC_IMAGE_S *pstSrcCur,	
-    IVE_SRC_MEM_INFO_S *pstPoint, IVE_MEM_INFO_S *pstMv, IVE_LK_OPTICAL_FLOW_CTRL_S *pstLkOptiFlowCtrl, HI_BOOL bInstant);
+HI_S32 HI_MPI_IVE_LKOpticalFlowPyr(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S astSrcPrevPyr[], IVE_SRC_IMAGE_S astSrcNextPyr[],
+    IVE_SRC_MEM_INFO_S *pstPrevPts, IVE_MEM_INFO_S *pstNextPts, IVE_DST_MEM_INFO_S *pstStatus, IVE_DST_MEM_INFO_S *pstErr,
+    IVE_LK_OPTICAL_FLOW_PYR_CTRL_S *pstLkOptiFlowPyrCtrl, HI_BOOL bInstant);
 
 /*****************************************************************************
 *   Prototype    : HI_MPI_IVE_STCandiCorner
@@ -780,7 +810,7 @@ HI_S32 HI_MPI_IVE_LKOpticalFlow(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrcP
 *   History:
 * 
 *       1.  Date         : 2013-09-16
-*           Author       : Cheng Jianmin
+*           Author       : 
 *           Modification : Created function
 *
 *****************************************************************************/
@@ -800,7 +830,7 @@ HI_S32 HI_MPI_IVE_STCandiCorner(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
 *   History:
 * 
 *       1.  Date         : 2013-09-16
-*           Author       : Cheng Jianmin
+*           Author       : 
 *           Modification : Created function
 *
 *****************************************************************************/
@@ -823,13 +853,12 @@ HI_S32 HI_MPI_IVE_STCorner(IVE_SRC_IMAGE_S * pstCandiCorner, IVE_DST_MEM_INFO_S 
 *   History:
 * 
 *       1.  Date         : 2013-10-29
-*           Author       : Tan Bing 
+*           Author       :  
 *           Modification : Created function
 *
 *****************************************************************************/
 HI_S32 HI_MPI_IVE_GradFg(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstBgDiffFg, IVE_SRC_IMAGE_S *pstCurGrad,
 	IVE_SRC_IMAGE_S *pstBgGrad, IVE_DST_IMAGE_S *pstGradFg, IVE_GRAD_FG_CTRL_S *pstGradFgCtrl, HI_BOOL bInstant);
-
 
 /*****************************************************************************
 *   Prototype    : HI_MPI_IVE_MatchBgModel
@@ -853,7 +882,7 @@ HI_S32 HI_MPI_IVE_GradFg(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstBgDiffFg, I
 *   History:
 * 
 *       1.  Date         : 2013-10-29
-*           Author       : Tan Bing  
+*           Author       :   
 *           Modification : Created function
 *
 *****************************************************************************/
@@ -879,7 +908,7 @@ HI_S32 HI_MPI_IVE_MatchBgModel(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstCurIm
 *   History:
 * 
 *       1.  Date         : 2013-10-29
-*           Author       : Tan Bing  
+*           Author       :  
 *           Modification : Created function
 *
 *****************************************************************************/
@@ -897,7 +926,7 @@ HI_S32 HI_MPI_IVE_UpdateBgModel(IVE_HANDLE *pIveHandle,	IVE_DATA_S *pstBgModel, 
 *   History:
 * 
 *       1.  Date         : 2014-05-13
-*           Author       : Tan Bing
+*           Author       : 
 *           Modification : Created function
 *
 *****************************************************************************/
@@ -912,7 +941,7 @@ HI_S32 HI_MPI_IVE_ANN_MLP_LoadModel(const HI_CHAR *pchFileName, IVE_ANN_MLP_MODE
 *   History:
 * 
 *       1.  Date         : 2014-05-13
-*           Author       : Tan Bing
+*           Author       : 
 *           Modification : Created function
 *
 *****************************************************************************/
@@ -922,23 +951,26 @@ HI_VOID HI_MPI_IVE_ANN_MLP_UnloadModel(IVE_ANN_MLP_MODEL_S *pstAnnMlpModel);
 *   Prototype    : HI_MPI_IVE_ANN_MLP_Predict
 *   Description  :  
 *   Parameters   : IVE_HANDLE			   *pIveHandle          Returned handle ID of a task
-*				   IVE_SRC_MEM_INFO_S	   *pstSrc			    Input sample
+*				   IVE_SRC_DATA_S	       *pstSrc			    Input samples 
 *                  IVE_SRC_MEM_INFO_S      *pstActivFuncTable   Look-up talbe for active function
 *                  IVE_ANN_MLP_MODEL_S     *pstAnnMlpModel	    ANN_MLP model
-*                  IVE_DST_MEM_INFO_S      *pstDst              Output layer
+*                  IVE_DST_DATA_S          *pstDst              Output layers of every intput sample
 *                  HI_BOOL				    bInstant            For details, see HI_MPI_IVE_DMA.
 *   Return Value : HI_SUCCESS: Success;Error codes: Failure.
 *   Spec         : 
 *   History:
 * 
 *       1.  Date         : 2013-11-28
-*           Author       : Tan Bing
+*           Author       : 
 *           Modification : Created function
+*		2.  Date		 : 2015-05-21
+*			Author		 : 
+*			Modification : support 1024d feature vector and array of vectors input
 *
 *****************************************************************************/
-HI_S32 HI_MPI_IVE_ANN_MLP_Predict(IVE_HANDLE *pIveHandle, IVE_SRC_MEM_INFO_S *pstSrc, 
+HI_S32 HI_MPI_IVE_ANN_MLP_Predict(IVE_HANDLE *pIveHandle, IVE_SRC_DATA_S *pstSrc, 
     IVE_LOOK_UP_TABLE_S *pstActivFuncTab, IVE_ANN_MLP_MODEL_S *pstAnnMlpModel,  
-    IVE_DST_MEM_INFO_S *pstDst, HI_BOOL bInstant);
+    IVE_DST_DATA_S *pstDst, HI_BOOL bInstant);
 
 /*****************************************************************************
 *   Prototype    : HI_MPI_IVE_SVM_LoadModel
@@ -950,7 +982,7 @@ HI_S32 HI_MPI_IVE_ANN_MLP_Predict(IVE_HANDLE *pIveHandle, IVE_SRC_MEM_INFO_S *ps
 *   History:
 * 
 *       1.  Date         : 2014-05-13
-*           Author       : Tan Bing
+*           Author       : 
 *           Modification : Created function
 *
 *****************************************************************************/
@@ -965,7 +997,7 @@ HI_S32 HI_MPI_IVE_SVM_LoadModel(const HI_CHAR *pchFileName, IVE_SVM_MODEL_S *pst
 *   History:
 * 
 *       1.  Date         : 2014-05-13
-*           Author       : Tan Bing
+*           Author       : 
 *           Modification : Created function
 *
 *****************************************************************************/
@@ -975,23 +1007,27 @@ HI_VOID HI_MPI_IVE_SVM_UnloadModel(IVE_SVM_MODEL_S *pstSvmModel);
 *   Prototype    : HI_MPI_IVE_SVM_Predict
 *   Description  :  
 *   Parameters   : IVE_HANDLE			   *pIveHandle          Returned handle ID of a task
-*				   IVE_SRC_MEM_INFO_S	   *pstSrc			    Input sample
+*				   IVE_SRC_DATA_S	       *pstSrc			    Input sample
 *                  IVE_SRC_MEM_INFO_S      *pstKernelTable      Look-up talbe for active function
 *                  IVE_SVM_MODEL_S         *pstSvmModel         SVM model
-*                  IVE_DST_MEM_INFO_S      *pstDstVote          Output Votes' array of each class
+*                  IVE_SRC_DATA_S          *pstDstVote          Output Votes' array of each class
 *                  HI_BOOL				    bInstant            For details, see HI_MPI_IVE_DMA.
 *   Return Value : HI_SUCCESS: Success;Error codes: Failure.
 *   Spec         : 
 *   History:
 * 
 *       1.  Date         : 2013-11-28
-*           Author       : Tan Bing
+*           Author       : 
 *           Modification : Created function
+*		2.  Date		 : 2015-04-21
+*			Author		 : 
+*			Modification : support 1024d feature vector and array of vectors input
 *
 *****************************************************************************/
-HI_S32 HI_MPI_IVE_SVM_Predict(IVE_HANDLE *pIveHandle, IVE_SRC_MEM_INFO_S *pstSrc, 
+HI_S32 HI_MPI_IVE_SVM_Predict(IVE_HANDLE *pIveHandle, IVE_SRC_DATA_S *pstSrc, 
     IVE_LOOK_UP_TABLE_S *pstKernelTab, IVE_SVM_MODEL_S *pstSvmModel,
-    IVE_DST_MEM_INFO_S *pstDstVote, HI_BOOL bInstant);
+    IVE_DST_DATA_S *pstDstVote, HI_BOOL bInstant);
+
 
 /*****************************************************************************
 *   Prototype    : HI_MPI_IVE_SAD
@@ -1006,18 +1042,111 @@ HI_S32 HI_MPI_IVE_SVM_Predict(IVE_HANDLE *pIveHandle, IVE_SRC_MEM_INFO_S *pstSrc
 *   Return Value : HI_SUCCESS: Success;Error codes: Failure.
 *   Spec         : The size of the input data ranges from 64x64 pixels to 1920x1080 pixels.
 *                  The stride must be 16-pixel-aligned.
-*                  The types, widths, heights of two input sources must be the same.	
-*					 Not support in hi3516a
+*                  The types, widths, heights of two input sources must be the same.
 *   History:
 * 
 *       1.  Date         : 2014-08-28
-*           Author       : Chen Quanfu
+*           Author       : 
 *           Modification : Created function
 *
 *****************************************************************************/
 HI_S32 HI_MPI_IVE_SAD(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc1, 
 	IVE_SRC_IMAGE_S *pstSrc2, IVE_DST_IMAGE_S *pstSad,IVE_DST_IMAGE_S *pstThr, 
 	IVE_SAD_CTRL_S *pstSadCtrl, HI_BOOL bInstant);
+
+/*****************************************************************************
+*   Prototype    : HI_MPI_IVE_Resize
+*   Description  : Resize. 
+*   Parameters   : IVE_HANDLE          *pIveHandle		Returned handle ID of a task
+*                  IVE_SRC_IMAGE_S     astSrc[]			The input source.Only the U8C1/U8C3_PLANAR input format is supported.
+*                  IVE_DST_IMAGE_S     astDst[]			Output result.Only the U8C1/U8C3_PLANAR format is supported.
+*                  IVE_RESIZE_CTRL_S   *pstResizeCtrl   Control parameter
+*                  HI_BOOL             bInstant			For details, see HI_MPI_IVE_DMA.
+*   Return Value : HI_SUCCESS: Success;Error codes: Failure.
+*   Spec         : The size of the input data ranges from 32x16 pixels to 1920x1080 pixels.
+*                  The stride must be 16-pixel-aligned.
+*   History:
+* 
+*       1.  Date         : 2015-03-26
+*           Author       : 
+*           Modification : Created function
+*
+*****************************************************************************/
+HI_S32 HI_MPI_IVE_Resize(IVE_HANDLE *pIveHandle,IVE_SRC_IMAGE_S astSrc[],
+	IVE_DST_IMAGE_S astDst[],IVE_RESIZE_CTRL_S *pstResizeCtrl,HI_BOOL bInstant);
+
+/*****************************************************************************
+*   Prototype    : HI_MPI_IVE_CNN_LoadModel
+*   Description  : Load CNN model data from ".bin" file.
+*   Parameters   : HI_CHAR			*pchFileName     CNN model file name, must be ".bin" file.
+*		  		     IVE_CNN_MODEL_S	*pstCnnModel	   CNN model data.
+*   Return Value : HI_SUCCESS: Success;Error codes: Failure.
+*   Spec         : 
+*   History:
+* 
+*       1.  Date         : 2015-04-19
+*           Author       : 
+*           Modification : Created function
+*
+*****************************************************************************/
+HI_S32 HI_MPI_IVE_CNN_LoadModel(const HI_CHAR *pchFileName, IVE_CNN_MODEL_S *pstCnnModel);
+
+/*****************************************************************************
+*   Prototype    : HI_MPI_IVE_CNN_UnloadModel
+*   Description  : Unload CNN model data and release memory.
+*   Parameters   : IVE_CNN_MODEL_S *pstCnnModel)	 CNN model data.
+*   Return Value : HI_SUCCESS: Success;Error codes: Failure.
+*   Spec         : 
+*   History:
+* 
+*       1.  Date         : 2015-4-19
+*           Author       : 
+*           Modification : Created function
+*
+*****************************************************************************/
+HI_VOID HI_MPI_IVE_CNN_UnloadModel(IVE_CNN_MODEL_S *pstCnnModel);
+
+/*****************************************************************************
+*   Prototype    : HI_MPI_IVE_CNN_Predict
+*   Description  : Perform CNN prediction on input sample(s), and output responses for corresponding sample(s) 
+*   Parameters   : IVE_HANDLE			*pIveHandle        	Returned handle ID of a task
+*				    IVE_SRC_IMAGE_S	 	astSrc[]          	Input images array. Only the U8C1 and U8C3_PLANAR input are supported
+*				    IVE_CNN_MODEL_S		*pstCnnModel       	CNN model data
+*				    IVE_CNN_CTRL_S   		*pstCnnCtrl        	CNN control parameter
+*				    IVE_DST_DATA_S   		*pstDst            	Output vectors of CNN_Predict
+*				    HI_BOOL           	bInstant          	For details, see HI_MPI_IVE_DMA.
+*   Return Value : HI_SUCCESS: Success; Error codes: Failure.
+*   Spec         : The stride must be 16-pixel-aligned.
+* 				   The types, widths, heights and strides of input images must be the same.
+*   History:
+* 
+*       1.  Date         : 2015-4-19
+*           Author       : 
+*           Modification : Created function
+*
+*****************************************************************************/
+HI_S32 HI_MPI_IVE_CNN_Predict(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S astSrc[],
+	IVE_CNN_MODEL_S *pstCnnModel, IVE_DST_DATA_S *pstDst,
+	IVE_CNN_CTRL_S *pstCnnCtrl, HI_BOOL bInstant);
+
+/*****************************************************************************
+*   Prototype    : HI_MPI_IVE_CNN_GetResult
+*   Description  : Calculate classification and confidence with CNN output by softmax regression.
+*   Parameters   : IVE_SRC_DATA_S			*pstSrc						The result of CNN_Predict output.
+*		            IVE_DST_MEM_INFO_S		*pstDst						The prediction about classification label index and confidence. 
+*				     IVE_CNN_MODEL_S       	*pstpstCnnModel         	CNN model data
+*		            IVE_CNN_CTRL_S        	*pstCnnCtrl				CNN control parameter
+*   Return Value : HI_SUCCESS: Success;Error codes: Failure.
+*   Spec         : 
+*   History:
+* 
+*       1.  Date         : 2015-4-19
+*           Author       : 
+*           Modification : Created function
+*
+*****************************************************************************/
+HI_S32 HI_MPI_IVE_CNN_GetResult(IVE_SRC_DATA_S *pstSrc,  IVE_DST_MEM_INFO_S *pstDst,
+	IVE_CNN_MODEL_S *pstCnnModel, IVE_CNN_CTRL_S *pstCnnCtrl);
 
 /*****************************************************************************
 *   Prototype    : HI_MPI_IVE_Query
@@ -1033,7 +1162,7 @@ HI_S32 HI_MPI_IVE_SAD(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc1,
 *   History:
 * 
 *       1.  Date         : 2011-05-16
-*           Author       : Jiang Xiaohua (employee ID: 00169368)
+*           Author       : 
 *           Modification : Created function
 *
 *****************************************************************************/

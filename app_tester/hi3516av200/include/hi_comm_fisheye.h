@@ -42,6 +42,8 @@ extern "C" {
 
 #define FISHEYE_MAX_REGION_NUM 		4
 #define FISHEYE_LMFCOEF_NUM		  128
+#define FISHEYE_PMFCOEF_NUM			9
+
 
 typedef HI_S32      FISHEYE_HANDLE;
 
@@ -61,6 +63,7 @@ typedef enum hiFISHEYE_MOUNT_MODE_E
 	
     FISHEYE_MOUNT_MODE_BUTT
 }FISHEYE_MOUNT_MODE_E;
+
 
 typedef enum hiFISHEYE_VIEW_MODE_E
 {
@@ -84,23 +87,51 @@ typedef struct hiFISHEYE_REGION_ATTR_S
 	RECT_S                  stOutRect; 		
 }FISHEYE_REGION_ATTR_S;
 
+
 typedef struct hiFISHEYE_ATTR_S
 {
 	HI_BOOL 				bEnable;			/* whether enable fisheye correction or not */
 	HI_BOOL 				bLMF; 				/* whether fisheye len's LMF coefficient is from user config or from default linear config */
 	HI_BOOL                 bBgColor;       	/* whether use background color or not */
-	HI_U32                  u32BgColor;			/* the background color ARGB8888 [0,0xffffff]*/
+	HI_U32                  u32BgColor;			/* the background color RGB888 [0,0xffffff]*/
 
-	HI_S32 					s32HorOffset;   	/* the horizontal offset between image center and physical center of len [-127,127]*/
-	HI_S32 					s32VerOffset;		/* the vertical offset between image center and physical center of len [-127,127]*/
+	HI_S32 					s32HorOffset;   	/* the horizontal offset between image center and physical center of len*/
+	HI_S32 					s32VerOffset;		/* the vertical offset between image center and physical center of len*/
 	
 	HI_U32                  u32TrapezoidCoef;	/* strength coefficient of trapezoid correction */
-	
+    HI_S32                  s32FanStrength;     /* strength coefficient of fan correction */ 
+    
 	FISHEYE_MOUNT_MODE_E    enMountMode;		/* fisheye mount mode */	
 	
 	HI_U32               	u32RegionNum;       /* fisheye correction region number [1, FISHEYE_MAX_REGION_NUM] */
 	FISHEYE_REGION_ATTR_S 	astFisheyeRegionAttr[FISHEYE_MAX_REGION_NUM];/* attribution of fisheye correction region */	 
 }FISHEYE_ATTR_S;
+
+typedef struct hiSPREAD_ATTR_S
+{
+	HI_BOOL 				bEnable;			/* whether enable fisheye correction or not */
+	HI_U32					u32SpreadCoef;		/* strength coefficient of spread correction */
+	SIZE_S      			stDestSize;			/*dest size of spread*/
+}SPREAD_ATTR_S;
+
+
+typedef struct hiFISHEYE_CYLIND_ATTR_S
+{
+    HI_S32 s32CenterXOffset;        /* Horizontal offset of the image distortion center relative to image center.*/
+    HI_S32 s32CenterYOffset;        /* Vertical offset of the image distortion center relative to image center.*/
+    HI_S32 s32Ratio;                /* Distortion ratio.*/
+} FISHEYE_CYLIND_ATTR_S;
+
+typedef struct hiFISHEYE_CYLIND_ATTR_EX_S
+{
+    FISHEYE_CYLIND_ATTR_S   stCylindAttr;   /*Cylind Nomal Attr*/
+    HI_S32                  s32FanStrength; /*Strength coefficient of fan correction*/
+} FISHEYE_CYLIND_ATTR_EX_S;
+
+typedef struct hiFISHEYE_PMF_ATTR_S
+{
+	HI_S32      				as32PMFCoef[FISHEYE_PMFCOEF_NUM];
+}FISHEYE_PMF_ATTR_S;
 
 typedef struct hiFISHEYE_JOB_CONFIG_S
 {    

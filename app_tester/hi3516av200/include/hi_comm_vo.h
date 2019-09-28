@@ -194,7 +194,7 @@ typedef enum hiEN_VOU_ERR_CODE_E
 #define VO_INTF_LCD_6BIT    (0x01L<<9)
 #define VO_INTF_LCD_8BIT    (0x01L<<10)
 #define VO_INTF_LCD_16BIT   (0x01L<<11)
-
+#define VO_INTF_LCD_24BIT   (0x01L<<12)
 
 
 
@@ -205,7 +205,7 @@ typedef enum hiEN_VOU_ERR_CODE_E
 /*****************************************************************************
  * 3520 ADDed
  *****************************************************************************/
-typedef HI_S32 VO_INTF_TYPE_E;
+typedef HI_U32 VO_INTF_TYPE_E;
 
 
 
@@ -244,6 +244,8 @@ typedef enum hiVO_INTF_SYNC_E
     VO_OUTPUT_320X240_50,            /* For ili9342 at 50 Hz (6bit) */
     VO_OUTPUT_240X320_50,            /* For ili9341 at 50 Hz (6bit) */
     VO_OUTPUT_240X320_60,            /* For ili9341 at 60 Hz (16bit) */
+    VO_OUTPUT_800X600_50,            /* For LCD at 50 Hz (24bit) */
+    VO_OUTPUT_3840x2160_30,          /* 3840x2160_30 */
     VO_OUTPUT_USER,
     VO_OUTPUT_BUTT
 
@@ -251,10 +253,10 @@ typedef enum hiVO_INTF_SYNC_E
 
 typedef enum hiVO_DISPLAY_FIELD_E
 {
-  VO_FIELD_TOP,                 /* top field*/
-  VO_FIELD_BOTTOM,              /* bottom field*/
-  VO_FIELD_BOTH,                /* top and bottom field*/
-  VO_FIELD_BUTT
+    VO_FIELD_TOP,                 /* top field*/
+    VO_FIELD_BOTTOM,              /* bottom field*/
+    VO_FIELD_BOTH,                /* top and bottom field*/
+    VO_FIELD_BUTT
 } VO_DISPLAY_FIELD_E;
 
 typedef enum hiVOU_ZOOM_IN_E
@@ -299,7 +301,7 @@ typedef struct hiVO_QUERY_STATUS_S
     HI_U32 u32ChnBufUsed;       /* channel buffer that been occupied */
 } VO_QUERY_STATUS_S;
 
-typedef struct tagVO_SYNC_INFO_S
+typedef struct hiVO_SYNC_INFO_S
 {
     HI_BOOL  bSynm;     /* sync mode(0:timing,as BT.656; 1:signal,as LCD) */
     HI_BOOL  bIop;      /* interlaced or progressive display(0:i; 1:p) */

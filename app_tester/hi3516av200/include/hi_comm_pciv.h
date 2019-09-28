@@ -22,7 +22,6 @@
 #include "hi_common.h"
 #include "hi_errno.h"
 #include "hi_comm_video.h"
-#include "hi_comm_vdec.h"
 #include "hi_comm_vpss.h"
 
 #ifdef __cplusplus
@@ -68,12 +67,10 @@ typedef struct hiPCIV_VPSSDEVICE_S
     VPSS_CHN vpssChn; /* vpss channel number */
 } PCIV_VPSSDEVICE_S;
 
-/* venc object struct */
 typedef struct hiPCIV_VENCDEVICE_S
 {
     VENC_CHN vencChn; /* venc channel number */
 } PCIV_VENCDEVICE_S;
-
 /* bind type for pciv */
 typedef enum hiPCIV_BIND_TYPE_E
 {

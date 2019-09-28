@@ -289,6 +289,16 @@ typedef enum
     HIFB_MIRROR_BUTT    
 }HIFB_MIRROR_MODE_E;
 
+/* ROTATE mode  */
+typedef enum
+{
+    HIFB_ROTATE_NONE = 0x0,
+    HIFB_ROTATE_90 = 0x1,
+    HIFB_ROTATE_180 = 0x2,
+    HIFB_ROTATE_270= 0x3,          
+    HIFB_ROTATE_BUTT    
+}HIFB_ROTATE_MODE_E;
+
 /*layer info maskbit*/
 typedef enum
 {
@@ -319,6 +329,13 @@ typedef struct
     HI_U32 u32Mask;			  /**<  param modify mask bit*/
 }HIFB_LAYER_INFO_S;
 
+#ifdef __HuaweiLite__
+typedef struct hiHIFB_MODULE_PARAMS_S
+{
+    HI_CHAR video[64];
+    HI_CHAR softcursor[8];
+}HIFB_MODULE_PARAMS_S;
+#endif
 /** To set the layer information */
 #define FBIOPUT_LAYER_INFO                _IOW(IOC_TYPE_HIFB, 120, HIFB_LAYER_INFO_S*)
 /** To get the layer information */
@@ -336,6 +353,10 @@ typedef struct
 /* To get the mirror mode */
 #define FBIOGET_MIRROR_MODE            _IOW(IOC_TYPE_HIFB, 127, HIFB_MIRROR_MODE_E*)
 
+/* To set the rotate mode */
+#define FBIOPUT_ROTATE_MODE            _IOW(IOC_TYPE_HIFB, 128, HIFB_ROTATE_MODE_E*)
+/* To get the rotate mode */
+#define FBIOGET_ROTATE_MODE            _IOW(IOC_TYPE_HIFB, 129, HIFB_ROTATE_MODE_E*)
 
 /**To set the DDR detect zone of an overlay layer*/
 #define FBIOPUT_MDDRDETECT_HIFB    _IOW(IOC_TYPE_HIFB, 135, HIFB_DDRZONE_S*)

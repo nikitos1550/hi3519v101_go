@@ -36,6 +36,9 @@ HI_S32 HI_MPI_ISP_MemInit(ISP_DEV IspDev);
 HI_S32 HI_MPI_ISP_Run(ISP_DEV IspDev);
 HI_S32 HI_MPI_ISP_Exit(ISP_DEV IspDev);
 
+HI_S32 HI_MPI_ISP_SetISPPipeDiffAttr(ISP_DEV IspDev, ISP_PIPE_DIFF_ATTR_S *pstDiffAttr);
+HI_S32 HI_MPI_ISP_GetISPPipeDiffAttr(ISP_DEV IspDev, ISP_PIPE_DIFF_ATTR_S *pstDiffAttr);
+
 HI_S32 HI_MPI_ISP_SensorRegCallBack(ISP_DEV IspDev, SENSOR_ID SensorId, ISP_SENSOR_REGISTER_S *pstRegister);
 HI_S32 HI_MPI_ISP_SensorUnRegCallBack(ISP_DEV IspDev, SENSOR_ID SensorId);
 
@@ -55,6 +58,9 @@ HI_S32 HI_MPI_ISP_AFLibUnRegCallBack(ISP_DEV IspDev, ALG_LIB_S *pstAfLib);
 HI_S32 HI_MPI_ISP_SetPubAttr(ISP_DEV IspDev, const ISP_PUB_ATTR_S *pstPubAttr);
 HI_S32 HI_MPI_ISP_GetPubAttr(ISP_DEV IspDev, ISP_PUB_ATTR_S *pstPubAttr);
 
+HI_S32 HI_MPI_ISP_SetHvSync(ISP_DEV IspDev, const ISP_SLAVE_SNS_SYNC_S *pstSnsSync);
+HI_S32 HI_MPI_ISP_GetHvSync(ISP_DEV IspDev, ISP_SLAVE_SNS_SYNC_S *pstSnsSync);
+
 HI_S32 HI_MPI_ISP_SetFMWState(ISP_DEV IspDev, const ISP_FMW_STATE_E enState);
 HI_S32 HI_MPI_ISP_GetFMWState(ISP_DEV IspDev, ISP_FMW_STATE_E *penState);
 
@@ -71,6 +77,9 @@ HI_S32 HI_MPI_ISP_GetDRCAttr(ISP_DEV IspDev, ISP_DRC_ATTR_S *pstDRC);
 HI_S32 HI_MPI_ISP_SetFSWDRAttr(ISP_DEV IspDev, const ISP_WDR_FS_ATTR_S *pstFSWDRAttr);
 HI_S32 HI_MPI_ISP_GetFSWDRAttr(ISP_DEV IspDev, ISP_WDR_FS_ATTR_S *pstFSWDRAttr);
 
+HI_S32 HI_MPI_ISP_SetInputFormatterAttr(ISP_DEV IspDev, const ISP_INPUT_FORMATTER_ATTR_S *pstIFAttr);
+HI_S32 HI_MPI_ISP_GetInputFormatterAttr(ISP_DEV IspDev, ISP_INPUT_FORMATTER_ATTR_S *pstIFAttr);
+
 HI_S32 HI_MPI_ISP_SetDPCalibrate(ISP_DEV IspDev, const ISP_DP_STATIC_CALIBRATE_S *pstDPCalibrate);
 HI_S32 HI_MPI_ISP_GetDPCalibrate(ISP_DEV IspDev, ISP_DP_STATIC_CALIBRATE_S *pstDPCalibrate);
 
@@ -80,8 +89,11 @@ HI_S32 HI_MPI_ISP_GetDPAttr(ISP_DEV IspDev, ISP_DP_ATTR_S *pstDPAttr);
 HI_S32 HI_MPI_ISP_SetDISAttr(ISP_DEV IspDev, const ISP_DIS_ATTR_S *pstDISAttr);
 HI_S32 HI_MPI_ISP_GetDISAttr(ISP_DEV IspDev, ISP_DIS_ATTR_S *pstDISAttr);
 
-HI_S32 HI_MPI_ISP_SetShadingAttr(ISP_DEV IspDev, const ISP_SHADING_ATTR_S *pstShadingAttr);
-HI_S32 HI_MPI_ISP_GetShadingAttr(ISP_DEV IspDev, ISP_SHADING_ATTR_S *pstShadingAttr);
+HI_S32 HI_MPI_ISP_SetRadialShadingAttr(ISP_DEV IspDev, const ISP_RADIAL_SHADING_ATTR_S *pstRadialShadingAttr);
+HI_S32 HI_MPI_ISP_GetRadialShadingAttr(ISP_DEV IspDev, ISP_RADIAL_SHADING_ATTR_S *pstRadialShadingAttr);
+
+HI_S32 HI_MPI_ISP_SetMeshShadingAttr(ISP_DEV IspDev, const ISP_MESH_SHADING_ATTR_S *pstMeshShadingAttr);
+HI_S32 HI_MPI_ISP_GetMeshShadingAttr(ISP_DEV IspDev, ISP_MESH_SHADING_ATTR_S *pstMeshShadingAttr);
 
 HI_S32 HI_MPI_ISP_SetNRAttr(ISP_DEV IspDev, const ISP_NR_ATTR_S *pstNRAttr);
 HI_S32 HI_MPI_ISP_GetNRAttr(ISP_DEV IspDev, ISP_NR_ATTR_S *pstNRAttr);
@@ -98,8 +110,11 @@ HI_S32 HI_MPI_ISP_GetGammaAttr(ISP_DEV IspDev, ISP_GAMMA_ATTR_S *pstGammaAttr);
 HI_S32 HI_MPI_ISP_SetGammaFEAttr(ISP_DEV IspDev, const ISP_GAMMAFE_ATTR_S *pstGammaFEAttr);
 HI_S32 HI_MPI_ISP_GetGammaFEAttr(ISP_DEV IspDev, ISP_GAMMAFE_ATTR_S *pstGammaFEAttr);
 
-HI_S32 HI_MPI_ISP_SetSharpenAttr(ISP_DEV IspDev, const ISP_SHARPEN_ATTR_S *pstSharpenAttr);
-HI_S32 HI_MPI_ISP_GetSharpenAttr(ISP_DEV IspDev, ISP_SHARPEN_ATTR_S *pstSharpenAttr);
+HI_S32 HI_MPI_ISP_SetBayerSharpenAttr(ISP_DEV IspDev, const ISP_BAYER_SHARPEN_ATTR_S *pstBayerShpAttr);
+HI_S32 HI_MPI_ISP_GetBayerSharpenAttr(ISP_DEV IspDev, ISP_BAYER_SHARPEN_ATTR_S *pstBayerShpAttr);
+
+HI_S32 HI_MPI_ISP_SetYuvSharpenAttr(ISP_DEV IspDev, const ISP_YUV_SHARPEN_ATTR_S *pstYuvShpAttr);
+HI_S32 HI_MPI_ISP_GetYuvSharpenAttr(ISP_DEV IspDev, ISP_YUV_SHARPEN_ATTR_S *pstYuvShpAttr);
 
 HI_S32 HI_MPI_ISP_SetCrosstalkAttr(ISP_DEV IspDev, const ISP_CR_ATTR_S *pstCRAttr);
 HI_S32 HI_MPI_ISP_GetCrosstalkAttr(ISP_DEV IspDev, ISP_CR_ATTR_S *pstCRAttr);
@@ -121,14 +136,14 @@ HI_S32 HI_MPI_ISP_GetFPNAttr(ISP_DEV IspDev, ISP_FPN_ATTR_S *pstFPNAttr);
 HI_S32 HI_MPI_ISP_SetDeFogAttr(ISP_DEV IspDev, const ISP_DEFOG_ATTR_S *pstDefogAttr);
 HI_S32 HI_MPI_ISP_GetDeFogAttr(ISP_DEV IspDev, ISP_DEFOG_ATTR_S *pstDefogAttr);
 
-HI_S32 HI_MPI_ISP_SetDCFInfo(const ISP_DCF_INFO_S *pstIspDCF);
-HI_S32 HI_MPI_ISP_GetDCFInfo(ISP_DCF_INFO_S *pstIspDCF);
+HI_S32 HI_MPI_ISP_SetDCFInfo(ISP_DEV IspDev, const ISP_DCF_INFO_S *pstIspDCF);
+HI_S32 HI_MPI_ISP_GetDCFInfo(ISP_DEV IspDev, ISP_DCF_INFO_S *pstIspDCF);
 
 HI_S32 HI_MPI_ISP_SetAcmAttr(ISP_DEV IspDev, ISP_ACM_ATTR_S *pstAcmAttr);
 HI_S32 HI_MPI_ISP_GetAcmAttr(ISP_DEV IspDev, ISP_ACM_ATTR_S *pstAcmAttr);
 
-HI_S32 HI_MPI_ISP_SetAcmCoeff(ISP_DEV IspDev, ISP_ACM_LUT_S *pstAcmCoef, ISP_ACM_MODE_E enMode);
-HI_S32 HI_MPI_ISP_GetAcmCoeff(ISP_DEV IspDev, ISP_ACM_LUT_S *pstAcmCoef, ISP_ACM_MODE_E enMode);
+HI_S32 HI_MPI_ISP_SetAcmCoeff(ISP_DEV IspDev, ISP_ACM_LUT_S *pstAcmCoef);
+HI_S32 HI_MPI_ISP_GetAcmCoeff(ISP_DEV IspDev, ISP_ACM_LUT_S *pstAcmCoef);
 
 HI_S32 HI_MPI_ISP_QueryInnerStateInfo(ISP_DEV IspDev, ISP_INNER_STATE_INFO_S *pstInnerStateInfo);
 
@@ -139,15 +154,33 @@ HI_S32 HI_MPI_ISP_GetStatistics(ISP_DEV IspDev, ISP_STATISTICS_S *pstStat);
 HI_S32 HI_MPI_ISP_SetRegister(ISP_DEV IspDev, HI_U32 u32Addr, HI_U32 u32Value);
 HI_S32 HI_MPI_ISP_GetRegister(ISP_DEV IspDev, HI_U32 u32Addr, HI_U32 *pu32Value);
 
+HI_S32 HI_MPI_ISP_SetMode(ISP_DEV IspDev, const ISP_MODE_E enIspMode);
+HI_S32 HI_MPI_ISP_GetMode(ISP_DEV IspDev, ISP_MODE_E *penIspMode);
+
 HI_S32 HI_MPI_ISP_GetVDTimeOut(ISP_DEV IspDev, ISP_VD_INFO_S *pstIspVdInfo, HI_U32 u32MilliSec);
+HI_S32 HI_MPI_ISP_GetVDEndTimeOut(ISP_DEV IspDev, ISP_VD_INFO_S *pstIspVdInfo, HI_U32 u32MilliSec);
 
 HI_S32 HI_MPI_ISP_GetISPRegAttr(ISP_DEV IspDev, ISP_REG_ATTR_S * pstIspRegAttr);
 
 HI_S32 HI_MPI_ISP_SetDebug(ISP_DEV IspDev, const ISP_DEBUG_INFO_S * pstIspDebug);
 HI_S32 HI_MPI_ISP_GetDebug(ISP_DEV IspDev, ISP_DEBUG_INFO_S * pstIspDebug);
 
-HI_S32 HI_MPI_ISP_SetModParam(ISP_MOD_PARAM_S *pstIspModParam);
-HI_S32 HI_MPI_ISP_GetModParam(ISP_MOD_PARAM_S *pstIspModParam);
+HI_S32 HI_MPI_ISP_SetModParam(ISP_DEV IspDev, const ISP_MOD_PARAM_S *pstIspModParam);
+HI_S32 HI_MPI_ISP_GetModParam(ISP_DEV IspDev, ISP_MOD_PARAM_S *pstIspModParam);
+
+HI_S32 HI_MPI_ISP_SetSnapAttr(ISP_DEV IspDev, const ISP_SNAP_ATTR_S *pstSnapAttr);
+HI_S32 HI_MPI_ISP_GetSnapAttr(ISP_DEV IspDev, ISP_SNAP_ATTR_S *pstSnapAttr);
+
+HI_S32 HI_MPI_ISP_MeshShadingCalibration(HI_U16* pu16SrcRaw, 
+    ISP_LSC_CALIBRATION_CFG_S* pstLSCCaliCfg , ISP_MESH_SHADING_TABLE_S stMeshShadingResult);
+
+HI_S32 HI_MPI_ISP_GetLightboxGain(ISP_DEV IspDev, ISP_AWB_Calibration_Gain_S *pstAWBCalibrationGain);
+
+HI_S32 HI_MPI_ISP_IrAutoRunOnce(ISP_DEV IspDev, ISP_IR_AUTO_ATTR_S *pstIrAttr);
+HI_S32 HI_MPI_ISP_GetDngImageStaticInfo(ISP_DEV IspDev, DNG_IMAGE_STATIC_INFO_S *pstDngImageStaticInfo);
+HI_S32 HI_MPI_ISP_SetDngColorParam(ISP_DEV IspDev, const ISP_DNG_COLORPARAM_S *pstDngColorParam);
+HI_S32 HI_MPI_ISP_GetDngColorParam(ISP_DEV IspDev, ISP_DNG_COLORPARAM_S *pstDngColorParam);
+
 
 #ifdef __cplusplus
 #if __cplusplus

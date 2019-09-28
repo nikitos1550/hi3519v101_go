@@ -1,4 +1,6 @@
-include ../../../Makefile.params
+THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+
+include $(THIS_DIR)/../../../../$(FAMILY)/Makefile.params
 
 SOURCES = $(wildcard ./*.ko)
 OBJECTS = $(patsubst ./%.ko, ./%.o, $(SOURCES))

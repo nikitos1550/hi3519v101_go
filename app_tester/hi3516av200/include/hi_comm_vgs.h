@@ -36,7 +36,30 @@ extern "C" {
 #define HI_ERR_VGS_NOT_SUPPORT     HI_DEF_ERR(HI_ID_VGS, EN_ERR_LEVEL_ERROR, EN_ERR_NOT_SUPPORT)
 #define HI_ERR_VGS_NOT_PERMITTED   HI_DEF_ERR(HI_ID_VGS, EN_ERR_LEVEL_ERROR, EN_ERR_NOT_PERM)
 
+#define VGS_PRIVATE_DATA_LEN        6
+
 typedef HI_S32      VGS_HANDLE;
+
+typedef struct hiVGS_ADD_QUICK_COPY_S
+{
+    RECT_S                  stSrcRect;			/* start point, width and height of Src */
+    RECT_S                  stDestRect;			/* start point, width and height of Dest */
+} VGS_ADD_QUICK_COPY_S;
+
+typedef enum hiVGS_COLOR_REVERT_MODE_E
+{
+	VGS_COLOR_REVERT_RGB = 0,
+	VGS_COLOR_REVERT_ALPHA,
+	VGS_COLOR_REVERT_BOTH,
+	VGS_COLOR_REVERT_BUTT
+}VGS_COLOR_REVERT_MODE_E;
+
+typedef struct hiVGS_ADD_REVERT_S
+{
+    RECT_S                    stSrcRect;			/* start point, width and height of Src */
+    RECT_S                    stDestRect;			/* start point, width and height of Dest */
+	VGS_COLOR_REVERT_MODE_E enRevertMode;         /* revert mode */
+} VGS_ADD_REVERT_S;
 
 typedef struct hiVGS_TASK_ATTR_S
 {

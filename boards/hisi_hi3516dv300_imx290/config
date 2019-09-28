@@ -1,0 +1,11 @@
+VENDOR      =HISILICON
+MODEL       =DEVBOARD
+FAMILY      =hi3516cv500
+CHIP        =hi3516dv300
+RAM_SIZE    =?
+RAM_LINUX   =?
+RAM_MPP     =?
+ROM_SIZE    =?
+CMOS        =imx290
+UBOOT_SIZE  =?
+INITRD_TMP  =?

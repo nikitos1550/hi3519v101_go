@@ -8,3 +8,4 @@ RAM_MPP     =256
 ROM_SIZE    =16
 CMOS        =imx274
 UBOOT_SIZE  =1024
+INITRD_TMP  =16

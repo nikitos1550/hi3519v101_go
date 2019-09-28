@@ -102,6 +102,8 @@ typedef double                  HI_DOUBLE;
 typedef char                    HI_CHAR;
 #define HI_VOID                 void
 
+typedef HI_U32                  HI_HANDLE;
+
 /*----------------------------------------------*
  * const defination                             *
  *----------------------------------------------*/

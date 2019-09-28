@@ -7,10 +7,10 @@
   Version       : Initial Draft
   Author        : Hisilicon multimedia software group
   Created       : 2013/05/08
-  Description   : 
+  Description   :
   History       :
   1.Date        : 2013/05/08
-    Author      : 
+    Author      :
     Modification: Created file
 
 ******************************************************************************/
@@ -57,7 +57,7 @@ HI_S32 HI_MPI_VI_SetDevAttrEx(VI_DEV ViDev, const VI_DEV_ATTR_EX_S *pstDevAttrEx
 HI_S32 HI_MPI_VI_GetDevAttrEx(VI_DEV ViDev, VI_DEV_ATTR_EX_S *pstDevAttrEx);
 
 HI_S32 HI_MPI_VI_GetFd(VI_CHN ViChn);
-
+HI_S32 HI_MPI_VI_GetDevFd(VI_DEV ViDev);
 HI_S32 HI_MPI_VI_Query(VI_CHN ViChn, VI_CHN_STAT_S *pstStat);
 
 HI_S32 HI_MPI_VI_EnableChnInterrupt(VI_CHN ViChn);
@@ -82,16 +82,25 @@ HI_S32 HI_MPI_VI_GetCSCAttr(VI_DEV ViDev, VI_CSC_ATTR_S *pstCSCAttr);
 HI_S32 HI_MPI_VI_SetRotate(VI_CHN ViChn, const ROTATE_E enRotate);
 HI_S32 HI_MPI_VI_GetRotate(VI_CHN ViChn, ROTATE_E *penRotate);
 
+HI_S32 HI_MPI_VI_SetRotateEx(VI_CHN ViChn, const VI_ROTATE_EX_ATTR_S* pstViRotateExAttr);
+HI_S32 HI_MPI_VI_GetRotateEx(VI_CHN ViChn, VI_ROTATE_EX_ATTR_S *pstViRotateExAttr);
+
 HI_S32 HI_MPI_VI_GetChnLuma(VI_CHN ViChn, VI_CHN_LUM_S *pstLuma);
 
 HI_S32 HI_MPI_VI_SetWDRAttr(VI_DEV ViDev, const VI_WDR_ATTR_S *pstWDRAttr);
 HI_S32 HI_MPI_VI_GetWDRAttr(VI_DEV ViDev, VI_WDR_ATTR_S *pstWDRAttr);
+
+HI_S32 HI_MPI_VI_SetVCNumber(VI_DEV ViDev, const VI_VC_NUMBER_S *pstVCNumber);
+HI_S32 HI_MPI_VI_GetVCNumber(VI_DEV ViDev, VI_VC_NUMBER_S *pstVCNumber);
 
 HI_S32 HI_MPI_VI_SetFisheyeDevConfig(VI_DEV ViDev, const FISHEYE_CONFIG_S *pstFisheyeConfig);
 HI_S32 HI_MPI_VI_GetFisheyeDevConfig(VI_DEV ViDev, FISHEYE_CONFIG_S *pstFisheyeConfig);
 
 HI_S32 HI_MPI_VI_SetFisheyeAttr(VI_CHN ViChn, const FISHEYE_ATTR_S *pstFisheyeAttr);
 HI_S32 HI_MPI_VI_GetFisheyeAttr(VI_CHN ViChn, FISHEYE_ATTR_S *pstFisheyeAttr);
+
+HI_S32 HI_MPI_VI_SetSpreadAttr(VI_CHN ViChn, const SPREAD_ATTR_S *pstSpreadAttr);
+HI_S32 HI_MPI_VI_GetSpreadAttr(VI_CHN ViChn, SPREAD_ATTR_S *pstSpreadAttr);
 
 HI_S32 HI_MPI_VI_SetDevDumpAttr(VI_DEV ViDev, const VI_DUMP_ATTR_S *pstDumpAttr);
 HI_S32 HI_MPI_VI_GetDevDumpAttr(VI_DEV ViDev, VI_DUMP_ATTR_S *pstDumpAttr);
@@ -121,7 +130,30 @@ HI_S32 HI_MPI_VI_DISRun(VI_CHN ViChn);
 HI_S32 HI_MPI_VI_DISExit(VI_CHN ViChn);
 HI_S32 HI_MPI_VI_RegisterDISCallback(VI_CHN ViChn, VI_DIS_CALLBACK_S *pstDISCallback);
 HI_S32 HI_MPI_VI_UnRegisterDISCallback(VI_CHN ViChn);
+HI_S32 HI_MPI_VI_SetDISDebug(HI_BOOL bDebug);
 
+
+/*These functions only apply to hi3519v101*/
+HI_S32 HI_MPI_VI_SetStitchCorrectionAttr(VI_CHN ViChn, const VI_STITCH_CORRECTION_ATTR_S *pstCorretionAttr);
+HI_S32 HI_MPI_VI_GetStitchCorrectionAttr(VI_CHN ViChn, VI_STITCH_CORRECTION_ATTR_S *pstCorretionAttr);
+HI_S32 HI_MPI_VI_BindDev(VI_DEV ViDev,  const VI_DEV_BIND_ATTR_S *pstDevBindAttr);
+HI_S32 HI_MPI_VI_GetDevBind(VI_DEV ViDev,VI_DEV_BIND_ATTR_S *pstDevBindAttr);
+HI_S32 HI_MPI_VI_SetSnapAttr(VI_DEV ViDev, const VI_SNAP_ATTR_S *pstSnapAttr);
+HI_S32 HI_MPI_VI_GetSnapAttr(VI_DEV ViDev, VI_SNAP_ATTR_S *pstSnapAttr);
+HI_S32 HI_MPI_VI_EnableSnap(VI_DEV ViDev);
+HI_S32 HI_MPI_VI_DisableSnap(VI_DEV ViDev);
+HI_S32 HI_MPI_VI_TriggerSnap(VI_DEV ViDev);
+HI_S32 HI_MPI_VI_MutliTrigger(HI_VOID);
+HI_S32 HI_MPI_VI_GetSnapRaw(VI_DEV ViDev, VI_RAW_FRAME_INFO_S *pstFrameInfo, HI_S32 s32MilliSec);
+HI_S32 HI_MPI_VI_ReleaseSnapRaw(VI_DEV ViDev, VI_RAW_FRAME_INFO_S *pstFrameInfo);
+HI_S32 HI_MPI_VI_SendSnapRaw(VI_DEV ViDev, const VI_RAW_FRAME_INFO_S *pstFrameInfo,  HI_S32 s32MilliSec);
+HI_S32 HI_MPI_VI_SetBayerReadAttr(VI_DEV ViDev, const VI_BAYER_READ_ATTR_S *pstBayReadAttr);
+HI_S32 HI_MPI_VI_GetBayerReadAttr(VI_DEV ViDev, VI_BAYER_READ_ATTR_S *pstBayReadAttr);
+
+/*These functions only bt1120/BT656 get Af statistics info,only support hi3519V101*/
+HI_S32 HI_MPI_VI_SetAFStatisticsConfig(VI_CHN ViChn, const ISP_FOCUS_STATISTICS_CFG_S *pstAFStatConfig);
+HI_S32 HI_MPI_VI_GetAFStatisticsConfig(VI_CHN ViChn, ISP_FOCUS_STATISTICS_CFG_S *pstAFStatConfig);
+HI_S32 HI_MPI_VI_GetAFStatistics(VI_CHN ViChn, ISP_AF_STAT_S *pstAFStatistics);
 #ifdef __cplusplus
 #if __cplusplus
 }

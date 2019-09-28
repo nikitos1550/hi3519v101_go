@@ -49,7 +49,7 @@ HI_S32 HI_MPI_ISP_SetSaturationAttr(ISP_DEV IspDev, const ISP_SATURATION_ATTR_S 
 HI_S32 HI_MPI_ISP_GetSaturationAttr(ISP_DEV IspDev, ISP_SATURATION_ATTR_S *pstSatAttr);
 
 HI_S32 HI_MPI_ISP_QueryWBInfo(ISP_DEV IspDev, ISP_WB_INFO_S *pstWBInfo);
-HI_S32 HI_MPI_ISP_CalGainByTemp(const ISP_WB_ATTR_S *pstWBAttr, HI_U16 u16ColorTemp, HI_S16 s16Shift, HI_U16 *pu16AWBGain);
+HI_S32 HI_MPI_ISP_CalGainByTemp(ISP_DEV IspDev, const ISP_WB_ATTR_S *pstWBAttr, HI_U16 u16ColorTemp, HI_S16 s16Shift, HI_U16 *pu16AWBGain);
 
 #ifdef __cplusplus
 #if __cplusplus

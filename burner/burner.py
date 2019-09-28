@@ -21,7 +21,8 @@ SPEED			= 115200
 promt 			= ["xmtech #", "hisilicon #"]
 duplex 			= "full"
 
-iface           = "enx503eaa7b65cb"
+iface           = "enp3s0"
+#iface           = "enx503eaa7b65cb"
 
 ###############################################################################
 def datawrite(send):
@@ -187,9 +188,11 @@ def get_iface_ip_and_mask(iface):
         if (addrs is None) or (len(addrs) == 0):
             raise ValueError("iface has no addresses")
 
+        print(addrs[0])
         addr = addrs[0]["addr"]
         netmask = addrs[0]["netmask"]
-        return addr, netmask
+        #gateway = addrs[0]["gateway"]
+        return addr, netmask #, gateway
     except StandardError as err:
         raise ValueError(
             "Network interface '{}' address and mask wasn't defined: {}\nAvailable interfaces: {}".format(
@@ -238,6 +241,7 @@ print args
 validate_ip_address(args.ip)
 ip = args.ip
 server_ip, mask = get_iface_ip_and_mask(args.iface)
+gateway = "192.168.10.1"
 
 print("Iface " + args.iface)
 print("- Server IP: {}\n- Mask: {}\n- Target device IP: {}".format(server_ip, mask, ip))
@@ -401,6 +405,7 @@ if args.action in ["mac"]:
 setvar("ipaddr", 	ip)
 setvar("netmask", 	mask)
 setvar("serverip", 	server_ip)
+setvar("gateway",   gateway)
 
 #netdata = {}
 #netdata["ipaddr"] = ip
@@ -464,7 +469,7 @@ if args.action in ["load", "burn"]:
 
     bootargs = bootargs + "console=" + lserial + " "
     #if rootfs == "file":
-    bootargs = bootargs + "ip="+str(ip)+":"+str(server_ip)+":"+str(server_ip)+":"+str(mask)+":camera"+str(args.servercamera)+"::off; "
+    bootargs = bootargs + "ip="+str(ip)+":"+str(server_ip)+":"+str(gateway)+":"+str(mask)+":camera"+str(args.servercamera)+"::off; "
     bootargs = bootargs + "mtdparts=hi_sfc:512k(boot) root=/dev/ram rw initrd="+hex(0x82000000 + uimage_size_e)+"," + initrd
 
     #if rootfs == "nfs":

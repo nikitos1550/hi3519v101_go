@@ -1,7 +1,6 @@
 THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 FAMILY  =hi3516av200
-#CHIP    =hi3519v101
 
 include ../$(FAMILY)/Makefile.params
 
@@ -19,12 +18,17 @@ GOPARAMS := GOPRIVATE=openhisiipcam.org \
 
 LIBS = $(wildcard $(FAMILY)/lib/*.a)
 
-all:
+guard:
 	@echo "USAGE: make FAMILY=hi3516av200 build"
 
 build: hisi
+	rm -rf ./distrib/$(FAMILY)
 	test -e distrib || mkdir distrib
-	$(GOPARAMS) GOARM=$(ARMV) $(GO) build $(GOFLAGS) -a -tags "$(FAMILY)" -o distrib/$(APP)
+	test -e distrib/$(FAMILY) || mkdir distrib/$(FAMILY)
+	test ! -e ./putonrootfs || cp -r ./putonrootfs/* distrib/$(FAMILY)
+	test ! -e ./$(FAMILY)/putonrootfs || cp -r ./$(FAMILY)/putonrootfs/* distrib/$(FAMILY)
+	test -e distrib/$(FAMILY)/opt || mkdir distrib/$(FAMILY)/opt
+	$(GOPARAMS) GOARM=$(ARMV) $(GO) build $(GOFLAGS) -a -tags "$(FAMILY)" -o distrib/$(FAMILY)/opt/$(APP)
 
 hisi:
 	$(AR) rcsT $(FAMILY)/lib$(FAMILY).a $(LIBS)

@@ -59,7 +59,7 @@ typedef struct hiAE_DBG_ATTR_S
     HI_U32  u32ManualAgain;
     HI_U32  u32ManualDgain;
     HI_U32  u32ManualIspDgain;
-    HI_U32  au32AeWeights[255];    
+    HI_U32  au32AeWeights[AE_ZONE_ROW * AE_ZONE_COLUMN];    
 }AE_DBG_ATTR_S;
 
 typedef struct hiAE_DBG_STATUS_S
@@ -67,6 +67,8 @@ typedef struct hiAE_DBG_STATUS_S
     HI_U32  u32FrmNumBgn;
     HI_U32  u32FullLines;
     HI_U32  u32IntTime;
+    HI_U32  u32ShortIntTime;
+    HI_U32  u32MedIntTime;
     HI_U32  u32LongIntTime;
     HI_U32  u32Again;
     HI_U32  u32Dgain;
@@ -78,6 +80,9 @@ typedef struct hiAE_DBG_STATUS_S
     HI_S32  s32HistOriAverage;
     HI_S32  s32LumaOffset;
     HI_U32  u32Iso;
+	HI_U32  u32ExpRatio;
+	HI_U32  u32OverExpRatio;
+	HI_U32  u32OverExpRatioFilter;
 }AE_DBG_STATUS_S;
 
 /************************** sensor's interface to ae *********************/
@@ -105,7 +110,7 @@ typedef struct hiAE_ACCURACY_S
 
 typedef struct hiAE_SENSOR_DEFAULT_S
 {
-    HI_U8   au8HistThresh[4];
+    HI_U8   au8HistThresh[HIST_THRESH_NUM];
     HI_U8   u8AeCompensation;
 
     HI_U32  u32LinesPer500ms;
@@ -140,17 +145,26 @@ typedef struct hiAE_SENSOR_DEFAULT_S
     HI_U32  u32MinISPDgainTarget;
     HI_U32  u32ISPDgainShift;
 
+	HI_U32  u32MaxIntTimeStep;
+	HI_U32  u32LFMaxShortTime;
+	HI_U32  u32LFMinExposure;
+
     ISP_AE_ROUTE_S stAERouteAttr;
     HI_BOOL bAERouteExValid;
     ISP_AE_ROUTE_EX_S stAERouteAttrEx;
 
     HI_U16 u16ManRatioEnable;
-    HI_U32 u32Ratio;
+    HI_U32 au32Ratio[EXP_RATIO_NUM];
 	
 	ISP_IRIS_TYPE_E  enIrisType;
     ISP_PIRIS_ATTR_S stPirisAttr;
     ISP_IRIS_F_NO_E  enMaxIrisFNO;  /*RW, Range:[F32.0, F1.0], Max F number of Piris's aperture, it's related to the specific iris */
     ISP_IRIS_F_NO_E  enMinIrisFNO;  /*RW, Range:[F32.0, F1.0], Min F number of Piris's aperture, it's related to the specific iris */
+
+    ISP_AE_STRATEGY_E enAeExpMode;
+
+    HI_U16 u16ISOCalCoef;
+	HI_U8  u8AERunInterval;
 } AE_SENSOR_DEFAULT_S;
 
 typedef struct hiAE_FSWDR_ATTR_S
@@ -158,26 +172,25 @@ typedef struct hiAE_FSWDR_ATTR_S
     ISP_FSWDR_MODE_E enFSWDRMode;
 } AE_FSWDR_ATTR_S;
 
-
 typedef struct hiAE_SENSOR_EXP_FUNC_S
 {
-    HI_S32(*pfn_cmos_get_ae_default)(AE_SENSOR_DEFAULT_S *pstAeSnsDft);
+    HI_S32(*pfn_cmos_get_ae_default)(ISP_DEV IspDev, AE_SENSOR_DEFAULT_S *pstAeSnsDft);
 
     /* the function of sensor set fps */
-    HI_VOID(*pfn_cmos_fps_set)(HI_FLOAT f32Fps, AE_SENSOR_DEFAULT_S *pstAeSnsDft);
-    HI_VOID(*pfn_cmos_slow_framerate_set)(HI_U32 u32FullLines, AE_SENSOR_DEFAULT_S *pstAeSnsDft);
+    HI_VOID(*pfn_cmos_fps_set)(ISP_DEV IspDev, HI_FLOAT f32Fps, AE_SENSOR_DEFAULT_S *pstAeSnsDft);
+    HI_VOID(*pfn_cmos_slow_framerate_set)(ISP_DEV IspDev, HI_U32 u32FullLines, AE_SENSOR_DEFAULT_S *pstAeSnsDft);
 
     /* while isp notify ae to update sensor regs, ae call these funcs. */
-    HI_VOID(*pfn_cmos_inttime_update)(HI_U32 u32IntTime);
-    HI_VOID(*pfn_cmos_gains_update)(HI_U32 u32Again, HI_U32 u32Dgain);
+    HI_VOID(*pfn_cmos_inttime_update)(ISP_DEV IspDev, HI_U32 u32IntTime);
+    HI_VOID(*pfn_cmos_gains_update)(ISP_DEV IspDev, HI_U32 u32Again, HI_U32 u32Dgain);
 
-    HI_VOID (*pfn_cmos_again_calc_table)(HI_U32 *pu32AgainLin, HI_U32 *pu32AgainDb);
-    HI_VOID (*pfn_cmos_dgain_calc_table)(HI_U32 *pu32DgainLin, HI_U32 *pu32DgainDb);
+    HI_VOID (*pfn_cmos_again_calc_table)(ISP_DEV IspDev, HI_U32 *pu32AgainLin, HI_U32 *pu32AgainDb);
+    HI_VOID (*pfn_cmos_dgain_calc_table)(ISP_DEV IspDev, HI_U32 *pu32DgainLin, HI_U32 *pu32DgainDb);
 
-    HI_VOID (*pfn_cmos_get_inttime_max)(HI_U32 u32Ratio, HI_U32 *pu32IntTimeMax);
+    HI_VOID (*pfn_cmos_get_inttime_max)(ISP_DEV IspDev, HI_U16 u16ManRatioEnable, HI_U32 *au32Ratio, HI_U32 *au32IntTimeMax, HI_U32 *au32IntTimeMin, HI_U32 *pu32LFMaxIntTime);
 
     /* long frame mode set */
-    HI_VOID(*pfn_cmos_ae_fswdr_attr_set)(AE_FSWDR_ATTR_S *pstAeFSWDRAttr);
+    HI_VOID(*pfn_cmos_ae_fswdr_attr_set)(ISP_DEV IspDev, AE_FSWDR_ATTR_S *pstAeFSWDRAttr);
     
 } AE_SENSOR_EXP_FUNC_S;
 
