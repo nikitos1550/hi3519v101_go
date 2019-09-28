@@ -3,15 +3,17 @@ Hi3519v101+IMX274 Golang enviroiment
 
 ## Chips families information
 
-* hi3516av100, hi3516dv100                              -> hi3516av100
-* hi3519v101,  hi3516av200                              -> hi3516av200
-* hi3516cv100, hi3518cv100, hi3518ev100                 -> hi3516cv100
-* hi3516cv200, hi3518ev200, hi3518ev201                 -> hi3516cv200
-* hi3516cv300, hi3516ev100                              -> hi3516cv300
-* hi3516cv500, hi3516dv300, hi3516av300                 -> hi3516cv500
-* hi3519av100                                           -> hi3519av100
-* hi3559av100                                           -> hi3559av100
-* hi3516ev300, hi3516ev200, hi3516dv200, hi3518ev300    -> hi3516ev200
+| chips                                                 | shortcode     |
+|
+| hi3516av100, hi3516dv100                              | hi3516av100   |
+| hi3519v101,  hi3516av200                              | hi3516av200   |
+| hi3516cv100, hi3518cv100, hi3518ev100                 | hi3516cv100   |
+| hi3516cv200, hi3518ev200, hi3518ev201                 | hi3516cv200   |
+| hi3516cv300, hi3516ev100                              | hi3516cv300   |
+| hi3516cv500, hi3516dv300, hi3516av300                 | hi3516cv500   |
+| hi3519av100                                           | hi3519av100   |
+| hi3559av100                                           | hi3559av100   |
+| hi3516ev300, hi3516ev200, hi3516dv200, hi3518ev300    | hi3516ev200   |
 
 ## Repo structure
 

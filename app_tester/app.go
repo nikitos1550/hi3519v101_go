@@ -7,26 +7,27 @@ import (
 )
 
 type Answer struct {
-    app     string  `json:"appName"`
-    family  string  `json:"chipFamily"`
-    mpp     string  `json:"mppVersion"`
+    App     string  `json:"appName"`
+    Family  string  `json:"chipFamily"`
+    Mpp     string  `json:"mppVersion"`
 
-    id      uint    `json:"chipId"`
+    ChipId  uint64  `json:"chipId"`
 
-    vendor  string  `json:"vendorName"`
-    model   string  `json:"modelName"`
-    chip    string  `json:"chip"`
-    ram     uint    `json:"ram"`
-    rom     uint    `json:"rom"`
-    cmos    string  `json:"cmos"`
+    //Vendor  string  `json:"vendorName"`
+    //Model   string  `json:"modelName"`
+    //Chip    string  `json:"chip"`
+    //Ram     uint    `json:"ram"`
+    //Rom     uint    `json:"rom"`
+    //Cmos    string  `json:"cmos"`
 }
 
 func versionHandler(w http.ResponseWriter, r *http.Request) {
     var schema Answer
 
-    schema.app      = "app_tester"
-    schema.family   = chipFamily
-    schema.mpp      = version()
+    schema.App      = "app_tester"
+    schema.Family   = chipFamily
+    schema.Mpp      = version()
+    //schema.ChipId   = chipId()
 
     w.Header().Set("Content-Type", "application/json; charset=UTF-8")
     w.WriteHeader(http.StatusOK)

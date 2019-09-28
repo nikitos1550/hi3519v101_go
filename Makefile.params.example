@@ -1,0 +1,9 @@
+THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+
+#THIS IS YOUR CUSTOM SETTINGS
+
+APP                     := app_tester
+CAMERA                  := 1
+BOARD                   := jvt_hi3519v101_imx274
+
+

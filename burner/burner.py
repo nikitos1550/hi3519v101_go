@@ -21,7 +21,8 @@ SPEED			= 115200
 promt 			= ["xmtech #", "hisilicon #"]
 duplex 			= "full"
 
-iface           = "enx503eaa7b65cb"
+iface           = "enp3s0"
+#iface           = "enx503eaa7b65cb"
 
 ###############################################################################
 def datawrite(send):

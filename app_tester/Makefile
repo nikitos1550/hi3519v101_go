@@ -24,7 +24,8 @@ all:
 
 build: hisi
 	test -e distrib || mkdir distrib
-	$(GOPARAMS) GOARM=$(ARMV) $(GO) build $(GOFLAGS) -a -tags "$(FAMILY)" -o distrib/$(APP)
+	test -e distrib/opt || mkdir distrib/opt
+	$(GOPARAMS) GOARM=$(ARMV) $(GO) build $(GOFLAGS) -a -tags "$(FAMILY)" -o distrib/opt/$(APP)
 
 hisi:
 	$(AR) rcsT $(FAMILY)/lib$(FAMILY).a $(LIBS)
