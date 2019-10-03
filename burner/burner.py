@@ -363,7 +363,9 @@ else:
 	power = serial.Serial(POWER_PORT,      SPEED, timeout = 0.1)
 	time.sleep(3)
 	print "Server camera "+str(args.servercamera)+" setted, auto power reset"
-    	power.write("reset "+str(args.servercamera)+"\n")
+        camera_id = ord('0') + int(args.servercamera)
+        print "POWER: reset "+str(chr(camera_id))
+    	power.write("reset "+str(chr(camera_id))+"\n")
 	#power.close()
     else:
     	print "Please plug power to module"
