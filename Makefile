@@ -1,6 +1,6 @@
 THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
-include Makefile.params
+include Makefile.user.params
 
 BR = buildroot-2019.08
 

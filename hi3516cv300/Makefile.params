@@ -1,0 +1,27 @@
+THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+
+TOOLCHAIN_NAME := arm-buildroot-linux-uclibcgnueabi
+
+TOOLCHAIN := $(THIS_DIR)/toolchain/host/bin/$(TOOLCHAIN_NAME)-
+
+CC      := $(THIS_DIR)/toolchain/host/bin/$(TOOLCHAIN_NAME)-gcc
+AR      := $(THIS_DIR)/toolchain/host/bin/$(TOOLCHAIN_NAME)-ar
+LD      := $(THIS_DIR)/toolchain/host/bin/$(TOOLCHAIN_NAME)-ld
+RANLIB  := $(THIS_DIR)/toolchain/host/bin/$(TOOLCHAIN_NAME)-ranlib
+GO      := $(THIS_DIR)/toolchain/host/bin/go
+GOFMT   := $(THIS_DIR)/toolchain/host/bin/gofmt
+M4      := $(THIS_DIR)/toolchain/host/bin/m4
+NM      := $(THIS_DIR)/toolchain/host/bin/$(TOOLCHAIN_NAME)-nm
+STRIP   := $(THIS_DIR)/toolchain/host/bin/$(TOOLCHAIN_NAME)-strip
+SWIG    := $(THIS_DIR)/toolchain/host/bin/swig
+
+CFLAGS  :=  -std=gnu11 \
+            -fPIC \
+            -mcpu=-mcpu=arm926ej-s \
+            -mno-unaligned-access \
+            -fno-aggressive-loop-optimizations \
+            -O2 \
+            -fno-common -ffunction-sections
+
+ARMV    := 5
+
