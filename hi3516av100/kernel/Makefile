@@ -5,7 +5,7 @@ TOOLCHAIN=$(THIS_DIR)../toolchain/host/bin/arm-buildroot-linux-uclibcgnueabi-
 linux:
 	tar -xzf ./linux-3.4.y.tgz
 	mv ./linux-3.4.y ./linux
-	cp -r ./patch/* ./linux
+	cp -r ./patchfiles/* ./linux
 
 build:
 	cd linux; make clean; make -j4 ARCH=arm CROSS_COMPILE=$(TOOLCHAIN) uImage

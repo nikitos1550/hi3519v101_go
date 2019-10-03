@@ -6,7 +6,7 @@ linux:
 	tar -xzf ./linux-4.9.37.tar.gz
 	mv ./linux-4.9.37 ./linux
 	cd ./linux; patch -p1 < ../linux-4.9.37.patch
-	#cp -r ./patch/* ./linux
+	#cp -r ./patchfiles/* ./linux
 
 build:
 	cd linux; make clean; make -j4 ARCH=arm CROSS_COMPILE=$(TOOLCHAIN) uImage
