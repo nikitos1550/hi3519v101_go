@@ -1,4 +1,4 @@
-import random, logging, sys
+import random, logging, sys, os
 
 
 def __init_logger(
@@ -88,3 +88,47 @@ def to_hsize(val):
             break
         val //= 1024
     return str(val) + suf
+
+
+# =====================================================================================================================
+def aligned_pack(block_size, dst_file, *src_files):
+    """
+    :return: list of source files' offsets in result file
+    """
+
+    import io
+    import shutil
+
+    offsets = []
+    with open(dst_file, "wb") as out:
+        for f in src_files:
+            cur_offset = out.tell()
+            if cur_offset % block_size:
+                cur_offset = out.seek(block_size - cur_offset % block_size, io.SEEK_CUR)
+            offsets.append(cur_offset)
+
+            with open(f, "rb") as f:
+                shutil.copyfileobj(f, out)
+    return offsets
+
+
+# =====================================================================================================================
+class TftpContext:
+    def __enter__(self):
+        self.thread.start()
+        return self
+
+    def __exit__(self, *args, **kwargs):
+        self.server.stop()
+        self.thread.join()
+
+    def __init__(self, tftproot, listen_ip, listen_port):
+        import tftpy
+        import threading
+
+        self.server = tftpy.TftpServer(tftproot)
+
+        def run():
+            self.server.listen(listen_ip, listen_port)
+
+        self.thread = threading.Thread(target=run, name="Thread-TftpServer")

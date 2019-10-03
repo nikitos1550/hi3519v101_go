@@ -7,11 +7,14 @@ class Device:
     def _log_data(self, prefix, data):
         if self.logger is None:
             return
-        if isinstance(data, bytes):
-            data = data.decode("ascii")
-        for r in (("\n", "\\n"), ("\r", "\\r")):
-            data = data.replace(r[0], r[1])
-        self.logger.debug(prefix + data)
+        try:
+            if isinstance(data, bytes):
+                data = data.decode("ascii")
+            for r in (("\n", "\\n"), ("\r", "\\r")):
+                data = data.replace(r[0], r[1])
+            self.logger.debug(prefix + data)
+        except:
+            pass
 
     def log_out(self, data):
         self._log_data("-> ", data)

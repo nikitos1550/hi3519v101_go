@@ -72,6 +72,15 @@ class UBootConsole:
             response.append(line.decode(self.ENCODING).strip())
         return response
 
+    def setenv(self, **kwargs):
+        for k, v in kwargs.items():
+            v = v.replace(";", "\;")
+            self.command("setenv {} {}".format(k, v))
+
+    def tftp(self, offset, file_name):
+        self.command("tftp {} {}".format(offset, file_name))
+
+
 
 if __name__ == "__main__":
     import sys

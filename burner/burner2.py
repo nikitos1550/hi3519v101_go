@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import utils
 import logging
+import os
+import tempfile
+import threading
+import utils
+import tftpy
 from uboot_console import UBootConsole
 
 
 class Defaults:
     dev_baudrate = 115200
     initrd_mem_size = "32M"
+    linux_mem_size = "32M"
     uboot_mem_size = "512K"
-
-
 
 
 # =====================================================================================================================
@@ -60,20 +63,45 @@ class LoadAction:
         NetworkContext.add_args(parser)
         parser.add_argument("--uimage", required=True, help="Kernel's uImage file")
         parser.add_argument("--rootfs", required=True, help="RootFS file")
-        parser.add_argument("--skip", type=utils.from_hsize, default=Defaults.uboot_mem_size,
-            help="U-Boot size to skip (default: {})".format(Defaults.uboot_mem_size), metavar="SIZE")
         parser.add_argument("--initrd-size", type=utils.from_hsize, default=Defaults.initrd_mem_size,
             help="Amount of RAM for initrd (default: {})".format(Defaults.initrd_mem_size), metavar="SIZE")
+        parser.add_argument("--memory-size", "-m", type=utils.from_hsize, default=Defaults.linux_mem_size,
+            help="Amount of RAM for Linux (default: {})".format(Defaults.linux_mem_size), metavar="SIZE")
 
         parser.set_defaults(action=cls.run)
     
     @staticmethod
-    def run(uboot, args):
+    def run(uboot: UBootConsole, args):
+        BLOCK_SIZE = 64 * 1024  # 64Kb
+
         network = NetworkContext(args)
+        uboot.setenv(ipaddr=network.target_ip, netmask=network.mask, serverip=network.host_ip)
 
-        logging.info("U-Boot size is {}; it'll be skipped".format(utils.to_hsize(args.skip)))
+        with tempfile.TemporaryDirectory() as tempdir:
+            logging.info("Pack {} & {} with {} alignment".format(
+                args.uimage, args.rootfs, utils.to_hsize(BLOCK_SIZE)
+            ))
+            pack_file_name = os.path.join(tempdir, "uimage-n-rootfs.pack")
+            uimage_offset, rootfs_offset = utils.aligned_pack(BLOCK_SIZE, pack_file_name,
+                args.uimage, args.rootfs)
+            logging.info("RootFS has {} offset in the pack".format(rootfs_offset))
 
-        print("Wanna boot {} from {} you bastard?".format(args.port, args.uimage))
+            with utils.TftpContext(tempdir, listen_ip=network.host_ip, listen_port=69):
+                uboot.tftp("0x82000000", pack_file_name)
+
+            bootargs = ""
+            bootargs += "mem={} ".format(utils.to_hsize(args.memory_size))
+            bootargs += "console=ttyAMA0,115200 "
+            bootargs += "ip={}:{}:{}:{}:camera1::off; ".format(
+                network.target_ip, network.host_ip, network.host_ip, network.mask)
+            bootargs += "mtdparts=hi_sfc:512k(boot) root=/dev/ram0 ro initrd=" \
+                + hex(0x82000000 + rootfs_offset)+"," + utils.to_hsize(args.initrd_size)
+            
+            uboot.setenv(bootargs=bootargs)
+
+            
+            print("Wanna boot {} from {} you bastard?".format(args.port, args.uimage))
+            uboot.command("bootm 0x82000000")
 
 
 # =====================================================================================================================
