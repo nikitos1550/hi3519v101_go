@@ -109,7 +109,7 @@ INITRD_TMP  =16
 
 ## How to deploy debug enviroiment
 
-1. ```cp Makefile.params.example Makefile.params``` copy default config and edit it.
+1. ```cp Makefile.user.params.example Makefile.user.params``` copy default config and edit it.
 
 Here you can point to default camera you are working with.
 
