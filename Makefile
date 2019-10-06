@@ -65,6 +65,8 @@ deploy-app: pack-app
             --initrd $(INITRD_TMP) \
             --memory $(RAM_LINUX) \
             --servercamera $(CAMERA)
+
+deploy-app-control: deploy-app
 	screen -L /dev/ttyCAM$(CAMERA) 115200
 
 deploy-empty:
