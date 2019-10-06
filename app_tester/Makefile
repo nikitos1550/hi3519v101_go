@@ -3,9 +3,9 @@ THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 #FAMILY  =hi3516av100
 #FAMILY  =hi3516av200
 #FAMILY  =hi3516cv100
-FAMILY  =hi3516cv200
+#FAMILY  =hi3516cv200
 #FAMILY  =hi3516cv300
-
+FAMILY  =hi3516cv500
 
 GOPATH := $(THIS_DIR)go
 
@@ -14,7 +14,7 @@ include ../$(FAMILY)/Makefile.params
 APP := ./app_tester
 
 
-GOFLAGS := -ldflags="-s -w -extldflags '-static -Wl,--gc-sections'"
+GOFLAGS := -ldflags="-s -w -extldflags '-Wl,--gc-sections'"
 
 GOPARAMS := GOPRIVATE=openhisiipcam.org \
             GOPATH=$(GOPATH) \

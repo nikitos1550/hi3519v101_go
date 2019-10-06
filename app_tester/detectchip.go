@@ -16,8 +16,14 @@ func detectChip(reg uint32) string {
             return "hi3519v101"
         case 890684160: //0x3516C300
             return"hi3516cv300"
+        case 890691840: //0x3516E100
+            return "hi3516ev100"
         case 890823168: //0x3518E200
             return "hi3518ev200"
+        case 890683904: //0x3516C200
+            return "hi3516cv200"
+        case 890688256: //0x3516D300
+            return "hi3516dv300"
         default:
             return "unknown"
     }

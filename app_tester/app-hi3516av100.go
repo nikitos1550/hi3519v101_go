@@ -46,7 +46,7 @@ func chipId() uint32 {
 }
 
 func initTemperature() {
-   //TODO
+    //hi3516av100 family doesn`t have known internal temperature sensor
 }
 
 func getTemperature() float32 {
