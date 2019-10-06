@@ -14,7 +14,6 @@ const (
 
 var (
     sysIdReg        uint32
-    chipDetected    string
     mppVersion      string
 
     modules = [...][2]string {
@@ -34,11 +33,6 @@ func init() {
     sysIdReg = sysIdReg + ((readDevMem32(0x12020EE4) & 0xFF) << 8)
     sysIdReg = sysIdReg + ((readDevMem32(0x12020EE8) & 0xFF) << 16)
     sysIdReg = sysIdReg + ((readDevMem32(0x12020EEC) & 0xFF) << 24)
-
-    switch (sysIdReg) {
-        case 890684160: //0x3516C300
-            chipDetected = "hi3516cv300"
-    }
 
     var ver C.MPP_VERSION_S
     C.HI_MPI_SYS_GetVersion(&ver)

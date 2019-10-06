@@ -21,7 +21,8 @@ type Answer struct {
 
     Family          string  `json:"family"`
     Chip            string  `json:"chipSetuped"`
-    ChipDetected    string  `json:"chipDetectedReg"`
+    ChipDetectedReg string  `json:"chipDetectedReg"`
+    ChipDetectedMpp string  `json:"chipDetectedMpp"`
 
     Mpp             string  `json:"mppVersion"`
 
@@ -41,18 +42,19 @@ type Answer struct {
 func apiHandler(w http.ResponseWriter, r *http.Request) {
     var schema Answer
 
-    schema.App          = "app_tester"
+    schema.App              = "app_tester"
 
-    schema.Family       = chipFamily
-    schema.Chip         = chip
-    schema.ChipDetected = chipDetected
+    schema.Family           = chipFamily
+    schema.Chip             = chip
+    schema.ChipDetectedReg  = detectChip(sysIdReg)
+    schema.ChipDetectedMpp  = detectChip(chipId())
 
-    schema.Mpp          = mppVersion
+    schema.Mpp              = mppVersion
 
-    schema.SysIdReg     = sysIdReg
-    schema.SysIdMpp     = chipId()
+    schema.SysIdReg         = sysIdReg
+    schema.SysIdMpp         = chipId()
 
-    schema.Temp         = getTemperature()
+    schema.Temp             = getTemperature()
 
     w.Header().Set("Content-Type", "application/json; charset=UTF-8")
     w.WriteHeader(http.StatusOK)

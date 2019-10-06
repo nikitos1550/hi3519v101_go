@@ -14,7 +14,6 @@ const (
 
 var (
     sysIdReg        uint32
-    chipDetected    string
     mppVersion      string
 
     modules = [...][2]string {
@@ -35,23 +34,9 @@ func init() {
     sysIdReg = sysIdReg + ((readDevMem32(0x20050EE8) & 0xFF) << 16)
     sysIdReg = sysIdReg + ((readDevMem32(0x20050EEC) & 0xFF) << 24)
 
-    switch (sysIdReg) {
-        case 890765568: //0x35180100
-            chipDetected = "hi3518ev100"
-        case 890822912: //0x3518E100
-            chipDetected = "hi3518ev100"
-    }
-
     var ver C.MPP_VERSION_S
     C.HI_MPI_SYS_GetVersion(&ver)
     mppVersion = C.GoString(&ver.aVersion[0])
-}
-
-
-func version() string {
-    var ver C.MPP_VERSION_S
-    C.HI_MPI_SYS_GetVersion(&ver)
-    return C.GoString(&ver.aVersion[0])
 }
 
 func chipId() uint32 {
