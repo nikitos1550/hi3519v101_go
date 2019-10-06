@@ -17,7 +17,7 @@ SWIG    := $(THIS_DIR)/toolchain/host/bin/swig
 
 CFLAGS  :=  -std=gnu11 \
             -fPIC \
-            -mcpu=-mcpu=arm926ej-s \
+            -mcpu=arm926ej-s \
             -mno-unaligned-access \
             -fno-aggressive-loop-optimizations \
             -O2 \
