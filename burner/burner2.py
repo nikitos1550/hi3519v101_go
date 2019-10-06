@@ -2,18 +2,26 @@
 # -*- coding: utf-8 -*-
 import logging
 import os
+import shutil
 import tempfile
-import threading
 import utils
-import tftpy
 from uboot_console import UBootConsole
 
 
 class Defaults:
     dev_baudrate = 115200
-    initrd_mem_size = "32M"
-    linux_mem_size = "32M"
+    initrd_mem_size = "8M"
+    linux_mem_size = "64"
     uboot_mem_size = "512K"
+
+
+def upload_files_via_tftp(uboot, listen_ip, listen_port, files_and_addrs):
+    with tempfile.TemporaryDirectory() as tmpdir:
+        with utils.TftpContext(tmpdir, listen_ip=listen_ip, listen_port=listen_port):
+            for filename, addr in files_and_addrs:
+                tmp_filename = utils.copy_to_dir(filename, tmpdir)
+                logging.info("Upload '{}' via TFTP at {:#x} address".format(filename, addr))
+                uboot.tftp(addr, tmp_filename)
 
 
 # =====================================================================================================================
@@ -73,35 +81,27 @@ class LoadAction:
     @staticmethod
     def run(uboot: UBootConsole, args):
         BLOCK_SIZE = 64 * 1024  # 64Kb
+        BASE_ADDR = 0x82000000
 
         network = NetworkContext(args)
         uboot.setenv(ipaddr=network.target_ip, netmask=network.mask, serverip=network.host_ip)
 
-        with tempfile.TemporaryDirectory() as tempdir:
-            logging.info("Pack {} & {} with {} alignment".format(
-                args.uimage, args.rootfs, utils.to_hsize(BLOCK_SIZE)
-            ))
-            pack_file_name = os.path.join(tempdir, "uimage-n-rootfs.pack")
-            uimage_offset, rootfs_offset = utils.aligned_pack(BLOCK_SIZE, pack_file_name,
-                args.uimage, args.rootfs)
-            logging.info("RootFS has {} offset in the pack".format(rootfs_offset))
+        uimage_addr = BASE_ADDR
+        rootfs_addr = utils.aligned_address(BLOCK_SIZE, uimage_addr + os.path.getsize(args.uimage))
+        upload_files_via_tftp(uboot, network.host_ip, 69, files_and_addrs=[(args.uimage, uimage_addr), (args.rootfs, rootfs_addr)])
 
-            with utils.TftpContext(tempdir, listen_ip=network.host_ip, listen_port=69):
-                uboot.tftp("0x82000000", pack_file_name)
-
-            bootargs = ""
-            bootargs += "mem={} ".format(utils.to_hsize(args.memory_size))
-            bootargs += "console=ttyAMA0,115200 "
-            bootargs += "ip={}:{}:{}:{}:camera1::off; ".format(
-                network.target_ip, network.host_ip, network.host_ip, network.mask)
-            bootargs += "mtdparts=hi_sfc:512k(boot) root=/dev/ram0 ro initrd=" \
-                + hex(0x82000000 + rootfs_offset)+"," + utils.to_hsize(args.initrd_size)
-            
-            uboot.setenv(bootargs=bootargs)
-
-            
-            print("Wanna boot {} from {} you bastard?".format(args.port, args.uimage))
-            uboot.command("bootm 0x82000000")
+        bootargs = ""
+        bootargs += "mem={} ".format(utils.to_hsize(args.memory_size))
+        bootargs += "console=ttyAMA0,115200 "
+        bootargs += "ip={}:{}:{}:{}:camera1::off; ".format(
+            network.target_ip, network.host_ip, network.host_ip, network.mask)
+        bootargs += "mtdparts=hi_sfc:512k(boot) root=/dev/ram0 ro initrd=" \
+            + hex(rootfs_addr)+"," + utils.to_hsize(args.initrd_size)
+        
+        logging.info("Load kernel with bootargs: {}".format(bootargs))
+        uboot.setenv(bootargs=bootargs)
+        uboot.bootm(uimage_addr)
+        logging.info("OS seems successfully started")
 
 
 # =====================================================================================================================
@@ -123,7 +123,7 @@ def main():
     action_parsers = parser.add_subparsers(title="Action")
     MacAction.register(action_parsers)
     LoadAction.register(action_parsers)
-    
+
     args = parser.parse_args()
     
     # configure logging

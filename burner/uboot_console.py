@@ -61,9 +61,16 @@ class UBootConsole:
             self.device.dlog("Failure in echo - got {} instead of {}; retype the command", echoed, data)
             self.device.write_data(self.CTRL_C)
             self.device.read_line()
-    
-    def command(self, cmd):
+
+    def wait_for(self, line):
+        while self.device.read_line().strip() != line:
+            pass
+
+    def command(self, cmd, wait=True):
         self.write_and_check(cmd.encode(self.ENCODING))
+        if not wait:
+            return
+
         response = []
         while True:
             line = self.device.read_line()
@@ -78,8 +85,10 @@ class UBootConsole:
             self.command("setenv {} {}".format(k, v))
 
     def tftp(self, offset, file_name):
-        self.command("tftp {} {}".format(offset, file_name))
+        self.command("tftp {:#x} {}".format(offset, file_name))
 
+    def bootm(self, uimage_addr):
+        self.command("bootm {:#x}".format(uimage_addr), wait=False)
 
 
 if __name__ == "__main__":

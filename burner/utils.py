@@ -1,4 +1,5 @@
 import random, logging, sys, os
+import tempfile, shutil
 
 
 def __init_logger(
@@ -83,7 +84,7 @@ def from_hsize(val):  # throw on error
 
 # =====================================================================================================================
 def to_hsize(val):
-    for suf in ("B", "K", "M", "G"):
+    for suf in ("", "K", "M", "G"):
         if val == 0 or val % 1024:
             break
         val //= 1024
@@ -91,29 +92,22 @@ def to_hsize(val):
 
 
 # =====================================================================================================================
-def aligned_pack(block_size, dst_file, *src_files):
-    """
-    :return: list of source files' offsets in result file
-    """
+def aligned_address(alignment, addr):
+    blocks = addr // alignment + (1 if addr % alignment else 0)
+    return blocks * alignment
 
-    import io
-    import shutil
 
-    offsets = []
-    with open(dst_file, "wb") as out:
-        for f in src_files:
-            cur_offset = out.tell()
-            if cur_offset % block_size:
-                cur_offset = out.seek(block_size - cur_offset % block_size, io.SEEK_CUR)
-            offsets.append(cur_offset)
-
-            with open(f, "rb") as f:
-                shutil.copyfileobj(f, out)
-    return offsets
+# =====================================================================================================================
+def copy_to_dir(src_file, dst_dir):
+    dst_file = os.path.join(dst_dir, os.path.split(src_file)[1])
+    shutil.copyfile(src_file, dst_file)
+    return dst_file
 
 
 # =====================================================================================================================
 class TftpContext:
+    """ Context manager for TFTP server
+    """
     def __enter__(self):
         self.thread.start()
         return self
@@ -122,11 +116,11 @@ class TftpContext:
         self.server.stop()
         self.thread.join()
 
-    def __init__(self, tftproot, listen_ip, listen_port):
+    def __init__(self, root_dir, listen_ip, listen_port=69):
         import tftpy
         import threading
 
-        self.server = tftpy.TftpServer(tftproot)
+        self.server =  tftpy.TftpServer(root_dir)
 
         def run():
             self.server.listen(listen_ip, listen_port)
