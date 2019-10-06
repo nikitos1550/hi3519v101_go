@@ -1,0 +1,12 @@
+VENDOR      =unknown
+MODEL       =unknown
+FAMILY      =hi3516cv100
+CHIP        =hi3516cv100
+RAM_SIZE    =128
+RAM_LINUX   =64
+RAM_MPP     =64
+ROM_SIZE    =16
+CMOS        =unknown
+UBOOT_SIZE  =1024
+INITRD_TMP  =16
+
