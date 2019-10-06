@@ -1,5 +1,7 @@
 // +build hi3519av100
 
+//TODO
+
 package main
 
 // #cgo LDFLAGS: ${SRCDIR}/hi3559av100/libhi3559av100.a
@@ -11,6 +13,11 @@ const (
     chipFamily = "hi3519av100"
 )
 
+var (
+    chips = [...]string {"hi3559av100"}
+)
+
+/*
 func version() string {
     var ver C.MPP_VERSION_S
     C.HI_MPI_SYS_GetVersion(&ver)
@@ -20,4 +27,4 @@ func version() string {
 func chipId() uint64 {
     return 0
 }
-
+*/

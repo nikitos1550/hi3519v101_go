@@ -5,7 +5,8 @@
 
 start() {
 	echo "S99 APP_TESTER"
-	/opt/app_tester &
+    . /etc/board.config
+	/opt/app_tester -chip ${CHIP}tratata -memtotal $RAM_SIZE -memlinux $RAM_LINUX &
 }
 
 stop() {
