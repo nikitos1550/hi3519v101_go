@@ -2,8 +2,69 @@ THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 #THIS IS YOUR CUSTOM SETTINGS
 
-APP                     := app_tester
-CAMERA                  := 1
-BOARD                   := jvt_hi3519v101_imx274
+APP                     ?= app_tester
+#APP                     ?= app_minimal
 
+#1.  hi3519v101+imx274 jvt OK
+CAMERA  ?= 1
+BOARD   ?=jvt_hi3519v101_imx274
+
+#2.  hi3519v101+imx274 jvt OK
+#CAMERA  ?= 2
+#BOARD   ?= jvt_hi3519v101_imx274
+
+#3.  hi3516ev100 KERNEL NO OUTPUT, MAYBE SOME CHINESE UBOOT LOCK
+#CAMERA  ?= 3
+#BOARD   ?= generic_hi3516cv300_unknown
+
+#4.  hi3516cv200 OK
+#CAMERA  ?= 4
+#BOARD   ?= generic_hi3516cv200_unknown
+
+#5.  hi3518ev201 NOT WORKING, RESETTING KERNEL
+#CAMERA  ?= 5
+#BOARD   ?= generic_hi3518ev200_unknown
+
+#6.  hi3516cv300+imx290 OK
+#CAMERA  ?= 6
+#BOARD   ?= generic_hi3516cv300_unknown
+
+#7.  hi3518ev100 OK
+#CAMERA  ?= 7
+#BOARD   ?= generic_hi3518ev100_unknown
+
+#8.  hi3516av100+imx178 OK
+#CAMERA  ?= 8
+#BOARD   ?= xm_hi3516av100_imx178
+
+#9.  hi3518ev200 NO BOOT LOG
+#CAMERA  ?= 9
+#BOARD   ?= generic_hi3516cv200_unknown
+
+#10. hi3518ev200 OK
+#CAMERA  ?= 10
+#BOARD   ?= generic_hi3518ev200_unknown
+
+#11. hi3516ev100 PROBLEM WITH UBOOT
+#CAMERA  ?= 11
+#BOARD   ?= generic_hi3516cv300_unknown
+
+#12. hi3516cv100+imx122 OK
+#CAMERA  ?= 12
+#BOARD   ?= generic_hi3516cv100_unknown
+
+#13. XM hi3516ev100 OK
+#CAMERA  ?= 13
+#BOARD   ?= generic_hi3516ev100_unknown
+
+#14. hi35109v101+imx226 OK
+#CAMERA  ?= 14
+#BOARD   ?= jvt_hi3519v101_imx226
+
+#15. hi3516dv300+imx290 hisilicon evb OK
+#CAMERA  ?= 15
+#BOARD   ?= hisi_hi3516dv300_imx290
+
+#16. hi3559av100 hisilicon evb
+# NOT IMPLEMENTED
 

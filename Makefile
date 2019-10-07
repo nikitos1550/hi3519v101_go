@@ -31,6 +31,8 @@ pack-app:
 	rm -rf boards/$(BOARD)/build/$(APP)/rootfs.tmp; mkdir boards/$(BOARD)/build/$(APP)/rootfs.tmp
 	cp -r $(FAMILY)/rootfs/target/* boards/$(BOARD)/build/$(APP)/rootfs.tmp/
 	test ! -e boards/$(BOARD)/putonrootfs || cp -r boards/$(BOARD)/putonrootfs/* boards/$(BOARD)/build/$(APP)/rootfs.tmp/
+	#cp boards/$(BOARD)/config boards/$(BOARD)/build/$(APP)/rootfs.tmp/etc/board.config
+	cat boards/$(BOARD)/config | tr -d "[:blank:]" > boards/$(BOARD)/build/$(APP)/rootfs.tmp/etc/board.config
 	cp -r $(APP)/distrib/$(FAMILY)/* boards/$(BOARD)/build/$(APP)/rootfs.tmp
 
 	mksquashfs  boards/$(BOARD)/build/$(APP)/rootfs.tmp \
@@ -63,6 +65,8 @@ deploy-app: pack-app
             --initrd $(INITRD_TMP) \
             --memory $(RAM_LINUX) \
             --servercamera $(CAMERA)
+
+deploy-app-control: deploy-app
 	screen -L /dev/ttyCAM$(CAMERA) 115200
 
 deploy-empty:

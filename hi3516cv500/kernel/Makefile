@@ -1,6 +1,6 @@
 THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
-TOOLCHAIN=$(THIS_DIR)../toolchain/host/bin/arm-buildroot-linux-uclibcgnueabi-
+TOOLCHAIN=$(THIS_DIR)../toolchain/host/bin/arm-buildroot-linux-gnueabi-
 
 linux:
 	tar -xzf ./linux-4.9.37.tar.gz

@@ -18,7 +18,7 @@ POWER_PORT 		= "/dev/ttyACM0"
 
 SPEED			= 115200
 
-promt 			= ["xmtech #", "hisilicon #"]
+promt 			= ["xmtech #", "hisilicon #", "Zview #"]
 duplex 			= "full"
 
 iface           = "enp3s0"
