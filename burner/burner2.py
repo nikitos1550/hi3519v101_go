@@ -13,6 +13,7 @@ class Defaults:
     initrd_mem_size = "8M"
     linux_mem_size = "64"
     uboot_mem_size = "512K"
+    linux_console = "ttyAMA0,115200"
 
 
 def upload_files_via_tftp(uboot, listen_ip, listen_port, files_and_addrs):
@@ -75,6 +76,8 @@ class LoadAction:
             help="Amount of RAM for initrd (default: {})".format(Defaults.initrd_mem_size), metavar="SIZE")
         parser.add_argument("--memory-size", "-m", type=utils.from_hsize, default=Defaults.linux_mem_size,
             help="Amount of RAM for Linux (default: {})".format(Defaults.linux_mem_size), metavar="SIZE")
+        parser.add_argument('--lconsole', default=Defaults.linux_console,
+            help="Linux load console (default: {})".format(Defaults.linux_console))
 
         parser.set_defaults(action=cls.run)
     
@@ -92,7 +95,7 @@ class LoadAction:
 
         bootargs = ""
         bootargs += "mem={} ".format(utils.to_hsize(args.memory_size))
-        bootargs += "console=ttyAMA0,115200 "
+        bootargs += "console={} ".format(args.lconsole)
         bootargs += "ip={}:{}:{}:{}:camera1::off; ".format(
             network.target_ip, network.host_ip, network.host_ip, network.mask)
         bootargs += "mtdparts=hi_sfc:512k(boot) root=/dev/ram0 ro initrd=" \
