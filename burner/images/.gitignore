@@ -1,2 +1,4 @@
-difference  
-tmp.tftp  
+/difference  
+/tmp.tftp  
+/rootfs.squashfs  
+/uImage

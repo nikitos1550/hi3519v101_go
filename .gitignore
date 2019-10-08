@@ -1,10 +1,10 @@
-buildroot-2019.02.3
-buildroot-2019.05.1
-buildroot-dl
-buildroot-2019.05.1-release
-buildroot-2019.05.1-debug
-buildroot-2019.05.1-toolchain
-screenlog*
-buildroot-2019.08
-Makefile.user.params
+/buildroot-2019.02.3
+/buildroot-2019.05.1
+/buildroot-dl
+/buildroot-2019.05.1-release
+/buildroot-2019.05.1-debug
+/buildroot-2019.05.1-toolchain
+/screenlog*
+/buildroot-2019.08
+/Makefile.user.params
 
