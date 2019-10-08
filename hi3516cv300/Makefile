@@ -7,14 +7,15 @@ guard:
 
 toolchain:
 	test -e toolchain || mkdir toolchain
-	make -C ../$(BR) \
-          O=toolchain \
-            defconfig BR2_DEFCONFIG=toolchain.buildroot
+	make -C $(THIS_DIR)../$(BR) \
+          O=$(THIS_DIR)toolchain \
+            defconfig BR2_DEFCONFIG=$(THIS_DIR)toolchain.buildroot
 	cd toolchain;make toolchain
 
 rootfs: toolchain
 	test -e rootfs || mkdir rootfs
-	make -C ../$(BR) \
-          O=rootfs \
-            defconfig BR2_DEFCONFIG=rootfs.buildroot
+	make -C $(THIS_DIR)../$(BR) \
+          O=$(THIS_DIR)rootfs \
+            defconfig BR2_DEFCONFIG=$(THIS_DIR)rootfs.buildroot
 	cd rootfs;make
+
