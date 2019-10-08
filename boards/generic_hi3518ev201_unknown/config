@@ -1,7 +1,7 @@
 VENDOR      =unknown
 MODEL       =unknown
 FAMILY      =hi3516cv200
-CHIP        =hi3516ev201
+CHIP        =hi3518ev201
 RAM_SIZE    =32
 RAM_LINUX   =32
 RAM_MPP     =0
