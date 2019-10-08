@@ -126,3 +126,23 @@ class TftpContext:
             self.server.listen(listen_ip, listen_port)
 
         self.thread = threading.Thread(target=run, name="Thread-TftpServer")
+ 
+
+# =====================================================================================================================
+def parse_kv_pair(val):
+    key, val = val.split("=", maxsplit=1)
+    return key.strip(), val.strip()
+
+
+# =====================================================================================================================
+def read_parameters_from_file(file_name):
+    params = {}
+    with open(file_name, "r") as f:
+        for line in f.readlines():
+            line = line.strip()
+            if not line or line.startswith("#"):  # comment or empty line
+                continue
+            key, val = parse_kv_pair(line)
+            params[key] = val
+
+    return params

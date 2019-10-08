@@ -1,4 +1,5 @@
 from .. import utils
+import tempfile
 
 
 def test_from_hsize():
@@ -25,3 +26,23 @@ def test_aligned_address():
     assert utils.aligned_address(32, 31) == 32
     assert utils.aligned_address(32, 32) == 32
     assert utils.aligned_address(32, 33) == 64
+
+
+def test_read_parameters_from_file():
+    with tempfile.NamedTemporaryFile(mode="wt") as f:
+        f.write(
+            "\nPARAM_1 = 12345"
+            "\n   PARAM_2=12345    "
+            "\n PARAM_2  =  54321  "  # overrides previous param
+            "\n  # PARAM_3 = it's a comment actually \\"
+            "\n  \n\n \t \t \n"  # some empty lines
+            "\nPARAM WITH SPACES = the last value"
+            "\n# comment again"
+        )
+        f.flush()
+
+        assert utils.read_parameters_from_file(f.name) == {
+            "PARAM_1": "12345",
+            "PARAM_2": "54321",
+            "PARAM WITH SPACES": "the last value"
+        }

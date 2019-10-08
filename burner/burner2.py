@@ -8,6 +8,39 @@ import utils
 from uboot_console import UBootConsole
 
 
+# =====================================================================================================================
+class UBootContext:
+    @classmethod
+    def add_args(cls, parser):
+        parser.add_argument("--reset-power", required=False, help="Use given command to reset target device", metavar="CMD")
+        parser.add_argument("--port", "-p", required=True, help="Serial port device")
+        parser.add_argument("--baudrate", type=int, default=Defaults.dev_baudrate,
+            help="Serial port baudrate (default: {})".format(Defaults.dev_baudrate))
+
+    @classmethod
+    def create(cls, args):
+        uboot_logger = utils.get_device_logger("uboot")
+
+        if args.reset_power is not None:
+            import subprocess
+
+            logging.info("Execute '{}' to reset power on device".format(args.reset_power))
+            subprocess.check_call(args.reset_power, shell=True)
+
+            return UBootConsole.catch_console(
+                port=args.port,
+                baudrate=args.baudrate,
+                logger=uboot_logger
+            )
+        else:
+            return UBootConsole(
+                port=args.port,
+                baudrate=args.baudrate,
+                logger=uboot_logger
+            )
+
+
+# =====================================================================================================================
 class Defaults:
     dev_baudrate = 115200
     initrd_mem_size = "8M"
@@ -16,6 +49,7 @@ class Defaults:
     linux_console = "ttyAMA0,115200"
 
 
+# =====================================================================================================================
 def upload_files_via_tftp(uboot, listen_ip, listen_port, files_and_addrs):
     with tempfile.TemporaryDirectory() as tmpdir:
         with utils.TftpContext(tmpdir, listen_ip=listen_ip, listen_port=listen_port):
@@ -23,6 +57,7 @@ def upload_files_via_tftp(uboot, listen_ip, listen_port, files_and_addrs):
                 tmp_filename = utils.copy_to_dir(filename, tmpdir)
                 logging.info("Upload '{}' via TFTP at {:#x} address".format(filename, addr))
                 uboot.tftp(addr, tmp_filename)
+
 
 
 # =====================================================================================================================
@@ -111,16 +146,12 @@ class LoadAction:
 def main():
     import argparse
 
-
     parser = argparse.ArgumentParser(description="Interact with devices via serial port")
     parser.set_defaults(action=lambda *_: parser.print_help())
     
     # common arguments
     parser.add_argument("--log-level", "-l", default="INFO", help="Logging level (default: INFO)", metavar="LVL")
-    parser.add_argument("--reset-power", required=False, help="Use given command to reset target device", metavar="CMD")
-    parser.add_argument("--port", "-p", required=True, help="Serial port device")
-    parser.add_argument("--baudrate", type=int, default=Defaults.dev_baudrate,
-        help="Serial port baudrate (default: {})".format(Defaults.dev_baudrate))
+    UBootContext.add_args(parser)
 
     # each action may add its' own arguments
     action_parsers = parser.add_subparsers(title="Action")
@@ -132,24 +163,8 @@ def main():
     # configure logging
     log_level = getattr(logging, args.log_level.upper())
     logging.basicConfig(level=log_level)
-    logger = utils.get_device_logger("uboot", level=log_level)
 
-    # construct U-Boot's console wrap
-    if args.reset_power is not None:
-        import subprocess
-        logging.info("Execute '{}' to reset power on device".format(args.reset_power))
-        subprocess.check_call(args.reset_power, shell=True)
-        uboot = UBootConsole.catch_console(
-            port=args.port,
-            baudrate=args.baudrate,
-            logger=utils.get_device_logger("uboot"))
-    else:
-        uboot = UBootConsole(
-            port=args.port,
-            baudrate=args.baudrate,
-            logger=utils.get_device_logger("uboot"))
-
-    # run action
+    uboot = UBootContext.create(args)
     args.action(uboot, args)
 
 

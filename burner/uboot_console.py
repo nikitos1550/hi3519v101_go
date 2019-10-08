@@ -9,11 +9,13 @@ from utils import get_device_logger
 class UBootConsole:
     READ_TIMEOUT    = 0.1
     ENCODING        = "utf-8"
-    GREETING        = b"System startup"
-    PROMPT          = b"hisilicon # "
     CTRL_C          = b"\x03"
     LF              = b"\n"
-    AUTOBOOT_STOP   = b"\x03"
+    
+    # Parameters below are supposed to be configured for particular boards
+    GREETING            = b"System startup"
+    PROMPT              = b"hisilicon #"
+    AUTOBOOT_STOP_KEY   = b"\x03"
 
     @classmethod
     def catch_console(cls, **kw):
@@ -22,9 +24,8 @@ class UBootConsole:
         uboot.dlog("Wait for greeting line: {} ...", cls.GREETING)
         while cls.GREETING not in uboot.device.read_line():
             pass
-        uboot.dlog("Greeting line received")
-
-        uboot.device.write_data(cls.AUTOBOOT_STOP)
+        uboot.dlog("Greeting line received, send '{}' key", cls.AUTOBOOT_STOP_KEY)
+        uboot.device.write_data(cls.AUTOBOOT_STOP_KEY)
 
         uboot.dlog("Wait for prompt: {} ...", cls.PROMPT)
         while not uboot.device.read_line().startswith(cls.PROMPT):
@@ -73,10 +74,10 @@ class UBootConsole:
 
         response = []
         while True:
-            line = self.device.read_line()
+            line = self.device.read_line().strip()
             if line == self.PROMPT:
                 break
-            response.append(line.decode(self.ENCODING).strip())
+            response.append(line.decode(self.ENCODING))
         return response
 
     def setenv(self, **kwargs):
@@ -89,6 +90,21 @@ class UBootConsole:
 
     def bootm(self, uimage_addr):
         self.command("bootm {:#x}".format(uimage_addr), wait=False)
+
+
+def get_uboot_console_type(uboot_params):
+    class UBootConsoleParametrized(UBootConsole):
+        pass
+
+    def set_if_needed(key):
+        if key in uboot_params:
+            setattr(UBootConsoleParametrized, key, uboot_params[key])
+
+    set_if_needed("GREETING")
+    set_if_needed("PROMPT")
+    set_if_needed("AUTOBOOT_STOP_KEY")
+
+    return UBootConsoleParametrized
 
 
 if __name__ == "__main__":
