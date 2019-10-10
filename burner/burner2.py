@@ -5,39 +5,8 @@ import os
 import shutil
 import tempfile
 import utils
-from uboot_console import UBootConsole
-
-
-# =====================================================================================================================
-class UBootContext:
-    @classmethod
-    def add_args(cls, parser):
-        parser.add_argument("--reset-power", required=False, help="Use given command to reset target device", metavar="CMD")
-        parser.add_argument("--port", "-p", required=True, help="Serial port device")
-        parser.add_argument("--baudrate", type=int, default=Defaults.dev_baudrate,
-            help="Serial port baudrate (default: {})".format(Defaults.dev_baudrate))
-
-    @classmethod
-    def create(cls, args):
-        uboot_logger = utils.get_device_logger("uboot")
-
-        if args.reset_power is not None:
-            import subprocess
-
-            logging.info("Execute '{}' to reset power on device".format(args.reset_power))
-            subprocess.check_call(args.reset_power, shell=True)
-
-            return UBootConsole.catch_console(
-                port=args.port,
-                baudrate=args.baudrate,
-                logger=uboot_logger
-            )
-        else:
-            return UBootConsole(
-                port=args.port,
-                baudrate=args.baudrate,
-                logger=uboot_logger
-            )
+from kv_read import kv_read
+from uboot_console import UBootConsole, UBootConsoleParams
 
 
 # =====================================================================================================================
@@ -50,14 +19,31 @@ class Defaults:
 
 
 # =====================================================================================================================
-def upload_files_via_tftp(uboot, listen_ip, listen_port, files_and_addrs):
-    with tempfile.TemporaryDirectory() as tmpdir:
-        with utils.TftpContext(tmpdir, listen_ip=listen_ip, listen_port=listen_port):
-            for filename, addr in files_and_addrs:
-                tmp_filename = utils.copy_to_dir(filename, tmpdir)
-                logging.info("Upload '{}' via TFTP at {:#x} address".format(filename, addr))
-                uboot.tftp(addr, tmp_filename)
+class UBootContext:
+    @classmethod
+    def add_args(cls, parser):
+        parser.add_argument("--reset-power", required=False, help="Use given command to reset target device", metavar="CMD")
+        parser.add_argument("--port", "-p", required=True, help="Serial port device")
+        parser.add_argument("--baudrate", type=int, default=Defaults.dev_baudrate,
+            help="Serial port baudrate (default: {})".format(Defaults.dev_baudrate))
+        parser.add_argument("--uboot-params", type=kv_read, help="U-Boot console's parameters")
 
+    def __init__(self, args):
+        logging.info("U-Boot params: {}".format(args.uboot_params))
+
+        self.uboot = UBootConsole(
+            port=args.port,
+            baudrate=args.baudrate,
+            logger=utils.get_device_logger("uboot", args.log_level),
+            params=UBootConsoleParams(args.uboot_params if args.uboot_params else None)
+        )
+
+        if args.reset_power is not None:
+            import subprocess
+            
+            logging.info("Execute '{}' to reset power of device".format(args.reset_power))
+            subprocess.check_call(args.reset_power, shell=True)
+            self.uboot.fetch_console()
 
 
 # =====================================================================================================================
@@ -74,6 +60,16 @@ class NetworkContext:
 
         utils.dlog("Network: iface={} mask={} host_addr={} target_addr={}",
             args.iface, self.mask, self.host_ip, self.target_ip)
+
+
+# =====================================================================================================================
+def upload_files_via_tftp(uboot, listen_ip, listen_port, files_and_addrs):
+    with tempfile.TemporaryDirectory() as tmpdir:
+        with utils.TftpContext(tmpdir, listen_ip=listen_ip, listen_port=listen_port):
+            for filename, addr in files_and_addrs:
+                logging.info("Upload '{}' via TFTP at {:#x} address".format(filename, addr))
+                tmp_filename = utils.copy_to_dir(filename, tmpdir)
+                uboot.tftp(addr, tmp_filename)
 
 
 # =====================================================================================================================
@@ -146,11 +142,14 @@ class LoadAction:
 def main():
     import argparse
 
+    def log_level(val):
+        return getattr(logging, val.upper())
+
     parser = argparse.ArgumentParser(description="Interact with devices via serial port")
-    parser.set_defaults(action=lambda *_: parser.print_help())
     
     # common arguments
-    parser.add_argument("--log-level", "-l", default="INFO", help="Logging level (default: INFO)", metavar="LVL")
+    parser.add_argument("--log-level", "-l", type=log_level, default="INFO",
+        help="Logging level (default: INFO)", metavar="LVL")
     UBootContext.add_args(parser)
 
     # each action may add its' own arguments
@@ -159,16 +158,16 @@ def main():
     LoadAction.register(action_parsers)
 
     args = parser.parse_args()
-    
-    # configure logging
-    log_level = getattr(logging, args.log_level.upper())
-    logging.basicConfig(level=log_level)
 
-    uboot = UBootContext.create(args)
+    if getattr(args, "action", None) is None:
+        print("Action must be specified")
+        return
+
+    logging.basicConfig(level=args.log_level)
+
+    uboot = UBootContext(args).uboot
     args.action(uboot, args)
 
 
 if __name__ == "__main__":
     main()
-
-

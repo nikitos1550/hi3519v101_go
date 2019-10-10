@@ -1,9 +1,20 @@
-# if __name__ == "__main__":
 from device import Device
 from utils import get_device_logger
-# else:
-#     from .device import Device
-#     from .utils import get_device_logger
+
+
+class UBootConsoleParams:
+    def __init__(self, params_dict=None):
+        if params_dict is None:
+            params_dict = {}
+
+        # First (or so) line of U-Boot loading process
+        self.GREETING = params_dict.get("GREETING", "System startup").encode("ascii")
+
+        # U-Boot console's prompt
+        self.PROMPT = params_dict.get("PROMPT", "hisilicon #").encode("ascii")
+
+        # Key to interrupt autoboot
+        self.AUTOBOOT_STOP_KEY = params_dict.get("AUTOBOOT_STOP_KEY", "\x03").encode("ascii")
 
 
 class UBootConsole:
@@ -11,33 +22,11 @@ class UBootConsole:
     ENCODING        = "utf-8"
     CTRL_C          = b"\x03"
     LF              = b"\n"
-    
-    # Parameters below are supposed to be configured for particular boards
-    GREETING            = b"System startup"
-    PROMPT              = b"hisilicon #"
-    AUTOBOOT_STOP_KEY   = b"\x03"
-
-    @classmethod
-    def catch_console(cls, **kw):
-        uboot = cls(**kw)
-
-        uboot.dlog("Wait for greeting line: {} ...", cls.GREETING)
-        while cls.GREETING not in uboot.device.read_line():
-            pass
-        uboot.dlog("Greeting line received, send '{}' key", cls.AUTOBOOT_STOP_KEY)
-        uboot.device.write_data(cls.AUTOBOOT_STOP_KEY)
-
-        uboot.dlog("Wait for prompt: {} ...", cls.PROMPT)
-        while not uboot.device.read_line().startswith(cls.PROMPT):
-            pass
-        uboot.dlog("Prompt received")
-
-        return uboot
 
     def dlog(self, *a, **kw):
         self.device.dlog(*a, **kw)
 
-    def __init__(self, device=None, port=None, baudrate=None, logger=None):
+    def __init__(self, device=None, port=None, baudrate=None, logger=None, params=UBootConsoleParams()):
         if device is not None:
             if (port, baudrate) != (None, None):
                 raise Exception("device, port&baudrate mustn't be used simultaneously")
@@ -49,7 +38,23 @@ class UBootConsole:
         else:
             raise Exception("Either device or port&baudrate must be defines")
         
+        self.params = params
         self.dlog("UBoot console constructed")
+
+    def fetch_console(self):
+        self.device.clear_input_buff()
+
+        self.dlog("Wait for greeting line: {} ...", self.params.GREETING)
+        while self.params.GREETING not in self.device.read_line():
+            pass
+
+        self.dlog("Greeting line received, send '{}' key", self.params.AUTOBOOT_STOP_KEY)
+        self.device.write_data(self.params.AUTOBOOT_STOP_KEY)
+
+        self.dlog("Wait for prompt: {} ...", self.params.PROMPT)
+        self.wait_for(self.params.PROMPT)
+
+        self.dlog("Prompt received")
 
     def write_and_check(self, data):
         while True:
@@ -75,7 +80,7 @@ class UBootConsole:
         response = []
         while True:
             line = self.device.read_line().strip()
-            if line == self.PROMPT:
+            if line == self.params.PROMPT:
                 break
             response.append(line.decode(self.ENCODING))
         return response
@@ -92,26 +97,12 @@ class UBootConsole:
         self.command("bootm {:#x}".format(uimage_addr), wait=False)
 
 
-def get_uboot_console_type(uboot_params):
-    class UBootConsoleParametrized(UBootConsole):
-        pass
-
-    def set_if_needed(key):
-        if key in uboot_params:
-            setattr(UBootConsoleParametrized, key, uboot_params[key])
-
-    set_if_needed("GREETING")
-    set_if_needed("PROMPT")
-    set_if_needed("AUTOBOOT_STOP_KEY")
-
-    return UBootConsoleParametrized
-
-
 if __name__ == "__main__":
     import sys
 
     logger = get_device_logger("uboot")
-    uboot = UBootConsole.catch_console(port=sys.argv[1], baudrate=115200, logger=logger)
+    uboot = UBootConsole(port=sys.argv[1], baudrate=115200, logger=logger)
+    uboot.fetch_console()
     
     while True:
         cmd = sys.stdin.readline().strip()
