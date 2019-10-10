@@ -1,4 +1,5 @@
 from .. import utils
+from ..kv_read import kv_read
 import tempfile
 
 
@@ -46,3 +47,12 @@ def test_read_parameters_from_file():
             "PARAM_2": "54321",
             "PARAM WITH SPACES": "the last value"
         }
+
+
+def test_kv_read():
+    assert kv_read("A=1 B = 2  C  =  3   ") == {"A": "1", "B": "2", "C": "3"}
+    assert kv_read("TheKey=TheLongValue   The Key= 'The Long Value'   \"The'Key\"= '\"The\\'Long\\'Value\"'") == {
+        "TheKey": "TheLongValue",
+        "The Key": "The Long Value",
+        "\"The'Key\"": "\"The'Long'Value\""
+    }
