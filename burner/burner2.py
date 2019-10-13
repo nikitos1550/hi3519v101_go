@@ -73,6 +73,34 @@ def upload_files_via_tftp(uboot, listen_ip, listen_port, files_and_addrs):
 
 
 # =====================================================================================================================
+class MemProbeAction:
+    @classmethod
+    def register(cls, aps):
+        parser = aps.add_parser("mprobe", help="Probe memroy")
+        parser.set_defaults(action=cls.run)
+    
+    @staticmethod
+    def run(uboot, args):
+        BASE_ADDR = 0x80000000
+        STEP = 1024 * 1024
+
+        uboot.command("mw {:#x} babacaca".format(BASE_ADDR))
+
+        offset = STEP * 400
+        while True:
+            addr = BASE_ADDR + offset
+            uboot.command("mw {:#x} deadbeef".format(addr))
+
+            res1 = uboot.command("md {:#x}".format(addr))
+            res2 = uboot.command("md {:#x}".format(BASE_ADDR))
+            print("Mem at {} is: {}".format(utils.to_hsize(offset), res1[0]))
+            print("Mem at 0 is:  {}\n----------".format(" ".join(res2[0:2])))
+
+            uboot.command("mw {:#x} babacaca".format(addr))
+            offset += STEP * 8
+
+
+# =====================================================================================================================
 class MacAction:
     @classmethod
     def register(cls, aps):
@@ -91,7 +119,7 @@ class MacAction:
         env = uboot.command("printenv")
         print("U-Boot environment:\n" + "\n".join(" - " + l for l in env if l))
 
-        print("Wanna change {} MAC on {} you bastard?".format(args.port, mac))
+        print("Sorry, don't work for now")
 
 
 # =====================================================================================================================
@@ -139,6 +167,19 @@ class LoadAction:
 
 
 # =====================================================================================================================
+class PrintEnvAction:
+    @classmethod
+    def register(cls, aps):
+        parser = aps.add_parser("printenv", help="Print U-Boot's environment variables")
+        parser.set_defaults(action=cls.run)
+    
+    @staticmethod
+    def run(uboot: UBootConsole, args):
+        env = uboot.command("printenv")
+        print("U-Boot environment:\n" + "\n".join(" - " + l for l in env if l))
+
+
+# =====================================================================================================================
 def main():
     import argparse
 
@@ -154,8 +195,10 @@ def main():
 
     # each action may add its' own arguments
     action_parsers = parser.add_subparsers(title="Action")
+    PrintEnvAction.register(action_parsers)
     MacAction.register(action_parsers)
     LoadAction.register(action_parsers)
+    MemProbeAction.register(action_parsers)
 
     args = parser.parse_args()
 
