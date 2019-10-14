@@ -6,8 +6,10 @@ import argparse
 import os
 import tftpy
 import thread
+import random
 
-import utils
+import netifaces
+#from netifaces import interfaces, ifaddresses, AF_INET
 
 ###############################################################################
 
@@ -31,7 +33,9 @@ def datawrite(send):
         time.sleep(.1)
 
 def checkcmd(str):
-    return 1 if (str in promt) else 0
+	#print str
+	if str in promt: return 1
+        return 0
 
 def waitcmd():
         while True:
@@ -40,43 +44,42 @@ def waitcmd():
                 print "DATA: " + answer	
 
 def datacmd(cmd):
-    print "-->" + cmd
-    cmd = cmd.replace(";", "\;") + "\n"
-    if duplex == "half":
-        datawrite(cmd)
-    else:
-        data.write(cmd.encode())
+	print "-->" + cmd
+	cmd = cmd.replace(";", "\;") + "\n"
+	if duplex == "half":
+		datawrite(cmd)
+	else:
+		data.write(cmd.encode())
 
 def setvar(key, value):
-    cmd = "setenv " + key + " " + value
-    datacmd(cmd)
-    waitcmd()
+	cmd = "setenv " + key + " " + value
+	datacmd(cmd)
+	waitcmd()
 
 def setvararray(kvs):
-    cmd = ""
-    for key in kvs:
-        cmd = cmd + "setenv " + key + " " + kvs[key]+"; "
+	cmd = ""
+	for key in kvs:
+        	cmd = cmd + "setenv " + key + " " + kvs[key]+"; "
         datacmd(cmd)
         waitcmd()
 
 
 def printenv():
-    env = {}
-    datacmd("printenv")
-    while True:
-        answer = data.readline().strip()
-        if checkcmd(answer) == 1:
-            break
-        print "DATA: " + answer
-        parsed = answer.split("=")
-        if len(parsed) == 2:
-            env[parsed[0]] = parsed[1]
-        elif len(parsed) > 2:
-            tmp = ""
-            for i in range(1, len(parsed)):
-                tmp = tmp + "=" + parsed[i]
-            env[parsed[0]] = tmp[1:]
-    print env
+	env = {}
+	datacmd("printenv")
+	while True:
+        	answer = data.readline().strip()
+		if checkcmd(answer) == 1: break
+        	print "DATA: " + answer
+		parsed = answer.split("=")
+		if len(parsed) == 2:
+			env[parsed[0]] = parsed[1]
+		elif len(parsed) > 2:
+			tmp = ""
+			for i in range(1, len(parsed)):
+				tmp = tmp + "=" + parsed[i]
+			env[parsed[0]] = tmp[1:]
+	print env
 
 def cleanenv():
         env = {}
@@ -96,63 +99,65 @@ def cleanenv():
         #print env
         keep_params = ["mdio_intf", "baudrate", "ethaddr", "netmask", "ipaddr", "serverip", "bootcmd", "bootargs", "stdin", "stdout", "stderr"]
         for env_one in env:
-            if env_one not in keep_params:
-                datacmd("setenv " + str(env_one))
-                answer = data.readline().strip()
-                print "DATA: " + answer
-                answer = data.readline().strip()
-                print "DATA: " + answer
+                #print env_one + "->" + env[env_one]
+                if env_one not in keep_params:
+                        #print "setenv " + str(env_one)
+                        datacmd("setenv " + str(env_one))
+			answer = data.readline().strip()
+			print "DATA: " + answer
+			answer = data.readline().strip()
+                        print "DATA: " + answer
 
 def tftpupload(file, size, pointer):
-    if pointer == "kernel":
-        datacmd("tftp 0x82000000 " + file)
-    if pointer == "rootfs":
-        datacmd("tftp 0x82400000 " + file)
-    waitcmd()
-    return 1
+	if pointer == "kernel":
+		datacmd("tftp 0x82000000 " + file)
+	if pointer == "rootfs":
+		datacmd("tftp 0x82400000 " + file)
+	waitcmd()
+	return 1
 
 def tftpuploadspi(file, size, offset):
-    print "-->burning " + file + " file"
-    blocks = size/(64*1024)
-    print "-->full 64K blocks " + str(blocks)
-    if size - (blocks*64*1024) > 0:
-        print "-->align difference " + str(size - (blocks*64*1024)) + " bytes"
-        size_e = (blocks+1)*64*1024
-        print "-->erase size " + hex(size_e) + " " + str(size_e/(64*1024)) + " blocks"
-    else:
-        size_e = size
+	print "-->burning " + file + " file"
+	blocks = size/(64*1024)
+	print "-->full 64K blocks " + str(blocks)
+	if size - (blocks*64*1024) > 0:
+		print "-->align difference " + str(size - (blocks*64*1024)) + " bytes"
+		size_e = (blocks+1)*64*1024
+		print "-->erase size " + hex(size_e) + " " + str(size_e/(64*1024)) + " blocks"
+	else:
+		size_e = size
 
-    datacmd("tftp 0x82000000 " + file)
-    waitcmd()
-    datacmd("sf probe 0")
-    waitcmd()
-    datacmd("sf erase " + hex(offset) + " " + hex(size_e))
-    waitcmd()
-    datacmd("sf write 0x82000000 " + hex(offset) + " " + hex(size))
-    waitcmd()
-    return size_e
+	datacmd("tftp 0x82000000 " + file)
+	waitcmd()
+	datacmd("sf probe 0")
+	waitcmd()
+	datacmd("sf erase " + hex(offset) + " " + hex(size_e))
+	waitcmd()
+	datacmd("sf write 0x82000000 " + hex(offset) + " " + hex(size))
+	waitcmd()
+	return size_e
 
 def saveenv():
-    cmd = "saveenv"
-    datacmd(cmd)
-    waitcmd()
+	cmd = "saveenv"
+        datacmd(cmd)
+        waitcmd()
 
 def filepath(file):
-    answer = ["", ""]
-    file_path = file.split("/")
-    answer[0] = file_path[len(file_path) - 1]
-    if len(file_path) == 1:
-        file_path = "."
-    else:
-        if file_path[0] == ".":
-            tmp = ""
-        else:
-            tmp = "./"
-        for i in range(0, len(file_path)-1):
-            tmp = tmp + file_path[i] + "/"
-        file_path = tmp
-    answer[1] = file_path
-    return answer
+	answer = ["", ""]
+	file_path = file.split("/")
+	answer[0] = file_path[len(file_path) - 1]
+	if len(file_path) == 1:
+        	file_path = "."
+	else:
+        	if file_path[0] == ".":
+                	tmp = ""
+        	else:
+                	tmp = "./"
+        	for i in range(0, len(file_path)-1):
+                	tmp = tmp + file_path[i] + "/"
+        	file_path = tmp
+	answer[1] = file_path
+	return answer
 
 
 def validate_ip_address(ip_str):  # throw on error
@@ -164,7 +169,36 @@ def validate_ip_address(ip_str):  # throw on error
 
 
 def threadtftd():
-    server.listen(server_ip, 69)
+	server.listen(server_ip, 69)
+
+
+# The first line is defined for specified vendor
+def randommac():
+    #00:00:23:34:45:66
+    mac = [ 0x00, 0x00, 0x23,
+            random.randint(0x01, 0xfe),
+            random.randint(0x01, 0xfe),
+            random.randint(0x01, 0xfe) ]
+    return ':'.join(map(lambda x: "%02x" % x, mac))
+
+
+def get_iface_ip_and_mask(iface):
+    try:
+        addrs = netifaces.ifaddresses(iface).get(netifaces.AF_INET)
+        if (addrs is None) or (len(addrs) == 0):
+            raise ValueError("iface has no addresses")
+
+        print(addrs[0])
+        addr = addrs[0]["addr"]
+        netmask = addrs[0]["netmask"]
+        #gateway = addrs[0]["gateway"]
+        return addr, netmask #, gateway
+    except StandardError as err:
+        raise ValueError(
+            "Network interface '{}' address and mask wasn't defined: {}\nAvailable interfaces: {}".format(
+                iface, err.message, ", ".join(netifaces.interfaces())
+            )
+        )
 
 
 ###############################################################################
@@ -206,7 +240,8 @@ print args
 
 validate_ip_address(args.ip)
 ip = args.ip
-server_ip, mask = utils.get_iface_ip_and_mask(args.iface)
+server_ip, mask = get_iface_ip_and_mask(args.iface)
+gateway = "192.168.10.1"
 
 print("Iface " + args.iface)
 print("- Server IP: {}\n- Mask: {}\n- Target device IP: {}".format(server_ip, mask, ip))
@@ -214,9 +249,9 @@ print("- Server IP: {}\n- Mask: {}\n- Target device IP: {}".format(server_ip, ma
 ###
 
 if args.port != None:
-    DATA_PORT = args.port
+	DATA_PORT = args.port
 if args.speed != None:
-    SPEED = args.speed
+	SPEED = args.speed
 
 print "Serial port " + str(DATA_PORT) + " speed " + str(SPEED)
 
@@ -244,12 +279,12 @@ if args.action in ["load"]:
 if args.action not in ["load", "burn", "uboot", "mac"]: exit("Action should be load|burn|uboot")
 
 if args.action in ["mac"]:
-    mac = utils.random_mac()
+    mac = randommac()
     print str(mac) + " mac address will be setuped"
 
 if args.action in ["load", "burn"]:
     if args.skip:
-        uboot_size = args.skip*1024
+	    uboot_size = args.skip*1024
     else:
         #uboot_size = 512*1024 #default uboot skip size is 512kb
         exit("Please specify uboot skip size!")
@@ -282,8 +317,8 @@ if args.action in ["uboot"]:
 uimage_blocks = uimage_size/(64*1024)
 print "uImage full 64K blocks " + str(uimage_blocks)
 if uimage_size - (uimage_blocks*64*1024) > 0:
-    print "uImage align difference " + str( ( (uimage_blocks+1)*64*1024 ) - uimage_size) + " bytes"
-    uimage_size_e = ((uimage_blocks+1)*64*1024)
+	print "uImage align difference " + str( ( (uimage_blocks+1)*64*1024 ) - uimage_size) + " bytes"
+        uimage_size_e = ((uimage_blocks+1)*64*1024)
 os.system("rm ./images/difference; rm ./images/tmp.tftp")
 os.system("dd if=/dev/zero of=./images/difference conv=sync bs=1 count="+str(( (uimage_blocks+1)*64*1024 ) - uimage_size ))
 os.system("cat "+args.uimage+" ./images/difference "+args.rootfs+" > ./images/tmp.tftp")
@@ -325,7 +360,6 @@ if args.mc21 != None:
 else:
 
     if args.servercamera != None:
-<<<<<<< HEAD
 	power = serial.Serial(POWER_PORT,      SPEED, timeout = 0.1)
 	time.sleep(3)
 	print "Server camera "+str(args.servercamera)+" setted, auto power reset"
@@ -333,14 +367,8 @@ else:
         print "POWER: reset "+str(chr(camera_id))
     	power.write("reset "+str(chr(camera_id))+"\n")
 	#power.close()
-=======
-        power = serial.Serial(POWER_PORT,      SPEED, timeout = 0.1)
-        time.sleep(3)
-        print "Server camera "+str(args.servercamera)+" setted, auto power reset"
-        power.write("reset "+str(args.servercamera)+"\n")
->>>>>>> Replase tabs by spaces
     else:
-        print "Please plug power to module"
+    	print "Please plug power to module"
 
     while True:
         answer = data.readline().strip()
@@ -355,7 +383,7 @@ else:
         datawrite("\x03") #data.write("\x03")
     
     if args.servercamera != None:
-        power.close()
+	power.close()
 
     #if answer.find("Err:   serial") != -1:#if answer.find("U-Boot 2010.06 (May 11 2018 - 15:06:27)") != -1:
     #    print "-->Pressing Ctrl+C"
@@ -408,10 +436,10 @@ if args.action in ["load", "burn"]:
     thread.start_new_thread( threadtftd, () )
     print "-->tftpd started"
     if args.action == "burn":
-        size_wroute = tftpuploadspi(uimage_filepath[0], uimage_size, uboot_size)
+	    size_wroute = tftpuploadspi(uimage_filepath[0], uimage_size, uboot_size)
     if args.action == "load":
-        #tftpupload(uimage_filepath[0], uimage_size, "kernel")
-        tftpupload("tmp.tftp", uimage_rootfs_size, "kernel")
+	    #tftpupload(uimage_filepath[0], uimage_size, "kernel")
+	    tftpupload("tmp.tftp", uimage_rootfs_size, "kernel")
     server.stop(now=True)
     #time.sleep(10)
 
@@ -461,10 +489,10 @@ if args.action in ["load", "burn"]:
     #printenv()
 
     if args.action == "burn":
-        saveenv()
-        datacmd("reset")
+	    saveenv()
+	    datacmd("reset")
     if args.action == "load":
-        datacmd("bootm 0x82000000")
+	    datacmd("bootm 0x82000000")
 
     #while True:
     #    answer = data.readline().strip()
