@@ -69,7 +69,7 @@ def read(dev, args):
             line = line.decode("utf-8")
         except:
             pass
-        sys.stdout.write(line)
+        sys.stdout.write(str(line))
         sys.stdout.flush()
 
 

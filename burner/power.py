@@ -16,7 +16,7 @@ parser.add_argument("num", type=int, help="Target device's number")
 
 args = parser.parse_args()
 if args.mode not in ("on", "off", "reset"):
-    print("Allowed modes: 'on', 'off', or 'reset'")
+    print("Allowed modes: 'on', 'off' or 'reset'")
     exit(1)
 
 command = args.mode.encode("ascii") + b" " + bytes([0x30 + args.num]) + b"\n"
