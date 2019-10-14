@@ -8,3 +8,6 @@
 /buildroot-2019.08
 /Makefile.user.params
 
+**/*.pyc
+**/*.code-workspace
+**/.vscode
