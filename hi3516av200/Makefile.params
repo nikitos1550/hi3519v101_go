@@ -1,10 +1,10 @@
-ifndef
+ifndef TOOLCHAIN_DIR
     THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
     TOOLCHAIN_DIR := $(THIS_DIR)/toolchain/host
 endif
 
 TOOLCHAIN_NAME := arm-buildroot-linux-uclibcgnueabi
-TOOLCHAIN      := $(TOOLCHAIN_DIR)/$(TOOLCHAIN_NAME)-
+TOOLCHAIN      := $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_NAME)-
 
 CC      := $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_NAME)-gcc
 AR      := $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_NAME)-ar

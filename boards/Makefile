@@ -12,19 +12,20 @@ FAMILY_DIR     := $(abspath ../$(FAMILY))
 OUTDIR         ?= $(abspath ../build)
 BOARD_OUTDIR   := $(OUTDIR)/boards/$(BOARD)
 FAMILY_OUTDIR  := $(OUTDIR)/families/$(FAMILY)
-TOOLCHAIN_DIR  := $(FAMILY_OUTDIR)/toolchain
-ROOTFS_DIR     := $(OUTDIR)/rootfs
 
-# buildroot configs
-FAMILY_ROOTFS_BR_CONFIG      := $(FAMILY_OUTDIR)/.br-rootfs.config
-FAMILY_TOOLCHAIN_BR_CONFIG   := $(FAMILY_DIR)/toolchain.buildroot  
+# artifacts
+TOOLCHAIN_DIR  := $(BOARD_OUTDIR)/toolchain
+ROOTFS_DIR     := $(BOARD_OUTDIR)/rootfs
+ROOTFS_IMAGE   := $(ROOTFS_DIR).squashfs
+KERNEL_IMAGE   := $(BOARD_OUTDIR)/uImage
 
 
-.PHONY: help info toolchain rootfs
+.PHONY: help info toolchain rootfs kernel rootfs.squashfs
 
 
 help:
 	@echo "Help: \n" \
+		" - make help        - print this help \n" \
 		" - make info        - just print info about target board \n" \
 		" - make toolchain   - build toolchain \n" \
 		" - make rootfs      - build RootFS directory \n" \
@@ -38,40 +39,45 @@ info:
 		"  FAMILY  = $(FAMILY)\n"\
 		"  CHIP    = $(CHIP)\n"\
 		"-- Destinations:\n"\
-
-		"  Toolchain: $(BOARD_OUTDIR)/toolchain\n"\
-		"  RootFS:    $(BOARD_OUTDIR)/rootfs\n"
-
-
-# ====================================================================================================================
-
-
-toolchain: $(BOARD_OUTDIR)/toolchain
-	@echo "-- Toolchain for $(BOARD) is ready"
-
-
-rootfs: $(BOARD_OUTDIR)/rootfs
-	@echo "-- RootFS for $(BOARD) is ready"
-
-
-kernel: $(BOARD_OUTDIR)/uImage
-	@echo "-- Linux Kernel for $(BOARD) is ready"
+		"  Toolchain:        $(TOOLCHAIN_DIR)\n"\
+		"  RootFS:           $(ROOTFS_OUTDIR)\n"\
+		"  RootFS image:     $(ROOTFS_IMAGE)\n"\
+		"  Kernel's uImage:  $(KERNEL_IMAGE)\n"
 
 
 # ====================================================================================================================
-$(BOARD_OUTDIR)/toolchain: $(FAMILY_OUTDIR)/toolchain
+toolchain: $(TOOLCHAIN_DIR)
+	@echo "-- Toolchain for $(BOARD) is ready: $<"
+
+rootfs: $(ROOTFS_DIR)
+	@echo "-- RootFS for $(BOARD) is ready: $<"
+
+rootfs.squashfs: $(ROOTFS_IMAGE)
+	@echo "-- RootFS image for $(BOARD) is ready: $<"
+
+kernel: $(KERNEL_IMAGE)
+	@echo "-- Linux Kernel for $(BOARD) is ready: $<"
+
+
+# ====================================================================================================================
+# BOARD
+# --------------------------------------------------------------------------------------------------------------------
+
+$(TOOLCHAIN_DIR): $(FAMILY_OUTDIR)/toolchain
 	mkdir -p $(BOARD_OUTDIR)
-	ln -f --symbolic $(FAMILY_OUTDIR)/toolchain $@
+	ln -f --symbolic $< $@
 
-
-$(BOARD_OUTDIR)/rootfs: $(FAMILY_OUTDIR)/rootfs $(BOARD_DIR)/putonrootfs $(BOARD_DIR)/config
+$(ROOTFS_DIR): $(FAMILY_OUTDIR)/rootfs $(BOARD_DIR)/putonrootfs $(BOARD_DIR)/config
 	if [ -d $@ ]; then rm -rf $@; fi
 	mkdir -p $@
 	cp -r $(FAMILY_OUTDIR)/rootfs/* $@/
 	if [ -d $(BOARD_DIR)/putonrootfs ]; then cp -r $(BOARD_DIR)/putonrootfs/* $@/; fi
 	cat $(BOARD_DIR)/config | tr -d "[:blank:]" > $@/etc/board.config
 
-$(BOARD_OUTDIR)/uImage: $(FAMILY_DIR)/kernel/linux $(BOARD_OUTDIR)/toolchain
+$(ROOTFS_IMAGE): $(ROOTFS_DIR)
+	mksquashfs $< $@ -all-root
+
+$(KERNEL_IMAGE): $(FAMILY_DIR)/kernel/linux $(TOOLCHAIN_DIR)
 	make -C $(FAMILY_DIR)/kernel clean
 	if [ -e $(BOARD_DIR)/kernel/patch ]; then cp -r $(BOARD_DIR)/kernel/patch/* $(FAMILY_DIR)/kernel/linux; fi
 	if [ -e $(BOARD_DIR)/kernel/kernel.config ]; then \
@@ -79,10 +85,19 @@ $(BOARD_OUTDIR)/uImage: $(FAMILY_DIR)/kernel/linux $(BOARD_OUTDIR)/toolchain
 	elif [ -e $(FAMILY_DIR)/kernel/$(CHIP).generic.config ]; then \
 		cp $(FAMILY_DIR)/kernel/$(CHIP).generic.config $(FAMILY_DIR)/kernel/linux/.config; \
 	fi
-	make -C $(FAMILY_DIR)/kernel TOOLCHAIN_DIR=$(BOARD_OUTDIR)/toolchain build 
+	make -C $(FAMILY_DIR)/kernel TOOLCHAIN_DIR=$(TOOLCHAIN_DIR) build 
 	cp -f $(FAMILY_DIR)/kernel/uImage $@
 
+
 # ====================================================================================================================
+# FAMILY
+# --------------------------------------------------------------------------------------------------------------------
+
+# buildroot configs
+FAMILY_ROOTFS_BR_CONFIG      := $(FAMILY_OUTDIR)/.br-rootfs.config
+FAMILY_TOOLCHAIN_BR_CONFIG   := $(FAMILY_DIR)/toolchain.buildroot  
+
+
 $(FAMILY_OUTDIR)/toolchain: $(BUILDROOT_DIR) $(FAMILY_TOOLCHAIN_BR_CONFIG)
 	@echo "-- Build toolchain for $(FAMILY) family"
 	mkdir -p $(FAMILY_OUTDIR)
@@ -99,11 +114,12 @@ $(FAMILY_OUTDIR)/rootfs: $(BUILDROOT_DIR) $(FAMILY_ROOTFS_BR_CONFIG) $(FAMILY_OU
 	ln -f --symbolic $(FAMILY_OUTDIR)/.br-rootfs/target $@
 
 
+# Prepare family's kernel sources
 $(FAMILY_DIR)/kernel/linux:
 	make -C $(FAMILY_DIR)/kernel linux
 
 
-# ====================================================================================================================
 # hack for compatibility
 $(FAMILY_ROOTFS_BR_CONFIG): $(FAMILY_DIR)/rootfs.buildroot
+	mkdir -p $(FAMILY_OUTDIR)
 	sed 's|BR2_TOOLCHAIN_EXTERNAL_PATH=.*|BR2_TOOLCHAIN_EXTERNAL_PATH="$(FAMILY_OUTDIR)/toolchain"|' $< > $@
