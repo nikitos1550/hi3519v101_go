@@ -7,6 +7,10 @@ endif
 BUILDROOT_DIR  ?= $(abspath ../buildroot-2019.08)
 BOARD_DIR      := $(abspath ./$(BOARD))
 FAMILY_DIR     := $(abspath ../$(FAMILY))
+ifdef APP  # TODO
+    APP_DIR    := $(abspath ../api)
+endif
+
 
 # destination directories
 OUTDIR         ?= $(abspath ../build)
@@ -15,10 +19,13 @@ FAMILY_OUTDIR  := $(OUTDIR)/families/$(FAMILY)
 
 # artifacts
 TOOLCHAIN_DIR  := $(BOARD_OUTDIR)/toolchain
-ROOTFS_DIR     := $(BOARD_OUTDIR)/rootfs
-ROOTFS_IMAGE   := $(ROOTFS_DIR).squashfs
 KERNEL_IMAGE   := $(BOARD_OUTDIR)/uImage
-
+ifdef APP
+    ROOTFS_DIR := $(BOARD_OUTDIR)/rootfs+$(APP)
+else
+    ROOTFS_DIR := $(BOARD_OUTDIR)/rootfs
+endif
+ROOTFS_IMAGE   := $(ROOTFS_DIR).squashfs
 
 .PHONY: help info toolchain rootfs kernel rootfs.squashfs
 
@@ -38,9 +45,12 @@ info:
 		"  BOARD   = $(BOARD)\n"\
 		"  FAMILY  = $(FAMILY)\n"\
 		"  CHIP    = $(CHIP)\n"\
+		"-- Sources:\n"\
+		"  Buildroot:           '$(BUILDROOT_DIR)'\n"\
+		"  Application FS dir:  '$(APP_DIR)'\n"\
 		"-- Destinations:\n"\
 		"  Toolchain:        $(TOOLCHAIN_DIR)\n"\
-		"  RootFS:           $(ROOTFS_OUTDIR)\n"\
+		"  RootFS:           $(ROOTFS_DIR)\n"\
 		"  RootFS image:     $(ROOTFS_IMAGE)\n"\
 		"  Kernel's uImage:  $(KERNEL_IMAGE)\n"
 
@@ -67,12 +77,16 @@ $(TOOLCHAIN_DIR): $(FAMILY_OUTDIR)/toolchain
 	mkdir -p $(BOARD_OUTDIR)
 	ln -f --symbolic $< $@
 
-$(ROOTFS_DIR): $(FAMILY_OUTDIR)/rootfs $(BOARD_DIR)/putonrootfs $(BOARD_DIR)/config
+$(ROOTFS_DIR): $(FAMILY_OUTDIR)/rootfs $(BOARD_DIR)/putonrootfs $(BOARD_DIR)/config $(APP_DIR)
 	if [ -d $@ ]; then rm -rf $@; fi
 	mkdir -p $@
 	cp -r $(FAMILY_OUTDIR)/rootfs/* $@/
 	if [ -d $(BOARD_DIR)/putonrootfs ]; then cp -r $(BOARD_DIR)/putonrootfs/* $@/; fi
 	cat $(BOARD_DIR)/config | tr -d "[:blank:]" > $@/etc/board.config
+ifdef APP_DIR
+	if [ -d $(APP_DIR) ]; then cp -r $(APP_DIR)/* $@/; fi
+endif
+
 
 $(ROOTFS_IMAGE): $(ROOTFS_DIR)
 	mksquashfs $< $@ -all-root
