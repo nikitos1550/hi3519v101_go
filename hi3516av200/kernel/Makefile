@@ -1,4 +1,5 @@
-THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+LINUX_DIR ?= $(abspath ./linux)
+UIMAGE_DIR := $(abspath $(LINUX_DIR)/..)
 
 include ../Makefile.params
 
@@ -9,8 +10,8 @@ linux:
 	cp -r ./patchfiles/* ./linux
 
 build:
-	cd linux; make clean; make -j8 ARCH=arm CROSS_COMPILE=$(TOOLCHAIN) uImage
-	cp linux/arch/arm/boot/uImage ./uImage
+	cd $(LINUX_DIR); make clean; make -j8 ARCH=arm CROSS_COMPILE=$(TOOLCHAIN) uImage
+	cp -f $(LINUX_DIR)/arch/arm/boot/uImage ./uImage
 
 clean:
 	rm -f ./uImage

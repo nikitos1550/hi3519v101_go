@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 ifndef BOARD
     $(error 'BOARD' variable must be defined)
 endif
@@ -19,9 +21,10 @@ TOOLCHAIN_DIR       := $(BOARD_OUTDIR)/toolchain
 KERNEL_SOURCE_DIR   := $(BOARD_OUTDIR)/kernel/linux
 KERNEL_UIMAGE       := $(BOARD_OUTDIR)/kernel/uImage
 ROOTFS_DIR          := $(BOARD_OUTDIR)/rootfs
+MAKEFILE_PARAMS     := $(BOARD_OUTDIR)/Makefile.params
 
 
-.PHONY: help info toolchain rootfs kernel
+.PHONY: help info toolchain rootfs kernel all
 
 
 help:
@@ -49,6 +52,8 @@ info:
 
 
 # ====================================================================================================================
+all: toolchain rootfs kernel makefile.params
+
 toolchain: $(TOOLCHAIN_DIR)
 	@echo "-- Toolchain for $(BOARD) is ready: $<"
 
@@ -58,10 +63,21 @@ rootfs: $(ROOTFS_DIR)
 kernel: $(KERNEL_UIMAGE)
 	@echo "-- Linux Kernel for $(BOARD) is ready: $<"
 
+makefile.params: $(MAKEFILE_PARAMS)
+	@echo "-- Makefiles.params for $(BOARD) is ready: $<"
+
 
 # ====================================================================================================================
 # BOARD
 # --------------------------------------------------------------------------------------------------------------------
+
+$(MAKEFILE_PARAMS): $(BOARD_DIR)/config $(FAMILY_DIR)/Makefile.params
+	rm -rf $@
+	echo -e "# THIS FILE WAS GENERATED, PLEASE DO NOT MODIFY IT\n\
+	BOARD         := $(BOARD)\n\
+	TOOLCHAIN_DIR := $(TOOLCHAIN_DIR)" >> $@
+	echo -e "\n# Parameters of the board" >> $@; cat $(BOARD_DIR)/config >> $@;
+	echo -e "\n# Parameters of the family" >> $@; cat $(FAMILY_DIR)/Makefile.params >> $@
 
 $(TOOLCHAIN_DIR): $(FAMILY_OUTDIR)/toolchain
 	mkdir -p $(BOARD_OUTDIR)
@@ -96,9 +112,8 @@ $(KERNEL_SOURCE_DIR): $(FAMILY_DIR)/kernel/linux
 
 # ====================================================================================================================
 # FAMILY
-# --------------------------------------------------------------------------------------------------------------------
-# TOOLCHAIN
 
+# --- TOOLCHAIN
 FAMILY_TOOLCHAIN_BR_CONFIG := $(FAMILY_DIR)/toolchain.buildroot  
 
 $(FAMILY_OUTDIR)/toolchain: $(BUILDROOT_DIR) $(FAMILY_TOOLCHAIN_BR_CONFIG)
@@ -108,9 +123,7 @@ $(FAMILY_OUTDIR)/toolchain: $(BUILDROOT_DIR) $(FAMILY_TOOLCHAIN_BR_CONFIG)
 	make -C $(FAMILY_OUTDIR)/.br-toolchain toolchain
 	ln -f --symbolic $(FAMILY_OUTDIR)/.br-toolchain/host $@
 
-# --------------------------------------------------------------------------------------------------------------------
-# ROOTFS
-
+# --- ROOTFS
 FAMILY_ROOTFS_BR_CONFIG := $(FAMILY_OUTDIR)/rootfs.buidlroot.config
 
 # hack for compatibility
@@ -125,8 +138,6 @@ $(FAMILY_OUTDIR)/rootfs: $(BUILDROOT_DIR) $(FAMILY_ROOTFS_BR_CONFIG) $(FAMILY_OU
 	make -C $(FAMILY_OUTDIR)/.br-rootfs
 	ln -f --symbolic $(FAMILY_OUTDIR)/.br-rootfs/target $@
 
-# --------------------------------------------------------------------------------------------------------------------
-# KERNEL SOURCE TREE
-
+# --- KERNEL SOURCE TREE
 $(FAMILY_DIR)/kernel/linux:
 	make -C $(FAMILY_DIR)/kernel linux
