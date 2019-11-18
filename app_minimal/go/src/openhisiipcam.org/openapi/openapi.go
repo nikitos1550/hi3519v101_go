@@ -47,7 +47,7 @@ func Init() {
 
     //log.Println("Starting lompp")
     //go logMpp()
-    logMppInit()
+    //logMppInit()
 
 	router := NewRouter()
 
