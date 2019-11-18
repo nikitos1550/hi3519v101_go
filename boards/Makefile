@@ -24,7 +24,7 @@ ROOTFS_DIR          := $(BOARD_OUTDIR)/rootfs
 MAKEFILE_PARAMS     := $(BOARD_OUTDIR)/Makefile.params
 
 
-.PHONY: help info toolchain rootfs kernel all
+.PHONY: help info toolchain rootfs kernel clean all
 
 
 help:
@@ -35,6 +35,7 @@ help:
 		" - make rootfs         - build RootFS directory \n" \
 		" - make kernel         - build Linux Kernel's uImage \n" \
 		" - make makfile.params - build aggregated Makefile.params \n" \
+		" - make clean          - completely remove board's outdir \n"
 
 
 info:
@@ -68,6 +69,8 @@ kernel: $(KERNEL_UIMAGE)
 makefile.params: $(MAKEFILE_PARAMS)
 	@echo "-- Makefiles.params for $(BOARD) is ready: $<"
 
+clean:
+	rm -rf $(BOARD_OUTDIR)
 
 # ====================================================================================================================
 # BOARD
@@ -82,7 +85,7 @@ $(MAKEFILE_PARAMS): $(BOARD_DIR)/config $(FAMILY_DIR)/Makefile.params
 	echo -e "\n# Parameters of the family" >> $@; cat $(FAMILY_DIR)/Makefile.params >> $@
 
 $(TOOLCHAIN_DIR): $(FAMILY_OUTDIR)/toolchain
-	mkdir -p $(BOARD_OUTDIR)
+	rm -rf $@; mkdir -p $(BOARD_OUTDIR)
 	ln -f --symbolic $< $@
 
 $(ROOTFS_DIR): $(FAMILY_OUTDIR)/rootfs $(BOARD_DIR)/putonrootfs $(BOARD_DIR)/config $(APP_DIR)
