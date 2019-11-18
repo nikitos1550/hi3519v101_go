@@ -35,6 +35,7 @@ $(BOARD_OUTDIR)/rootfs+app: $(BOARD_OUTDIR)/rootfs $(APP)/distrib/$(FAMILY)
 
 $(APP)/distrib/$(FAMILY): $(BOARD_OUTDIR)/Makefile.params $(BOARD_OUTDIR)/toolchain
 	rm -rf $@
+	make -C $(APP) PARAMS_FILE=$< godeps
 	make -C $(APP) PARAMS_FILE=$< build
 
 # ====================================================================================================================

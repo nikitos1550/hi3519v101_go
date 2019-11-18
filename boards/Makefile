@@ -29,15 +29,16 @@ MAKEFILE_PARAMS     := $(BOARD_OUTDIR)/Makefile.params
 
 help:
 	@echo -en "Help: \n" \
-		" - make help        - print this help \n" \
-		" - make info        - print info of target board and artifacts \n" \
-		" - make toolchain   - build toolchain \n" \
-		" - make rootfs      - build RootFS directory \n" \
-		" - make kernel      - build Linux Kernel's uImage \n"
+		" - make help           - print this help \n" \
+		" - make info           - print info of target board and artifacts \n" \
+		" - make toolchain      - build toolchain \n" \
+		" - make rootfs         - build RootFS directory \n" \
+		" - make kernel         - build Linux Kernel's uImage \n" \
+		" - make makfile.params - build aggregated Makefile.params \n" \
 
 
 info:
-	@echo ""\
+	@echo -en ""\
 		"-- Board information:\n"\
 		"  BOARD   = $(BOARD)\n"\
 		"  FAMILY  = $(FAMILY)\n"\
@@ -48,7 +49,8 @@ info:
 		"  Toolchain:        $(TOOLCHAIN_DIR)\n"\
 		"  RootFS:           $(ROOTFS_DIR)\n"\
 		"  Kernel sources:   $(KERNEL_SOURCE_DIR)\n"\
-		"  Kernel uImage:    $(KERNEL_UIMAGE)\n"
+		"  Kernel uImage:    $(KERNEL_UIMAGE)\n"\
+		"  Makefile.prams:   $(MAKEFILE_PARAMS)\n"
 
 
 # ====================================================================================================================
@@ -72,7 +74,7 @@ makefile.params: $(MAKEFILE_PARAMS)
 # --------------------------------------------------------------------------------------------------------------------
 
 $(MAKEFILE_PARAMS): $(BOARD_DIR)/config $(FAMILY_DIR)/Makefile.params
-	rm -rf $@
+	rm -rf $@; mkdir -p $(BOARD_OUTDIR)
 	echo -e "# THIS FILE WAS GENERATED, PLEASE DO NOT MODIFY IT\n\
 	BOARD         := $(BOARD)\n\
 	TOOLCHAIN_DIR := $(TOOLCHAIN_DIR)" >> $@
