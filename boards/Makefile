@@ -28,7 +28,7 @@ MAKEFILE_PARAMS     := $(BOARD_OUTDIR)/Makefile.params
 
 
 help:
-	@echo "Help: \n" \
+	@echo -en "Help: \n" \
 		" - make help        - print this help \n" \
 		" - make info        - print info of target board and artifacts \n" \
 		" - make toolchain   - build toolchain \n" \
