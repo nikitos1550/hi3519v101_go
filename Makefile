@@ -6,6 +6,8 @@ BR = buildroot-2019.08
 
 CAMERA_IP = 192.168.10.1$(shell printf '%02d' $(CAMERA))
 
+BOARD_OUTDIR   := $(abspath ./output/boards/$(BOARD))
+FAMILY_OUTDIR  := ./output/$(FAMILY)
 ########################################################################
 
 -include ./boards/$(BOARD)/config
@@ -18,6 +20,37 @@ guard:
 	@echo "make deploy-app - build and deploy app on board according Makefile.params"
 	@echo "make deploy-empty - deploy generic rootfs on board according Makefile.params"
 
+rootfs.squashfs: $(BOARD_OUTDIR)/rootfs+app.squashfs
+	@echo "--- RootFS image is ready: $<"
+
+
+$(BOARD_OUTDIR)/rootfs+app.squashfs: $(BOARD_OUTDIR)/rootfs+app
+	mksquashfs $< $@ -all-root
+
+$(BOARD_OUTDIR)/rootfs+app: $(BOARD_OUTDIR)/rootfs $(APP)/distrib/$(FAMILY)
+	if [ -e $@ ]; then rm -f $@; fi
+	mkdir -p $@
+	cp -r $(BOARD_OUTDIR)/rootfs/* $@/
+	cp -r $(APP)/distrib/$(FAMILY)/* $@/
+
+$(APP)/distrib/$(FAMILY): $(BOARD_OUTDIR)/Makefile.params $(BOARD_OUTDIR)/toolchain
+	rm -rf $@
+	make -C $(APP) PARAMS_FILE=$< build
+
+# ====================================================================================================================
+# Board's artifacts
+$(BOARD_OUTDIR)/rootfs:
+	make -C ./boards BOARD_OUTDIR=$(BOARD_OUTDIR) BOARD=$(BOARD) rootfs
+
+$(BOARD_OUTDIR)/Makefile.params:
+	make -C ./boards BOARD_OUTDIR=$(BOARD_OUTDIR) BOARD=$(BOARD) makefile.params
+
+$(BOARD_OUTDIR)/toolchain:
+	make -C ./boards BOARD_OUTDIR=$(BOARD_OUTDIR) BOARD=$(BOARD) toolchain
+
+# ====================================================================================================================
+
+
 pack-app:
 	@[ "$(BOARD)" ] && echo "all good" || ( echo "var is not set"; exit 1 )
 	cd $(APP); make FAMILY=$(FAMILY) build
@@ -27,7 +60,7 @@ pack-app:
 
 	cp boards/$(BOARD)/kernel/uImage boards/$(BOARD)/build/$(APP)/uImage
 
-	rm -f boards/$(BOARD)/build/$(APP)/rootfs.squashfs
+	
 	rm -rf boards/$(BOARD)/build/$(APP)/rootfs.tmp; mkdir boards/$(BOARD)/build/$(APP)/rootfs.tmp
 	cp -r $(FAMILY)/rootfs/target/* boards/$(BOARD)/build/$(APP)/rootfs.tmp/
 	test ! -e boards/$(BOARD)/putonrootfs || cp -r boards/$(BOARD)/putonrootfs/* boards/$(BOARD)/build/$(APP)/rootfs.tmp/

@@ -1,6 +1,7 @@
-THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
-
-include $(THIS_DIR)/../../../../$(FAMILY)/Makefile.params
+ifndef PARAMS_FILE
+    $(error 'PARAMS_FILE' variable must be defined)
+endif
+include $(PARAMS_FILE)
 
 SOURCES = $(wildcard ./*.ko)
 OBJECTS = $(patsubst ./%.ko, ./%.o, $(SOURCES))

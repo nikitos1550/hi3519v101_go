@@ -2,8 +2,8 @@ THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 #THIS IS YOUR CUSTOM SETTINGS
 
-APP                     ?= app_tester
-#APP                     ?= app_minimal
+#APP                     ?= app_tester
+APP                     ?= app_minimal
 
 #1.  hi3519v101+imx274 jvt OK
 CAMERA  ?= 1

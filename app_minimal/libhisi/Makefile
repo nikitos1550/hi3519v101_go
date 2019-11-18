@@ -1,6 +1,7 @@
-THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
-
-include $(THIS_DIR)/../../$(FAMILY)/Makefile.params
+ifndef PARAMS_FILE
+    $(error 'PARAMS_FILE' variable must be defined)
+endif
+include $(PARAMS_FILE)
 
 #CHIPFAMILY = hi3516av200
 #CHIPFAMILY = hi3516cv100 #TODO
@@ -14,7 +15,7 @@ LIBS    = $(wildcard $(FAMILY)/lib/*.a)
 KO = $(shell FAMILY=$(FAMILY) ./ko.sh) #TODO make it pretty way & inline
 
 libhisi.a: clean $(OBJECTS) ko
-	$(AR) rcsT libhisi.a $(OBJECTS) $(KO) $(CMOS) $(LIBS)
+	$(AR) rcsT libhisi.a $(OBJECTS) $(KO) $(LIBS)
 
 ./%.o: ./%.c
 	$(CC) $(CFLAGS) -I$(FAMILY)/include -c $< -o $@
