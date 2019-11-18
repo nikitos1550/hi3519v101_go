@@ -51,7 +51,7 @@ info:
 		"  RootFS:           $(ROOTFS_DIR)\n"\
 		"  Kernel sources:   $(KERNEL_SOURCE_DIR)\n"\
 		"  Kernel uImage:    $(KERNEL_UIMAGE)\n"\
-		"  Makefile.prams:   $(MAKEFILE_PARAMS)\n"
+		"  Makefile.params:  $(MAKEFILE_PARAMS)\n"
 
 
 # ====================================================================================================================

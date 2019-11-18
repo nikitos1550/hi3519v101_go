@@ -49,6 +49,9 @@ $(BOARD_OUTDIR)/Makefile.params:
 $(BOARD_OUTDIR)/toolchain:
 	make -C ./boards BOARD_OUTDIR=$(BOARD_OUTDIR) BOARD=$(BOARD) toolchain
 
+$(BOARD_OUTDIR)/kernel/uImage:
+	make -C ./boards BOARD_OUTDIR=$(BOARD_OUTDIR) BOARD=$(BOARD) kernel
+
 # ====================================================================================================================
 
 
@@ -85,20 +88,15 @@ build-kernel:
 
 ########################################################################
 
-deploy-app: pack-app
-	cp boards/$(BOARD)/build/$(APP)/uImage burner/images/uImage
-	cp boards/$(BOARD)/build/$(APP)/rootfs.squashfs burner/images/rootfs.squashfs
-	cd burner; \
-        authbind --deep ./burner.py \
-            load \
-            --port /dev/ttyCAM$(CAMERA) \
-            --uimage ./images/uImage \
-            --rootfs ./images/rootfs.squashfs \
-            --ip $(CAMERA_IP) \
-            --skip $(UBOOT_SIZE) \
-            --initrd $(INITRD_TMP) \
-            --memory $(RAM_LINUX) \
-            --servercamera $(CAMERA)
+deploy-app: $(BOARD_OUTDIR)/rootfs+app.squashfs $(BOARD_OUTDIR)/kernel/uImage
+	cd burner; authbind --deep ./burner2.py \
+		--port /dev/ttyCAM$(CAMERA) \
+		--reset-power "./power.py reset $(CAMERA)" \
+		load \
+		--target-ip $(CAMERA_IP) --iface enp2s0 \
+		--uimage $(BOARD_OUTDIR)/kernel/uImage \
+		--rootfs $(BOARD_OUTDIR)/rootfs+app.squashfs \
+		--initrd-size 16M --memory-size 256M
 
 deploy-app-control: deploy-app
 	screen -L /dev/ttyCAM$(CAMERA) 115200
