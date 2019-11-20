@@ -1,0 +1,33 @@
+#!/bin/sh
+#
+# Start app_tester
+#
+
+start() {
+	echo "S99 APP_TESTER"
+    . /etc/board.config
+	/opt/app_tester -chip ${CHIP}-cmd -memtotal $RAM_SIZE -memlinux $RAM_LINUX &
+}
+
+stop() {
+	echo -n "Stopping debug"
+	echo "OK"
+}
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+#  restart|reload)
+#	stop
+#	start
+#	;;
+  *)
+	echo "Usage: $0 {start|stop}"
+	exit 1
+esac
+
+exit $?
