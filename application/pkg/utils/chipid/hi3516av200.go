@@ -8,6 +8,13 @@ import "C"
 
 import "application/pkg/utils"
 
+var (
+    chips = [...]string {
+        "hi3519v101",
+        "hi3516av200",
+    }
+)
+
 func Reg() uint32 {
     sysIdReg := utils.ReadDevMem32(0x12020EE0) & 0xFF
     sysIdReg = sysIdReg + ((utils.ReadDevMem32(0x12020EE4) & 0xFF) << 8)

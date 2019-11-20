@@ -6,6 +6,13 @@ package chipid
 // HI_S32 HI_MPI_SYS_GetChipId(HI_U32 *pu32ChipId);
 import "C"
 
+var (
+    chips = [...]string {
+        "hi3516cv300",
+        "hi3516ev100",
+    }
+)
+
 func Reg() uint32 {
     sysIdReg := readDevMem32(0x12020EE0) & 0xFF
     sysIdReg = sysIdReg + ((readDevMem32(0x12020EE4) & 0xFF) << 8)
