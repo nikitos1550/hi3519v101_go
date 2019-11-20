@@ -4,8 +4,7 @@ import (
     "fmt"
     "github.com/gorilla/mux"
     "net/http"
-    //"application/testp"
-    _"application/koloader"
+    _"application/pkg/koloader"
 )
 
 func main() {

@@ -13,7 +13,7 @@ import (
     "path/filepath"
     "regexp"
     "flag"
-    "application/koloader" //MAYBE replace by go/parser?
+    "application/pkg/koloader" //MAYBE replace by go/parser?
     "os"
     "strconv"
 )

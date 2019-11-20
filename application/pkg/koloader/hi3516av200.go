@@ -1,7 +1,7 @@
 //+build hi3516av200
 
 //go:generate rm -f hi3516av200_kobin.go
-//go:generate go run -tags "hi3516av200" generate.go --output hi3516av200_kobin.go --tag hi3516av200 --dir ../../hisdk/hi3516av200/ko --pkg koloader --source ./hi3516av200.go
+//go:generate go run -tags "hi3516av200" generate.go --output hi3516av200_kobin.go --tag hi3516av200 --dir ../../sdk/hi3516av200/ko --pkg koloader --source ./hi3516av200.go
 
 package koloader
 

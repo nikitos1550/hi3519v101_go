@@ -30,13 +30,13 @@ goenv:
 	$(GOENV) $(GO) env
 
 generate:
-	cd src; GOPATH=$(GOPATH) $(GO) generate -tags $(GOTAGS) application/koloader
+	GOPATH=$(GOPATH) $(GO) generate -tags $(GOTAGS) application/pkg/koloader
 
 build: generate
-	cd src; $(GOENV) $(GO) build -tags $(GOTAGS) -o $(APPOUT)
+	$(GOENV) $(GO) build -tags $(GOTAGS) -o $(APPOUT) application/cmd/daemon
 
 buid-with-vendors: generate
-	cd src; $(GOENV) $(GO) build -tags $(GOTAGS) -mod vendor -o $(APPOUT)
+	$(GOENV) $(GO) build -tags $(GOTAGS) -mod vendor -o $(APPOUT) application/cmd/daemon
 
 clean:
 	rm -f $(APPOUT)
