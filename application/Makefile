@@ -9,7 +9,7 @@ GOPATH := $(abspath ../output/go_workspace)
 
 GOOS    := linux
 GOARCH  := arm
-GOARM   := 7
+GOARM   := $(ARMV) #FROM Makefile.params
 GOENV   := GOPATH=$(GOPATH) GOOS=$(GOOS) GOARCH=$(GOARCH) GOARM=$(GOARM)
 
 FAMILY  := hi3516av200
