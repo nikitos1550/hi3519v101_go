@@ -2,9 +2,7 @@
 
 package chipid
 
-// #cgo LDFLAGS: ${SRCDIR}/hi3516cv200/libhi3516cv200.a
-// #include "hi3516cv200/include/hi_common.h"
-// #include "hi3516cv200/include/mpi_sys.h"
+// #include "hi_common.h"
 // HI_S32 HI_MPI_SYS_GetChipId(HI_U32 *pu32ChipId);
 import "C"
 

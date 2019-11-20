@@ -16,7 +16,7 @@ GOTAGS  := "$(FAMILY)"
 
 PATH    := $(PATH):$(GOPATH)/bin
 
-APPOUT  := $(abspath ../output/application/a.out)
+APPOUT  := $(abspath ../output/application)
 
 CGO_CFLAGS  := -I$(abspath sdk/$(FAMILY)/include)
 CGO_LDFLAGS := $(abspath ../output/$(FAMILY)/lib$(FAMILY).a)
@@ -44,11 +44,11 @@ libsdk:
 generate:
 	GOPATH=$(GOPATH) $(GO) generate -tags $(GOTAGS) application/pkg/koloader
 
-build: generate
-	$(GOENV) $(CGOPARAMS) $(GO) build -tags $(GOTAGS) -o $(APPOUT) application/cmd/daemon
+build: generate libsdk
+	$(GOENV) $(CGOPARAMS) $(GO) build -tags $(GOTAGS) -o $(APPOUT)/daemon application/cmd/daemon
 
-build-tester: generate
-	$(GOENV) $(CGOPARAMS) $(GO) build -tags $(GOTAGS) -o $(APPOUT) application/cmd/tester
+build-tester: generate libsdk
+	$(GOENV) $(CGOPARAMS) $(GO) build -tags $(GOTAGS) -o $(APPOUT)/tester application/cmd/tester
 
 #buid-with-vendors: generate
 #	$(GOENV) $(GO) build -tags $(GOTAGS) -mod vendor -o $(APPOUT) application/cmd/daemon

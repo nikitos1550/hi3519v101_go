@@ -1,10 +1,8 @@
 // +build hi3516cv500
 
-package main
+package chipid
 
-// #cgo LDFLAGS: ${SRCDIR}/hi3516cv500/libhi3516cv500.a -lm -ldl
-// #include "hi3516cv500/include/hi_common.h"
-// #include "hi3516cv500/include/mpi_sys.h"
+// #include "hi_common.h"
 // HI_S32 HI_MPI_SYS_GetChipId(HI_U32 *pu32ChipId);
 import "C"
 

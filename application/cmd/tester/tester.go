@@ -4,14 +4,11 @@ import (
     "fmt"
     "net/http"
     "encoding/json"
-    _"golang.org/x/sys/unix"
     "flag"
-    _"strings"
-    _"strconv"
-    _"application/pkg/koloader"
-    _"application/pkg/utils/temperature"
-    _"application/pkg/utils/chipid"
-    _"application/pkg/mpp"
+    "application/pkg/koloader"
+    "application/pkg/utils/temperature"
+    "application/pkg/utils/chipid"
+    "application/pkg/mpp"
 )
 
 var (
@@ -48,8 +45,8 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 
     schema.App              = "app_tester"
 
-    schema.Family           = chipFamily
-    schema.Chip             = chip
+    //schema.Family           = chipFamily
+    //schema.Chip             = chip
     schema.ChipDetectedReg  = chipid.Detect(chipid.Reg()) //detectChip(sysIdReg)
     schema.ChipDetectedMpp  = chipid.Detect(chipid.Mpp()) //detectChip(chipId())
 
@@ -68,9 +65,9 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-    fmt.Println("app_tester, ", chipFamily, ", ", mppVersion)
+    fmt.Println("app_tester, ") //, chipFamily) //, ", ", mppVersion)
 
-    flag.StringVar  (&chip,     "chip",        chips[0],    "Chip name")
+    //flag.StringVar  (&chip,     "chip",        chips[0],    "Chip name")
     flag.UintVar    (&memTotal, "memtotal",    512,         "Total RAM size, MB")
     flag.UintVar    (&memLinux, "memlinux",    256,         "RAM size passed to Linux kernel, rest will be used for MPP, MB")
 
@@ -91,7 +88,7 @@ func main() {
     */
 
     fmt.Println("CMD parsed params:")
-    fmt.Println("Chip ", chip)
+    //fmt.Println("Chip ", chip)
     fmt.Println("Total board RAM ", memTotal, "MB")
     fmt.Println("Linux RAM ", memLinux, "MB")
 

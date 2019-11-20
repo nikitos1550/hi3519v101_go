@@ -2,9 +2,7 @@
 
 package chipid
 
-// #cgo LDFLAGS: ${SRCDIR}/hi3519av100/libhi3519av100.a
-// #include "hi3519av100/include/hi_common.h"
-// #include "hi3519av100/include/mpi_sys.h"
+// #include "hi_common.h"
 import "C"
 
 //TODO

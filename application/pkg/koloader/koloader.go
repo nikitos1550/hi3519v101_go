@@ -6,6 +6,10 @@ import (
     _"golang.org/x/sys/unix"
 )
 
+func LoadDefault() {
+
+}
+
 /*
 func loadKo() {
     fmt.Println("Embedded files: ", AssetNames())
