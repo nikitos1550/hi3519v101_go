@@ -18,8 +18,10 @@ BOARD_OUTDIR   ?= $(abspath ../output/boards/$(BOARD))
 
 # artifacts
 TOOLCHAIN_DIR       := $(BOARD_OUTDIR)/toolchain
-KERNEL_SOURCE_DIR   := $(BOARD_OUTDIR)/kernel/linux
-KERNEL_UIMAGE       := $(BOARD_OUTDIR)/kernel/uImage
+KERNEL_DIR          := $(BOARD_OUTDIR)/kernel
+KERNEL_SOURCE_DIR   := $(KERNEL_DIR)/linux
+KERNEL_MAKEFILE     := $(KERNEL_DIR)/Makefile
+KERNEL_UIMAGE       := $(KERNEL_DIR)/uImage
 ROOTFS_DIR          := $(BOARD_OUTDIR)/rootfs
 MAKEFILE_PARAMS     := $(BOARD_OUTDIR)/Makefile.params
 
@@ -72,9 +74,9 @@ makefile.params: $(MAKEFILE_PARAMS)
 clean:
 	rm -rf $(BOARD_OUTDIR)
 
-# ====================================================================================================================
-# BOARD
-# --------------------------------------------------------------------------------------------------------------------
+# === BOARD =================================================================================================
+
+# --- TOOLCHAIN ---------------------------------------------------------------------------------------------
 
 $(MAKEFILE_PARAMS): $(BOARD_DIR)/config $(FAMILY_DIR)/Makefile.params
 	rm -rf $@; mkdir -p $(BOARD_OUTDIR)
@@ -88,25 +90,22 @@ $(TOOLCHAIN_DIR): $(FAMILY_OUTDIR)/toolchain
 	rm -rf $@; mkdir -p $(BOARD_OUTDIR)
 	ln -f --symbolic $< $@
 
-$(ROOTFS_DIR): $(FAMILY_OUTDIR)/rootfs $(BOARD_DIR)/putonrootfs $(BOARD_DIR)/config $(APP_DIR)
-	if [ -d $@ ]; then rm -rf $@; fi
-	mkdir -p $@
+# --- ROOTFS ------------------------------------------------------------------------------------------------
+
+$(ROOTFS_DIR): $(FAMILY_OUTDIR)/rootfs $(BOARD_DIR)/putonrootfs $(BOARD_DIR)/config
+	rm -rf $@; mkdir -p $@
 	cp -r $(FAMILY_OUTDIR)/rootfs/* $@/
 	if [ -d $(BOARD_DIR)/putonrootfs ]; then cp -r $(BOARD_DIR)/putonrootfs/* $@/; fi
 	cat $(BOARD_DIR)/config | tr -d "[:blank:]" > $@/etc/board.config
 
-# TODO: For now Kernel is built by family's makefile that should be fixed later
-$(KERNEL_UIMAGE): $(KERNEL_SOURCE_DIR) $(TOOLCHAIN_DIR)
-	make -C $(FAMILY_DIR)/kernel LINUX_DIR=$(KERNEL_SOURCE_DIR) TOOLCHAIN_DIR=$(TOOLCHAIN_DIR) build
-	cp -f $(FAMILY_DIR)/kernel/uImage $@
+# --- KERNEL ---------------------------------------------------------------------------------------------------------
 
-$(KERNEL_SOURCE_DIR): $(FAMILY_DIR)/kernel/linux
-	if [ -d $@ ]; then rm -rf $@; fi
-	mkdir -p $@
-# Copy family's pristine kernel source tree 
-	make -C $(FAMILY_DIR)/kernel clean
-	cp -r $(FAMILY_DIR)/kernel/linux/* $@/
-# Apply the board's patch
+$(KERNEL_UIMAGE): $(KERNEL_SOURCE_DIR) $(KERNEL_MAKEFILE) $(TOOLCHAIN_DIR) $(MAKEFILE_PARAMS)
+	make -C $(KERNEL_DIR) build
+
+$(KERNEL_SOURCE_DIR): $(FAMILY_OUTDIR)/kernel/linux
+	rm -rf $@; mkdir -p $@
+	cp -r $</* $@/
 	if [ -e $(BOARD_DIR)/kernel/patch ]; then cp -r $(BOARD_DIR)/kernel/patch/* $@; fi
 	if [ -e $(BOARD_DIR)/kernel/kernel.config ]; then \
 		cp $(BOARD_DIR)/kernel/kernel.config $@/.config; \
@@ -114,21 +113,36 @@ $(KERNEL_SOURCE_DIR): $(FAMILY_DIR)/kernel/linux
 		cp $(FAMILY_DIR)/kernel/$(CHIP).generic.config $@/.config; \
 	fi
 
+$(KERNEL_MAKEFILE):
+	rm -f $@; mkdir -p `dirname $@`
+	echo -e "# THIS FILE WAS GENERATED, PLEASE DO NOT MODIFY IT\n\
+	\n\
+	# This file should contain parameters of $(BOARD) board\n\
+	# Also it MUST define TOOLCHAIN variable to be used as CROSS_COMPILE\n\
+	include $(MAKEFILE_PARAMS)\n\
+	ifndef TOOLCHAIN\n\
+		\$$(error TOOLCHAIN variable MUST be defined)\n\
+	endif\n\
+	\n\
+	build:\n\
+		make -C ./linux clean\n\
+		make -C ./linux -j8 ARCH=arm CROSS_COMPILE=\$$(TOOLCHAIN) uImage\n\
+		cp -f ./linux/arch/arm/boot/uImage ./uImage\n\
+	" >> $@
 
-# ====================================================================================================================
-# FAMILY
+# === FAMILY ================================================================================================
 
-# --- TOOLCHAIN
+# --- TOOLCHAIN ---------------------------------------------------------------------------------------------
 FAMILY_TOOLCHAIN_BR_CONFIG := $(FAMILY_DIR)/toolchain.buildroot  
 
 $(FAMILY_OUTDIR)/toolchain: $(BUILDROOT_DIR) $(FAMILY_TOOLCHAIN_BR_CONFIG)
-	@echo "-- Build toolchain for $(FAMILY) family"
 	mkdir -p $(FAMILY_OUTDIR)
 	make -C $(BUILDROOT_DIR) O=$(FAMILY_OUTDIR)/.br-toolchain defconfig BR2_DEFCONFIG=$(FAMILY_TOOLCHAIN_BR_CONFIG)
 	make -C $(FAMILY_OUTDIR)/.br-toolchain toolchain
 	ln -f --symbolic $(FAMILY_OUTDIR)/.br-toolchain/host $@
 
-# --- ROOTFS
+
+# --- ROOTFS ---------------------------------------------------------------------------------------------------------
 FAMILY_ROOTFS_BR_CONFIG := $(FAMILY_OUTDIR)/rootfs.buidlroot.config
 
 # hack for compatibility
@@ -143,6 +157,10 @@ $(FAMILY_OUTDIR)/rootfs: $(BUILDROOT_DIR) $(FAMILY_ROOTFS_BR_CONFIG) $(FAMILY_OU
 	make -C $(FAMILY_OUTDIR)/.br-rootfs
 	ln -f --symbolic $(FAMILY_OUTDIR)/.br-rootfs/target $@
 
-# --- KERNEL SOURCE TREE
-$(FAMILY_DIR)/kernel/linux:
-	make -C $(FAMILY_DIR)/kernel linux
+
+# --- KERNEL SOURCE TREE ---------------------------------------------------------------------------------------------
+$(FAMILY_OUTDIR)/kernel/linux: $(FAMILY_DIR)/kernel/linux.tar.gz
+	rm -rf $@; mkdir -p $@
+	tar -C $@ --strip-components=1 -xf $(FAMILY_DIR)/kernel/linux.tar.gz
+	cd $@; for P in $(FAMILY_DIR)/kernel/patches/*.patch; do patch -p1 < $$P; done
+	cp -r $(FAMILY_DIR)/kernel/files/* $@/
