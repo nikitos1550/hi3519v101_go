@@ -2,9 +2,6 @@
 
 package chip
 
-// #include "hi_common.h"
-import "C"
-
 var (
     chips = [...]string {
         "hi3516ev300",
