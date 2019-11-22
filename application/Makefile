@@ -10,9 +10,9 @@ GOARCH  := arm
 GOARM   := $(ARMV) #FROM Makefile.params
 GOENV   := GOPATH=$(GOPATH) GOOS=$(GOOS) GOARCH=$(GOARCH) GOARM=$(GOARM)
 
-#GOTAGS  := "hi3516av200"
-GOTAGS  := "$(FAMILY)"
-#GOTAGS  := "$(FAMILY) netgo openapi debug lua onvif"
+#GOTAGS  := hi3516av200
+GOTAGS  := $(FAMILY)
+#GOTAGS  := $(FAMILY) netgo openapi debug lua onvif
 
 PATH    := $(PATH):$(GOPATH)/bin
 
@@ -52,13 +52,22 @@ libsdk:
 	$(AR) rcsT ../output/$(FAMILY)/lib$(FAMILY).a $(LIBS)
 
 generate:
-	GOPATH=$(GOPATH) $(GO) generate -tags $(GOTAGS) application/pkg/koloader
+	GOPATH=$(GOPATH) $(GO) generate -tags "$(GOTAGS)" application/pkg/koloader
+	#GOPATH=$(GOPATH) $(GO) generate -tags "hi3516av100" application/pkg/koloader
+	#GOPATH=$(GOPATH) $(GO) generate -tags "generate hi3516av200" application/pkg/koloader
+	#GOPATH=$(GOPATH) $(GO) generate -tags "generate hi3516cv100" application/pkg/koloader
+	#GOPATH=$(GOPATH) $(GO) generate -tags "generate hi3516cv200" application/pkg/koloader
+	#GOPATH=$(GOPATH) $(GO) generate -tags "generate hi3516cv300" application/pkg/koloader
+	#GOPATH=$(GOPATH) $(GO) generate -tags "generate hi3516cv500" application/pkg/koloader
+	##GOPATH=$(GOPATH) $(GO) generate -tags "generate hi3516ev200" application/pkg/koloader
+	##GOPATH=$(GOPATH) $(GO) generate -tags "generate hi3519av100" application/pkg/koloader
+	##GOPATH=$(GOPATH) $(GO) generate -tags "generate hi3559av100" application/pkg/koloader
 
 build: generate libsdk
-	$(GOENV) $(CGOPARAMS) $(GO) build -tags $(GOTAGS) -ldflags $(EMBEDDVARS) -o $(APPOUT)/daemon application/cmd/daemon
+	$(GOENV) $(CGOPARAMS) $(GO) build -tags "$(GOTAGS)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/daemon application/cmd/daemon
 
 build-tester: generate libsdk
-	$(GOENV) $(CGOPARAMS) $(GO) build -tags $(GOTAGS) -ldflags $(EMBEDDVARS) -o $(APPOUT)/tester application/cmd/tester
+	$(GOENV) $(CGOPARAMS) $(GO) build -tags "$(GOTAGS)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/tester application/cmd/tester
 
 #buid-with-vendors: generate
 #	$(GOENV) $(GO) build -tags $(GOTAGS) -mod vendor -o $(APPOUT) application/cmd/daemon

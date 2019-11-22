@@ -1,9 +1,9 @@
-// The following directive is necessary to make the package coherent:
+//The following directive is necessary to make the package coherent:
 
-// +build ignore
+//+build ignore
 
-// This program generates hi35*******_kodata.go. It can be invoked by running
-// make generate
+//This program generates hi35*******_kodata.go. It can be invoked by running
+//make generate
 
 package main
 
