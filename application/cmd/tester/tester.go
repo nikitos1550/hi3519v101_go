@@ -7,21 +7,14 @@ import (
     "flag"
     "application/pkg/koloader"
     "application/pkg/utils/temperature"
-    "application/pkg/utils/chipid"
+    "application/pkg/utils/chip"
     "application/pkg/mpp"
-)
-
-var (
-    memTotal    uint
-    memLinux    uint
-    chip        string
+    "application/pkg/buildinfo"
 )
 
 type Answer struct {
     App             string  `json:"appName"`
 
-    Family          string  `json:"family"`
-    Chip            string  `json:"chipSetuped"`
     ChipDetectedReg string  `json:"chipDetectedReg"`
     ChipDetectedMpp string  `json:"chipDetectedMpp"`
 
@@ -30,32 +23,37 @@ type Answer struct {
     SysIdReg        uint32  `json:"chipIdReg"`
     SysIdMpp        uint32  `json:"chipIdMpp"`
 
-    Temp            float32 `json:"temperature"`
-
-    //Vendor  string  `json:"vendorName"`
-    //Model   string  `json:"modelName"`
-    //Chip    string  `json:"chip"`
-    //Ram     uint    `json:"ram"`
-    //Rom     uint    `json:"rom"`
-    //Cmos    string  `json:"cmos"`
+    TempVal         float32 `json:"temperature"`
+    TempNA          string  `json:"temperature"`
 }
 
+var (
+    memTotal    uint
+    memLinux    uint
+
+    schema      Answer
+)
+
+
 func apiHandler(w http.ResponseWriter, r *http.Request) {
-    var schema Answer
+    //var schema Answer
 
-    schema.App              = "app_tester"
+    schema.App              = "tester"
 
-    //schema.Family           = chipFamily
-    //schema.Chip             = chip
-    schema.ChipDetectedReg  = chipid.Detect(chipid.Reg()) //detectChip(sysIdReg)
-    schema.ChipDetectedMpp  = chipid.Detect(chipid.Mpp()) //detectChip(chipId())
+    schema.ChipDetectedReg  = chip.Detect(chip.RegId())
+    schema.ChipDetectedMpp  = chip.Detect(chip.MppId())
 
     schema.Mpp              = mpp.Version()
 
-    schema.SysIdReg         = chipid.Reg() //sysIdReg
-    schema.SysIdMpp         = chipid.Mpp() //chipId()
+    schema.SysIdReg         = chip.RegId()
+    schema.SysIdMpp         = chip.MppId()
 
-    schema.Temp             = temperature.Get() //getTemperature()
+    temperature, err := temperature.Get()
+    if (err != nil) {
+        schema.TempVal = temperature
+    } else {
+        schema.TempNA = "not availible"
+    }
 
     w.Header().Set("Content-Type", "application/json; charset=UTF-8")
     w.WriteHeader(http.StatusOK)
@@ -65,42 +63,41 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-    fmt.Println("app_tester, ") //, chipFamily) //, ", ", mppVersion)
+    fmt.Println("tester")
 
-    //flag.StringVar  (&chip,     "chip",        chips[0],    "Chip name")
     flag.UintVar    (&memTotal, "memtotal",    512,         "Total RAM size, MB")
     flag.UintVar    (&memLinux, "memlinux",    256,         "RAM size passed to Linux kernel, rest will be used for MPP, MB")
 
     flag.Parse()
 
-    /*
-    isChipValid := false
-    for i:=0; i<len(chips); i++ {
-        if chips[i] == chip {
-            isChipValid = true
-            break
-        }
-    }
-    if !isChipValid {
-        fmt.Println("Unknown chip name")
-        return
-    }
-    */
-
     fmt.Println("CMD parsed params:")
-    //fmt.Println("Chip ", chip)
     fmt.Println("Total board RAM ", memTotal, "MB")
     fmt.Println("Linux RAM ", memLinux, "MB")
+    fmt.Println("")
 
-    fmt.Println("Loading modules...")
-    //loadKo()
-    koloader.LoadDefault()
+    fmt.Println("Build time info:")
+    fmt.Println("Go: ", GoVersion)
+    fmt.Println("Gcc: ", GccVersion)
+    fmt.Println("Date: ", BuildDateTime)
+    fmt.Println("Tags: ", BuildTags)
+    fmt.Println("Vendor: ", BoardVendor)
+    fmt.Println("Model: ", BoardModel)
+    fmt.Println("Chip: ", Chip)
+    fmt.Println("Cmos: ", CmosProfile)
+    fmt.Println("Total ram: ", TotalRam)
+    fmt.Println("Linux ram: ", LinuxRam)
+    fmt.Println("Mpp ram: ", MppRam)
+    fmt.Println("")
 
-    fmt.Println("Initing temperature...")
-    //initTemperature()
+    fmt.Print("Loading modules...")
+    koloader.LoadMinimal()
+    fmt.Println(" done")
+
+    fmt.Print("Initing temperature...")
     temperature.Init()
+    fmt.Println(" done")
 
-    fmt.Println("starting http server :80")
+    fmt.Println("Starting http server :80")
     http.HandleFunc("/", apiHandler)
     http.ListenAndServe(":80", nil)
 }
