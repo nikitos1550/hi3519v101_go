@@ -1,7 +1,7 @@
 //+build hi3516av200
 
 //go:generate rm -f hi3516av200_kobin.go
-//go:generate go run -tags "hi3516av200" generate.go --output hi3516av200_kobin.go --tag hi3516av200 --dir ../../sdk/hi3516av200/ko --pkg koloader --source ./hi3516av200.go
+//go:generate go run -tags "generate hi3516av200" ./generate.go --output hi3516av200_kobin.go --tag hi3516av200 --dir ../../sdk/hi3516av200/ko --pkg koloader --source ./hi3516av200.go
 
 package koloader
 
@@ -11,6 +11,7 @@ var (
         [2]string{"hi_osal.ko",             "mmz=anonymous,0,0x{memStartAddr},{memMppSize}M anony=1"},
         [2]string{"hi3519v101_base.ko",     ""},
         [2]string{"hi3519v101_sys.ko",      "vi_vpss_online=0 sensor=NULL,NULL mem_total={memTotalSize}"},
+        /*
         //[2]string{"hi3519v101_tde.ko",     ""},
         [2]string{"hi3519v101_region.ko",      ""},
         [2]string{"hi3519v101_fisheye.ko",     ""},
@@ -44,7 +45,6 @@ var (
         [2]string{"hi_mipi.ko",              ""},
         [2]string{"hi_user.ko",              ""},
         [2]string{"hi_ssp_sony.ko",          ""},
+        */
     }
-
-
 )

@@ -16,6 +16,9 @@ FAMILY_DIR     := $(abspath ../$(FAMILY))
 FAMILY_OUTDIR  ?= $(abspath ../output/$(FAMILY))
 BOARD_OUTDIR   ?= $(abspath ../output/boards/$(BOARD))
 
+# workspaces
+GOPATH         ?= $(abspath ../output/go_workspace)
+
 # artifacts
 TOOLCHAIN_DIR       := $(BOARD_OUTDIR)/toolchain
 KERNEL_DIR          := $(BOARD_OUTDIR)/kernel
@@ -82,7 +85,8 @@ $(MAKEFILE_PARAMS): $(BOARD_DIR)/config $(FAMILY_DIR)/Makefile.params
 	rm -rf $@; mkdir -p $(BOARD_OUTDIR)
 	echo -e "# THIS FILE WAS GENERATED, PLEASE DO NOT MODIFY IT\n\
 	BOARD         := $(BOARD)\n\
-	TOOLCHAIN_DIR := $(TOOLCHAIN_DIR)" >> $@
+	TOOLCHAIN_DIR := $(TOOLCHAIN_DIR)\n\
+	GOPATH        := $(GOPATH)" >> $@
 	echo -e "\n# Parameters of the board" >> $@; cat $(BOARD_DIR)/config >> $@;
 	echo -e "\n# Parameters of the family" >> $@; cat $(FAMILY_DIR)/Makefile.params >> $@
 
