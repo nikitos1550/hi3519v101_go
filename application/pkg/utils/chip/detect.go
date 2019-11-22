@@ -1,4 +1,4 @@
-package chipid
+package chip
 
 func Detect(reg uint32) string {
     switch (reg) {

@@ -1,6 +1,6 @@
 // +build hi3519av100
 
-package chipid
+package chip
 
 // #include "hi_common.h"
 import "C"

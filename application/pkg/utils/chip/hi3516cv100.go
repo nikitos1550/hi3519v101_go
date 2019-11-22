@@ -1,6 +1,6 @@
 // +build hi3516cv100
 
-package main
+package chip
 
 // #include "hi_common.h"
 // HI_S32 HI_MPI_SYS_GetChipId(HI_U32 *pu32ChipId);
@@ -12,7 +12,6 @@ var (
         "hi3518cv100",
         "hi3518ev100",
     }
-
 )
 
 func Reg() uint32 {

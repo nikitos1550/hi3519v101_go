@@ -1,6 +1,6 @@
-// +build hi3516av100
+// +build hi3516cv200
 
-package chipid
+package chip
 
 // #include "hi_common.h"
 // HI_S32 HI_MPI_SYS_GetChipId(HI_U32 *pu32ChipId);
@@ -8,8 +8,9 @@ import "C"
 
 var (
     chips = [...]string {
-        "hi3516av100",
-        "hi3516dv100",
+        "hi3516cv200",
+        "hi3518ev200",
+        "hi3518ev201",
     }
 )
 
