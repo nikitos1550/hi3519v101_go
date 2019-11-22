@@ -6,6 +6,7 @@ AR      := $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_NAME)-ar
 LD      := $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_NAME)-ld
 RANLIB  := $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_NAME)-ranlib
 GO      := $(TOOLCHAIN_DIR)/bin/go
+GOBIN   := $(GOPATH)/bin
 GOFMT   := $(TOOLCHAIN_DIR)/bin/gofmt
 M4      := $(TOOLCHAIN_DIR)/bin/m4
 NM      := $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_NAME)-nm
