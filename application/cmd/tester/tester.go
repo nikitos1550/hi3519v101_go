@@ -1,6 +1,7 @@
 package main
 
 import (
+    "log"
     "fmt"
     "net/http"
     "encoding/json"
@@ -24,7 +25,7 @@ type Answer struct {
     SysIdMpp        uint32  `json:"chipIdMpp"`
 
     TempVal         float32 `json:"temperature"`
-    TempNA          string  `json:"temperature"`
+    TempHW          string  `json:"temperatureHW"`
 }
 
 var (
@@ -48,11 +49,13 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
     schema.SysIdReg         = chip.RegId()
     schema.SysIdMpp         = chip.MppId()
 
-    temperature, err := temperature.Get()
+    var err error
+    schema.TempVal, err = temperature.Get()
+    //log.Println("temperature ", temperature, " error ", err)
     if (err != nil) {
-        schema.TempVal = temperature
+        schema.TempHW = "not availible"
     } else {
-        schema.TempNA = "not availible"
+        schema.TempHW = "availible"
     }
 
     w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -63,41 +66,41 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-    fmt.Println("tester")
+    log.Println("tester")
 
-    flag.UintVar    (&memTotal, "memtotal",    512,         "Total RAM size, MB")
-    flag.UintVar    (&memLinux, "memlinux",    256,         "RAM size passed to Linux kernel, rest will be used for MPP, MB")
+    flag.UintVar    (&memTotal, "memtotal",    0,         "Total RAM size, MB")
+    flag.UintVar    (&memLinux, "memlinux",    0,         "RAM size passed to Linux kernel, rest will be used for MPP, MB")
 
     flag.Parse()
 
-    fmt.Println("CMD parsed params:")
-    fmt.Println("Total board RAM ", memTotal, "MB")
-    fmt.Println("Linux RAM ", memLinux, "MB")
-    fmt.Println("")
+    log.Println("CMD parsed params:")
+    log.Println("Total board RAM ", memTotal, "MB")
+    log.Println("Linux RAM ", memLinux, "MB")
+    log.Println("")
 
-    fmt.Println("Build time info:")
-    fmt.Println("Go: ",         buildinfo.GoVersion)
-    fmt.Println("Gcc: ",        buildinfo.GccVersion)
-    fmt.Println("Date: ",       buildinfo.BuildDateTime)
-    fmt.Println("Tags: ",       buildinfo.BuildTags)
-    fmt.Println("Vendor: ",     buildinfo.BoardVendor)
-    fmt.Println("Model: ",      buildinfo.BoardModel)
-    fmt.Println("Chip: ",       buildinfo.Chip)
-    fmt.Println("Cmos: ",       buildinfo.CmosProfile)
-    fmt.Println("Total ram: ",  buildinfo.TotalRam)
-    fmt.Println("Linux ram: ",  buildinfo.LinuxRam)
-    fmt.Println("Mpp ram: ",    buildinfo.MppRam)
-    fmt.Println("")
+    log.Println("Build time info:")
+    log.Println("Go: ",         buildinfo.GoVersion)
+    log.Println("Gcc: ",        buildinfo.GccVersion)
+    log.Println("Date: ",       buildinfo.BuildDateTime)
+    log.Println("Tags: ",       buildinfo.BuildTags)
+    log.Println("Vendor: ",     buildinfo.BoardVendor)
+    log.Println("Model: ",      buildinfo.BoardModel)
+    log.Println("Chip: ",       buildinfo.Chip)
+    log.Println("Cmos: ",       buildinfo.CmosProfile)
+    log.Println("Total ram: ",  buildinfo.TotalRam)
+    log.Println("Linux ram: ",  buildinfo.LinuxRam)
+    log.Println("Mpp ram: ",    buildinfo.MppRam)
+    log.Println("")
 
-    fmt.Print("Loading modules...")
+    log.Println("Loading modules...")
     koloader.LoadMinimal()
-    fmt.Println(" done")
+    log.Println("Loading modules done")
 
-    fmt.Print("Initing temperature...")
+    log.Println("Initing temperature...")
     temperature.Init()
-    fmt.Println(" done")
+    log.Println("Initing temperature done")
 
-    fmt.Println("Starting http server :80")
+    log.Println("Starting http server :80")
     http.HandleFunc("/", apiHandler)
     http.ListenAndServe(":80", nil)
 }
