@@ -23,17 +23,17 @@ CGO_LDFLAGS := $(abspath ../output/$(FAMILY)/lib$(FAMILY).a)
 
 CGOPARAMS := CGO_CFLAGS='$(CFLAGS) $(CGO_CFLAGS)' CGO_CFLAGS_ALLOW='.*' CGO_ENABLED=1 CGO_LDFLAGS='$(CGO_LDFLAGS)'
 
-EMBEDDVARS := " -X 'application.pkg.buildinfo.BuildDateTime=$(shell date +%Y-%m-%d\ %H:%M)' \
-                -X 'application.pkg.buildinfo.GoVersion=$(shell $(GO) version)' \
-                -X 'application.pkg.buildinfo.GccVersion=$(shell $(CC) --version)' \
-                -X 'application.pkg.buildinfo.BuildTags=$(GOTAGS)' \
-                -X 'application.pkg.buildinfo.BoardVendor=$(VENDOR)' \
-                -X 'application.pkg.buildinfo.BoardModel=$(MODEL)' \
-                -X 'application.pkg.buildinfo.Chip=$(CHIP)' \
-                -X 'application.pkg.buildinfo.CmosProfile=$(CMOS)' \
-                -X 'application.pkg.buildinfo.TotalRam=$(RAM_SIZE)' \
-                -X 'application.pkg.buildinfo.LinuxRam=$(RAM_LINUX)' \
-                -X 'application.pkg.buildinfo.MppRam=$(RAM_MPP)'"
+EMBEDDVARS := " -X 'application/pkg/buildinfo.BuildDateTime=$(shell date +%Y-%m-%d\ %H:%M)' \
+                -X 'application/pkg/buildinfo.GoVersion=$(shell $(GO) version)' \
+                -X 'application/pkg/buildinfo.GccVersion=$(shell $(CC) --version)' \
+                -X 'application/pkg/buildinfo.BuildTags=$(GOTAGS)' \
+                -X 'application/pkg/buildinfo.BoardVendor=$(VENDOR)' \
+                -X 'application/pkg/buildinfo.BoardModel=$(MODEL)' \
+                -X 'application/pkg/buildinfo.Chip=$(CHIP)' \
+                -X 'application/pkg/buildinfo.CmosProfile=$(CMOS)' \
+                -X 'application/pkg/buildinfo.TotalRam=$(RAM_SIZE)' \
+                -X 'application/pkg/buildinfo.LinuxRam=$(RAM_LINUX)' \
+                -X 'application/pkg/buildinfo.MppRam=$(RAM_MPP)'"
 
 guard:
 	@echo "guard"
@@ -64,10 +64,16 @@ generate:
 	##GOPATH=$(GOPATH) $(GO) generate -tags "generate hi3559av100" application/pkg/koloader
 
 build: generate libsdk
-	$(GOENV) $(CGOPARAMS) $(GO) build -tags "$(GOTAGS)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/daemon application/cmd/daemon
+	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/daemon application/cmd/daemon
 
-build-tester: generate libsdk
-	$(GOENV) $(CGOPARAMS) $(GO) build -tags "$(GOTAGS)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/tester application/cmd/tester
+deploy-dir:
+	rm -rf ./distrib
+	mkdir ./distrib/
+	mkdir ./distrib/$(FAMILY)
+
+build-tester: generate libsdk deploy-dir
+	#$(GOENV) $(CGOPARAMS) $(GO) build -tags "$(GOTAGS)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/tester application/cmd/tester
+	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS)" -ldflags $(EMBEDDVARS) -o ./distrib/$(FAMILY)/application application/cmd/tester
 
 #buid-with-vendors: generate
 #	$(GOENV) $(GO) build -tags $(GOTAGS) -mod vendor -o $(APPOUT) application/cmd/daemon

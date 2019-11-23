@@ -16,7 +16,7 @@ var (
 
     CmosProfile     string
 
-    TotalRam        uint
-    LinuxRam        uint
-    MppRam          uint
+    TotalRam        string
+    LinuxRam        string
+    MppRam          string
 )
