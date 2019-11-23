@@ -26,7 +26,7 @@ func LoadAll() {
     tmpModules := make([][2]string, len(Modules))
     copy(tmpModules, Modules[:])
 
-    setupKoParams(tmpModules)
+    //setupKoParams(tmpModules) //TODO deal with slice array pointers
 
     loadKo(Modules[:])
 }
@@ -34,13 +34,15 @@ func LoadAll() {
 func loadKo(modules [][2]string) {
     //log.Println("Embedded files: ", AssetNames())
 
-    //setupKoParams(modules[:])
+    setupKoParams(modules[:]) //TODO move to prev stack level
 
     for i := len(modules)-1; i>=0; i-- {
         rmname := modules[i][0][0:len(modules[i][0])-3]
         err := unix.DeleteModule(rmname, 0)
         if err != nil {
-            log.Println("Rmmod ", modules[i][0], " error ", err)
+            log.Println(modules[i][0], " removing error ", err)
+        } else {
+            log.Println(modules[i][0], " removed")
         }
     }
 
@@ -50,11 +52,14 @@ func loadKo(modules [][2]string) {
             log.Println(modules[i][0], " not found!")
             continue
         }
-  
+
+        log.Println("Loading ", modules[i][0], " ", modules[i][1])
         err2 := unix.InitModule(data, modules[i][1])
         if err2 != nil {
-            log.Println(modules[i][0], " error (", err2, ") loading!")
+            log.Println(modules[i][0], " loading error ", err2)
             return
+        } else {
+            log.Println(modules[i][0], " loaded")
         }
     }
 }
@@ -65,10 +70,11 @@ func setupKoParams(modules [][2]string) {
     var memMppSize uint64 = uint64(memTotal - memLinux)
 
     for i:=0; i<len(modules); i++ {
-        Modules[i][1] = strings.Replace(Modules[i][1], "{memStartAddr}",    strconv.FormatUint(memStartAddr, 16),       -1)
-        Modules[i][1] = strings.Replace(Modules[i][1], "{memMppSize}",      strconv.FormatUint(memMppSize, 10),         -1)
-        Modules[i][1] = strings.Replace(Modules[i][1], "{memTotalSize}",    strconv.FormatUint(uint64(memTotal), 10),   -1)
-        Modules[i][1] = strings.Replace(Modules[i][1], "{chipName}",        chip,                                       -1)
-        log.Println(modules[i][1])
+        modules[i][1] = strings.Replace(modules[i][1], "{memStartAddr}",    strconv.FormatUint(memStartAddr, 16),       -1)
+        modules[i][1] = strings.Replace(modules[i][1], "{memMppSize}",      strconv.FormatUint(memMppSize, 10),         -1)
+        modules[i][1] = strings.Replace(modules[i][1], "{memTotalSize}",    strconv.FormatUint(uint64(memTotal), 10),   -1)
+        modules[i][1] = strings.Replace(modules[i][1], "{chipName}",        chip,                                       -1)
+
+        //log.Println(modules[i][0], " prepared options ", modules[i][1])
     }
 }
