@@ -25,16 +25,20 @@ func LoadMinimal() {
 func LoadAll() {
     tmpModules := make([][2]string, len(Modules))
     copy(tmpModules, Modules[:])
+
+    setupKoParams(tmpModules)
+
     loadKo(Modules[:])
 }
 
 func loadKo(modules [][2]string) {
     //log.Println("Embedded files: ", AssetNames())
 
-    setupKoParams(modules[:])
+    //setupKoParams(modules[:])
 
     for i := len(modules)-1; i>=0; i-- {
-        err := unix.DeleteModule(modules[i][0], 0)
+        rmname := modules[i][0][0:len(modules[i][0])-3]
+        err := unix.DeleteModule(rmname, 0)
         if err != nil {
             log.Println("Rmmod ", modules[i][0], " error ", err)
         }

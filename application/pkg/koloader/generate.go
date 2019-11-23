@@ -37,7 +37,7 @@ func main() {
 
     flag.Parse()
 
-    dir     = filepath.Clean(dir)
+    //dir     = filepath.Clean(dir)
     output  = filepath.Clean(output)
     source  = filepath.Clean(source)
 
