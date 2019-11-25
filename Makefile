@@ -36,9 +36,8 @@ $(BOARD_OUTDIR)/rootfs+app: $(BOARD_OUTDIR)/rootfs $(APP)/distrib/$(FAMILY)
 	cp -r $(BOARD_OUTDIR)/rootfs/* $@/
 	cp -r $(APP)/distrib/$(FAMILY)/* $@/
 
-$(APP)/distrib/$(FAMILY): $(BOARD_OUTDIR)/Makefile.params $(BOARD_OUTDIR)/toolchain
+$(APP)/distrib/$(FAMILY): $(BOARD_OUTDIR)/Makefile.params
 	rm -rf $@
-	#make -C $(APP) PARAMS_FILE=$< godeps
 	make -C $(APP) PARAMS_FILE=$< build-tester
 
 # ====================================================================================================================
@@ -47,9 +46,6 @@ $(BOARD_OUTDIR)/rootfs:
 	make -C ./boards BOARD_OUTDIR=$(BOARD_OUTDIR) BOARD=$(BOARD) rootfs
 
 $(BOARD_OUTDIR)/Makefile.params:
-	make -C ./boards BOARD_OUTDIR=$(BOARD_OUTDIR) BOARD=$(BOARD) makefile.params
-
-$(BOARD_OUTDIR)/toolchain:
 	make -C ./boards BOARD_OUTDIR=$(BOARD_OUTDIR) BOARD=$(BOARD) toolchain
 
 $(BOARD_OUTDIR)/kernel/uImage:
