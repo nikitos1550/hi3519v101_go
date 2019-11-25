@@ -54,7 +54,7 @@ $(BOARD_OUTDIR)/kernel/uImage:
 # ====================================================================================================================
 
 
-pack-app:
+deprecated-pack-app:
 	@[ "$(BOARD)" ] && echo "all good" || ( echo "var is not set"; exit 1 )
 	cd $(APP); make FAMILY=$(FAMILY) build
 
@@ -75,7 +75,7 @@ pack-app:
                 boards/$(BOARD)/build/$(APP)/rootfs.squashfs \
                 -all-root
 
-build-kernel:
+deprecated-build-kernel:
 	test -e ./boards/$(BOARD)/kernel || mkdir ./boards/$(BOARD)/kernel
 	test ! -e ./boards/$(BOARD)/kernel/uImage || ( echo "Kernel already built"; exit 1 )
 	cd ./$(FAMILY)/kernel; make clean
@@ -100,7 +100,7 @@ deploy-app: $(BOARD_OUTDIR)/rootfs+app.squashfs $(BOARD_OUTDIR)/kernel/uImage
 deploy-app-control: deploy-app
 	screen -L /dev/ttyCAM$(CAMERA) 115200
 
-deploy-empty:
+deprecated-deploy-empty:
 	cp boards/$(BOARD)/kernel/uImage burner/images/uImage
 	cp $(FAMILY)/rootfs/images/rootfs.squashfs burner/images/rootfs.squashfs
 	cd burner; \
@@ -137,27 +137,28 @@ rootfs: toolchain
 $(BR):
 	tar -xzf $(BR).tar.gz -C $(THIS_DIR)
 	cp -r ./$(BR)-patch/* ./$(BR)
-	@echo "RUN prepare-env.sh to build all toolchains and base rootfses!"
+	#@echo "RUN prepare-env.sh to build all toolchains and base rootfses!"
 
 enviroiment-setup: $(BR)
-	make FAMILY=hi3516cv100 toolchain
-	make FAMILY=hi3516cv100 rootfs
-	cd hi3516cv100/kernel; make linux
-	make FAMILY=hi3516cv200 toolchain
-	make FAMILY=hi3516cv200 rootfs
-	cd hi3516cv200/kernel; make linux
-	make FAMILY=hi3516cv300 toolchain
-	make FAMILY=hi3516cv300 rootfs
-	cd hi3516cv300/kernel; make linux
-	make FAMILY=hi3516cv500 toolchain
-	make FAMILY=hi3516cv500 rootfs
-	cd hi3516cv500/kernel; make linux
-	make FAMILY=hi3516av100 toolchain
-	make FAMILY=hi3516av100 rootfs
-	cd hi3516av100/kernel; make linux
-	make FAMILY=hi3516av200 toolchain
-	make FAMILY=hi3516av200 rootfs
-	cd hi3516av200/kernel; make linux
+    #deprecated
+	#make FAMILY=hi3516cv100 toolchain
+	#make FAMILY=hi3516cv100 rootfs
+	#cd hi3516cv100/kernel; make linux
+	#make FAMILY=hi3516cv200 toolchain
+	#make FAMILY=hi3516cv200 rootfs
+	#cd hi3516cv200/kernel; make linux
+	#make FAMILY=hi3516cv300 toolchain
+	#make FAMILY=hi3516cv300 rootfs
+	#cd hi3516cv300/kernel; make linux
+	#make FAMILY=hi3516cv500 toolchain
+	#make FAMILY=hi3516cv500 rootfs
+	#cd hi3516cv500/kernel; make linux
+	#make FAMILY=hi3516av100 toolchain
+	#make FAMILY=hi3516av100 rootfs
+	#cd hi3516av100/kernel; make linux
+	#make FAMILY=hi3516av200 toolchain
+	#make FAMILY=hi3516av200 rootfs
+	#cd hi3516av200/kernel; make linux
 
 ########################################################################
 
