@@ -28,6 +28,8 @@ $(BOARD_OUTDIR)/rootfs+app.squashfs: $(BOARD_OUTDIR)/rootfs+app
 	rm -f $@
 	mksquashfs $< $@ -all-root
 
+.PHONY: $(APP)/distrib/$(FAMILY)
+
 $(BOARD_OUTDIR)/rootfs+app: $(BOARD_OUTDIR)/rootfs $(APP)/distrib/$(FAMILY)
 	if [ -e $@ ]; then rm -rf $@; fi
 	mkdir -p $@

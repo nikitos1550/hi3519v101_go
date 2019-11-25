@@ -73,10 +73,14 @@ deploy-dir:
 	rm -rf ./distrib
 	mkdir ./distrib/
 	mkdir ./distrib/$(FAMILY)
+	mkdir ./distrib/$(FAMILY)/opt
+	mkdir ./distrib/$(FAMILY)/etc
+	mkdir ./distrib/$(FAMILY)/etc/init.d
+	cp ./init/S99tester ./distrib/$(FAMILY)/etc/init.d/
 
 build-tester: generate libsdk deploy-dir
 	#$(GOENV) $(CGOPARAMS) $(GO) build -tags "$(GOTAGS)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/tester application/cmd/tester
-	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS)" -ldflags $(EMBEDDVARS) -o ./distrib/$(FAMILY)/application application/cmd/tester
+	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS)" -ldflags $(EMBEDDVARS) -o ./distrib/$(FAMILY)/opt/application application/cmd/tester
 
 #buid-with-vendors: generate
 #	$(GOENV) $(GO) build -tags $(GOTAGS) -mod vendor -o $(APPOUT) application/cmd/daemon

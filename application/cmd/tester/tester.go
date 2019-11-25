@@ -6,6 +6,7 @@ import (
     "net/http"
     "encoding/json"
     "flag"
+    _"strconv"
     "application/pkg/koloader"
     "application/pkg/utils/temperature"
     "application/pkg/utils/chip"
@@ -14,18 +15,24 @@ import (
 )
 
 type Answer struct {
-    App             string  `json:"appName"`
+    App             string      `json:"appName"`
 
-    ChipDetectedReg string  `json:"chipDetectedReg"`
-    ChipDetectedMpp string  `json:"chipDetectedMpp"`
+    ChipDetectedReg string      `json:"chipDetectedReg"`
+    ChipDetectedMpp string      `json:"chipDetectedMpp"`
 
-    Mpp             string  `json:"mppVersion"`
+    Mpp             string      `json:"mppVersion"`
 
-    SysIdReg        uint32  `json:"chipIdReg"`
-    SysIdMpp        uint32  `json:"chipIdMpp"`
+    SysIdReg        uint32      `json:"chipIdReg"`
+    SysIdMpp        uint32      `json:"chipIdMpp"`
 
-    TempVal         float32 `json:"temperature"`
-    TempHW          string  `json:"temperatureHW"`
+    TempVal         float32     `json:"temperature"`
+    TempHW          string      `json:"temperatureHW"`
+
+    buildinfo       BuildInfo   `json:"buildInfo"`
+}
+
+type BuildInfo struct {
+    GoVersion   string  `json:"goVersion"`
 }
 
 var (
@@ -68,8 +75,8 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
     log.Println("tester")
 
-    flag.UintVar    (&memTotal, "memtotal",    0,         "Total RAM size, MB")
-    flag.UintVar    (&memLinux, "memlinux",    0,         "RAM size passed to Linux kernel, rest will be used for MPP, MB")
+    flag.UintVar    (&memTotal, "memtotal", 512, "Total RAM size, MB")
+    flag.UintVar    (&memLinux, "memlinux", 256, "RAM size passed to Linux kernel, rest will be used for MPP, MB")
 
     flag.Parse()
 
@@ -83,6 +90,9 @@ func main() {
     log.Println("Gcc: ",        buildinfo.GccVersion)
     log.Println("Date: ",       buildinfo.BuildDateTime)
     log.Println("Tags: ",       buildinfo.BuildTags)
+    log.Println("User: ",       buildinfo.BuildUser)
+    log.Println("Commit: ",     buildinfo.BuildCommit)
+    log.Println("Branch: ",     buildinfo.BuildBranch)
     log.Println("Vendor: ",     buildinfo.BoardVendor)
     log.Println("Model: ",      buildinfo.BoardModel)
     log.Println("Chip: ",       buildinfo.Chip)
