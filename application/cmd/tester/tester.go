@@ -28,12 +28,9 @@ type Answer struct {
     TempVal         float32     `json:"temperature"`
     TempHW          string      `json:"temperatureHW"`
 
-    buildinfo       BuildInfo   `json:"buildInfo"`
+    Info       buildinfo.BuildInfo   `json:"buildInfo"`
 }
 
-type BuildInfo struct {
-    GoVersion   string  `json:"goVersion"`
-}
 
 var (
     memTotal    uint
@@ -64,6 +61,8 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
     } else {
         schema.TempHW = "availible"
     }
+
+    buildinfo.CopyAll(&schema.Info)
 
     w.Header().Set("Content-Type", "application/json; charset=UTF-8")
     w.WriteHeader(http.StatusOK)
