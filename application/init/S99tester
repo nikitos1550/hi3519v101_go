@@ -6,6 +6,7 @@
 start() {
 	echo "S99 TESTER"
     #. /etc/board.config
+	dmesg -n 1
 	/opt/application -memtotal 512 -memlinux 256 &
 }
 
