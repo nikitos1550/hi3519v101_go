@@ -23,13 +23,21 @@ func LoadMinimal() {
 }
 
 func LoadAll() {
-    tmpModules := make([][2]string, len(Modules))
-    copy(tmpModules, Modules[:])
+    tmpModules := make([][2]string, len(ModulesList))
+    copy(tmpModules, ModulesList[:])
 
     //setupKoParams(tmpModules) //TODO deal with slice array pointers
 
-    loadKo(Modules[:])
+    loadKo(tmpModules[:])
 }
+
+//TODO create list by names (order by orig)
+/*
+func Load(names []string) {
+
+
+}
+*/
 
 func loadKo(modules [][2]string) {
     //log.Println("Embedded files: ", AssetNames())

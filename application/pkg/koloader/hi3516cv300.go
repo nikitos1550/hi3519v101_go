@@ -7,7 +7,7 @@ package koloader
 
 var (
 
-    Modules = [...][2]string {
+    ModulesList = [...][2]string {
         [2]string{"sys_config.ko", "vi_vpss_online=0"},
         [2]string{"hi_osal.ko", "mmz=anonymous,0,0x{memStartAddr},{memMppSize}M anony=1"},
         [2]string{"hi3516cv300_base.ko", ""},

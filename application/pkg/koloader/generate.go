@@ -59,21 +59,21 @@ func main() {
 
     cfg.Prefix, _   = regexp.Compile(dir)
 
-    log.Println("Expecting " + strconv.Itoa(len(koloader.Modules)) + " files...")
+    log.Println("Expecting " + strconv.Itoa(len(koloader.ModulesList)) + " files...")
 
-    cfg.Input = make([]bindata.InputConfig, len(koloader.Modules))
+    cfg.Input = make([]bindata.InputConfig, len(koloader.ModulesList))
 
-    for i := range(koloader.Modules) {
-        _, err := os.Stat(dir+"/"+koloader.Modules[i][0])
+    for i := range(koloader.ModulesList) {
+        _, err := os.Stat(dir+"/"+koloader.ModulesList[i][0])
 
         if os.IsNotExist(err) {
-            log.Fatal("File "+dir+"/"+koloader.Modules[i][0]+" doesn`t exist!")
+            log.Fatal("File "+dir+"/"+koloader.ModulesList[i][0]+" doesn`t exist!")
         } else {
-            log.Println("Adding file "+dir+"/"+koloader.Modules[i][0])
+            log.Println("Adding file "+dir+"/"+koloader.ModulesList[i][0])
         }
 
         var inputConfigTmp bindata.InputConfig
-        inputConfigTmp.Path = dir+"/"+koloader.Modules[i][0]
+        inputConfigTmp.Path = dir+"/"+koloader.ModulesList[i][0]
         cfg.Input[i] = inputConfigTmp
     }
 
