@@ -30,6 +30,7 @@ EMBEDDVARS := " -X 'application/pkg/buildinfo.BuildDateTime=$(shell date +%Y-%m-
                 -X 'application/pkg/buildinfo.BuildUser=$(USER)' \
                 -X 'application/pkg/buildinfo.BuildCommit=$(shell git log --pretty=format:"%h" -n 1)' \
                 -X 'application/pkg/buildinfo.BuildBranch=$(shell git branch | grep \* | cut -d " " -f2)' \
+				-X 'application/pkg/buildinfo.BoardProfile=$(BOARD)' \
                 -X 'application/pkg/buildinfo.BoardVendor=$(VENDOR)' \
                 -X 'application/pkg/buildinfo.BoardModel=$(MODEL)' \
                 -X 'application/pkg/buildinfo.Chip=$(CHIP)' \

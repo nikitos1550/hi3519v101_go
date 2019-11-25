@@ -13,6 +13,7 @@ var (
 	BuildCommit string
 	BuildBranch string
 
+	BoardProfile string
 	BoardVendor string
 	BoardModel  string
 
@@ -36,6 +37,7 @@ type BuildInfo struct {
 	BuildCommit string
 	BuildBranch string
 
+	Board Profile string
 	BoardVendor string
 	BoardModel  string
 
@@ -59,6 +61,7 @@ func CopyAll(out *BuildInfo) {
 	out.BuildCommit = BuildCommit
 	out.BuildBranch = BuildBranch
 
+	out.BoardProfile = BoardProfile
 	out.BoardVendor = BoardVendor
 	out.BoardModel = BoardModel
 
