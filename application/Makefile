@@ -19,7 +19,7 @@ PATH    := $(PATH):$(GOPATH)/bin
 APPOUT  := $(abspath ../output/application)
 
 CGO_CFLAGS  := -I$(abspath sdk/$(FAMILY)/include)
-CGO_LDFLAGS := $(abspath ../output/$(FAMILY)/lib$(FAMILY).a)
+CGO_LDFLAGS := $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a)
 
 CGOPARAMS := CGO_CFLAGS='$(CFLAGS) $(CGO_CFLAGS)' CGO_CFLAGS_ALLOW='.*' CGO_ENABLED=1 CGO_LDFLAGS='$(CGO_LDFLAGS)'
 
@@ -27,6 +27,9 @@ EMBEDDVARS := " -X 'application/pkg/buildinfo.BuildDateTime=$(shell date +%Y-%m-
                 -X 'application/pkg/buildinfo.GoVersion=$(shell $(GO) version)' \
                 -X 'application/pkg/buildinfo.GccVersion=$(shell $(CC) --version)' \
                 -X 'application/pkg/buildinfo.BuildTags=$(GOTAGS)' \
+                -X 'application/pkg/buildinfo.BuildUser=$(USER)' \
+                -X 'application/pkg/buildinfo.BuildCommit=$(shell git log --pretty=format:"%h" -n 1)' \
+                -X 'application/pkg/buildinfo.BuildBranch=$(shell git branch | grep \* | cut -d " " -f2)' \
                 -X 'application/pkg/buildinfo.BoardVendor=$(VENDOR)' \
                 -X 'application/pkg/buildinfo.BoardModel=$(MODEL)' \
                 -X 'application/pkg/buildinfo.Chip=$(CHIP)' \
@@ -49,7 +52,7 @@ strip-ko:
 
 LIBS := $(wildcard sdk/$(FAMILY)/lib/*.a)
 libsdk:
-	$(AR) rcsT ../output/$(FAMILY)/lib$(FAMILY).a $(LIBS)
+	$(AR) rcsT ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a $(LIBS)
 
 generate:
 	GOPATH=$(GOPATH) $(GO) generate -tags "$(GOTAGS)" application/pkg/koloader
@@ -77,6 +80,9 @@ build-tester: generate libsdk deploy-dir
 
 #buid-with-vendors: generate
 #	$(GOENV) $(GO) build -tags $(GOTAGS) -mod vendor -o $(APPOUT) application/cmd/daemon
+
+test:
+	GOPATH=$(GOPATH) $(GO) clean -modcache
 
 clean:
 	rm -f $(APPOUT)
