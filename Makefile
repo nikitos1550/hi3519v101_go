@@ -87,7 +87,11 @@ deprecated-build-kernel:
 
 ########################################################################
 
-deploy-app: $(BOARD_OUTDIR)/rootfs+app.squashfs $(BOARD_OUTDIR)/kernel/uImage
+build-app: $(APP)/distrib/$(FAMILY)
+
+pack-app: $(BOARD_OUTDIR)/rootfs+app.squashfs $(BOARD_OUTDIR)/kernel/uImage
+
+deploy-app: pack-app
 	cd burner; authbind --deep ./burner2.py \
 		--port /dev/ttyCAM$(CAMERA) \
 		--reset-power "./power.py reset $(CAMERA)" \
@@ -118,14 +122,14 @@ deprecated-deploy-empty:
 
 ########################################################################
 
-toolchain:
+deprecated-toolchain:
 	test -e $(THIS_DIR)/$(FAMILY)/toolchain || mkdir $(THIS_DIR)/$(FAMILY)/toolchain
 	make -C $(THIS_DIR)/$(BR) \
           O=$(THIS_DIR)/$(FAMILY)/toolchain \
             defconfig BR2_DEFCONFIG=$(THIS_DIR)/$(FAMILY)/toolchain.buildroot
 	cd $(THIS_DIR)/$(FAMILY)/toolchain; make toolchain
 
-rootfs: toolchain
+deprecated-rootfs: toolchain
 	test -e $(THIS_DIR)/$(FAMILY)/rootfs || mkdir $(THIS_DIR)/$(FAMILY)/rootfs
 	make -C $(THIS_DIR)/$(BR) \
           O=$(THIS_DIR)/$(FAMILY)/rootfs \
@@ -176,10 +180,10 @@ enviroiment-setup: $(BR)
 
 ########################################################################
 
-camera-serial:
+control:
 	screen -L /dev/ttyCAM$(CAMERA) 115200
 
-camera-serial-%:
-	screen -L /dev/ttyCAM$(subst camera-serial-,,$@) 115200
+control-%:
+	screen -L /dev/ttyCAM$(subst control-,,$@) 115200
 
 ########################################################################
