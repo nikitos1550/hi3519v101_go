@@ -9,6 +9,10 @@ var (
     BuildDateTime   string
     BuildTags       string
 
+    BuildUser       string
+    BuildCommit     string
+    BuildBranch     string
+
     BoardVendor     string
     BoardModel      string
 
