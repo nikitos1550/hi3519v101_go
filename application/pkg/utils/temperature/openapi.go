@@ -1,0 +1,3 @@
+// +build openapi
+
+package temperature
