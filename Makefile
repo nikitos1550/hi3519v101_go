@@ -25,18 +25,19 @@ rootfs.squashfs: $(BOARD_OUTDIR)/rootfs+app.squashfs
 
 
 $(BOARD_OUTDIR)/rootfs+app.squashfs: $(BOARD_OUTDIR)/rootfs+app
+	rm -f $@
 	mksquashfs $< $@ -all-root
 
 $(BOARD_OUTDIR)/rootfs+app: $(BOARD_OUTDIR)/rootfs $(APP)/distrib/$(FAMILY)
-	if [ -e $@ ]; then rm -f $@; fi
+	if [ -e $@ ]; then rm -rf $@; fi
 	mkdir -p $@
 	cp -r $(BOARD_OUTDIR)/rootfs/* $@/
 	cp -r $(APP)/distrib/$(FAMILY)/* $@/
 
 $(APP)/distrib/$(FAMILY): $(BOARD_OUTDIR)/Makefile.params $(BOARD_OUTDIR)/toolchain
 	rm -rf $@
-	make -C $(APP) PARAMS_FILE=$< godeps
-	make -C $(APP) PARAMS_FILE=$< build
+	#make -C $(APP) PARAMS_FILE=$< godeps
+	make -C $(APP) PARAMS_FILE=$< build-tester
 
 # ====================================================================================================================
 # Board's artifacts
