@@ -3,7 +3,9 @@
 package chip
 
 var (
-    chips = [...]string {"hi3559av100"}
+    chips = [...]string {
+        "hi3559av100"
+    }
 )
 
 //TODO
