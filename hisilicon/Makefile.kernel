@@ -2,7 +2,7 @@
 
 # the file is supposed to contain build parameters
 MAKEFILE_PARAMS ?= "../Makefile.params"
-include $(MAKEFILE_PARAMS)
+-include $(MAKEFILE_PARAMS)
 
 ifndef TOOLCHAIN
     $(error TOOLCHAIN variable MUST be defined)

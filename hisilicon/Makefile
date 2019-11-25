@@ -77,7 +77,7 @@ $(ROOTFS_BR_CONFIG): $(FAMILY_DIR)/rootfs-toolchain.buildroot
 	sed 's|BR2_TOOLCHAIN_EXTERNAL_PATH=.*|BR2_TOOLCHAIN_EXTERNAL_PATH="$(TOOLCHAIN_DIR)"|' $< > $@
 
 $(ROOTFS_DIR): $(BUILDROOT_DIR) $(ROOTFS_BR_CONFIG) $(TOOLCHAIN_DIR)
-	rm -rf $@; mkdir -p $@
+	rm -rf $@; mkdir -p $(OUTDIR)
 	make -C $(BUILDROOT_DIR) O=$(OUTDIR)/.br-rootfs defconfig BR2_DEFCONFIG=$(ROOTFS_BR_CONFIG)
 	make -C $(OUTDIR)/.br-rootfs
 	ln -f --symbolic $(OUTDIR)/.br-rootfs/target $@
