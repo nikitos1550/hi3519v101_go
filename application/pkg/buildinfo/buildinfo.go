@@ -14,8 +14,8 @@ var (
 	BuildBranch string
 
 	BoardProfile string
-	BoardVendor string
-	BoardModel  string
+	BoardVendor  string
+	BoardModel   string
 
 	Chip string
 
@@ -37,9 +37,9 @@ type BuildInfo struct {
 	BuildCommit string
 	BuildBranch string
 
-	Board Profile string
-	BoardVendor string
-	BoardModel  string
+	BoardProfile string
+	BoardVendor  string
+	BoardModel   string
 
 	Chip string
 
