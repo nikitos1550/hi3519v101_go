@@ -9,6 +9,8 @@ CAMERA_IP      := 192.168.10.1$(shell printf '%02d' $(CAMERA))
 
 ########################################################################
 
+APP             := application
+
 -include ./boards/$(BOARD)/config
 
 .PHONY: $(APP)/distrib/$(FAMILY) help prepare cleanall
