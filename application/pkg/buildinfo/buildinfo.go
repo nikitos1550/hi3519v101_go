@@ -26,28 +26,23 @@ var (
 	MppRam   string
 )
 
+//TODO make insternal structs by goups (build group, toolchain group, board group, etc)
 type Info struct {
-	GoVersion  string
-	GccVersion string
-
-	BuildDateTime string
-	BuildTags     string
-
-	BuildUser   string
-	BuildCommit string
-	BuildBranch string
-
-	BoardProfile string
-	BoardVendor  string
-	BoardModel   string
-
-	Chip string
-
-	CmosProfile string
-
-	TotalRam string
-	LinuxRam string
-	MppRam   string
+	GoVersion  		string	`json:"goversion"`
+	GccVersion 		string	`json:"gccversion"`
+	BuildDateTime 	string	`json:"builddatetime"`
+	BuildTags     	string	`json:"buildtags"`
+	BuildUser   	string	`json:"builduser"`
+	BuildCommit 	string	`json:"buildcommit"`
+	BuildBranch 	string	`json:"buildbranch"`
+	BoardProfile 	string	`json:"boardprofile"`
+	BoardVendor  	string	`json:"boardvendor"`
+	BoardModel   	string	`json:"boardmodel"`
+	Chip 			string	`json:"chip"`
+	CmosProfile 	string	`json:"cmos"`
+	TotalRam 		string	`json:"totalram"`
+	LinuxRam 		string	`json:"linuxram"`
+	MppRam   		string	`json:"mppram"`
 }
 
 func CopyAll(out *Info) {
