@@ -15,7 +15,7 @@ func init() {
 }
 
 type serveTemperatureSchema struct {
-
+	Temperature	float32 `json:"temperature"`
 }
 
 func serveTemperature(w http.ResponseWriter, r *http.Request) {
@@ -23,9 +23,21 @@ func serveTemperature(w http.ResponseWriter, r *http.Request) {
 
 	var schema serveTemperatureSchema
 
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+	var err error
+    schema.Temperature, err = Get()
+	
+	//log.Println(schema)
 
-	schemaJson, _ := json.Marshal(schema)
-    fmt.Fprintf(w, "%s", string(schemaJson))
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+    if (err == nil) {
+		schemaJson, _ := json.Marshal(schema)
+		//log.Println(string(schemaJson))
+		fmt.Fprintf(w, "%s", string(schemaJson))	
+
+    } else {
+		w.WriteHeader(http.StatusNotFound)//TODO correct http return code
+    }
+
+
 }
