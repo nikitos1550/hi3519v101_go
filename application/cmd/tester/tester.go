@@ -15,20 +15,20 @@ import (
 )
 
 type Answer struct {
-    App             string      `json:"appName"`
+    App             string          `json:"appName"`
 
-    ChipDetectedReg string      `json:"chipDetectedReg"`
-    ChipDetectedMpp string      `json:"chipDetectedMpp"`
+    ChipDetectedReg string          `json:"chipDetectedReg"`
+    ChipDetectedMpp string          `json:"chipDetectedMpp"`
 
-    Mpp             string      `json:"mppVersion"`
+    Mpp             string          `json:"mppVersion"`
 
-    SysIdReg        uint32      `json:"chipIdReg"`
-    SysIdMpp        uint32      `json:"chipIdMpp"`
+    SysIdReg        uint32          `json:"chipIdReg"`
+    SysIdMpp        uint32          `json:"chipIdMpp"`
 
-    TempVal         float32     `json:"temperature"`
-    TempHW          string      `json:"temperatureHW"`
+    TempVal         float32         `json:"temperature"`
+    TempHW          string          `json:"temperatureHW"`
 
-    Info       buildinfo.BuildInfo   `json:"buildInfo"`
+    Info            buildinfo.Info  `json:"buildInfo"`
 }
 
 
@@ -41,8 +41,6 @@ var (
 
 
 func apiHandler(w http.ResponseWriter, r *http.Request) {
-    //var schema Answer
-
     schema.App              = "tester"
 
     schema.ChipDetectedReg  = chip.Detect(chip.RegId())
@@ -55,7 +53,7 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 
     var err error
     schema.TempVal, err = temperature.Get()
-    //log.Println("temperature ", temperature, " error ", err)
+    
     if (err != nil) {
         schema.TempHW = "not availible"
     } else {

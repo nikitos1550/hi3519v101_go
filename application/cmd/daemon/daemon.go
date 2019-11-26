@@ -2,8 +2,8 @@ package main
 
 import (
     "log"
-    "application/pkg/koloader"
-    "application/pkg/mpp"
+    _"application/pkg/koloader"
+    _"application/pkg/mpp"
     "application/pkg/openapi"
     _"application/pkg/utils/chip"
     "application/pkg/utils/temperature"
@@ -13,8 +13,8 @@ func main() {
 
     log.Println("daemon")
 
-    koloader.LoadMinimal()
-    mpp.Init()
+    //koloader.LoadMinimal()
+    //mpp.Init()
     openapi.Init()
     temperature.Init()
 

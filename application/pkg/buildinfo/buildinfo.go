@@ -26,7 +26,7 @@ var (
 	MppRam   string
 )
 
-type BuildInfo struct {
+type Info struct {
 	GoVersion  string
 	GccVersion string
 
@@ -50,7 +50,7 @@ type BuildInfo struct {
 	MppRam   string
 }
 
-func CopyAll(out *BuildInfo) {
+func CopyAll(out *Info) {
 	out.GoVersion = GoVersion
 	out.GccVersion = GccVersion
 

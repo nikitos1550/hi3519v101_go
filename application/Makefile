@@ -10,8 +10,8 @@ GOARCH  := arm
 GOARM   := $(ARMV) #FROM Makefile.params
 GOENV   := GOPATH=$(GOPATH) GOOS=$(GOOS) GOARCH=$(GOARCH) GOARM=$(GOARM)
 
-#GOTAGS  := hi3516av200
-GOTAGS  := $(FAMILY)
+GOTAGS_TESTER  := $(FAMILY)
+GOTAGS_DAEMON  := $(FAMILY) openapi debug
 #GOTAGS  := $(FAMILY) netgo openapi debug lua onvif
 
 PATH    := $(PATH):$(GOPATH)/bin
@@ -56,7 +56,7 @@ libsdk:
 	$(AR) rcsT ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a $(LIBS)
 
 generate:
-	GOPATH=$(GOPATH) $(GO) generate -tags "$(GOTAGS)" application/pkg/koloader
+	GOPATH=$(GOPATH) $(GO) generate -tags "$(FAMILY)" application/pkg/koloader
 	#GOPATH=$(GOPATH) $(GO) generate -tags "hi3516av100" application/pkg/koloader
 	#GOPATH=$(GOPATH) $(GO) generate -tags "generate hi3516av200" application/pkg/koloader
 	#GOPATH=$(GOPATH) $(GO) generate -tags "generate hi3516cv100" application/pkg/koloader
@@ -67,7 +67,16 @@ generate:
 	##GOPATH=$(GOPATH) $(GO) generate -tags "generate hi3519av100" application/pkg/koloader
 	##GOPATH=$(GOPATH) $(GO) generate -tags "generate hi3559av100" application/pkg/koloader
 
-deploy-dir:
+deploy-dir-daemon:
+	rm -rf ./distrib
+	mkdir ./distrib/
+	mkdir ./distrib/$(FAMILY)
+	mkdir ./distrib/$(FAMILY)/opt
+	mkdir ./distrib/$(FAMILY)/opt/www
+	cp -r ./www/* ./distrib/$(FAMILY)/opt/www
+	mkdir ./distrib/$(FAMILY)/etc
+
+deploy-dir-tester:
 	rm -rf ./distrib
 	mkdir ./distrib/
 	mkdir ./distrib/$(FAMILY)
@@ -76,13 +85,13 @@ deploy-dir:
 	mkdir ./distrib/$(FAMILY)/etc/init.d
 	cp ./init/S99tester ./distrib/$(FAMILY)/etc/init.d/
 
-build-daemon: generate libsdk deploy-dir
-	#$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/daemon application/cmd/daemon
-	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS)" -ldflags $(EMBEDDVARS) -o ./distrib/$(FAMILY)/opt/application application/cmd/daemon
+build-daemon: generate libsdk deploy-dir-daemon
+	#$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS_DAEMON)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/daemon application/cmd/daemon
+	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS_DAEMON)" -ldflags $(EMBEDDVARS) -o ./distrib/$(FAMILY)/opt/application application/cmd/daemon
 
-build-tester: generate libsdk deploy-dir
-	#$(GOENV) $(CGOPARAMS) $(GO) build -tags "$(GOTAGS)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/tester application/cmd/tester
-	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS)" -ldflags $(EMBEDDVARS) -o ./distrib/$(FAMILY)/opt/application application/cmd/tester
+build-tester: generate libsdk deploy-dir-tester
+	#$(GOENV) $(CGOPARAMS) $(GO) build -tags "$(GOTAGS_TESTER)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/tester application/cmd/tester
+	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS_TESTER)" -ldflags $(EMBEDDVARS) -o ./distrib/$(FAMILY)/opt/application application/cmd/tester
 
 #buid-with-vendors: generate
 #	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags $(GOTAGS) -mod vendor -o $(APPOUT) application/cmd/daemon

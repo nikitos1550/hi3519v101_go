@@ -1,19 +1,19 @@
-// +build openapi
+//+build openapi
 
-package chip
+package buildinfo
 
 import (
 	"log"
-	"net/http"
-	"application/pkg/openapi"
+    "net/http"
+    "application/pkg/openapi"
 )
 
 func init() {
-	openapi.AddRoute("serveInfo", "/api/chip", "GET", serveInfo)
+	AddRoute("serveInfo", "/api/buildinfo", "GET", serveInfo)
 }
 
 func serveInfo(w http.ResponseWriter, r *http.Request) {
-	log.Println("chip.serveInfo")
+	log.Println("buildinfo.serveInfo")
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
