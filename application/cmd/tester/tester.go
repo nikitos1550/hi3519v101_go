@@ -14,7 +14,7 @@ import (
     "application/pkg/buildinfo"
 )
 
-type Answer struct {
+type answerSchema struct {
     App             string          `json:"appName"`
 
     ChipDetectedReg string          `json:"chipDetectedReg"`
@@ -35,12 +35,12 @@ type Answer struct {
 var (
     memTotal    uint
     memLinux    uint
-
-    schema      Answer
 )
 
 
 func apiHandler(w http.ResponseWriter, r *http.Request) {
+    var schema      answerSchema
+
     schema.App              = "tester"
 
     schema.ChipDetectedReg  = chip.Detect(chip.RegId())
