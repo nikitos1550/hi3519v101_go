@@ -61,7 +61,5 @@ int hi3516av200_sys_init(struct hi3516av200_cmos * c) {
 
     return ERR_NONE;
 }
-
-
 */
-import "C"
+//import "C"

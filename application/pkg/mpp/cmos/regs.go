@@ -217,4 +217,4 @@ int hi3516av200_ko_init(struct hi3516av200_cmos * c) {
 }
 
 */
-import "C"
+//import "C"

@@ -117,4 +117,4 @@ int hi3516av200_isp_init(struct hi3516av200_cmos * c) {
 }
 
 */
-import "C"
+//import "C"

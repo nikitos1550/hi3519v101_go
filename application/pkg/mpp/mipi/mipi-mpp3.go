@@ -55,4 +55,4 @@ int hi3516av200_mipi_init(struct hi3516av200_cmos * c) {
     return ERR_NONE;
 }
 */
-import "C"
+//import "C"

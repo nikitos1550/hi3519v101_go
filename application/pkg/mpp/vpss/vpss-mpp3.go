@@ -55,5 +55,5 @@ int hi3516av200_vpss_init(struct capture_params * cp) {
     return ERR_NONE;
 }
 */
-import "C"
+//import "C"
 

@@ -48,7 +48,7 @@ int hi3516av200_vi_init(struct hi3516av200_cmos * c, struct capture_params * cp)
     stChnAttr.enCapSel              = VI_CAPSEL_BOTH;
     stChnAttr.stDestSize.u32Width   = stTargetSize.u32Width ;
     stChnAttr.stDestSize.u32Height  = stTargetSize.u32Height ;
-    stChnAttr.enPixFormat           = PIXEL_FORMAT_YUV_SEMIPLANAR_420;   /* sp420 or sp422 */
+    stChnAttr.enPixFormat           = PIXEL_FORMAT_YUV_SEMIPLANAR_420;   // sp420 or sp422
 
     stChnAttr.bMirror               = HI_FALSE;
     stChnAttr.bFlip                 = HI_FALSE;
@@ -72,4 +72,4 @@ int hi3516av200_vi_init(struct hi3516av200_cmos * c, struct capture_params * cp)
     return ERR_NONE;
 }
 */
-import "C"
+//import "C"
