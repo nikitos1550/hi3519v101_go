@@ -2,37 +2,53 @@ THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 include Makefile.user.params
 
-BR = buildroot-2019.08
-
-CAMERA_IP = 192.168.10.1$(shell printf '%02d' $(CAMERA))
-
+BR             := buildroot-2019.08
+BUILDROOT_DIR  := $(abspath ./buildroot-2019.08)
 BOARD_OUTDIR   := $(abspath ./output/boards/$(BOARD))
-FAMILY_OUTDIR  := ./output/$(FAMILY)
+CAMERA_IP      := 192.168.10.1$(shell printf '%02d' $(CAMERA))
+
 ########################################################################
+
+.PHONY: $(APP)/distrib/$(FAMILY) help prepare cleanall 
 
 -include ./boards/$(BOARD)/config
 
-guard:
-	@echo "USAGE:"
-	@echo "prepare env:"
-	@echo "make enviroiment-setup - all-in-one target"
-	@echo "build and deploy:"
-	@echo "make deploy-app - build and deploy app on board according Makefile.params"
-	@echo "make deploy-empty - deploy generic rootfs on board according Makefile.params"
+
+# -----------------------------------------------------------------------------------------------------------
+
+help:
+	@echo -e "Help:\n"\
+		" - make prepare          - prepare; MUST be done before anything\n"\
+		" - make rootfs.squashfs  - build application and pack it within RootFS image\n"\
+		" - make deploy-app       - build&deploy application onto prticular board\n"\
+		" - make cleanall         - remove all artifacts"
+
+prepare: $(BUILDROOT_DIR)
+	@echo "All prepared"
+
+$(BUILDROOT_DIR):
+	tar -xzf $(BR).tar.gz -C $(THIS_DIR)
+	cp -r ./$(BR)-patch/* $(BUILDROOT_DIR)/
+
+cleanall:
+	if [ -d ./output ]; then chmod --recursive 777 ./output; fi
+	rm -rf ./output $(BUILDROOT_DIR)
+
+
+# -----------------------------------------------------------------------------------------------------------
 
 rootfs.squashfs: $(BOARD_OUTDIR)/rootfs+app.squashfs
-	@echo "--- RootFS image is ready: $<"
+	@echo "--- RootFS image is ready: $^"
 
+kernel: $(BOARD_OUTDIR)/kernel/uImage
+	@echo "--- Kernel uImage is ready: $^"
 
 $(BOARD_OUTDIR)/rootfs+app.squashfs: $(BOARD_OUTDIR)/rootfs+app
 	rm -f $@
 	mksquashfs $< $@ -all-root
 
-.PHONY: $(APP)/distrib/$(FAMILY)
-
 $(BOARD_OUTDIR)/rootfs+app: $(BOARD_OUTDIR)/rootfs $(APP)/distrib/$(FAMILY)
-	if [ -e $@ ]; then rm -rf $@; fi
-	mkdir -p $@
+	rm -rf $@; mkdir -p $@
 	cp -r $(BOARD_OUTDIR)/rootfs/* $@/
 	cp -r $(APP)/distrib/$(FAMILY)/* $@/
 
@@ -40,8 +56,9 @@ $(APP)/distrib/$(FAMILY): $(BOARD_OUTDIR)/Makefile.params
 	rm -rf $@
 	make -C $(APP) PARAMS_FILE=$< build-tester
 
-# ====================================================================================================================
+# -----------------------------------------------------------------------------------------------------------
 # Board's artifacts
+
 $(BOARD_OUTDIR)/rootfs:
 	make -C ./boards BOARD_OUTDIR=$(BOARD_OUTDIR) BOARD=$(BOARD) rootfs
 
