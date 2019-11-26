@@ -16,7 +16,10 @@ func init() {
 }
 
 type serveInfoSchema struct {
-
+	RegId		uint32	`json:"regchipid"`
+	DetectReg	string	`json:"detectedchipreg"`
+	MppId		uint32	`json:"mppchipid"`
+	DetectMpp	string	`json:"detectedchipmpp"`
 }
 
 func serveInfo(w http.ResponseWriter, r *http.Request) {
@@ -26,6 +29,11 @@ func serveInfo(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
+
+	schema.RegId = RegId()
+	schema.DetectReg = Detect(RegId())
+	schema.MppId = MppId()
+	schema.DetectMpp = Detect(MppId())
 
 	schemaJson, _ := json.Marshal(schema)
     fmt.Fprintf(w, "%s", string(schemaJson))
