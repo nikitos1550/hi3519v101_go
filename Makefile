@@ -2,23 +2,76 @@ THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 include Makefile.user.params
 
-BR = buildroot-2019.08
-
-CAMERA_IP = 192.168.10.1$(shell printf '%02d' $(CAMERA))
+BR             := buildroot-2019.08
+BUILDROOT_DIR  := $(abspath ./buildroot-2019.08)
+BOARD_OUTDIR   := $(abspath ./output/boards/$(BOARD))
+CAMERA_IP      := 192.168.10.1$(shell printf '%02d' $(CAMERA))
 
 ########################################################################
 
+.PHONY: $(APP)/distrib/$(FAMILY) help prepare cleanall 
+
 -include ./boards/$(BOARD)/config
 
-guard:
-	@echo "USAGE:"
-	@echo "prepare env:"
-	@echo "make enviroiment-setup - all-in-one target"
-	@echo "build and deploy:"
-	@echo "make deploy-app - build and deploy app on board according Makefile.params"
-	@echo "make deploy-empty - deploy generic rootfs on board according Makefile.params"
 
-pack-app:
+# -----------------------------------------------------------------------------------------------------------
+
+help:
+	@echo -e "Help:\n"\
+		" - make prepare          - prepare; MUST be done before anything\n"\
+		" - make rootfs.squashfs  - build application and pack it within RootFS image\n"\
+		" - make deploy-app       - build&deploy application onto prticular board\n"\
+		" - make cleanall         - remove all artifacts"
+
+prepare: $(BUILDROOT_DIR)
+	@echo "All prepared"
+
+$(BUILDROOT_DIR):
+	tar -xzf $(BR).tar.gz -C $(THIS_DIR)
+	cp -r ./$(BR)-patch/* $(BUILDROOT_DIR)/
+
+cleanall:
+	if [ -d ./output ]; then chmod --recursive 777 ./output; fi
+	rm -rf ./output $(BUILDROOT_DIR)
+
+
+# -----------------------------------------------------------------------------------------------------------
+
+rootfs.squashfs: $(BOARD_OUTDIR)/rootfs+app.squashfs
+	@echo "--- RootFS image is ready: $^"
+
+kernel: $(BOARD_OUTDIR)/kernel/uImage
+	@echo "--- Kernel uImage is ready: $^"
+
+$(BOARD_OUTDIR)/rootfs+app.squashfs: $(BOARD_OUTDIR)/rootfs+app
+	rm -f $@
+	mksquashfs $< $@ -all-root
+
+$(BOARD_OUTDIR)/rootfs+app: $(BOARD_OUTDIR)/rootfs $(APP)/distrib/$(FAMILY)
+	rm -rf $@; mkdir -p $@
+	cp -r $(BOARD_OUTDIR)/rootfs/* $@/
+	cp -r $(APP)/distrib/$(FAMILY)/* $@/
+
+$(APP)/distrib/$(FAMILY): $(BOARD_OUTDIR)/Makefile.params
+	rm -rf $@
+	make -C $(APP) PARAMS_FILE=$< build-tester
+
+# -----------------------------------------------------------------------------------------------------------
+# Board's artifacts
+
+$(BOARD_OUTDIR)/rootfs:
+	make -C ./boards BOARD_OUTDIR=$(BOARD_OUTDIR) BOARD=$(BOARD) rootfs
+
+$(BOARD_OUTDIR)/Makefile.params:
+	make -C ./boards BOARD_OUTDIR=$(BOARD_OUTDIR) BOARD=$(BOARD) toolchain
+
+$(BOARD_OUTDIR)/kernel/uImage:
+	make -C ./boards BOARD_OUTDIR=$(BOARD_OUTDIR) BOARD=$(BOARD) kernel
+
+# ====================================================================================================================
+
+
+deprecated-pack-app:
 	@[ "$(BOARD)" ] && echo "all good" || ( echo "var is not set"; exit 1 )
 	cd $(APP); make FAMILY=$(FAMILY) build
 
@@ -27,7 +80,7 @@ pack-app:
 
 	cp boards/$(BOARD)/kernel/uImage boards/$(BOARD)/build/$(APP)/uImage
 
-	rm -f boards/$(BOARD)/build/$(APP)/rootfs.squashfs
+	
 	rm -rf boards/$(BOARD)/build/$(APP)/rootfs.tmp; mkdir boards/$(BOARD)/build/$(APP)/rootfs.tmp
 	cp -r $(FAMILY)/rootfs/target/* boards/$(BOARD)/build/$(APP)/rootfs.tmp/
 	test ! -e boards/$(BOARD)/putonrootfs || cp -r boards/$(BOARD)/putonrootfs/* boards/$(BOARD)/build/$(APP)/rootfs.tmp/
@@ -39,7 +92,7 @@ pack-app:
                 boards/$(BOARD)/build/$(APP)/rootfs.squashfs \
                 -all-root
 
-build-kernel:
+deprecated-build-kernel:
 	test -e ./boards/$(BOARD)/kernel || mkdir ./boards/$(BOARD)/kernel
 	test ! -e ./boards/$(BOARD)/kernel/uImage || ( echo "Kernel already built"; exit 1 )
 	cd ./$(FAMILY)/kernel; make clean
@@ -51,25 +104,24 @@ build-kernel:
 
 ########################################################################
 
+build-app: $(APP)/distrib/$(FAMILY)
+
+pack-app: $(BOARD_OUTDIR)/rootfs+app.squashfs $(BOARD_OUTDIR)/kernel/uImage
+
 deploy-app: pack-app
-	cp boards/$(BOARD)/build/$(APP)/uImage burner/images/uImage
-	cp boards/$(BOARD)/build/$(APP)/rootfs.squashfs burner/images/rootfs.squashfs
-	cd burner; \
-        authbind --deep ./burner.py \
-            load \
-            --port /dev/ttyCAM$(CAMERA) \
-            --uimage ./images/uImage \
-            --rootfs ./images/rootfs.squashfs \
-            --ip $(CAMERA_IP) \
-            --skip $(UBOOT_SIZE) \
-            --initrd $(INITRD_TMP) \
-            --memory $(RAM_LINUX) \
-            --servercamera $(CAMERA)
+	cd burner; authbind --deep ./burner2.py \
+		--port /dev/ttyCAM$(CAMERA) \
+		--reset-power "./power.py reset $(CAMERA)" \
+		load \
+		--target-ip $(CAMERA_IP) --iface enp2s0 \
+		--uimage $(BOARD_OUTDIR)/kernel/uImage \
+		--rootfs $(BOARD_OUTDIR)/rootfs+app.squashfs \
+		--initrd-size 16M --memory-size 256M
 
 deploy-app-control: deploy-app
 	screen -L /dev/ttyCAM$(CAMERA) 115200
 
-deploy-empty:
+deprecated-deploy-empty:
 	cp boards/$(BOARD)/kernel/uImage burner/images/uImage
 	cp $(FAMILY)/rootfs/images/rootfs.squashfs burner/images/rootfs.squashfs
 	cd burner; \
@@ -87,14 +139,14 @@ deploy-empty:
 
 ########################################################################
 
-toolchain:
+deprecated-toolchain:
 	test -e $(THIS_DIR)/$(FAMILY)/toolchain || mkdir $(THIS_DIR)/$(FAMILY)/toolchain
 	make -C $(THIS_DIR)/$(BR) \
           O=$(THIS_DIR)/$(FAMILY)/toolchain \
             defconfig BR2_DEFCONFIG=$(THIS_DIR)/$(FAMILY)/toolchain.buildroot
 	cd $(THIS_DIR)/$(FAMILY)/toolchain; make toolchain
 
-rootfs: toolchain
+deprecated-rootfs: toolchain
 	test -e $(THIS_DIR)/$(FAMILY)/rootfs || mkdir $(THIS_DIR)/$(FAMILY)/rootfs
 	make -C $(THIS_DIR)/$(BR) \
           O=$(THIS_DIR)/$(FAMILY)/rootfs \
@@ -106,27 +158,28 @@ rootfs: toolchain
 $(BR):
 	tar -xzf $(BR).tar.gz -C $(THIS_DIR)
 	cp -r ./$(BR)-patch/* ./$(BR)
-	@echo "RUN prepare-env.sh to build all toolchains and base rootfses!"
+	#@echo "RUN prepare-env.sh to build all toolchains and base rootfses!"
 
 enviroiment-setup: $(BR)
-	make FAMILY=hi3516cv100 toolchain
-	make FAMILY=hi3516cv100 rootfs
-	cd hi3516cv100/kernel; make linux
-	make FAMILY=hi3516cv200 toolchain
-	make FAMILY=hi3516cv200 rootfs
-	cd hi3516cv200/kernel; make linux
-	make FAMILY=hi3516cv300 toolchain
-	make FAMILY=hi3516cv300 rootfs
-	cd hi3516cv300/kernel; make linux
-	make FAMILY=hi3516cv500 toolchain
-	make FAMILY=hi3516cv500 rootfs
-	cd hi3516cv500/kernel; make linux
-	make FAMILY=hi3516av100 toolchain
-	make FAMILY=hi3516av100 rootfs
-	cd hi3516av100/kernel; make linux
-	make FAMILY=hi3516av200 toolchain
-	make FAMILY=hi3516av200 rootfs
-	cd hi3516av200/kernel; make linux
+    #deprecated
+	#make FAMILY=hi3516cv100 toolchain
+	#make FAMILY=hi3516cv100 rootfs
+	#cd hi3516cv100/kernel; make linux
+	#make FAMILY=hi3516cv200 toolchain
+	#make FAMILY=hi3516cv200 rootfs
+	#cd hi3516cv200/kernel; make linux
+	#make FAMILY=hi3516cv300 toolchain
+	#make FAMILY=hi3516cv300 rootfs
+	#cd hi3516cv300/kernel; make linux
+	#make FAMILY=hi3516cv500 toolchain
+	#make FAMILY=hi3516cv500 rootfs
+	#cd hi3516cv500/kernel; make linux
+	#make FAMILY=hi3516av100 toolchain
+	#make FAMILY=hi3516av100 rootfs
+	#cd hi3516av100/kernel; make linux
+	#make FAMILY=hi3516av200 toolchain
+	#make FAMILY=hi3516av200 rootfs
+	#cd hi3516av200/kernel; make linux
 
 ########################################################################
 
@@ -144,10 +197,10 @@ enviroiment-setup: $(BR)
 
 ########################################################################
 
-camera-serial:
+control:
 	screen -L /dev/ttyCAM$(CAMERA) 115200
 
-camera-serial-%:
-	screen -L /dev/ttyCAM$(subst camera-serial-,,$@) 115200
+control-%:
+	screen -L /dev/ttyCAM$(subst control-,,$@) 115200
 
 ########################################################################

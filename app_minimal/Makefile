@@ -1,10 +1,9 @@
-THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+ifndef PARAMS_FILE
+    $(error 'PARAMS_FILE' variable must be defined)
+endif
+include $(PARAMS_FILE)
 
-GOPATH := $(THIS_DIR)go
-
-FAMILY := hi3516av200
-
-include $(THIS_DIR)/../$(FAMILY)/Makefile.params
+GOPATH := $(abspath ./go)
 
 GOTAGS := "$(FAMILY) netgo openapi debug lua onvif"
 

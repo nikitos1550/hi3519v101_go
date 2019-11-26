@@ -11,3 +11,5 @@
 **/*.pyc
 **/*.code-workspace
 **/.vscode
+
+output

@@ -1,0 +1,34 @@
+#!/bin/sh
+#
+# Start tester
+#
+
+start() {
+	echo "S99 TESTER"
+    #. /etc/board.config
+	dmesg -n 1
+	/opt/application -memtotal 512 -memlinux 256 &
+}
+
+stop() {
+	echo -n "Stopping debug"
+	echo "OK"
+}
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+#  restart|reload)
+#	stop
+#	start
+#	;;
+  *)
+	echo "Usage: $0 {start|stop}"
+	exit 1
+esac
+
+exit $?
