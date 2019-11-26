@@ -1,24 +1,24 @@
 package main
 
 import (
-    "fmt"
-    "github.com/gorilla/mux"
-    "net/http"
-    _"application/pkg/koloader"
+    "log"
+    "application/pkg/koloader"
+    "application/pkg/mpp"
+    "application/pkg/openapi"
+    _"application/pkg/utils/chip"
+    "application/pkg/utils/temperature"
 )
 
 func main() {
-    //testp.TestHello()
-    fmt.Println("test")
 
-    router := mux.NewRouter()
-    srv := &http.Server{
-        Addr:           ":80",
-        Handler:        router,
-        //ReadTimeout:    10 * time.Second,
-        //WriteTimeout:   10 * time.Second,
-        MaxHeaderBytes: 1 << 20,
-    }
-    go srv.ListenAndServe()
+    log.Println("daemon")
 
+    koloader.LoadMinimal()
+    mpp.Init()
+    openapi.Init()
+    temperature.Init()
+
+    log.Println("loaded")
+
+    select {}
 }

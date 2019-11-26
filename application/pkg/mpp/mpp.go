@@ -7,3 +7,7 @@ import (
     _"application/pkg/mpp/venc"
 )
 
+
+func Init() {
+
+}
