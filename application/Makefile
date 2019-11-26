@@ -67,9 +67,6 @@ generate:
 	##GOPATH=$(GOPATH) $(GO) generate -tags "generate hi3519av100" application/pkg/koloader
 	##GOPATH=$(GOPATH) $(GO) generate -tags "generate hi3559av100" application/pkg/koloader
 
-build: generate libsdk
-	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/daemon application/cmd/daemon
-
 deploy-dir:
 	rm -rf ./distrib
 	mkdir ./distrib/
@@ -79,25 +76,19 @@ deploy-dir:
 	mkdir ./distrib/$(FAMILY)/etc/init.d
 	cp ./init/S99tester ./distrib/$(FAMILY)/etc/init.d/
 
+build-daemon: generate libsdk deploy-dir
+	#$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/daemon application/cmd/daemon
+	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS)" -ldflags $(EMBEDDVARS) -o ./distrib/$(FAMILY)/opt/application application/cmd/daemon
+
 build-tester: generate libsdk deploy-dir
 	#$(GOENV) $(CGOPARAMS) $(GO) build -tags "$(GOTAGS)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/tester application/cmd/tester
 	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS)" -ldflags $(EMBEDDVARS) -o ./distrib/$(FAMILY)/opt/application application/cmd/tester
 
 #buid-with-vendors: generate
-#	$(GOENV) $(GO) build -tags $(GOTAGS) -mod vendor -o $(APPOUT) application/cmd/daemon
-
-test:
-	GOPATH=$(GOPATH) $(GO) clean -modcache
+#	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags $(GOTAGS) -mod vendor -o $(APPOUT) application/cmd/daemon
 
 clean:
 	rm -f $(APPOUT)
 
-fix-vendors:
+freeze-vendors:
 	GOPATH=$(GOPATH) $(GO) mod vendor
-
-#tools:
-#	GOPATH=$(GOPATH) $(GO) get golang.org/x/tools/cmd/godoc
-
-doc2:
-	GOPATH=$(GOPATH) $(GOBIN)/godoc --goroot /home/nikitos1550/work/tmp/hi3519v101_go/output/boards/jvt_hi3519v101_imx274/toolchain/lib/go -v
-	#cd doc; wget -r -np -N -E -p -k http://localhost:6060/pkg/

@@ -10,6 +10,7 @@ CAMERA_IP      := 192.168.10.1$(shell printf '%02d' $(CAMERA))
 ########################################################################
 
 APP             := application
+APP_TARGET      ?= tester   #default target will be tester, daemon build on request durin it`s early dev stage
 
 -include ./boards/$(BOARD)/config
 
@@ -55,7 +56,7 @@ $(BOARD_OUTDIR)/rootfs+app: $(BOARD_OUTDIR)/rootfs $(APP)/distrib/$(FAMILY)
 
 $(APP)/distrib/$(FAMILY): $(BOARD_OUTDIR)/Makefile.params
 	rm -rf $@
-	make -C $(APP) PARAMS_FILE=$< build-tester
+	make -C $(APP) PARAMS_FILE=$< build-$(APP_TARGET)
 
 # -----------------------------------------------------------------------------------------------------------
 # Board's artifacts
