@@ -12,8 +12,8 @@ import (
 )
 
 func init() {
-    AddRoute("systemDate",      "/api/system/date",     "GET",      systemDate)
-    AddRoute("systemNetwork",   "/api/system/network",  "GET",      systemNetwork)
+    AddRoute("systemDate",      "/system/date",     "GET",      systemDate)
+    AddRoute("systemNetwork",   "/system/network",  "GET",      systemNetwork)
 }
 
 

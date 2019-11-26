@@ -12,7 +12,7 @@ import (
 )
 
 func init() {
-	openapi.AddRoute("serveInfo", "/api/chip", "GET", serveInfo)
+	openapi.AddRoute("serveInfo", "/chip", "GET", serveInfo)
 }
 
 type serveInfoSchema struct {

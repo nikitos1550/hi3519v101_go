@@ -10,9 +10,12 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"strings"
 )
 
 ////////////////////////////////////////////////////////
+
+const apiPrefix string = "/api/"
 
 type route struct {
 	name        string
@@ -32,21 +35,64 @@ func AddRoute(name, pattern, method string, handlerfunc http.HandlerFunc) {
 ////////////////////////////////////////////////////////
 
 var flagUdsPath 	*string
-var flagHttpPort	*int
+var flagHttpPort	*uint
 var flagWwwPath		*string
+var flagPrintRoutes	*bool
 
 func init() {
-	flagUdsPath     = flag.String   ("--openapi-sock", "/tmp/application.sock", "UDS socket file absolute path")
-	flagHttpPort    = flag.Int      ("--openapi-port", 80,                  	"Http port")
-	flagWwwPath     = flag.String   ("--openapi-www", "/opt/www",           	"Www static files path")
+	flagUdsPath     = flag.String   ("openapi-socket", 	"/tmp/application.sock", "UDS socket file absolute path")
+	flagHttpPort    = flag.Uint     ("openapi-port", 	80,                  	 "Http port")
+	flagWwwPath     = flag.String   ("openapi-www", 	"/opt/www",           	 "Www static files path")
+	flagPrintRoutes = flag.Bool		("openapi-routes",	false, 					 "Prints application version information")
 }
 
 ////////////////////////////////////////////////////////
 
 func Init() {
-	log.Println("Openapi is ON!")
+	//log.Println("Openapi is ON!")
 
 	router := NewRouter()
+
+	//TODO use it or make another cmd/app to generate auto doc
+	if *flagPrintRoutes {
+		router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+			/*
+			t, err := route.GetPathTemplate()
+			if err != nil {
+				return err
+			}
+			m, err := route.GetMethods()
+			if err != nil {
+				return err
+			}
+			log.Println(m, " ", t)
+			return nil
+			*/
+			pathTemplate, err := route.GetPathTemplate()
+			if err == nil {
+				log.Println("ROUTE:", pathTemplate)
+			}
+			pathRegexp, err := route.GetPathRegexp()
+			if err == nil {
+				log.Println("Path regexp:", pathRegexp)
+			}
+			// queriesTemplates, err := route.GetQueriesTemplates()
+			// if err == nil {
+			// 	log.Println("Queries templates:", strings.Join(queriesTemplates, ","))
+			// }
+			// queriesRegexps, err := route.GetQueriesRegexp()
+			// if err == nil {
+			// 	log.Println("Queries regexps:", strings.Join(queriesRegexps, ","))
+			// }
+			methods, err := route.GetMethods()
+			if err == nil {
+				log.Println("Methods:", strings.Join(methods, ","))
+			}
+			log.Println()
+			return nil
+		})
+		os.Exit(0)
+	}
 
 	log.Println("Starting USD HTTP server")
 
@@ -79,6 +125,7 @@ func NewRouter() *mux.Router {
 		//handler = Logger(handler, route.Name)
 
 		router.
+			PathPrefix(apiPrefix).
 			Methods(route.method).
 			Path(route.pattern).
 			Name(route.name).
