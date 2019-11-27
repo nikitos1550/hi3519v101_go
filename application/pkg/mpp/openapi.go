@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	openapi.AddRoute("serveVersion", "/mpp/version", "GET", serveVersion)
+	openapi.AddApiRoute("serveVersion", "/mpp/version", "GET", serveVersion)
 }
 
 type serveVersionSchema struct {
