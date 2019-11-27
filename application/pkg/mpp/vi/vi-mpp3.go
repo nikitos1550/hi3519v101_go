@@ -6,6 +6,56 @@ package vi
 #include "../include/hi3516av200_mpp.h"
 #include <string.h>
 
+VI_DEV_ATTR_S DEV_ATTR_LVDS_BASE =
+{
+    // interface mode
+    VI_MODE_LVDS,
+    // multiplex mode
+    VI_WORK_MODE_1Multiplex,
+    // r_mask    g_mask    b_mask
+    {0xFFF00000,    0x0},
+    // progessive or interleaving
+    VI_SCAN_PROGRESSIVE,
+    //AdChnId
+    { -1, -1, -1, -1},
+    //enDataSeq, only support yuv
+    VI_INPUT_DATA_YUYV,
+
+    // synchronization information
+    {
+        //port_vsync   port_vsync_neg     port_hsync        port_hsync_neg
+        VI_VSYNC_PULSE, VI_VSYNC_NEG_LOW, VI_HSYNC_VALID_SINGNAL, VI_HSYNC_NEG_HIGH, VI_VSYNC_VALID_SINGAL, VI_VSYNC_VALID_NEG_HIGH,
+
+        //hsync_hfb    hsync_act    hsync_hhb
+        {
+            0,            1280,        0,
+            //vsync0_vhb vsync0_act vsync0_hhb
+            0,            720,        0,
+            //vsync1_vhb vsync1_act vsync1_hhb
+            0,            0,            0
+        }
+    },
+    // use interior ISP
+    VI_PATH_ISP,
+    // input data type
+    VI_DATA_TYPE_RGB,
+    // bRever
+    HI_FALSE,
+    // DEV CROP
+    {0, 0, 1920, 1080},
+    {
+        {
+            {1920, 1080},
+            HI_FALSE,
+
+        },
+        {
+            VI_REPHASE_MODE_NONE,
+            VI_REPHASE_MODE_NONE
+        }
+    }
+};
+
 #define ERR_NONE                    0
 #define ERR_HI_MPI_VI_SetDevAttr        2
 #define ERR_HI_MPI_VI_EnableDev     3
@@ -18,11 +68,11 @@ int mpp3_vi_init(int *error_code) {
     VI_DEV_ATTR_S  stViDevAttr;
 
     memset(&stViDevAttr, 0, sizeof(stViDevAttr));
-    //TODO videv description struct
-    //memcpy(&stViDevAttr, c->videv, sizeof(stViDevAttr));
+    
+    memcpy(&stViDevAttr, &DEV_ATTR_LVDS_BASE, sizeof(stViDevAttr));
 
-    //stViDevAttr.stDevRect.s32X                              = 0;
-    //stViDevAttr.stDevRect.s32Y                              = 0;
+    stViDevAttr.stDevRect.s32X                              = 0;
+    stViDevAttr.stDevRect.s32Y                              = 0;
     stViDevAttr.stDevRect.u32Width                          = 3840;
     stViDevAttr.stDevRect.u32Height                         = 2160;
     stViDevAttr.stBasAttr.stSacleAttr.stBasSize.u32Width    = 3840;
