@@ -18,8 +18,16 @@ var (
 )
 
 func LoadMinimal() {
-    //TODO
     tmpModules := make([][2]string, 0)
+    for i := 0; i < len(ModulesList); i++ {
+        for _, module := range minimalModulesList {
+            if ModulesList[i][0] == module {
+                //log.Println("Found ", module)
+                tmpModules = append(tmpModules, ModulesList[i])
+            }
+        }
+    }
+    /*
     for _, module := range minimalModulesList {
         for i := 0; i < len(ModulesList); i++ {
             if ModulesList[i][0] == module {
@@ -28,6 +36,7 @@ func LoadMinimal() {
             }
         }
     }
+    */
     load(tmpModules[:])
 }
 
