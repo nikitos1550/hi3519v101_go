@@ -9,6 +9,36 @@ import (
 
 func Resolve(code uint) string {
 	switch code {
+	case 0xA0028003: 
+		return "HI_ERR_SYS_ILLEGAL_PARAM (The parameter configuration is invalid)"
+	case 0xA0028006: 
+		return "HI_ERR_SYS_NULL_PTR (The pointer is null)"
+	case 0xA0028009: 
+		return "HI_ERR_SYS_NOT_PERM (The operation is forbidden)"
+	case 0xA0028010: 
+		return "HI_ERR_SYS_NOTREADY (The system control attributes are not configured)"
+	case 0xA0028012: 
+		return "HI_ERR_SYS_BUSY (The system is busy)"
+	case 0xA002800C: 
+		return "HI_ERR_SYS_NOMEM (The memory fails to be allocated due to some causes such as insufficient system memory)"
+	case 0xA0018003: 
+		return "HI_ERR_VB_ILLEGAL_PARAM (The parameter configuration is invalid)"
+	case 0xA0018005: 
+		return "HI_ERR_VB_UNEXIST (The VB pool does not exist)"
+	case 0xA0018006: 
+		return "HI_ERR_VB_NULL_PTR (The pointer is null)"
+	case 0xA0018009: 
+		return "HI_ERR_VB_NOT_PERM (The operation is forbidden)"
+	case 0xA001800C: 
+		return "HI_ERR_VB_NOMEM (The memory fails to be allocated)"
+	case 0xA001800D: 
+		return "HI_ERR_VB_NOBUF (The buffer fails to be allocated)"
+	case 0xA0018010: 
+		return "HI_ERR_VB_NOTREADY The system control attributes are not configured)"
+	case 0xA0018012: 
+		return "HI_ERR_VB_BUSY (The system is busy)"
+	case 0xA0018040: 
+		return "HI_ERR_VB_2MPOOLS (Too many VB pools are created)"
 	case 0xA0108001:
 		return "HI_ERR_VI_INVALID_DEVID (The VI device ID is invalid)"
 	case 0xA0108002:
@@ -418,7 +448,7 @@ func Resolve(code uint) string {
 	case 0xA01C8046: 
 		return "HI_ERR_ISP_NO_INT (The ISP module has no interrupt)"
 	default:
-		out := "unknown error " + strconv.FormatInt(int64(code), 10)
+		out := "unknown error " + strconv.FormatInt(int64(code), 16)
 		return out
 	}
 }

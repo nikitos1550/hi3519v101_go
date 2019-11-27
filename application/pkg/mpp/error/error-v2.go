@@ -7,6 +7,7 @@ import (
 	"strconv"
 )
 
+//TODO add rest codes
 func Resolve(code int) string {
 	switch code {
 	case 0xA0028003:
@@ -148,7 +149,7 @@ func Resolve(code int) string {
 	case 0xA01C0042: 
 		return "HI_ERR_ISP_ATTR_NOT_CFG (The attribute is not configured)"
 	default:
-		out := "unknown error " + strconv.FormatInt(int64(code), 10)
+		out := "unknown error " + strconv.FormatInt(int64(code), 16)
 		return out
 	}
 }

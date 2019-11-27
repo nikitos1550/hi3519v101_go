@@ -9,7 +9,7 @@ import (
 func Resolve(code int) string {
 	switch code {
 	default:
-		out := "error " + strconv.FormatInt(int64(code), 10)
+		out := "error " + strconv.FormatInt(int64(code), 16)
 		return out
 	}
 }
