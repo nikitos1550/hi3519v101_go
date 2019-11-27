@@ -3,13 +3,20 @@
 package vpss
 
 /*
-int hi3516av200_vpss_init(struct capture_params * cp) {
-    int error_code;
+#include "../include/hi3516av200_mpp.h"
+
+#define ERR_NONE                    0
+#define ERR_HI_MPI_VPSS_CreateGrp   2
+#define ERR_HI_MPI_VPSS_StartGrp    3
+#define ERR_HI_MPI_SYS_Bind         4
+
+int mpp3_vpss_init(int *error_code) {
+    *error_code = 0;
 
     VPSS_GRP_ATTR_S stVpssGrpAttr;
 
-    stVpssGrpAttr.u32MaxW           = cp->width;
-    stVpssGrpAttr.u32MaxH           = cp->width;
+    stVpssGrpAttr.u32MaxW           = 3840;
+    stVpssGrpAttr.u32MaxH           = 2160;
     stVpssGrpAttr.bIeEn             = HI_FALSE;
     stVpssGrpAttr.bNrEn             = HI_TRUE;
     stVpssGrpAttr.bHistEn           = HI_FALSE;
@@ -23,17 +30,11 @@ int hi3516av200_vpss_init(struct capture_params * cp) {
     stVpssGrpAttr.stNrAttr.stNrVideoAttr.enNrOutputMode     = VPSS_NR_OUTPUT_NORMAL;//VPSS_NR_OUTPUT_DELAY NORMAL
     stVpssGrpAttr.stNrAttr.u32RefFrameNum                   = 2;
 
-    error_code = HI_MPI_VPSS_CreateGrp(0, &stVpssGrpAttr);
-    if (error_code != HI_SUCCESS) {
-        printf("C DEBUG: HI_MPI_VPSS_CreateGrp failed with %#x!\n", error_code);
-        return ERR_MPP;
-    }
+    *error_code = HI_MPI_VPSS_CreateGrp(0, &stVpssGrpAttr);
+    if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VPSS_CreateGrp;
 
-    error_code = HI_MPI_VPSS_StartGrp(0);
-    if (error_code != HI_SUCCESS) {
-        printf("C DEBUG: HI_MPI_VPSS_StartGrp failed with %#x\n", error_code);
-        return -1;
-    }
+    *error_code = HI_MPI_VPSS_StartGrp(0);
+    if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VPSS_StartGrp;
 
     MPP_CHN_S stSrcChn;
     MPP_CHN_S stDestChn;
@@ -46,14 +47,31 @@ int hi3516av200_vpss_init(struct capture_params * cp) {
     stDestChn.s32DevId = 0;
     stDestChn.s32ChnId = 0;
 
-    error_code = HI_MPI_SYS_Bind(&stSrcChn, &stDestChn);
-    if (error_code != HI_SUCCESS) {
-        printf("C DEBUG: HI_MPI_SYS_Bind failed with %#x!\n", error_code);
-        return ERR_MPP;
-    }
+    *error_code = HI_MPI_SYS_Bind(&stSrcChn, &stDestChn);
+    if (*error_code != HI_SUCCESS) return ERR_HI_MPI_SYS_Bind;
 
     return ERR_NONE;
 }
 */
-//import "C"
+import "C"
 
+import (
+    "log"
+)
+
+func Init() {
+    var errorCode C.int
+
+    switch err := C.mpp3_vpss_init(&errorCode); err {
+    case C.ERR_NONE:
+        log.Println("C.mpp3_vpss_init() ok")
+    case C.ERR_HI_MPI_VPSS_CreateGrp:
+        log.Println("C.mpp3_vpss_init() HI_MPI_VPSS_CreateGrp() error ", errorCode)
+    case C.ERR_HI_MPI_VPSS_StartGrp:
+        log.Println("C.mpp3_vpss_init() HI_MPI_VPSS_StartGrp() error ", errorCode)
+    case C.ERR_HI_MPI_SYS_Bind:
+        log.Println("C.mpp3_vpss_init() HI_MPI_SYS_Bind() error ", errorCode)
+    default:
+        panic("Unexpected return of C.mpp3_vpss_init()")
+    }
+}

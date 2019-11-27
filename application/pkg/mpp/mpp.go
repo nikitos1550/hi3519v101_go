@@ -1,6 +1,10 @@
 package mpp
 
 import (
+    "application/pkg/koloader"
+
+    "application/pkg/mpp/sys"
+
     _"application/pkg/mpp/cmos"
     _"application/pkg/mpp/mipi"
     _"application/pkg/mpp/isp"
@@ -10,7 +14,10 @@ import (
 
 )
 
-
 func Init() {
-
+    koloader.LoadAll()
+    //
+    //
+    sys.Init()
+    
 }
