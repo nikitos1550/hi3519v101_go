@@ -91,18 +91,9 @@ deploy-app-control: deploy-app
 
 ########################################################################
 
-$(BR):
-	tar -xzf $(BR).tar.gz -C $(THIS_DIR)
-	cp -r ./$(BR)-patch/* ./$(BR)
-
-enviroiment-setup: $(BR)
-
-########################################################################
-
 control:
 	screen -L /dev/ttyCAM$(CAMERA) 115200
 
 control-%:
 	screen -L /dev/ttyCAM$(subst control-,,$@) 115200
 
-########################################################################
