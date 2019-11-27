@@ -8,27 +8,14 @@ import (
 	"log"
 	"net/http"
 	"time"
-	"openhisiipcam.org/buildinfo"
 	"net"
 )
 
 func init() {
-    AddRoute("system",          "/api/system",          "GET",      system)
-    AddRoute("systemDate",      "/api/system/date",     "GET",      systemDate)
-    AddRoute("systemNetwork",   "/api/system/network",  "GET",      systemNetwork)
+    AddRoute("systemDate",      "/system/date",     "GET",      systemDate)
+    AddRoute("systemNetwork",   "/system/network",  "GET",      systemNetwork)
 }
 
-func system(w http.ResponseWriter, r *http.Request) {
-    log.Println("system")
-
-	w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-
-	fmt.Fprintf(w, "Camera go webserver!\n")
-	fmt.Fprintf(w, "BuildTime %s\n",    buildinfo.Date)
-	fmt.Fprintf(w, "BuildBranch %s\n",  buildinfo.Branch)
-	fmt.Fprintf(w, "BuildUser %s\n",    buildinfo.User)
-}
 
 type systemDateTimeSchema struct {
 	Formatted time.Time `json:"formatted,omitempty"`

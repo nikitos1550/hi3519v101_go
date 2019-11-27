@@ -1,6 +1,6 @@
-// +build openapi
+//+build openapi debug
 
-package openapi
+package mpp
 
 import (
 	"fmt"
@@ -8,27 +8,32 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-    "expvar"
+	//"expvar"
+	"application/pkg/openapi"
 )
 
 func init() {
-    AddRoute("debugUmap",       "/api/debug/umap",          "GET",      debugUmap)
-    AddRoute("debugUmapFile",   "/api/debug/umap/{file}",   "GET",      debugUmapFile)
-    AddRoute("debugExpvar",     "/api/debug/vars",          "GET",      debugExpvar)
+    openapi.AddRoute("debugUmap",       "/debug/umap",          "GET",      debugUmap)
+	openapi.AddRoute("debugUmapFile",   "/debug/umap/{file}",   "GET",      debugUmapFile)
+	
+	//TODO This is shouldn`t be here, not related to MPP
+    //AddRoute("debugExpvar",     "/api/debug/vars",          "GET",      debugExpvar)
 }
 
 func debugUmap(w http.ResponseWriter, r *http.Request) {
     log.Println("debugUmap")
 
 	w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-
+	
 	files, err := ioutil.ReadDir("/proc/umap")
 	if err != nil {
 		//TODO /proc/umap exist only after ko modules init, handle it smart!
-		panic(err)
+		w.WriteHeader(http.StatusNotFound) //TODO correct status
+		//panic(err)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
 
 	num := len(files)
 	var i int = 0
@@ -59,6 +64,7 @@ func debugUmapFile(w http.ResponseWriter, r *http.Request) {
 }
 
 
+/* TODO This is shouldn`t be here, not related to MPP
 //https://habr.com/ru/post/257593/
 func debugExpvar(w http.ResponseWriter, r *http.Request) {
     log.Println("debugExpvar")
@@ -75,4 +81,4 @@ func debugExpvar(w http.ResponseWriter, r *http.Request) {
     })
     fmt.Fprintf(w, "\n}\n")
 }
-
+*/
