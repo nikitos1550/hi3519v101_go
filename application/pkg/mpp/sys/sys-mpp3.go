@@ -53,6 +53,7 @@ import "C"
 
 import (
     "log"
+    "application/pkg/mpp/error"
 )
 
 func Init() {
@@ -62,17 +63,17 @@ func Init() {
     case C.ERR_NONE:
         log.Println("C.mpp3_sys_init ok")
     case C.ERR_HI_MPI_SYS_Exit:
-        log.Println("C.mpp3_sys_init() HI_MPI_SYS_Exit() error ", errorCode)
+        log.Println("C.mpp3_sys_init() HI_MPI_SYS_Exit() error ", error.Resolve(int(errorCode)))
     case C.ERR_HI_MPI_VB_Exit:
-        log.Println("C.mpp3_sys_init() HI_MPI_VB_Exit() error ", errorCode)
+        log.Println("C.mpp3_sys_init() HI_MPI_VB_Exit() error ", error.Resolve(int(errorCode)))
     case C.ERR_HI_MPI_VB_SetConf:
-        log.Println("C.mpp3_sys_init() HI_MPI_VB_SetConf() error ", errorCode)
+        log.Println("C.mpp3_sys_init() HI_MPI_VB_SetConf() error ", error.Resolve(int(errorCode)))
     case C.ERR_HI_MPI_VB_Init:
-        log.Println("C.mpp3_sys_init() HI_MPI_VB_Init() error ", errorCode)
+        log.Println("C.mpp3_sys_init() HI_MPI_VB_Init() error ", error.Resolve(int(errorCode)))
     case C.ERR_HI_MPI_SYS_SetConf:
-        log.Println("C.mpp3_sys_init() HI_MPI_SYS_SetConf() error ", errorCode)
+        log.Println("C.mpp3_sys_init() HI_MPI_SYS_SetConf() error ", error.Resolve(int(errorCode)))
     case C.ERR_HI_MPI_SYS_Init:
-        log.Println("C.mpp3_sys_init() HI_MPI_SYS_Init() error ", errorCode)
+        log.Println("C.mpp3_sys_init() HI_MPI_SYS_Init() error ", error.Resolve(int(errorCode)))
     default:
         panic("Unexpected return of C.mpp3_sys_init()")
     }

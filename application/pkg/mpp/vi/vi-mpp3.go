@@ -74,6 +74,7 @@ import "C"
 
 import (
     "log"
+    "application/pkg/mpp/error"
 )
 
 func Init() {
@@ -83,13 +84,13 @@ func Init() {
     case C.ERR_NONE:
         log.Println("C.mpp3_vi_init() ok")
     case C.ERR_HI_MPI_VI_SetDevAttr:
-        log.Println("C.mpp3_vi_init() ERR_HI_MPI_VI_SetDevAttr() error ", errorCode)
+        log.Println("C.mpp3_vi_init() ERR_HI_MPI_VI_SetDevAttr() error ", error.Resolve(int(errorCode)))
     case C.ERR_HI_MPI_VI_EnableDev:
-        log.Println("C.mpp3_vi_init() ERR_HI_MPI_VI_EnableDev() error ", errorCode)
+        log.Println("C.mpp3_vi_init() ERR_HI_MPI_VI_EnableDev() error ", error.Resolve(int(errorCode)))
     case C.ERR_HI_MPI_VI_SetChnAttr:
-        log.Println("C.mpp3_vi_init() ERR_HI_MPI_VI_SetChnAttr() error ", errorCode)
+        log.Println("C.mpp3_vi_init() ERR_HI_MPI_VI_SetChnAttr() error ", error.Resolve(int(errorCode)))
     case C.ERR_HI_MPI_VI_EnableChn:
-        log.Println("C.mpp3_vi_init() ERR_HI_MPI_VI_EnableChn() error ", errorCode)        
+        log.Println("C.mpp3_vi_init() ERR_HI_MPI_VI_EnableChn() error ", error.Resolve(int(errorCode)))        
     default:
         panic("Unexpected return of C.mpp3_vi_init()")
     }

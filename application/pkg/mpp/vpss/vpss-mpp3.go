@@ -57,6 +57,7 @@ import "C"
 
 import (
     "log"
+    "application/pkg/mpp/error"
 )
 
 func Init() {
@@ -66,11 +67,11 @@ func Init() {
     case C.ERR_NONE:
         log.Println("C.mpp3_vpss_init() ok")
     case C.ERR_HI_MPI_VPSS_CreateGrp:
-        log.Println("C.mpp3_vpss_init() HI_MPI_VPSS_CreateGrp() error ", errorCode)
+        log.Println("C.mpp3_vpss_init() HI_MPI_VPSS_CreateGrp() error ", error.Resolve(int(errorCode)))
     case C.ERR_HI_MPI_VPSS_StartGrp:
-        log.Println("C.mpp3_vpss_init() HI_MPI_VPSS_StartGrp() error ", errorCode)
+        log.Println("C.mpp3_vpss_init() HI_MPI_VPSS_StartGrp() error ", error.Resolve(int(errorCode)))
     case C.ERR_HI_MPI_SYS_Bind:
-        log.Println("C.mpp3_vpss_init() HI_MPI_SYS_Bind() error ", errorCode)
+        log.Println("C.mpp3_vpss_init() HI_MPI_SYS_Bind() error ", error.Resolve(int(errorCode)))
     default:
         panic("Unexpected return of C.mpp3_vpss_init()")
     }
