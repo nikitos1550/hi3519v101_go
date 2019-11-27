@@ -25,7 +25,6 @@ func main() {
 		os.Exit(0)
 	}
 
-	//koloader.LoadMinimal()
 	mpp.Init()
 	openapi.Init()
 

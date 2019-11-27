@@ -99,6 +99,7 @@ func main() {
     log.Println("")
 
     log.Println("Loading modules...")
+    koloader.UnloadAll()
     koloader.LoadMinimal()
     log.Println("Loading modules done")
 

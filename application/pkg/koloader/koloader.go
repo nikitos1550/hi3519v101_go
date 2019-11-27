@@ -18,17 +18,15 @@ var (
 )
 
 func LoadMinimal() {
-    //loadKo(Modules[][0])
-    LoadAll() //TODO
+    //TODO
+    LoadAll()
 }
 
 func LoadAll() {
     tmpModules := make([][2]string, len(ModulesList))
     copy(tmpModules, ModulesList[:])
 
-    //setupKoParams(tmpModules) //TODO deal with slice array pointers
-
-    loadKo(tmpModules[:])
+    load(tmpModules[:])
 }
 
 //TODO create list by names (order by orig)
@@ -39,11 +37,14 @@ func Load(names []string) {
 }
 */
 
-func loadKo(modules [][2]string) {
-    //log.Println("Embedded files: ", AssetNames())
+func UnloadAll() {
+    tmpModules := make([][2]string, len(ModulesList))
+    copy(tmpModules, ModulesList[:])
 
-    setupKoParams(modules[:]) //TODO move to prev stack level
+    unload(tmpModules[:])
+}
 
+func unload(modules [][2]string) {
     for i := len(modules)-1; i>=0; i-- {
         rmname := modules[i][0][0:len(modules[i][0])-3]
         err := unix.DeleteModule(rmname, 0)
@@ -53,6 +54,10 @@ func loadKo(modules [][2]string) {
             log.Println(modules[i][0], " removed")
         }
     }
+}
+
+func load(modules [][2]string) {
+    setupParams(modules[:]) //TODO move to prev stack level
 
     for i := 0; i<len(modules); i++ {
         data, err := Asset(modules[i][0])
@@ -72,8 +77,7 @@ func loadKo(modules [][2]string) {
     }
 }
 
-
-func setupKoParams(modules [][2]string) {
+func setupParams(modules [][2]string) {
     var memStartAddr uint64 = 0x80000000 + (uint64(memLinux)*1024*1024)
     var memMppSize uint64 = uint64(memTotal - memLinux)
 
