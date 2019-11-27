@@ -6,12 +6,10 @@
 package koloader
 
 var (
-
     ModulesList = [...][2]string {
         [2]string{"hi_osal.ko",             "mmz=anonymous,0,0x{memStartAddr},{memMppSize}M anony=1"},
         [2]string{"hi3519v101_base.ko",     ""},
         [2]string{"hi3519v101_sys.ko",      "vi_vpss_online=0 sensor=NULL,NULL mem_total={memTotalSize}"},
-        /*
         //[2]string{"hi3519v101_tde.ko",     ""},
         [2]string{"hi3519v101_region.ko",      ""},
         [2]string{"hi3519v101_fisheye.ko",     ""},
@@ -45,6 +43,11 @@ var (
         [2]string{"hi_mipi.ko",              ""},
         [2]string{"hi_user.ko",              ""},
         [2]string{"hi_ssp_sony.ko",          ""},
-        */
+    }
+
+    minimalModulesList = [...]string {
+        "hi_osal.ko",
+        "hi3519v101_base.ko",
+        "hi3519v101_sys.ko",
     }
 )

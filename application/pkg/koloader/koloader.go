@@ -19,7 +19,16 @@ var (
 
 func LoadMinimal() {
     //TODO
-    LoadAll()
+    tmpModules := make([][2]string, 0)
+    for _, module := range minimalModulesList {
+        for i := 0; i < len(ModulesList); i++ {
+            if ModulesList[i][0] == module {
+                //log.Println("Found ", module)
+                tmpModules = append(tmpModules, ModulesList[i])
+            }
+        }
+    }
+    load(tmpModules[:])
 }
 
 func LoadAll() {
@@ -66,7 +75,7 @@ func load(modules [][2]string) {
             continue
         }
 
-        log.Println("Loading ", modules[i][0], " ", modules[i][1])
+        //log.Println("Loading ", modules[i][0], " ", modules[i][1])
         err2 := unix.InitModule(data, modules[i][1])
         if err2 != nil {
             log.Println(modules[i][0], " loading error ", err2)
