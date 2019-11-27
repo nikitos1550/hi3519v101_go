@@ -62,7 +62,7 @@ VI_DEV_ATTR_S DEV_ATTR_LVDS_BASE =
 #define ERR_HI_MPI_VI_SetChnAttr    4
 #define ERR_HI_MPI_VI_EnableChn     5
 
-int mpp3_vi_init(int *error_code) {
+int mpp3_vi_init(unsigned int *error_code) {
     *error_code = 0;
 
     VI_DEV_ATTR_S  stViDevAttr;
@@ -128,20 +128,20 @@ import (
 )
 
 func Init() {
-    var errorCode C.int
+    var errorCode C.uint
 
     switch err := C.mpp3_vi_init(&errorCode); err {
     case C.ERR_NONE:
         log.Println("C.mpp3_vi_init() ok")
     case C.ERR_HI_MPI_VI_SetDevAttr:
-        log.Println("C.mpp3_vi_init() ERR_HI_MPI_VI_SetDevAttr() error ", error.Resolve(int(errorCode)))
+        log.Fatal("C.mpp3_vi_init() ERR_HI_MPI_VI_SetDevAttr() error ", error.Resolve(uint(errorCode)))
     case C.ERR_HI_MPI_VI_EnableDev:
-        log.Println("C.mpp3_vi_init() ERR_HI_MPI_VI_EnableDev() error ", error.Resolve(int(errorCode)))
+        log.Fatal("C.mpp3_vi_init() ERR_HI_MPI_VI_EnableDev() error ", error.Resolve(uint(errorCode)))
     case C.ERR_HI_MPI_VI_SetChnAttr:
-        log.Println("C.mpp3_vi_init() ERR_HI_MPI_VI_SetChnAttr() error ", error.Resolve(int(errorCode)))
+        log.Fatal("C.mpp3_vi_init() ERR_HI_MPI_VI_SetChnAttr() error ", error.Resolve(uint(errorCode)))
     case C.ERR_HI_MPI_VI_EnableChn:
-        log.Println("C.mpp3_vi_init() ERR_HI_MPI_VI_EnableChn() error ", error.Resolve(int(errorCode)))        
+        log.Fatal("C.mpp3_vi_init() ERR_HI_MPI_VI_EnableChn() error ", error.Resolve(uint(errorCode)))        
     default:
-        panic("Unexpected return of C.mpp3_vi_init()")
+        log.Fatal("Unexpected return ", err , " of C.mpp3_vi_init()")
     }
 }

@@ -2,12 +2,38 @@
 
 package mpp
 
+/*
+#include "./include/hi3516av200_mpp.h"
+
+int mpp3_exit() {
+    int error_code = 0;
+
+    error_code = HI_MPI_SYS_Exit();
+    if (error_code != HI_SUCCESS) {
+        printf("C DEBUG: in ko_init HI_MPI_SYS_Exit failed\n");
+        //return ERR_MPP;
+    }
+
+    error_code = HI_MPI_VB_Exit();
+    if (error_code != HI_SUCCESS) {
+        printf("C DEBUG: in ko_init HI_MPI_VB_Exit failed\n");
+        //return ERR_MPP;
+    }
+}
+*/
+import "C"
+
 import (
 	"application/pkg/koloader"
 	"application/pkg/utils"
 )
 
 func systemInit() {
+    //NOTE should be done, otherwise there can be kernel panic on module unload
+    //ATTENTION maybe isp exit should be added as well
+    //TODO rework, add error codes, deal with C includes
+    C.mpp3_exit()
+
 	//delete_module("hi3519v101_isp", NULL);//ATTENTION THIS IS NEED FOR PROPER APP RERUN, also some info here
     //http://bbs.ebaina.com/forum.php?mod=viewthread&tid=13925&extra=&highlight=run%2Bae%2Blib%2Berr%2B0xffffffff%21&page=1
 	koloader.UnloadAll()

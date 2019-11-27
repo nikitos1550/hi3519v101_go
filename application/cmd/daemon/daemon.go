@@ -25,8 +25,9 @@ func main() {
 		os.Exit(0)
 	}
 
-	mpp.Init()
 	openapi.Init()
+	mpp.Init()
+	
 
 	log.Println("loaded")
 

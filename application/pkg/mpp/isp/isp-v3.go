@@ -9,7 +9,7 @@ package isp
 
 #define ERR_NONE    0
 #define ERR_GENERAL 1
-#define ERR_MPP 2
+#define ERR_MPP     2
 
 static pthread_t mpp3_isp_thread_pid;
 
@@ -57,7 +57,7 @@ int mpp3_isp_init(int *error_code) {
 
     stLib.s32Id = 0;
     strcpy(stLib.acLibName, HI_AWB_LIB_NAME);
-    
+
     *error_code = HI_MPI_AWB_Register(0, &stLib);
     if (*error_code != HI_SUCCESS) return ERR_MPP;
 
@@ -74,7 +74,7 @@ int mpp3_isp_init(int *error_code) {
     stWdrMode.enWDRMode  = WDR_MODE_NONE;
 
     *error_code = HI_MPI_ISP_SetWDRMode(0, &stWdrMode);
-    if (*error_code != HI_SUCCESS) return ERR_NONE;
+    if (*error_code != HI_SUCCESS) return ERR_MPP;
     //TODO WDR modes support
 
     //stPubAttr.enBayer               = c->bayer;
@@ -101,10 +101,20 @@ int mpp3_isp_init(int *error_code) {
 */
 import "C"
 
+import (
+    "log"
+    "application/pkg/mpp/error"
+)
+
 func Init() {
     var errorCode C.int
-    switch err := C.mpp3_isp_init(&errorCode); err { 
+    
+	switch err := C.mpp3_isp_init(&errorCode); err {
+    case C.ERR_NONE:
+        log.Println("C.mpp3_isp_init() ok")
+    case C.ERR_MPP:
+        log.Fatal("C.mpp3_isp_init() mpp error ", error.Resolve(uint(errorCode)))
     default:
-        panic("Unexpected return of C.mpp3_isp_init()")
-    }
+	    log.Fatal("Unexpected return ", err , " of C.mpp3_isp_init()")
+	}
 }

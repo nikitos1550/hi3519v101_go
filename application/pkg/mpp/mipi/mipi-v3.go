@@ -117,12 +117,12 @@ import (
 
 func Init() {
     var errorCode C.int
-    
+
     switch err := C.mpp3_mipi_init(&errorCode); err {
     case C.ERR_NONE:
         log.Println("C.mpp3_mipi_init() ok")
     default:
-        panic("Unexpected return of C.mpp3_mipi_init()")
+        log.Fatal("Unexpected return ", err , " of C.mpp3_mipi_init()")
     }
 }
 
