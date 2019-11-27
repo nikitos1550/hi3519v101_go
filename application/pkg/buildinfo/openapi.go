@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	openapi.AddRoute("serveInfo", "/buildinfo", "GET", serveInfo)
+	openapi.AddApiRoute("serveInfo", "/buildinfo", "GET", serveInfo)
 }
 
 func serveInfo(w http.ResponseWriter, r *http.Request) {

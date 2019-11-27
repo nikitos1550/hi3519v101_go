@@ -4,7 +4,7 @@ package temperature
 
 import "application/pkg/utils"
 
-func Init() {
+func init() {
     utils.WriteDevMem32(0x1203009C, 0xCFA00000)
 }
 

@@ -10,27 +10,33 @@ import (
 	"net/http"
 	"os"
 	"time"
-	"strings"
+	//"strings"
 )
 
 ////////////////////////////////////////////////////////
 
 const apiPrefix string = "/api/"
 
-type route struct {
+type routeItem struct {
 	name        string
 	method      string
 	pattern     string
 	handlerFunc http.HandlerFunc
 }
 
-type routes []route
+type routeItems []routeItem
 
-var apiRoutes routes
+var apiRoutes	routeItems //var for initial api routes storage
+var routes		routeItems
+
+func AddApiRoute(name, pattern, method string, handlerfunc http.HandlerFunc) {
+	apiRoutes = append(apiRoutes, routeItem {name: name, method: method, pattern: pattern, handlerFunc: handlerfunc})
+}
 
 func AddRoute(name, pattern, method string, handlerfunc http.HandlerFunc) {
-	apiRoutes = append(apiRoutes, route{name: name, method: method, pattern: pattern, handlerFunc: handlerfunc})
+	routes = append(routes, routeItem {name: name, method: method, pattern: pattern, handlerFunc: handlerfunc})
 }
+
 
 ////////////////////////////////////////////////////////
 
@@ -49,14 +55,11 @@ func init() {
 ////////////////////////////////////////////////////////
 
 func Init() {
-	//log.Println("Openapi is ON!")
-
-	router := NewRouter()
+	router := newRouter()
 
 	//TODO use it or make another cmd/app to generate auto doc
 	if *flagPrintRoutes {
 		router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
-			/*
 			t, err := route.GetPathTemplate()
 			if err != nil {
 				return err
@@ -65,46 +68,18 @@ func Init() {
 			if err != nil {
 				return err
 			}
-			log.Println(m, " ", t)
-			return nil
-			*/
-			pathTemplate, err := route.GetPathTemplate()
-			if err == nil {
-				log.Println("ROUTE:", pathTemplate)
-			}
-			pathRegexp, err := route.GetPathRegexp()
-			if err == nil {
-				log.Println("Path regexp:", pathRegexp)
-			}
-			// queriesTemplates, err := route.GetQueriesTemplates()
-			// if err == nil {
-			// 	log.Println("Queries templates:", strings.Join(queriesTemplates, ","))
-			// }
-			// queriesRegexps, err := route.GetQueriesRegexp()
-			// if err == nil {
-			// 	log.Println("Queries regexps:", strings.Join(queriesRegexps, ","))
-			// }
-			methods, err := route.GetMethods()
-			if err == nil {
-				log.Println("Methods:", strings.Join(methods, ","))
-			}
-			log.Println()
+			//r, err := route.GetPathRegexp()
+			//if err == nil {
+			//	return err
+			//}
+			log.Println(m, " ", t)//, " ", r)
 			return nil
 		})
 		os.Exit(0)
 	}
 
-	log.Println("Starting USD HTTP server")
-
-	os.Remove(*flagUdsPath)
-	l, err := net.Listen("unix", *flagUdsPath)
-	if err != nil {
-		log.Printf("error: %v\n", err)
-		return
-	}
-	go http.Serve(l, router)
-
 	log.Println("Starting NET HTTP server")
+	//TODO check ability to bind port
 	srv := &http.Server{
 		Addr:           ":80",
 		Handler:        router,
@@ -114,37 +89,37 @@ func Init() {
 	}
 	go srv.ListenAndServe()
 
+	log.Println("Starting USD server")
+
+	os.Remove(*flagUdsPath)
+	l, err := net.Listen("unix", *flagUdsPath)
+	if err != nil {
+		log.Printf("error: %v\n", err)
+		return
+	}
+	go http.Serve(l, router)
 }
 
-func NewRouter() *mux.Router {
+func newRouter() *mux.Router {
 	router := mux.NewRouter() //.StrictSlash(true)
 
 	for _, route := range apiRoutes {
-		var handler http.Handler 
-		handler = route.handlerFunc
-		//handler = Logger(handler, route.Name)
-
 		router.
 			PathPrefix(apiPrefix).
 			Methods(route.method).
 			Path(route.pattern).
 			Name(route.name).
-			Handler(handler)
+			Handler(route.handlerFunc)
 	}
 
-    /*
-    router.HandleFunc("/api/debug/umap", debugUmap).Methods("GET")
-    router.HandleFunc("/api/debug/umap/{file}", debugUmapFile).Methods("GET")
-    router.HandleFunc("/api/debug/vars", debugExpvar).Methods("GET")
-    */
+	for _, route := range routes {
+		router.
+			Methods(route.method).
+			Path(route.pattern).
+			Name(route.name).
+			Handler(route.handlerFunc)
+	}
 
-	/*
-    router.HandleFunc("/api/system", system).Methods("GET")
-    router.HandleFunc("/api/system/date", systemDate).Methods("GET")
-    router.HandleFunc("/api/system/network", systemNetwork).Methods("GET")
-	*/
-
-	//router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("/opt/www"))))
 	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir(*flagWwwPath))))
 
 	return router

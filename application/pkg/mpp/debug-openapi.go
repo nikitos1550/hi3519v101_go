@@ -13,8 +13,8 @@ import (
 )
 
 func init() {
-    openapi.AddRoute("debugUmap",       "/debug/umap",          "GET",      debugUmap)
-	openapi.AddRoute("debugUmapFile",   "/debug/umap/{file}",   "GET",      debugUmapFile)
+    openapi.AddApiRoute("debugUmap",       "/debug/umap",          "GET",      debugUmap)
+	openapi.AddApiRoute("debugUmapFile",   "/debug/umap/{file}",   "GET",      debugUmapFile)
 	
 	//TODO This is shouldn`t be here, not related to MPP
     //AddRoute("debugExpvar",     "/api/debug/vars",          "GET",      debugExpvar)

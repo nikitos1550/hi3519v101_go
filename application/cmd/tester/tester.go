@@ -6,7 +6,6 @@ import (
     "net/http"
     "encoding/json"
     "flag"
-    _"strconv"
     "application/pkg/koloader"
     "application/pkg/utils/temperature"
     "application/pkg/utils/chip"
@@ -100,12 +99,9 @@ func main() {
     log.Println("")
 
     log.Println("Loading modules...")
+    koloader.UnloadAll()
     koloader.LoadMinimal()
     log.Println("Loading modules done")
-
-    log.Println("Initing temperature...")
-    temperature.Init()
-    log.Println("Initing temperature done")
 
     log.Println("Starting http server :80")
     http.HandleFunc("/", apiHandler)

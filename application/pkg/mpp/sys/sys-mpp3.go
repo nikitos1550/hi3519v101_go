@@ -3,63 +3,78 @@
 package sys
 
 /*
-int hi3516av200_sys_init(struct hi3516av200_cmos * c) {
-    int error_code = 0;
+#include "../include/hi3516av200_mpp.h"
+#include <string.h>
 
-    error_code = HI_MPI_SYS_Exit();
-    if (error_code != HI_SUCCESS) {
-        printf("C DEBUG: TODO\n");
-        return ERR_MPP;
-    }
-    printf("C DEBUG: HI_MPI_SYS_Exit ok\n");
+#define ERR_NONE                0
+#define ERR_HI_MPI_SYS_Exit     2
+#define ERR_HI_MPI_VB_Exit      3
+#define ERR_HI_MPI_VB_SetConf   4
+#define ERR_HI_MPI_VB_Init      5
+#define ERR_HI_MPI_SYS_SetConf  6
+#define ERR_HI_MPI_SYS_Init     7
 
-    error_code = HI_MPI_VB_Exit();
-    if (error_code != HI_SUCCESS) {
-        printf("C DEBUG: TODO\n");
-        return ERR_MPP;
-    }
-    printf("C DEBUG: HI_MPI_VB_Exit ok\n");
+int mpp3_sys_init(int *error_code) {
+    *error_code = 0;
+
+    *error_code = HI_MPI_SYS_Exit();
+    if (*error_code != HI_SUCCESS) return ERR_HI_MPI_SYS_Exit;
+
+    *error_code = HI_MPI_VB_Exit();
+    if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VB_Exit;
 
     VB_CONF_S stVbConf;
 
     memset(&stVbConf, 0, sizeof(VB_CONF_S));
     stVbConf.u32MaxPoolCnt                  = 128;
-    stVbConf.astCommPool[0].u32BlkSize      = (CEILING_2_POWER(c->width, 64) * CEILING_2_POWER(c->height, 64) * 1.5);
+    stVbConf.astCommPool[0].u32BlkSize      = (CEILING_2_POWER(3840, 64) * CEILING_2_POWER(2160, 64) * 1.5);
     stVbConf.astCommPool[0].u32BlkCnt       = 10;
 
-    error_code = HI_MPI_VB_SetConf(&stVbConf);
-    if(error_code != HI_SUCCESS) {
-        printf("C DEBUG: TODO\n");
-        return ERR_MPP;
-    }
-    printf("C DEBUG: HI_MPI_VB_SetConf ok\n");
+    *error_code = HI_MPI_VB_SetConf(&stVbConf);
+    if(*error_code != HI_SUCCESS) return ERR_HI_MPI_VB_SetConf;
 
-    error_code = HI_MPI_VB_Init();
-    if (error_code != HI_SUCCESS) {
-        printf("C DEBUG: TODO\n");
-        return ERR_MPP;
-    }
-    printf("C DEBUG: HI_MPI_VB_Init ok\n");
-
+    *error_code = HI_MPI_VB_Init();
+    if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VB_Init;
+    
     MPP_SYS_CONF_S stSysConf;
 
     stSysConf.u32AlignWidth = 64;
 
-    error_code = HI_MPI_SYS_SetConf(&stSysConf);
-    if (error_code != HI_SUCCESS) {
-        printf("C DEBUG: TODO\n");
-        return ERR_MPP;
-    }
-    printf("C DEBUG: HI_MPI_SYS_SetConf ok\n");
+    *error_code = HI_MPI_SYS_SetConf(&stSysConf);
+    if (*error_code != HI_SUCCESS) return ERR_HI_MPI_SYS_SetConf;
 
-    error_code = HI_MPI_SYS_Init();
-    if(error_code != HI_SUCCESS) {
-        printf("C DEBUG: TODO\n");
-        return ERR_MPP;
-    }
-    printf("C DEBUG: HI_MPI_SYS_Init ok\n");
+    *error_code = HI_MPI_SYS_Init();
+    if(*error_code != HI_SUCCESS) return ERR_HI_MPI_SYS_Init;
 
     return ERR_NONE;
 }
 */
-//import "C"
+import "C"
+
+import (
+    "log"
+    "application/pkg/mpp/error"
+)
+
+func Init() {
+    var errorCode C.int
+    
+    switch err := C.mpp3_sys_init(&errorCode); err {
+    case C.ERR_NONE:
+        log.Println("C.mpp3_sys_init ok")
+    case C.ERR_HI_MPI_SYS_Exit:
+        log.Println("C.mpp3_sys_init() HI_MPI_SYS_Exit() error ", error.Resolve(int(errorCode)))
+    case C.ERR_HI_MPI_VB_Exit:
+        log.Println("C.mpp3_sys_init() HI_MPI_VB_Exit() error ", error.Resolve(int(errorCode)))
+    case C.ERR_HI_MPI_VB_SetConf:
+        log.Println("C.mpp3_sys_init() HI_MPI_VB_SetConf() error ", error.Resolve(int(errorCode)))
+    case C.ERR_HI_MPI_VB_Init:
+        log.Println("C.mpp3_sys_init() HI_MPI_VB_Init() error ", error.Resolve(int(errorCode)))
+    case C.ERR_HI_MPI_SYS_SetConf:
+        log.Println("C.mpp3_sys_init() HI_MPI_SYS_SetConf() error ", error.Resolve(int(errorCode)))
+    case C.ERR_HI_MPI_SYS_Init:
+        log.Println("C.mpp3_sys_init() HI_MPI_SYS_Init() error ", error.Resolve(int(errorCode)))
+    default:
+        panic("Unexpected return of C.mpp3_sys_init()")
+    }
+}

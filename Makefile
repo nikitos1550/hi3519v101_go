@@ -1,6 +1,10 @@
 THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
-include Makefile.user.params
+ifeq ("$(wildcard Makefile.user.params)","")
+ $(error cp Makefile.user.params.example to Makefile.user.params) 
+endif
+
+include $(THIS_DIR)Makefile.user.params
 
 BR             := buildroot-2019.08
 BUILDROOT_DIR  := $(abspath ./buildroot-2019.08)
@@ -19,11 +23,14 @@ APP_TARGET      ?= tester   #default target will be tester, daemon build on requ
 # -----------------------------------------------------------------------------------------------------------
 
 help:
-	@echo -e "Help:\n"\
-		" - make prepare          - prepare; MUST be done before anything\n"\
-		" - make rootfs.squashfs  - build application and pack it within RootFS image\n"\
-		" - make deploy-app       - build&deploy application onto prticular board\n"\
-		" - make cleanall         - remove all artifacts"
+	@echo -e "Help:\n" \
+		" - make prepare            - prepare; MUST be done before anything\n"\
+		" - make deploy-app         - build&deploy application onto prticular board\n"\
+		" - make deploy-app-control - build&deploy application, then attach serial console onto prticular board\n"\
+		" - make control            - attach serial console onto prticular board\n"\
+		" - make rootfs.squashfs    - build application and pack it within RootFS image\n"\
+		" - make kernel             - build board kernel\n"\
+		" - make cleanall           - remove all artifacts"
 
 prepare: $(BUILDROOT_DIR)
 	@echo "All prepared"
@@ -35,7 +42,6 @@ $(BUILDROOT_DIR):
 cleanall:
 	if [ -d ./output ]; then chmod --recursive 777 ./output; fi
 	rm -rf ./output $(BUILDROOT_DIR)
-
 
 # -----------------------------------------------------------------------------------------------------------
 
@@ -91,18 +97,9 @@ deploy-app-control: deploy-app
 
 ########################################################################
 
-$(BR):
-	tar -xzf $(BR).tar.gz -C $(THIS_DIR)
-	cp -r ./$(BR)-patch/* ./$(BR)
-
-enviroiment-setup: $(BR)
-
-########################################################################
-
 control:
 	screen -L /dev/ttyCAM$(CAMERA) 115200
 
 control-%:
 	screen -L /dev/ttyCAM$(subst control-,,$@) 115200
 
-########################################################################

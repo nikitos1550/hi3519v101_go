@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	openapi.AddRoute("serveTemperature", "/temperature", "GET", serveTemperature)
+	openapi.AddApiRoute("serveTemperature", "/temperature", "GET", serveTemperature)
 }
 
 type serveTemperatureSchema struct {
