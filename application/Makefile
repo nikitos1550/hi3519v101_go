@@ -75,6 +75,7 @@ deploy-dir-daemon:
 	mkdir ./distrib/$(FAMILY)/opt/www
 	cp -r ./www/* ./distrib/$(FAMILY)/opt/www
 	mkdir ./distrib/$(FAMILY)/etc
+	cp ./init/run.sh ./distrib/$(FAMILY)/opt
 
 deploy-dir-tester:
 	rm -rf ./distrib
