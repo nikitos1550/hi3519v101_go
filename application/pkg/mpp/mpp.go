@@ -1,23 +1,23 @@
 package mpp
 
 import (
-    "application/pkg/koloader"
-
     "application/pkg/mpp/sys"
 
     _"application/pkg/mpp/cmos"
     _"application/pkg/mpp/mipi"
-    _"application/pkg/mpp/isp"
-    _"application/pkg/mpp/vi"
-    _"application/pkg/mpp/vpss"
+    "application/pkg/mpp/isp"
+    "application/pkg/mpp/vi"
+    "application/pkg/mpp/vpss"
     _"application/pkg/mpp/venc"
 
 )
 
 func Init() {
-    koloader.LoadAll()
+    systemInit()
     //
     //
     sys.Init()
-    
+    isp.Init()
+    vi.Init()
+    vpss.Init()
 }
