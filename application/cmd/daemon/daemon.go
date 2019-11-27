@@ -1,15 +1,16 @@
 package main
 
 import (
-	"application/pkg/buildinfo"
-	_ "application/pkg/koloader"
-	_ "application/pkg/mpp"
-	"application/pkg/openapi"
-	_ "application/pkg/utils/chip"
-	"application/pkg/utils/temperature"
 	"flag"
 	"log"
 	"os"
+
+	"application/pkg/buildinfo"
+	"application/pkg/mpp"
+	"application/pkg/openapi"
+	
+	_"application/pkg/utils/temperature"
+	_"application/pkg/utils/chip"
 )
 
 func main() {
@@ -25,9 +26,8 @@ func main() {
 	}
 
 	//koloader.LoadMinimal()
-	//mpp.Init()
+	mpp.Init()
 	openapi.Init()
-	temperature.Init()
 
 	log.Println("loaded")
 
