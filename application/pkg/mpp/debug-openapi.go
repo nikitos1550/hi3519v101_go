@@ -24,14 +24,16 @@ func debugUmap(w http.ResponseWriter, r *http.Request) {
     log.Println("debugUmap")
 
 	w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-
+	
 	files, err := ioutil.ReadDir("/proc/umap")
 	if err != nil {
 		//TODO /proc/umap exist only after ko modules init, handle it smart!
-		panic(err)
+		w.WriteHeader(http.StatusNotFound) //TODO correct status
+		//panic(err)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
 
 	num := len(files)
 	var i int = 0
