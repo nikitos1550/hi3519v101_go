@@ -4,7 +4,7 @@ import (
     "application/pkg/mpp/sys"
 
     _"application/pkg/mpp/cmos"
-    _"application/pkg/mpp/mipi"
+    "application/pkg/mpp/mipi"
     "application/pkg/mpp/isp"
     "application/pkg/mpp/vi"
     "application/pkg/mpp/vpss"
@@ -17,6 +17,7 @@ func Init() {
     //
     //
     sys.Init()
+    mipi.Init()
     isp.Init()
     vi.Init()
     vpss.Init()
