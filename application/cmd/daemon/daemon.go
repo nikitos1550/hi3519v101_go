@@ -6,8 +6,9 @@ import (
 	"os"
 
 	"application/pkg/buildinfo"
-	"application/pkg/mpp"
 	"application/pkg/openapi"
+	"application/pkg/mpp"
+	"application/pkg/streamer"
 	
 	_"application/pkg/utils/temperature"
 	_"application/pkg/utils/chip"
@@ -27,9 +28,9 @@ func main() {
 
 	openapi.Init()
 	mpp.Init()
-	
+	streamer.Init()
 
-	log.Println("loaded")
+	log.Println("daemon init done")
 
 	select {}
 }
