@@ -5,35 +5,82 @@ package mpp
 /*
 #include "./include/hi3516av200_mpp.h"
 
-int mpp3_exit() {
-    int error_code = 0;
+#define ERR_NONE    0
+#define ERR_MPP     1
 
-    error_code = HI_MPI_SYS_Exit();
-    if (error_code != HI_SUCCESS) {
-        printf("C DEBUG: in ko_init HI_MPI_SYS_Exit failed\n");
-        //return ERR_MPP;
-    }
+int mpp3_sys_exit(int *error_code) {
+    *error_code = 0;
+    *error_code = HI_MPI_SYS_Exit();
+    if (*error_code != HI_SUCCESS) return ERR_MPP;
+    return ERR_NONE;
+}
 
-    error_code = HI_MPI_VB_Exit();
-    if (error_code != HI_SUCCESS) {
-        printf("C DEBUG: in ko_init HI_MPI_VB_Exit failed\n");
-        //return ERR_MPP;
-    }
+int mpp3_vb_exit(int *error_code) {
+    *error_code = 0;
+    *error_code = HI_MPI_VB_Exit();
+    if (*error_code != HI_SUCCESS) return ERR_MPP;
+    return ERR_NONE;
+}
+
+int mpp3_isp_exit(int *error_code) {
+    *error_code = 0;
+    *error_code = HI_MPI_ISP_Exit(0);
+    if (*error_code != HI_SUCCESS) return ERR_MPP;
+    return ERR_NONE;
 }
 */
 import "C"
 
 import (
+    "log"
+    "os"
+
 	"application/pkg/koloader"
-	"application/pkg/utils"
+    "application/pkg/utils"
+    "application/pkg/mpp/error"
 )
 
+//TODO rework this mess
 func systemInit() {
     //NOTE should be done, otherwise there can be kernel panic on module unload
     //ATTENTION maybe isp exit should be added as well
     //TODO rework, add error codes, deal with C includes
-    C.mpp3_exit()
 
+    if _, err := os.Stat("/dev/sys"); err == nil { 
+        var errorCode C.int
+        switch err := C.mpp3_sys_exit(&errorCode); err {
+        case C.ERR_NONE:
+            log.Println("C.mpp3_sys_exit() ok")
+        case C.ERR_MPP:
+            log.Fatal("C.mpp3_sys_exit() HI_MPI_SYS_Exit() error ", error.Resolve(uint(errorCode))) 
+        default:
+            log.Fatal("Unexpected return ", err , " of C.mpp3_sys_exit()")
+        } 
+    }
+
+    /*if _, err := os.Stat("/dev/isp_dev"); err == nil { //kernel panic !?
+        var errorCode C.int
+        switch err := C.mpp3_isp_exit(&errorCode); err {
+        case C.ERR_NONE:
+            log.Println("C.mpp3_isp_exit() ok")
+        case C.ERR_MPP:
+            log.Fatal("C.mpp3_isp_exit() HI_MPI_ISP_Exit() error ", error.Resolve(uint(errorCode))) 
+        default:
+            log.Fatal("Unexpected return ", err , " of C.mpp3_isp_exit()")
+        }
+    }*/
+
+    if _, err := os.Stat("/dev/vb"); err == nil {      
+        var errorCode C.int
+        switch err := C.mpp3_vb_exit(&errorCode); err {
+        case C.ERR_NONE:
+            log.Println("C.mpp3_vb_exit() ok")
+        case C.ERR_MPP:
+            log.Fatal("C.mpp3_vb_exit() HI_MPI_VB_Exit() error ", error.Resolve(uint(errorCode))) 
+        default:
+            log.Fatal("Unexpected return ", err , " of C.mpp3_vb_exit()")
+        }
+    }
 	//delete_module("hi3519v101_isp", NULL);//ATTENTION THIS IS NEED FOR PROPER APP RERUN, also some info here
     //http://bbs.ebaina.com/forum.php?mod=viewthread&tid=13925&extra=&highlight=run%2Bae%2Blib%2Berr%2B0xffffffff%21&page=1
 	koloader.UnloadAll()
