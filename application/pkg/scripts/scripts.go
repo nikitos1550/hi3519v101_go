@@ -4,10 +4,16 @@ package scripts
 
 import (
 	"github.com/yuin/gopher-lua"
-    //"flag"
+    "flag"
 )
 
 var L *lua.LState
+
+var flagInitScriptPath  *string
+
+func init() {
+    flagInitScriptPath = flag.String("scripts-init", "/opt/scripts/init.lua", "Lua init script file path")
+}
 
 //TODO
 //func AddFunc(fname string, fimpl func(L *lua.LState) ) {

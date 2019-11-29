@@ -74,7 +74,9 @@ deploy-dir-daemon:
 	mkdir ./distrib/$(FAMILY)
 	mkdir ./distrib/$(FAMILY)/opt
 	mkdir ./distrib/$(FAMILY)/opt/www
+	mkdir ./distrib/$(FAMILY)/opt/scripts
 	cp -r ./www/* ./distrib/$(FAMILY)/opt/www
+	cp -r ./scripts/* ./distrib/$(FAMILY)/opt/scripts
 	mkdir ./distrib/$(FAMILY)/etc
 	cp ./init/run.sh ./distrib/$(FAMILY)/opt
 
