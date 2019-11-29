@@ -7,9 +7,12 @@ import (
 
 	"application/pkg/buildinfo"
 	"application/pkg/openapi"
+	"application/pkg/scripts"
 	"application/pkg/mpp"
 	"application/pkg/streamer"
 	
+	//TODO avoid implicit
+	//packages with implicit init ( func init() )
 	_"application/pkg/utils/temperature"
 	_"application/pkg/utils/chip"
 )
@@ -26,9 +29,15 @@ func main() {
 		os.Exit(0)
 	}
 
-	openapi.Init()
+	openapi.Init() 	//openapi init should go first, becasue of -openapi-routes flag
+					//same time, it will start serve requests immediately, but 
+					//some requests need mpp and other initilization
+	scripts.Init()	//
+
 	mpp.Init()
 	streamer.Init()
+
+	openapi.Start()
 
 	log.Println("daemon init done")
 
