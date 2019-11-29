@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"application/pkg/buildinfo"
+	"application/pkg/config"
 	"application/pkg/openapi"
 	"application/pkg/scripts"
 	"application/pkg/mpp"
@@ -28,6 +29,8 @@ func main() {
 		printVersion()
 		os.Exit(0)
 	}
+
+	config.Init()
 
 	openapi.Init() 	//openapi init should go first, becasue of -openapi-routes flag
 					//same time, it will start serve requests immediately, but 
