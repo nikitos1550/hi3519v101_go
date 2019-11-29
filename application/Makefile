@@ -11,7 +11,8 @@ GOARM   := $(ARMV) #FROM Makefile.params
 GOENV   := GOPATH=$(GOPATH) GOOS=$(GOOS) GOARCH=$(GOARCH) GOARM=$(GOARM)
 
 GOTAGS_TESTER  := $(FAMILY)
-GOTAGS_DAEMON  := $(FAMILY) imx274 openapi debug
+GOTAGS_DAEMON  := $(FAMILY) imx274 openapi scripts debug
+#GOTAGS_DAEMON  := $(FAMILY) imx274 debug
 #GOTAGS  := $(FAMILY) netgo openapi debug lua onvif
 
 PATH    := $(PATH):$(GOPATH)/bin
