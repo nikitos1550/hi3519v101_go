@@ -24,8 +24,8 @@ SOURCES=main.c uart.c spihw.c
 CC=avr-gcc
 LD=avr-ld
 OBJCOPY=avr-objcopy
-MMCU ?= atmega168p
-AVRDUDE_MCU ?= m168
+MMCU ?= atmega328p
+AVRDUDE_MCU ?= m328p
 AVRDUDE_PROGRAMMER ?= arduino
 # These defaults are for the U2-equipped arduino (m328p),
 # feel free to change.
@@ -52,7 +52,8 @@ include libfrser/Makefile.spihw_avrspi
 
 all: $(PROJECT).out
 
-$(PROJECT).hex: $(PROJECT).out
+#$(PROJECT).hex: $(PROJECT).out
+$(PROJECT).hex:
 	$(AVRBINDIR)$(OBJCOPY) -j .text -j .data -O ihex $(PROJECT).out $(PROJECT).hex
 
 $(PROJECT).bin: $(PROJECT).out
@@ -84,10 +85,13 @@ objdump: $(PROJECT).out
 # Compatibility with serprog-duino / User Friendlyness helpers
 u2:
 	$(MAKE) clean
-	DFLAGS= FRBAUD=115200 $(MAKE) all
+	#DFLAGS= FRBAUD=115200 $(MAKE) all
+	DFLAGS= FRBAUD=2000000 $(MAKE) all
 
 flash-u2:
 	BLBAUD=115200 SERIAL_DEV=/dev/ttyACM0 $(MAKE) program
+	#BLBAUD=2000000 SERIAL_DEV=/dev/ttyACM0 $(MAKE) program
+	#BLBAUD=19200 SERIAL_DEV=/dev/ttyACM0 $(MAKE) program
 
 ftdi:
 	$(MAKE) clean

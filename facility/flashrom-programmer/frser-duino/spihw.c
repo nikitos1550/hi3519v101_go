@@ -29,7 +29,9 @@ void flash_set_safe(void) {
 	DDR_SPI &= ~_BV(SCK);
 	DDR_SPI &= ~_BV(SS);
 
-	DDR_SPI &= ~_BV(RELAY);
+	//DDR_SPI &= ~_BV(RELAY);
+	//DDR_SPI |= _BV(RELAY);
+	SPI_PORT |= _BV(RELAY);//relay on
 }
 
 void flash_select_protocol(uint8_t allowed_protocols) {
@@ -39,9 +41,13 @@ void flash_select_protocol(uint8_t allowed_protocols) {
 	SPI_PORT &= ~_BV(MOSI);
 	SPI_PORT &= ~_BV(SCK);
 	
-	SPI_PORT |= _BV(RELAY);
+	//SPI_PORT |= _BV(RELAY);
+	SPI_PORT &= ~_BV(RELAY);//relay off
+
 
 	DDR_SPI = (1<<MOSI)|(1<<SCK)|(1<<SS)|(1<<RELAY);
+        //DDR_SPI = (1<<MOSI)|(1<<SCK)|(1<<SS);
+
 	spi_init();
 }
 
