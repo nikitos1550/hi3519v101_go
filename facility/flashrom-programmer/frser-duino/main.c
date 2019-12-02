@@ -22,6 +22,7 @@
 #include "uart.h"
 #include "frser.h"
 
+#include "spihw.h"
 
 int main(void) {
 #if (defined __AVR_ATmega1280__)||(defined __AVR_ATmega1281__)||(defined __AVR_ATmega2560__)||(defined __AVR_ATmega2561__)
@@ -29,6 +30,10 @@ int main(void) {
 	PORTB &= ~_BV(7);
 	DDRB |= _BV(7);
 #endif
+	//SPI_PORT &= ~_BV(RELAY);//relay off
+	SPI_PORT |= _BV(RELAY); //relay on
+	DDR_SPI |= _BV(RELAY); //relay pin output
+
 	uart_init();
 	frser_main();
 }
