@@ -10,6 +10,9 @@ from server import register, routine
 from devices import Devices, Device
 
 
+class DeviceState:
+    def __init__(self):
+        pass
 
 
 class Ser2NetWrap:
@@ -22,8 +25,8 @@ class Ser2NetWrap:
         return self.config["config_file"]
 
     @property
-    def running(self):
-        return self.s2n_proc is not None 
+    def is_running(self):
+        return (self.s2n_proc is not None) and (self.s2n_proc.returncode is None)
 
     def __init__(self, config={}):
         self.config = config
@@ -45,17 +48,25 @@ class Ser2NetWrap:
             "-c", self.config_file
         ]
         logging.debug("run subprocess: ser2net {}".format(" ".join(args)))
-        self.s2n_proc = await asyncio.subprocess.create_subprocess_exec("ser2net", *args)
+        self.s2n_proc = await asyncio.subprocess.create_subprocess_exec("ser2net", *args, stderr=asyncio.subprocess.DEVNULL)
         logging.info("ser2net started with PID {}".format(self.s2n_proc.pid))
 
+        await asyncio.sleep(3)
+        if not self.is_running:
+            raise RuntimeError("ser2net process died very fast")
+
         logging.debug("connect to ser2net control port...")
+        await asyncio.sleep(1)
         self.control = Telnet(host="localhost", port=self.control_port)
         logging.debug("connection with ser2net control port established")
         self.control.read_until(b"-> ")
         logging.info("ser2net control is ready")
 
     async def stop(self):
-        logging.info("Stop ser2net process...")
+        if not self.is_running:
+            return
+
+        logging.debug("ser2net process is stopping...")
         self.s2n_proc.terminate()
         try:
             await asyncio.wait_for(self.s2n_proc.wait(), timeout=5)
@@ -63,7 +74,7 @@ class Ser2NetWrap:
         except asyncio.TimeoutError:
             self.s2n_proc.kill()
             await self.s2n_proc.wait()
-            logging.warn("ser2net proess was killed")
+            logging.warn("ser2net process killed")
 
     def update_config(self, devices):
         config_lines = []
@@ -84,6 +95,13 @@ class Ser2NetWrap:
         self.control.write(data)
         res = self.control.read_until(b"-> ")
         return res[len(data):-5].decode("ascii")
+
+    def _acquire_device(self, devname, user):
+        owner = self._devname_to_owner.get(devname)
+        if (owner is not None) and (owner != user):
+            raise common.InvalidArgument("device '{}' is already acquired by '{}'".format(devname, owner))
+        self._devname_to_owner[devname] = user
+        logging.info("Device '{}' is acquired by '{}'".format(devname, user))
 
     def disconnect(self, port):
         return self.cmd("disconnect localhost,{}".format(port))
@@ -110,23 +128,17 @@ class Ser2NetWrap:
 
         return result
 
-    def add_device(self, dev, port):
-        with open("./ser2net.cfg", "w") as f:
-            f.write("localhost,{0}:telnet:0:{1}:115200\n".format(port, dev))
-        self.update()
-
-    def enable_device(self, devname, mode="tenet"):
+    def forward_device(self, devname, user, mode="tenet"):
         port = self._devname_to_port.get(devname)
         if port is None:
             raise common.InvalidArgument("device '{}' does not exist".format(devname))
 
-        self.cmd("setportenable {} {}".format(port, mode))
-        return "ok: telnet localhost {}".format(port)
+        self._acquire_device(devname, user)
 
-    def update_timeouts(self):
-        for devname in self._devname_to_port.keys():
-            
-        pass
+        self.cmd("setportenable {} {}".format(port, mode))
+        logging.info("Forward device '{}' to {} TCP port in '{}' mode".format(devname, port, mode))
+
+        return "ok/exec: telnet localhost {}".format(port)
 
 
 # -------------------------------------------------------------------------------------------------
@@ -144,15 +156,20 @@ async def main_routine():
     logging.info("Main routine started")
 
     __devices = Devices()
-
     __s2n_wrap = Ser2NetWrap()
-    await __s2n_wrap.start()
 
-    while True:
-        if __devices.update():
-            logging.info("Devices were changed, update ser2net config")
-            __s2n_wrap.update_config(__devices.devs.values())
-        await asyncio.sleep(10)
+    try:
+        await __s2n_wrap.start()
+
+        while True:
+            if __devices.update():
+                logging.info("Devices were changed, update ser2net config")
+                __s2n_wrap.update_config(__devices.devs.values())
+            await asyncio.sleep(10)
+    except:
+        logging.debug("exceptions occured in main_routine")
+        await __s2n_wrap.stop()
+        raise
 
 
 @register
@@ -163,11 +180,11 @@ def list_devices():
 
 
 @register
-def forward_serial(devname, owner, mode="telnet"):
+def forward_serial(devname, user, mode="telnet"):
     """ Forward a device's serial port to TCP
-    args: devname owner [mode=telnet]
+    args: devname user [mode=telnet]
     """
-    return __s2n_wrap.enable_device(devname, mode)
+    return __s2n_wrap.forward_device(devname, user, mode)
 
 
 @register

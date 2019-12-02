@@ -1,3 +1,5 @@
+#!/bin/env python3
+
 import os
 import sys
 import logging
@@ -21,7 +23,10 @@ def run(port, config):
     for signame in STOP_SIGNALS:
         eloop.add_signal_handler(getattr(signal, signame), srv.stop)
 
-    eloop.run_until_complete(srv.run(port=port))
+    try:
+        eloop.run_until_complete(srv.run(port=port))
+    except Exception as err:
+        logging.fatal("Server not started: {}".format(err))
 
     # needed by some asynchronous reasons...
     for signame in STOP_SIGNALS:
@@ -34,8 +39,8 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", "-c", type=str, required=True, help="Configuration file")
-    parser.add_argument("--port", "-p", type=int, defrequired=True, help="Port to listen on")
+    parser.add_argument("--config", "-c", type=str, help="Configuration file")
+    parser.add_argument("--port", "-p", type=int, default=43500, help="Port to listen on")
     parser.add_argument("--detach", "-d", action="store_true", help="Fork process")
     parser.add_argument("--pidf", type=str, help="File to write PID into")
     parser.add_argument("--logf", type=str, help="File to write logs into")
@@ -50,7 +55,7 @@ def main():
         if not args.logf:
             args.logf = "./log"
 
-    logging.basicConfig(level=logging.DEBUG, filename=args.logf)
+    logging.basicConfig(level=logging.DEBUG, filename=args.logf, filemode="w")
 
     if args.pidf:
         with open(args.pidf, "w") as f:

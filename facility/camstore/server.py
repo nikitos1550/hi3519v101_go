@@ -39,8 +39,9 @@ def routine(func):
         try:
             await func()
         except Exception as err:
-            logging.error("Routine {} failed with error: {}".format(func.__name__, err))
-
+            logging.error("Routine {} failed with {}: {}".format(func.__name__, err.__class__.__name__, err))
+        
+    asyncio.CancelledError
     ROUTINES[func.__name__] = wrap
     return wrap
 
@@ -132,18 +133,24 @@ class Server:
         if self._srv is not None:
             self._srv.close()
             logging.info("Server has closed")
-            for t in self._tasks:
+
+        for t in self._tasks:
+            if not t.done():
                 t.cancel()
 
-    async def run(self, port=51515):
-        self._start_routines()
-        logging.info("Routines is started")
+    async def run(self, port):
+        try:
+            self._srv = await asyncio.start_server(self._on_connect, host="localhost", port=port)
+            logging.info("Server is listening on localhost:{}".format(port))
 
-        self._srv = await asyncio.start_server(self._on_connect, host="localhost", port=port)
-        logging.info("Server is listening on localhost:{}".format(port))
+            self._start_routines()
+            logging.info("Routines are started")
 
-        await self._srv.wait_closed()
-        logging.info("Server has stopped")
+            await self._srv.wait_closed()
+            logging.info("Server has stopped")
+        except:
+            self.stop()
+            raise
 
     async def _on_connect(self, reader, writer):
         task = asyncio.Task.current_task()
