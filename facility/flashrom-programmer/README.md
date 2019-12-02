@@ -30,12 +30,12 @@ Makefile was corrected to set 2Mbit speed of serprog, but upload firmware at 115
 * make
 * make dfu
 
-##serprog
+### serprog
 * make clean
 * make u2
 * make flash-u2
 
-###Host PC
+### Host PC
 Sometimes there are some brltty and ModemManagers working on your GNU/Linux PC, they will
 connect to any serial device to check is it modem or not, this can cause a lot of headache
 as the device (arduino) will behave ambiguously (like you can`t upload firmware right after 
