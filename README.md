@@ -62,31 +62,31 @@ Add additional notes about how to deploy this on a live system.
 ## 📁 Repo structure and further study <a name="repo_structure"></a>
 Each dir contains it`s own README.md, that expand it`s topic.
 
-```
+```bash
 .
-├── *...* - git repo files
-├── **Makefile** - main makefile, this is entry point for development enviroiment
-├── **Makefile.user.params.example** - custom dev env settings example
-├── **README.md** - this document
-├── **application** - target application
-├── **boards** - camera hardware profiles
-├── **buildroot-2019.08-patch** - patch files for vanilla buildroot
-├── **burner** - tool for deployment firmware to camera via u-boot
-├── **docs** - documentation that didn`t find home in other dirs
-├── **facility** - remote development server related files, configuraions, etc
-├── **hi3516av100** - *will be moved to ./hisilicon*
-├── **hi3516av200** - *will be moved to ./hisilicon*
-├── **hi3516cv100** - *will be moved to ./hisilicon*
-├── **hi3516cv200** - *will be moved to ./hisilicon*
-├── **hi3516cv300** - *will be moved to ./hisilicon*
-├── **hi3516cv500** - *will be moved to ./hisilicon*
-├── **hi3516ev200** - *will be moved to ./hisilicon*
-├── **hi3519av100** - *will be moved to ./hisilicon*
-├── **hi3559av100** - *will be moved to ./hisilicon*
-├── **hisilicon** - ???
-├── **output** - build time artifacts
-├── **rootfs** - ???
-└── **scripts** - useful tools for development
+├── ... - git repo files
+├── Makefile - main makefile, this is entry point for development enviroiment
+├── Makefile.user.params.example - custom dev env settings example
+├── README.md - this document
+├── application - target application
+├── boards - camera hardware profiles
+├── buildroot-2019.08-patch - patch files for vanilla buildroot
+├── burner - tool for deployment firmware to camera via u-boot
+├── docs - documentation that didn`t find home in other dirs
+├── facility - remote development server related files, configuraions, etc
+├── hi3516av100 - will be moved to ./hisilicon
+├── hi3516av200 - will be moved to ./hisilicon
+├── hi3516cv100 - will be moved to ./hisilicon
+├── hi3516cv200 - will be moved to ./hisilicon
+├── hi3516cv300 - will be moved to ./hisilicon
+├── hi3516cv500 - will be moved to ./hisilicon
+├── hi3516ev200 - will be moved to ./hisilicon
+├── hi3519av100 - will be moved to ./hisilicon
+├── hi3559av100 - will be moved to ./hisilicon
+├── hisilicon - ???
+├── output - build time artifacts
+├── rootfs - ???
+└── scripts - useful tools for development
 ```
 
 ## ⛏️  Tech stack <a name="tech_stack"></a>
