@@ -43,8 +43,7 @@ You can ssh via 2223 port or establish vpn with facility network and ssh 192.168
 More about facility structure you can read in corresponding [readme file](./facility).
 
 ### Deploy development enviroiment
-A step by step series of examples that tell you how to get a development env running.
-
+After you logged into ssh, suppose 
 
 ```console
 foo@build-hisi:~$ git clone https://github.com/nikitos1550/hi3519v101_go -b testing
@@ -53,14 +52,51 @@ foo@build-hisi:~$ cp Makefile.user.params.example Makefile.user.params
 foo@build-hisi:~$ make prepare
 ```
 
+Take a note, that if you have several copies or repo (for example you are working on several branches simultaneously),
+you should create `Makefile.user.params` and `make prepare` in each repo instance.
+
 ## 🎈 Usage <a name="usage"></a>
-Add notes about how to use the system.
+Development ifrastructure are built with makefiles, bash scripts and several python3 utils. 
+All these things are tied with facility server.
+Your entry point to development enviroiment is **repo's root makefile**.
+Let's see what command are exposed to us.
+
+```console
+foo@build-hisi:~/hi3519v101_go$ make
+Help:
+  - make prepare            - prepare; MUST be done before anything
+  - make deploy-app         - build&deploy application onto particular board
+  - make deploy-app-control - build&deploy application, then attach serial console onto particular board
+  - make control            - attach serial console onto particular board
+  - make rootfs.squashfs    - build application and pack it within RootFS image
+  - make kernel             - build board kernel
+  - make cleanall           - remove all artifacts
+```
+
+Software can't be run in an abstract, it can run only on some specified hardware.
+There are number of supported hadwares (more you can read in corresponding [readme file](./boards)).
+Exact hardware profile you are working with is setuped in you `Makefile.user.params`
+
+```make
+...
+CAMERA  ?= 1
+BOARD   ?= jvt_hi3519v101_imx274
+...
+```
 
 ## 🚀 Deploy application to camera <a name = "deployment"></a>
-Add additional notes about how to deploy this on a live system.
+
+TODO Lock some camera for your individual use.
+
+There are two commands that you can use to deploy software to camera:
+* `make deploy-app`
+* `make deploy-app-control`
+
+Command are similar but second one will automaticly open camera's main console and let you control camera.
+Any way you can make 
 
 ## 📁 Repo structure and further study <a name="repo_structure"></a>
-Each dir contains its own README.md, that expand the topic.
+Each dir contains it's own README.md, that expand the topic.
 
 ```
 .
@@ -90,6 +126,6 @@ Each dir contains its own README.md, that expand the topic.
 ```
 
 ## ⛏️  Tech stack <a name="tech_stack"></a>
-- **Golang** - Main programming language for application
+- **Golang**, **C** - programming languages for application
 - **Python3**, **bash/sh**, **make**  - Tools, build automation and facility
 - **...**
