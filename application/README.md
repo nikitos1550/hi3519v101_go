@@ -1,5 +1,9 @@
 # Application
-Application is wrote mainly in golang with a bit C (via cgo).
+Application is wrote mainly in golang with a bit C (via cgo). 
+Application doesn`t cover firmware area. 
+It is just app that implements some functionality and has some requirements about deployement enviroiment.
+
+
 
 ## Build targets
 Build target is version of application for some special purpose.
@@ -50,7 +54,49 @@ toolchain settings are correct and overall build system id working as expected.
 
 ### Daemon
 
+This is main version of application. 
+
 ## Code structure
+
+```
+.
+├── Makefile - 
+├── README.md - this document
+├── api
+├── cmd - entry points of targets
+│   ├── daemon
+│   └── tester
+├── go.mod
+├── go.sum
+├── init
+│   ├── S99tester
+│   └── run.sh
+├── pkg - sources
+│   ├── buildinfo
+│   ├── koloader
+│   ├── mpp
+│   ├── openapi
+│   └── utils
+│       ├── chip
+│       └── temperature
+├── sdk
+│   ├── hi3516av100
+│   ├── hi3516av200
+│   │   ├── README.md - information about SDK version
+│   │   ├── include
+│   │   ├── ko
+│   │   └── lib
+│   ├── hi3516cv100
+│   ├── hi3516cv200
+│   ├── hi3516cv300
+│   ├── hi3516cv500
+│   ├── hi3516ev200
+│   ├── hi3519av100
+│   └── hi3559av100
+└── www - frontend files, should be separated in future
+```
+
+## Conditional build
 
 ## MPP backend
 
@@ -58,10 +104,13 @@ toolchain settings are correct and overall build system id working as expected.
 
 ## Lua API
 
+## Tests
+**TBD. How to implement golang native tests (taking into account that application can run only on specific hardware)?**
+
 ## Debug notes
 
 ## Build notes
-###Invoke build from application dir
+### Invoke build from application dir
 ```console
 foo@build-hisi:~/hi3519v101_go/application$ make PARAMS_FILE=../output/boards/jvt_hi3519v101_imx274/Makefile.params build-tester
 ```
