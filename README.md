@@ -46,11 +46,11 @@ More about facility structure you can read in corresponding [readme file](./faci
 A step by step series of examples that tell you how to get a development env running.
 
 
-```bash
-$ git clone https://github.com/nikitos1550/hi3519v101_go -b testing
-$ cd hi3519v101_go
-$ cp Makefile.user.params.example Makefile.user.params
-$ make prepare
+```console
+foo@build-hisi:~$ git clone https://github.com/nikitos1550/hi3519v101_go -b testing
+foo@build-hisi:~$ cd hi3519v101_go
+foo@build-hisi:~$ cp Makefile.user.params.example Makefile.user.params
+foo@build-hisi:~$ make prepare
 ```
 
 ## 🎈 Usage <a name="usage"></a>
