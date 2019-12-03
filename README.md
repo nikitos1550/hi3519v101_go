@@ -40,13 +40,13 @@ This repo designed
 Ip address of the remote facility is 213.141.129.12. 
 You can ssh via 2223 port or establish vpn with facility network and ssh 192.168.10.2.
 
-More about facility structure you can read in corresponding [readne file](./facility).
+More about facility structure you can read in corresponding [readme file](./facility).
 
 ### Deploy development enviroiment
 A step by step series of examples that tell you how to get a development env running.
 
 
-```
+```bash
 $ git clone https://github.com/nikitos1550/hi3519v101_go -b testing
 $ cd hi3519v101_go
 $ cp Makefile.user.params.example Makefile.user.params
@@ -60,9 +60,9 @@ Add notes about how to use the system.
 Add additional notes about how to deploy this on a live system.
 
 ## 📁 Repo structure and further study <a name="repo_structure"></a>
-Each dir contains it`s own README.md, that expand it`s topic.
+Each dir contains its own README.md, that expand the topic.
 
-```bash
+```
 .
 ├── ... - git repo files
 ├── Makefile - main makefile, this is entry point for development enviroiment
