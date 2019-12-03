@@ -1,3 +1,5 @@
+# HiSilicon hardware platform
+
 ## Chips families information
 
 | chips                                                 | shortcode     |
