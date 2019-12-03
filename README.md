@@ -76,6 +76,7 @@ Help:
 Software can't be run in an abstract, it can run only on some specified hardware.
 There are number of supported hadwares (more you can read in corresponding [readme file](./boards)).
 Exact hardware profile you are working with is setuped in you `Makefile.user.params`
+Each hardware profile will require it's own kernel and rootfs build.
 
 ```make
 ...
@@ -84,16 +85,33 @@ BOARD   ?= jvt_hi3519v101_imx274
 ...
 ```
 
-## 🚀 Deploy application to camera <a name = "deployment"></a>
+Build system is hierarchical, all makefile targets will invoke all corresponding underlayer targets (exception is prepare target).
+If you will run `make deploy-app-control` for first time, build system will first build toolchain, then kernel and rootfs, then app, ...
+You advised to `make rootfs.squashfs` and `make kernel` for target hardware profile in advance.
 
-TODO Lock some camera for your individual use.
+## 🚀 Deploy application to camera <a name = "deployment"></a>
+To deploy and test application on a real hardware you should make following steps:
+1. Lock some camera from a pool.
+2. Tune your `Makefile.user.params`: choose application target and board profile.
+3. Run deploy application target in main make file.
+
+**TODO** *Lock some camera for your individual use.*
 
 There are two commands that you can use to deploy software to camera:
 * `make deploy-app`
 * `make deploy-app-control`
 
 Command are similar but second one will automaticly open camera's main console and let you control camera.
-Any way you can make 
+You are advised always use `make deploy-app-control` and monitor what is going on.
+
+Deploy will always build application from scratch. 
+More about application build process you can read in corresponding [readme file](./application).
+
+There are several targets, be default tester application will be built.
+If you want to build main version of application uncomment following line to your `Makefile.user.params`
+```make
+APP_TARGET := daemon
+```
 
 ## 📁 Repo structure and further study <a name="repo_structure"></a>
 Each dir contains it's own README.md, that expand the topic.
