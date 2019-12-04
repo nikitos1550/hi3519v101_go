@@ -1,179 +1,180 @@
-# OpenHisiIpCam development facility
+<p align="center">
+  <a href="" rel="noopener">
+ <img width=200px height=200px src="docs/images/gopher200.png" alt="OpenHisiIpcam"></a>
+</p>
 
-## Chips families information
-
-| chips                                                 | shortcode     |
-|-------------------------------------------------------|---------------|
-| hi3516av100, hi3516dv100                              | hi3516av100   |
-| hi3519v101,  hi3516av200                              | hi3516av200   |
-| hi3516cv100, hi3518cv100, hi3518ev100                 | hi3516cv100   |
-| hi3516cv200, hi3518ev200, hi3518ev201                 | hi3516cv200   |
-| hi3516cv300, hi3516ev100                              | hi3516cv300   |
-| hi3516cv500, hi3516dv300, hi3516av300                 | hi3516cv500   |
-| hi3516ev300, hi3516ev200, hi3516dv200, hi3518ev300    | hi3516ev200   |
-| hi3519av100                                           | hi3519av100   |
-| hi3559av100                                           | hi3559av100   |
-
-## SDK information
-
-|family     |kernel |uboot  |MPP    |
-|-----------|-------|-------|-------|
-|hi3516av100|3.4.35 |       |v2
-|hi3516av200|3.18.20|       |v3
-|hi3516cv100|3.0.8  |       |v1/v2?
-|hi3516cv200|3.4.35 |       |v2
-|hi3516cv300|3.18.20|       |v3
-|hi3516cv500|4.9.37 |       |v4
-|hi3516ev200|4.9.37 |       |v4
-|hi3519av100|4.9.37 |       |v4
-|hi3559av100|4.9.37 |       |v4
-
-
-## Network structure
-
-```
-  213.141.129.12                                                                   
-  :2223 ssh to build-hisi                                                          
-  :1194 openvpn (internal 192.168.11.X)                                            
-                                                                                   
-    +---------------------+                                                        
-    |                     |                                                        
-    |    ROUTER Tp-Link   |                                                        
-    |                     |                                                        
-    +---------------------+                                                        
-                         ---------nikita-home-computer                             
-  192.168.10.X ---------/         192.168.10.3                                     
-     |      -----\                                                                 
-     |            ---------\                      AC/DC 220v -> 12v 250W           
-     |                      ------build-hisi                |                      
-  Camera slot #X                --server -\                 |                      
-  192.168.10.1XX              -/           --\              |                      
-     |                      -/                --            |                      
-     /                    -/     ttyAMA0 arduino relay power resetter              
-    |                   -/                                                         
-    |                 -/                                                           
- pl2303 usb-uart adapter                                                           
-```
-
-## Repo structure
-
-* **api**
-* **app_minimal** - target application, development happens here
-* **app_tester** - sample application
-* **boards** - known devices configurations
-* **burner** - tool for automated upload software to device
-* **docs** - documentation files, image storage used by github wiki
-* **facility** - files that are used on server to organize enviroiment
-* **hi35XXxvXXX** - chip family specific toolchain, default rootfs and kernel build env
-* **putonrootfs** - default rootfs overlay
-
-## Boards
-
-Current build system is targeted to specific boards to make it easy checking software on different devices.
-
-| board name            | status                  |
-|-----------------------|-------------------------|
-| jvt_hi3519v101_imx274 | app_tester, app_minimal |
-| xm_hi3516av100_imx178 | app_tester              |
-| other                 | n/a                     |
-
-## Build model
-### Terms:
-* family - shortname for chips set with same cpu architecture and same videopipeline implementation, shared SDK
-* chip - exact SoC model
-
-### Rootfs layers (from top to bottom)
-
-1. application
-   1. rootfs overlay (```app_xxx/putonrootfs```)
-   2. family dependent rootfs overlay (```app_xxx/hi35XXxvXXX/putonrootfs```)
-2. board rootfs overlay (```boards/XXX/putonrootfs```)
-3. shared rootfs overlay (```putonrootfs```)
-4. generic family rootfs (```hi35XXxvXXX/rootfs```)
-
-### Kernel customization
-
-1. apply board patch for kernel source tree (should be used only for DTS customization)
-2. use custom board kernel.config if exist or further
-3. use custom board kernel.config.patch for chip generic config if exist or go further
-2. use chip generic kernel config as default option
-
-### Sample board config
-
-* ```config``` file
-* ```kernel``` dir
-  * ```kernel.config``` file, should replace generic chip kernel config
-  * ```kernel.config.patch``` file, should be merged with generic chip kernel config (TODO)
-  * ```patch``` dir, used for custom dts
-* ```putonrootfs``` dir, rootfs overlay
-
-```
-VENDOR      =JVT
-MODEL       =unknown
-FAMILY      =hi3516av200
-CHIP        =hi3519v101
-RAM_SIZE    =512
-RAM_LINUX   =256
-RAM_MPP     =256
-ROM_SIZE    =16
-CMOS        =imx274
-UBOOT_SIZE  =1024
-INITRD_TMP  =16
-```
-
-
-## How to deploy debug enviroiment
-
-1. ```cp Makefile.user.params.example Makefile.user.params``` copy default config and edit it.
-
-Here you can point to default camera you are working with.
-
-2. ```make enviroiment-setup```
-
-This will unpack buildroot and setup toolchains and default rootfses for all chips.
-Also it will prepare kernel build env for all chips.
-If you want to save time comment lines in *enviroiment-setup* target to exclude chips you are not working with.
-
-
-### Kernel
-
-Kernel should be built for each board. 
-```make kernl-build``` command will build kernel according your config file.
-
-## How to deploy software to camera attached to server
-* ```make deploy-app``` to build and deploy app according your config file
-
-## FAQ
-
-Q: My rootfs.squashfs becomes too big!
-
-A: Check *putonrootfs-debug/opt*, seems there are several apps. Clean dir. Check *buildroot-2019.05.1-debug/output/target/opt*, do same.
+<h3 align="center">OpenHisiIpCam</h3>
 
 ---
 
-Q: How to exit ```screen``` serial terminal?
+<p align="center"> Ip camera firmware
+    <br> 
+</p>
 
-A: Ctrl+A ky (Press **Ctrl + A**, then press **k**, then press **y**)
+## 📝 Table of Contents
+- [About](#about)
+- [Target hardware](#target_hardware)
+- [Getting Started](#getting_started)
+- [Usage](#usage)
+- [Deploy application to camera](#deployment)
+- [Repo structure and further study](#repo_structure)
+- [Development practices](#dev_practices)
+- [Tech stack](#tech_stack)
 
----
+## 👓 About <a name = "about"></a>
+Project target is to make open customizable scriptable embedded software for HiSilicon based ip cameras.
 
-Q: I'm tired of starting the application typing same commands each time.
+Despite all market available offers it's own software. 
+Most vendors covers only case of common security surveillance. 
+But same cameras can be used for other cases, as machine vision applications, industrial control, 
+even take role of central control point for some compelete systems.
 
-A: Check *putonrootfs-debug/etc/init.d/S90debug*
+Our software is focused on easy dynamic/runtime behaviour customization and integration with other systems,
+in technical vision cases.
+
+More information about overall technical project structure [here](./docs/PROJECT_OVERVIEW.md).
+
+## 📷 Target hardware <a name="target_hardware"></a>
+Project is targetting on market available HiSilicon based one cmos ip(network) cameras.
+Basicly camera is small GNU/Linux operated computer with small ROM (around 16MB) and RAM from 32MB up to 1GB.
+Computer is implemented in one chip (IC), that has integrated audio/video processing related IPs 
+(such audio/video input/output, image signal processor, audio/video encoder/decoder, etc).
+
+More information:
+- [HiSilicon boot process](./docs/BOOT.md)
+- [HiSilicon media processing platform](./docs/MPP.md)
+- [Supported SoCs](./hisilicon)
+- [Supported devices](./boards)
+
+## 🏁 Getting Started <a name="getting_started"></a>
+These instructions will get you a copy of the project up and running on remote facility machine for development and testing purposes. 
+Development enviroiment deployment on local machines is beyond the scope of this document. 
+
+This repo designed to work well in remote facility enviroiment, as deploy and run application is complicated process,
+we built it. More information about facility in corresponding [readme file](./facility).
+
+*Later when project will be moved into mature state, we will split it for several repos.*
+
+### Remote facility
+Ip address of the remote facility is 213.141.129.12. 
+You can ssh via 2223 port or establish vpn with facility network and ssh 192.168.10.2.
+
+Http and https are also available on 213.141.129.12, basic auth login/pass is test/hisilicon123.
+
+More about facility structure and features you can read in corresponding [readme file](./facility).
+
+### Deploy development enviroiment
+After you logged into ssh, you should clone repo and prepare it:
+```console
+foo@build-hisi:~$ git clone https://github.com/nikitos1550/hi3519v101_go -b testing
+foo@build-hisi:~$ cd hi3519v101_go
+foo@build-hisi:~$ cp Makefile.user.params.example Makefile.user.params
+foo@build-hisi:~$ make prepare
+```
+
+Take a note, that if you have several copies of repo (for example you are working on several branches simultaneously),
+you should create `Makefile.user.params` and `make prepare` in each repo instance.
+
+## 🎈 Usage <a name="usage"></a>
+Development ifrastructure are built with makefiles, bash scripts and several python3 utils. 
+All these things are tied with facility server.
+Your entry point to development enviroiment is **repo's root makefile**.
+Let's see what command are exposed to us.
+
+```console
+foo@build-hisi:~/hi3519v101_go$ make
+Help:
+  - make prepare            - prepare; MUST be done before anything
+  - make deploy-app         - build&deploy application onto particular board
+  - make deploy-app-control - build&deploy application, then attach serial console onto particular board
+  - make control            - attach serial console onto particular board
+  - make rootfs.squashfs    - build application and pack it within RootFS image
+  - make kernel             - build board kernel
+  - make cleanall           - remove all artifacts
+```
+
+Software can't be run in an abstract, it can run only on some specified hardware.
+There are number of supported hadwares (more you can read in corresponding [readme file](./boards)).
+Exact hardware profile you are working with is setuped in you `Makefile.user.params`
+Each hardware profile will require it's own kernel and rootfs build.
+
+```make
+...
+CAMERA  ?= 1
+BOARD   ?= jvt_hi3519v101_imx274
+...
+```
+
+Build system is hierarchical, all makefile targets will invoke all corresponding underlayer targets (exception is prepare target).
+If you will run `make deploy-app-control` for first time, build system will first build toolchain, 
+then kernel and rootfs, then app, ...
+You advised to `make rootfs.squashfs` and `make kernel` for target hardware profile in advance.
+
+## 🚀 Deploy application to camera <a name = "deployment"></a>
+To deploy and test application on a real hardware you should make following steps:
+1. Lock some camera from a pool.
+2. Tune your `Makefile.user.params`: choose application target and board profile.
+3. Run deploy application target in main make file.
+
+**TODO** *Lock some camera for your individual use.*
+
+There are two commands that you can use to deploy software to camera:
+* `make deploy-app`
+* `make deploy-app-control`
+
+Command are similar but second one will automaticly open camera's main console and let you control camera.
+You are advised always use `make deploy-app-control` and monitor what is going on.
+
+Deploy will always build application from scratch. 
+More about application build process you can read in corresponding [readme file](./application).
+
+There are several targets, be default tester application will be built.
+If you want to build main version of application uncomment following line to your `Makefile.user.params`
+```make
+APP_TARGET := daemon
+```
+
+## 📁 Repo structure and further study <a name="repo_structure"></a>
+Each dir contains it's own README.md, that expand the topic.
 
 ```
-...
-start() {
-    #gdbserver :2345 /opt/mpp_version &
-    #/opt/app_sample & <--- UNCOMMENT THIS LINE
-}
-...
+.
+├── ... - git repo files, buildroot distrib, etc
+├── Makefile - main makefile, this is entry point for development enviroiment
+├── Makefile.user.params.example - custom dev env settings example
+├── README.md - this document
+├── application - target application
+├── boards - camera hardware profiles
+├── buildroot-2019.08-patch - patch files for vanilla buildroot
+├── burner - tool for deployment firmware to camera via u-boot
+├── docs - documentation that didn`t find home in other dirs
+├── facility - remote development server related files, configuraions, etc
+├── hi3516av100 - will be moved to ./hisilicon
+├── hi3516av200 - will be moved to ./hisilicon
+├── hi3516cv100 - will be moved to ./hisilicon
+├── hi3516cv200 - will be moved to ./hisilicon
+├── hi3516cv300 - will be moved to ./hisilicon
+├── hi3516cv500 - will be moved to ./hisilicon
+├── hi3516ev200 - will be moved to ./hisilicon
+├── hi3519av100 - will be moved to ./hisilicon
+├── hi3559av100 - will be moved to ./hisilicon
+├── hisilicon - SoC related files, kernels, loaders, toolchain configurations, etc
+├── output - build time artifacts
+├── rootfs - configuration for debug rootfs (env that will be used to run app on camera)
+└── scripts - useful tools for development
 ```
 
-## Notes
+**You adviced to learn [docs dir](./docs) information first.**
 
-* Don`t forget about git-lfs to clone this repo fully
-* For clean ubuntu server 19.04 I installed mc build-essential make cmake u-boot-tools python libncurses5-dev packages
-* hisi-build webserver basic auth - test/hisilicon
+## 📐 Development practices <a name="dev_practices"></a>
+- Development is happened in github repo.
+- Testing is happened on remote facility.
+- *Master* branch is stable version with synced documentation
+- *Testing* branch is stable version
+- For each feature we create issue and branch.
+- ...
 
-
+## ⛏️  Tech stack <a name="tech_stack"></a>
+- **Golang**, **C** - programming languages for application
+- **Python3**, **bash/sh**, **make**  - Tools, build automation and facility
+- **...**
