@@ -1,0 +1,1 @@
+# HiSilicon boot process

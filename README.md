@@ -18,21 +18,40 @@
 - [Usage](#usage)
 - [Deploy application to camera](#deployment)
 - [Repo structure and further study](#repo_structure)
+- [Development practices](#dev_practices)
 - [Tech stack](#tech_stack)
 
 ## 👓 About <a name = "about"></a>
 Project target is to make open customizable scriptable embedded software for HiSilicon based ip cameras.
 
-TODO
+Despite all market available offers it's own software. 
+Most vendors covers only case of common security surveillance. 
+But same cameras can be used for other cases, as machine vision applications, industrial control, 
+even take role of central control point for some compelete systems.
+
+Our software is focused on easy dynamic/runtime behaviour customization and integration with other systems,
+in technical vision cases.
+
+More information about overall technical project structure [here](./docs/PROJECT_OVERVIEW.md).
 
 ## 📷 Target hardware <a name="target_hardware"></a>
-A few words about target hardware...
+Project is targetting on market available HiSilicon based one cmos ip(network) cameras.
+Basicly camera is small GNU/Linux operated computer with small ROM (around 16MB) and RAM from 32MB up to 1GB.
+Computer is implemented in one chip (IC), that has integrated audio/video processing related IPs 
+(such audio/video input/output, image signal processor, audio/video encoder/decoder, etc).
+
+More information:
+- [HiSilicon boot process](./docs/BOOT.md)
+- [HiSilicon media processing platform](./docs/MPP.md)
+- [Supported SoCs](./hisilicon)
+- [Supported devices](./boards)
 
 ## 🏁 Getting Started <a name="getting_started"></a>
 These instructions will get you a copy of the project up and running on remote facility machine for development and testing purposes. 
 Development enviroiment deployment on local machines is beyond the scope of this document. 
 
-This repo designed
+This repo designed to work well in remote facility enviroiment, as deploy and run application is complicated process,
+we built it. More information about facility in corresponding [readme file](./facility).
 
 *Later when project will be moved into mature state, we will split it for several repos.*
 
@@ -43,8 +62,7 @@ You can ssh via 2223 port or establish vpn with facility network and ssh 192.168
 More about facility structure you can read in corresponding [readme file](./facility).
 
 ### Deploy development enviroiment
-After you logged into ssh, suppose 
-
+After you logged into ssh, you should clone repo and prepare it:
 ```console
 foo@build-hisi:~$ git clone https://github.com/nikitos1550/hi3519v101_go -b testing
 foo@build-hisi:~$ cd hi3519v101_go
@@ -52,7 +70,7 @@ foo@build-hisi:~$ cp Makefile.user.params.example Makefile.user.params
 foo@build-hisi:~$ make prepare
 ```
 
-Take a note, that if you have several copies or repo (for example you are working on several branches simultaneously),
+Take a note, that if you have several copies of repo (for example you are working on several branches simultaneously),
 you should create `Makefile.user.params` and `make prepare` in each repo instance.
 
 ## 🎈 Usage <a name="usage"></a>
@@ -86,7 +104,8 @@ BOARD   ?= jvt_hi3519v101_imx274
 ```
 
 Build system is hierarchical, all makefile targets will invoke all corresponding underlayer targets (exception is prepare target).
-If you will run `make deploy-app-control` for first time, build system will first build toolchain, then kernel and rootfs, then app, ...
+If you will run `make deploy-app-control` for first time, build system will first build toolchain, 
+then kernel and rootfs, then app, ...
 You advised to `make rootfs.squashfs` and `make kernel` for target hardware profile in advance.
 
 ## 🚀 Deploy application to camera <a name = "deployment"></a>
@@ -118,7 +137,7 @@ Each dir contains it's own README.md, that expand the topic.
 
 ```
 .
-├── ... - git repo files
+├── ... - git repo files, buildroot distrib, etc
 ├── Makefile - main makefile, this is entry point for development enviroiment
 ├── Makefile.user.params.example - custom dev env settings example
 ├── README.md - this document
@@ -137,11 +156,21 @@ Each dir contains it's own README.md, that expand the topic.
 ├── hi3516ev200 - will be moved to ./hisilicon
 ├── hi3519av100 - will be moved to ./hisilicon
 ├── hi3559av100 - will be moved to ./hisilicon
-├── hisilicon - ???
+├── hisilicon - SoC related files, kernels, loaders, toolchain configurations, etc
 ├── output - build time artifacts
-├── rootfs - ???
+├── rootfs - configuration for debug rootfs (env that will be used to run app on camera)
 └── scripts - useful tools for development
 ```
+
+**You adviced to learn [docs dir](./docs) information first.**
+
+## 📐 Development practices <a name="dev_practices"></a>
+- Development is happened in github repo.
+- Testing is happened on remote facility.
+- *Master* branch is stable version with synced documentation
+- *Testing* branch is stable version
+- For each feature we create issue and branch.
+- ...
 
 ## ⛏️  Tech stack <a name="tech_stack"></a>
 - **Golang**, **C** - programming languages for application
