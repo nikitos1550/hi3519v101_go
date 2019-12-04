@@ -59,7 +59,9 @@ we built it. More information about facility in corresponding [readme file](./fa
 Ip address of the remote facility is 213.141.129.12. 
 You can ssh via 2223 port or establish vpn with facility network and ssh 192.168.10.2.
 
-More about facility structure you can read in corresponding [readme file](./facility).
+Http and https are also available on 213.141.129.12, basic auth login/pass is test/hisilicon123.
+
+More about facility structure and features you can read in corresponding [readme file](./facility).
 
 ### Deploy development enviroiment
 After you logged into ssh, you should clone repo and prepare it:

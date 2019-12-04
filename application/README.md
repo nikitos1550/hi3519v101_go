@@ -3,8 +3,6 @@ Application is wrote mainly in golang with a bit C (via cgo).
 Application doesn`t cover firmware area. 
 It is just app that implements some functionality and has some requirements about deployement enviroiment.
 
-
-
 ## Build targets
 Build target is version of application for some special purpose.
 
