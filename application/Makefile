@@ -105,8 +105,12 @@ build-tester: generate libsdk deploy-dir-tester
 #buid-with-vendors: generate
 #	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags $(GOTAGS) -mod vendor -o $(APPOUT) application/cmd/daemon
 
+testvideo.h264:
+	ffmpeg -f lavfi -i testsrc=size=320x340 -t 30 -pix_fmt yuv420p -c:v libx264 -tune zerolatency -profile:v high -g 25 -vbsf h264_mp4toannexb -f h264 testvideo.h264
+
 clean:
 	rm -f $(APPOUT)
+	rm ./testvideo.h264
 
 freeze-vendors:
 	GOPATH=$(GOPATH) $(GO) mod vendor
