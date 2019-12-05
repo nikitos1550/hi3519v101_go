@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-func Resolve(code uint) string {
+func Resolve(code int64) string {
 	switch code {
 	case 0xA0028003: 
 		return "HI_ERR_SYS_ILLEGAL_PARAM (The parameter configuration is invalid)"
@@ -448,7 +448,7 @@ func Resolve(code uint) string {
 	case 0xA01C8046: 
 		return "HI_ERR_ISP_NO_INT (The ISP module has no interrupt)"
 	default:
-		out := "unknown error " + strconv.FormatInt(int64(code), 16)
+		out := "unknown error " + strconv.FormatInt(code, 16)
 		return out
 	}
 }

@@ -40,6 +40,7 @@ func main() {
 	mpp.Init()
 	streamer.Init()
 
+	scripts.Start()
 	openapi.Start()
 
 	log.Println("daemon init done")

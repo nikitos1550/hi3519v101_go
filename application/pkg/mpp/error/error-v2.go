@@ -8,7 +8,7 @@ import (
 )
 
 //TODO add rest codes
-func Resolve(code int) string {
+func Resolve(code int64) string {
 	switch code {
 	case 0xA0028003:
 		return "HI_ERR_SYS_ILLEGAL_PARAM (The parameter configuration is invalid)"
@@ -149,7 +149,7 @@ func Resolve(code int) string {
 	case 0xA01C0042: 
 		return "HI_ERR_ISP_ATTR_NOT_CFG (The attribute is not configured)"
 	default:
-		out := "unknown error " + strconv.FormatInt(int64(code), 16)
+		out := "unknown error " + strconv.FormatInt(code, 16)
 		return out
 	}
 }

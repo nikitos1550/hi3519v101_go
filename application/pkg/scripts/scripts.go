@@ -10,15 +10,17 @@ import (
 var L *lua.LState
 
 var flagInitScriptPath  *string
+var flagScriptsPath     *string
 
 func init() {
-    flagInitScriptPath = flag.String("scripts-init", "/opt/scripts/init.lua", "Lua init script file path")
+    flagInitScriptPath  = flag.String("scripts-init", "/opt/scripts/init.lua", "Lua init script file path")
+    flagScriptsPath     = flag.String("scripts-dir", "/opt/scripts", "Lua scripts dir")
 }
 
 //TODO
 //func AddFunc(fname string, fimpl func(L *lua.LState) ) {
-func AddFunc(fname string, fimpl lua.LGFunction) {
-	L.SetGlobal(fname, L.NewFunction(fimpl)) /* Original lua_setglobal uses stack... */
+func AddFunc(fName string, fImpl lua.LGFunction) {
+	L.SetGlobal(fName, L.NewFunction(fImpl)) /* Original lua_setglobal uses stack... */
 }
 
 func Init() {
@@ -61,4 +63,8 @@ func Init() {
 		panic(err)
 	}
 	//L.Close()
+}
+
+func Start() {
+    
 }

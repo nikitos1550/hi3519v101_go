@@ -1,0 +1,5 @@
+package getter
+
+func Init() {
+
+}

@@ -77,8 +77,8 @@ int mpp3_isp_init(int *error_code) {
     if (*error_code != HI_SUCCESS) return ERR_MPP;
     //TODO WDR modes support
 
-    //stPubAttr.enBayer               = c->bayer;
-    //stPubAttr.f32FrameRate          = c->fps;
+    stPubAttr.enBayer               = BAYER_RGGB;
+    stPubAttr.f32FrameRate          = 30;
     stPubAttr.stWndRect.s32X        = 0;
     stPubAttr.stWndRect.s32Y        = 0;
     stPubAttr.stWndRect.u32Width    = 3840;     //TODO What is WND rect?
@@ -113,7 +113,7 @@ func Init() {
     case C.ERR_NONE:
         log.Println("C.mpp3_isp_init() ok")
     case C.ERR_MPP:
-        log.Fatal("C.mpp3_isp_init() mpp error ", error.Resolve(uint(errorCode)))
+        log.Fatal("C.mpp3_isp_init() mpp error ", error.Resolve(int64(errorCode)))
     default:
 	    log.Fatal("Unexpected return ", err , " of C.mpp3_isp_init()")
 	}

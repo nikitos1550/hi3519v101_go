@@ -63,17 +63,17 @@ func Init() {
     case C.ERR_NONE:
         log.Println("C.mpp3_sys_init ok")
     case C.ERR_HI_MPI_SYS_Exit:
-        log.Fatal("C.mpp3_sys_init() HI_MPI_SYS_Exit() error ", error.Resolve(uint(errorCode)))
+        log.Fatal("C.mpp3_sys_init() HI_MPI_SYS_Exit() error ", error.Resolve(int64(errorCode)))
     case C.ERR_HI_MPI_VB_Exit:
-        log.Fatal("C.mpp3_sys_init() HI_MPI_VB_Exit() error ", error.Resolve(uint(errorCode)))
+        log.Fatal("C.mpp3_sys_init() HI_MPI_VB_Exit() error ", error.Resolve(int64(errorCode)))
     case C.ERR_HI_MPI_VB_SetConf:
-        log.Fatal("C.mpp3_sys_init() HI_MPI_VB_SetConf() error ", error.Resolve(uint(errorCode)))
+        log.Fatal("C.mpp3_sys_init() HI_MPI_VB_SetConf() error ", error.Resolve(int64(errorCode)))
     case C.ERR_HI_MPI_VB_Init:
-        log.Fatal("C.mpp3_sys_init() HI_MPI_VB_Init() error ", error.Resolve(uint(errorCode)))
+        log.Fatal("C.mpp3_sys_init() HI_MPI_VB_Init() error ", error.Resolve(int64(errorCode)))
     case C.ERR_HI_MPI_SYS_SetConf:
-        log.Fatal("C.mpp3_sys_init() HI_MPI_SYS_SetConf() error ", error.Resolve(uint(errorCode)))
+        log.Fatal("C.mpp3_sys_init() HI_MPI_SYS_SetConf() error ", error.Resolve(int64(errorCode)))
     case C.ERR_HI_MPI_SYS_Init:
-        log.Fatal("C.mpp3_sys_init() HI_MPI_SYS_Init() error ", error.Resolve(uint(errorCode)))
+        log.Fatal("C.mpp3_sys_init() HI_MPI_SYS_Init() error ", error.Resolve(int64(errorCode)))
     default:
         log.Fatal("Unexpected return ", err , " of C.mpp3_sys_init()")
     }

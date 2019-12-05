@@ -52,7 +52,7 @@ func systemInit() {
         case C.ERR_NONE:
             log.Println("C.mpp3_sys_exit() ok")
         case C.ERR_MPP:
-            log.Fatal("C.mpp3_sys_exit() HI_MPI_SYS_Exit() error ", error.Resolve(uint(errorCode))) 
+            log.Fatal("C.mpp3_sys_exit() HI_MPI_SYS_Exit() error ", error.Resolve(int64(errorCode))) 
         default:
             log.Fatal("Unexpected return ", err , " of C.mpp3_sys_exit()")
         } 
@@ -76,7 +76,7 @@ func systemInit() {
         case C.ERR_NONE:
             log.Println("C.mpp3_vb_exit() ok")
         case C.ERR_MPP:
-            log.Fatal("C.mpp3_vb_exit() HI_MPI_VB_Exit() error ", error.Resolve(uint(errorCode))) 
+            log.Fatal("C.mpp3_vb_exit() HI_MPI_VB_Exit() error ", error.Resolve(int64(errorCode))) 
         default:
             log.Fatal("Unexpected return ", err , " of C.mpp3_vb_exit()")
         }

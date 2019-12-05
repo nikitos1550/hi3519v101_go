@@ -24,7 +24,7 @@ CGO_LDFLAGS := $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a)
 
 CGOPARAMS := CGO_CFLAGS='$(CFLAGS) $(CGO_CFLAGS)' CGO_CFLAGS_ALLOW='.*' CGO_ENABLED=1 CGO_LDFLAGS='$(CGO_LDFLAGS)'
 
-EMBEDDVARS =  " -X 'application/pkg/buildinfo.BuildDateTime=$(shell date +%Y-%m-%d\ %H:%M)' \
+EMBEDDVARS :=   -X 'application/pkg/buildinfo.BuildDateTime=$(shell date +%Y-%m-%d\ %H:%M)' \
                 -X 'application/pkg/buildinfo.GoVersion=$(shell $(GO) version)' \
                 -X 'application/pkg/buildinfo.GccVersion=$(shell $(CC) --version)' \
                 -X 'application/pkg/buildinfo.BuildTags=$(GOTAGS)' \
@@ -38,7 +38,10 @@ EMBEDDVARS =  " -X 'application/pkg/buildinfo.BuildDateTime=$(shell date +%Y-%m-
                 -X 'application/pkg/buildinfo.CmosProfile=$(CMOS)' \
                 -X 'application/pkg/buildinfo.TotalRam=$(RAM_SIZE)' \
                 -X 'application/pkg/buildinfo.LinuxRam=$(RAM_LINUX)' \
-                -X 'application/pkg/buildinfo.MppRam=$(RAM_MPP)'"
+                -X 'application/pkg/buildinfo.MppRam=$(RAM_MPP)'
+
+GODEBUG := -s -w
+
 
 guard:
 	@echo "guard"
@@ -92,12 +95,12 @@ deploy-dir-tester:
 build-daemon: generate libsdk deploy-dir-daemon
 	$(eval GOTAGS := $(GOTAGS_DAEMON))
 	#$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS_DAEMON)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/daemon application/cmd/daemon
-	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS)" -ldflags $(EMBEDDVARS) -o ./distrib/$(FAMILY)/opt/application application/cmd/daemon
+	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/application application/cmd/daemon
 
 build-tester: generate libsdk deploy-dir-tester
 	$(eval GOTAGS := $(GOTAGS_TESTER))
 	#$(GOENV) $(CGOPARAMS) $(GO) build -tags "$(GOTAGS_TESTER)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/tester application/cmd/tester
-	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS)" -ldflags $(EMBEDDVARS) -o ./distrib/$(FAMILY)/opt/application application/cmd/tester
+	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/application application/cmd/tester
 
 #buid-with-vendors: generate
 #	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags $(GOTAGS) -mod vendor -o $(APPOUT) application/cmd/daemon

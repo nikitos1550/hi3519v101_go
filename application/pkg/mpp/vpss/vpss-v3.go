@@ -67,11 +67,11 @@ func Init() {
     case C.ERR_NONE:
         log.Println("C.mpp3_vpss_init() ok")
     case C.ERR_HI_MPI_VPSS_CreateGrp:
-        log.Fatal("C.mpp3_vpss_init() HI_MPI_VPSS_CreateGrp() error ", error.Resolve(uint(errorCode)))
+        log.Fatal("C.mpp3_vpss_init() HI_MPI_VPSS_CreateGrp() error ", error.Resolve(int64(errorCode)))
     case C.ERR_HI_MPI_VPSS_StartGrp:
-        log.Fatal("C.mpp3_vpss_init() HI_MPI_VPSS_StartGrp() error ", error.Resolve(uint(errorCode)))
+        log.Fatal("C.mpp3_vpss_init() HI_MPI_VPSS_StartGrp() error ", error.Resolve(int64(errorCode)))
     case C.ERR_HI_MPI_SYS_Bind:
-        log.Fatal("C.mpp3_vpss_init() HI_MPI_SYS_Bind() error ", error.Resolve(uint(errorCode)))
+        log.Fatal("C.mpp3_vpss_init() HI_MPI_SYS_Bind() error ", error.Resolve(int64(errorCode)))
     default:
         log.Fatal("Unexpected return ", err , " of C.mpp3_vpss_init()")
     }

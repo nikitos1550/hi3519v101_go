@@ -7,11 +7,11 @@ import (
 	"strconv"
 )
 
-func Resolve(code int) string {
+func Resolve(code int64) string {
 	switch code {
 
 	default:
-		out := "unknown error " + strconv.FormatInt(int64(code), 16)
+		out := "unknown error " + strconv.FormatInt(code, 16)
 		return out
 	}
 }
