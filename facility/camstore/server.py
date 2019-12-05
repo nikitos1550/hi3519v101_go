@@ -109,6 +109,7 @@ class Connection:
                         res = await cmd(*args[1:])
                     else:
                         res = cmd(*args[1:])
+                    logging.debug("Response: {}".format(res))
                     self.write(res)
                 else:
                     self.write("failed: unknown command {}".format(cmd_name))

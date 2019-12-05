@@ -5,6 +5,7 @@ import asyncio
 import asyncio.subprocess
 
 import common
+from ser2net import Ser2Net
 from telnetlib import Telnet
 from server import register, routine
 from devices import Devices, Device
@@ -18,127 +19,76 @@ class DeviceState:
 class Ser2NetWrap:
     @property
     def control_port(self):
-        return int(self.config["control_port"])
+        return self.s2n.control_port
 
     @property
     def config_file(self):
-        return self.config["config_file"]
+        return self.s2n.config_file
 
     @property
     def is_running(self):
-        return (self.s2n_proc is not None) and (self.s2n_proc.returncode is None)
+        return self.s2n.is_running
 
     def __init__(self, config={}):
-        self.config = config
-        self.config.setdefault("control_port", 45300)
-        self.config.setdefault("config_file", "./ser2net.cfg")
+        config.setdefault("control_port", 45300)
+        config.setdefault("config_file", "./ser2net.cfg")
 
-        self.s2n_proc = None
-        self.control = None
+        self.s2n = Ser2Net(config)
 
         self._devname_to_port = {}
         self._devname_to_owner = {}
+        self._devname_to_state = {}
 
     async def start(self):
-        open(self.config_file, "w").close()  # ensure that config file exists and it's clear
-
-        args = [
-            "-d",
-            "-p", "localhost,{}".format(self.control_port),
-            "-c", self.config_file
-        ]
-        logging.debug("run subprocess: ser2net {}".format(" ".join(args)))
-        self.s2n_proc = await asyncio.subprocess.create_subprocess_exec("ser2net", *args, stderr=asyncio.subprocess.DEVNULL)
-        logging.info("ser2net started with PID {}".format(self.s2n_proc.pid))
-
-        await asyncio.sleep(3)
-        if not self.is_running:
-            raise RuntimeError("ser2net process died very fast")
-
-        logging.debug("connect to ser2net control port...")
-        await asyncio.sleep(1)
-        self.control = Telnet(host="localhost", port=self.control_port)
-        logging.debug("connection with ser2net control port established")
-        self.control.read_until(b"-> ")
-        logging.info("ser2net control is ready")
+        await self.s2n.start()
 
     async def stop(self):
-        if not self.is_running:
-            return
-
-        logging.debug("ser2net process is stopping...")
-        self.s2n_proc.terminate()
-        try:
-            await asyncio.wait_for(self.s2n_proc.wait(), timeout=5)
-            logging.info("ser2net process successfully terminated")
-        except asyncio.TimeoutError:
-            self.s2n_proc.kill()
-            await self.s2n_proc.wait()
-            logging.warn("ser2net process killed")
+        await self.s2n.stop()
 
     def update_config(self, devices):
         config_lines = []
 
         port = self.control_port + 1
         for dev in devices:
-            self._devname_to_port[dev.devname] = port
-            config_lines.append("{}:off:300:{}:115200\n".format(port, dev.devname))
+            endpoint = "localhost,{}".format(port)
+            self._devname_to_state.setdefault(dev.devname, {})["endpoint"] = endpoint
+            config_lines.append("{}:off:300:{}:115200\n".format(endpoint, dev.devname))
             port += 1
 
         with open(self.config_file, "w") as f:
             f.writelines(config_lines)
 
-        self.s2n_proc.send_signal(signal.SIGHUP)
+        self.s2n.reload_config()
 
-    def cmd(self, command):
-        data = command.encode("ascii") + b"\n\r"
-        self.control.write(data)
-        res = self.control.read_until(b"-> ")
-        return res[len(data):-5].decode("ascii")
+    def _get_state(self, devname):
+        state = self._devname_to_state.get(devname)
+        if state is None:
+            raise common.InvalidArgument("device '{}' does not exist".format(devname))
+        return state
 
-    def _acquire_device(self, devname, user):
-        owner = self._devname_to_owner.get(devname)
+    def _acquire_device(self, devstate, user):
+        owner = devstate.get("owner")
         if (owner is not None) and (owner != user):
             raise common.InvalidArgument("device '{}' is already acquired by '{}'".format(devname, owner))
-        self._devname_to_owner[devname] = user
-        logging.info("Device '{}' is acquired by '{}'".format(devname, user))
+        devstate["owner"] = user
+        logging.info("device '{}' is acquired by '{}'".format(devname, user))
 
     def disconnect(self, port):
-        return self.cmd("disconnect localhost,{}".format(port))
+        return self.s2n.disconnect("localhost,{}".format(port))
 
-    def showport(self, port=""):
-        return self.cmd("showshortport {}".format(port))
-
-    def port_state(self, devname):
-        """
-        Port-name Type Timeout Remote-address Device        TCP-to-device  Device-to-TCP TCP-in TCP-out Dev-in Dev-out State
-        45330     off  300     unconnected    /dev/ttyCAM30 unconnected    unconnected   0      0       0      0       115200 1STOPBIT 8DATABITS NONE
-        """
-        port = self._devname_to_port.get(devname)
-        if port is None:
-            raise common.InvalidArgument("device '{}' does not exist".format(devname))
-
-        res = self.cmd("showshortport {}".format(port)).split("\n")[1].strip().split(" ")
-        res = filter(None, res)
-
-        result = {}
-        fields = ("port", "type", "timeout", "remote_addr", "device")
-        for field in fields:
-            result[field] = res.__next__()
-
-        return result
+    def showport(self, port):
+        return self.s2n.showport("localhost,{}".format(port))
 
     def forward_device(self, devname, user, mode="tenet"):
-        port = self._devname_to_port.get(devname)
-        if port is None:
-            raise common.InvalidArgument("device '{}' does not exist".format(devname))
+        devstate = self._get_state(devname)
 
-        self._acquire_device(devname, user)
+        self._acquire_device(devstate, user)
 
-        self.cmd("setportenable {} {}".format(port, mode))
-        logging.info("Forward device '{}' to {} TCP port in '{}' mode".format(devname, port, mode))
+        endpoint = devstate["endpoint"]
+        self.s2n.setportenable(endpoint, mode)
+        logging.info("forward device '{}' to {} in '{}' mode".format(devname, endpoint, mode))
 
-        return "ok/exec: telnet localhost {}".format(port)
+        return "ok/exec: telnet {}".format(endpoint.replace(",", " "))
 
 
 # -------------------------------------------------------------------------------------------------
