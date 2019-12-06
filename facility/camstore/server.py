@@ -26,7 +26,10 @@ def register(func):
                 res = func(*args, **kwargs)
             return res
         except common.InvalidArgument as err:
-            return "failed: invalid argument - {}".format(err)
+            return common.Response(
+                status=common.STATUS_FAILED,
+                message="Invalid argument: {}".format(err)
+            )
 
     COMMANDS[cmd_name] = wrap
     return wrap
@@ -61,12 +64,12 @@ def help(cmd_name=None):
 
     if cmd_name:
         cmd = COMMANDS.get(cmd_name)
-        if cmd:
-            return cmd.__doc__ or "No help for the command"
-        else:
-            return "failed: command {} does not exist".format(cmd_name)
+        if cmd is None:
+            raise common.InvalidArgument("command {} does not exist".format(cmd_name))
+        doc = cmd.__doc__.strip() or "No help for command {}".format(cmd_name)
     else:
-        return "Available commands:\n" + "\n".join(l for l in command_list())
+        doc = "Available commands:\n" + "\n".join(l for l in command_list())
+    return common.Response(message=doc)
 
 
 # -------------------------------------------------------------------------------------------------
@@ -80,6 +83,8 @@ class Connection:
         self.writer = writer
 
     def write(self, data):
+        if isinstance(data, common.Response):
+            data = str(data)
         self.writer.write(data.encode("ascii") + b"\n")
 
     def set_ready(self):
@@ -112,7 +117,7 @@ class Connection:
                     logging.debug("Response: {}".format(res))
                     self.write(res)
                 else:
-                    self.write("failed: unknown command {}".format(cmd_name))
+                    self.write(common.Response()"failed: unknown command {}".format(cmd_name))
 
         except asyncio.CancelledError as err:
             self.write("server stopped")
