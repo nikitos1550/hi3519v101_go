@@ -73,28 +73,34 @@ class Ser2Net:
         self.proc.send_signal(signal.SIGHUP)
 
     def control_cmd(self, command):
+        """ Return list of response lines
+        """
         req = command.encode("ascii") + b"\n\r"
         logging.debug("request to ser2net control: {}".format(req))
         self.control.write(req)
+
         res = self.control.read_until(b"-> ")
-        logging.debug("response from ser2net control: {}".format(req))
-        return res[len(data):-5].decode("ascii")
+        logging.debug("response from ser2net control: {}".format(res))
+        return res[:len(res)-5].decode("ascii").split("\n")[1:]
 
     def disconnect(self, port):
         resp = self.control_cmd("disconnect {}".format(port))
-        if resp != "":
+        if resp:
             raise RuntimeError("disconnect failed: {}".format(resp))
 
     def setportenable(self, port, state="telnet"):
         if state not in ("raw", "rawIp", "telnet", "off"):
             raise ValueError("'state' argument has inappropriate value")
         resp = self.control_cmd("setportenable {} {}".format(port, state))
-        if resp != "":
+        if resp:
             raise RuntimeError("setportenable failed: {}".format(resp))
 
     def showport(self, port):
         resp = self.control_cmd("showshortport {}".format(port))
-        vals = filter(None, resp.split("\n")[1].strip().split(" "))
+        logging.debug("Response: {}".format(resp))
+        line = resp[1]
+        logging.debug("Line: {}".format(line))
+        vals = filter(None, line.split(" "))
 
         fields = ("port", "type", "timeout", "remote_addr", "device")
         result = {}

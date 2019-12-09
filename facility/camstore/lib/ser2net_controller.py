@@ -1,9 +1,7 @@
 import logging
-import signal
 import os
 import asyncio
-import asyncio.subprocess
-from telnetlib import Telnet
+import time
 
 from .common import success, failure, InvalidArgument
 from .ser2net import Ser2Net
@@ -12,8 +10,22 @@ from .devices import Devices, Device
 
 
 class DeviceState:
-    def __init__(self):
-        pass
+    def __init__(self, devname):
+        self.devname = devname
+        self.owner = None
+        self.active_ts = None
+        self.endpoint = None
+
+    def acquire(self, user):
+        if self.owner not in (user, None):
+            raise InvalidArgument(f"device '{self.devname}' is already acquired by '{self.owner}'")
+        self.owner = user
+        self.active_ts = time.time()
+        logging.info(f"device '{self.devname}' is acquired by '{user}'")
+    
+    def release(self):
+        self.owner = None
+        self.active_ts = None
 
 
 class Ser2NetWrap:
@@ -32,11 +44,10 @@ class Ser2NetWrap:
     def __init__(self, config={}):
         config.setdefault("control_port", 45300)
         config.setdefault("config_file", os.path.join(os.path.dirname(__file__), "ser2net.cfg"))
+        config.setdefault("ttl", 300)  # in seconds
 
+        self.config = config
         self.s2n = Ser2Net(config)
-
-        self._devname_to_port = {}
-        self._devname_to_owner = {}
         self._devname_to_state = {}
 
     async def start(self):
@@ -51,14 +62,38 @@ class Ser2NetWrap:
         port = self.control_port + 1
         for dev in devices:
             endpoint = "localhost,{}".format(port)
-            self._devname_to_state.setdefault(dev.devname, {})["endpoint"] = endpoint
             config_lines.append("{}:off:300:{}:115200\n".format(endpoint, dev.devname))
+            devstate = self._devname_to_state.setdefault(dev.devname, DeviceState(dev.devname))
+            devstate.endpoint = endpoint
             port += 1
 
         with open(self.config_file, "w") as f:
             f.writelines(config_lines)
 
         self.s2n.reload_config()
+
+    async def update_states(self):
+        now = time.time()
+        logging.debug(f"Update devices' states at {now} ts")
+        for devname, devstate in self._devname_to_state.items():
+            if devstate.owner is None:
+                continue  # device is free
+
+            acquire_duration = now - devstate.active_ts
+            logging.debug(f"Device '{devname}' has been acquired for {acquire_duration:.0f} seconds by {devstate.owner}")
+
+            if acquire_duration < self.config["ttl"]:
+                continue  # too late to kick
+            portstate = self.s2n.showport(devstate.endpoint)
+            if portstate["remote_addr"] != "unconnected":
+                continue  # owner is actve (accordingly ser2net)
+
+            logging.info(f"Release device '{devname}'")
+            try:
+                self.s2n.disconnect(endpoint)
+            except: pass
+            devstate.release()
+            await asyncio.sleep(0) # to be asynchronous
 
     def _get_state(self, devname):
         state = self._devname_to_state.get(devname)
@@ -71,6 +106,7 @@ class Ser2NetWrap:
         if (owner is not None) and (owner != user):
             raise InvalidArgument("device is already acquired by '{}'".format(owner))
         devstate["owner"] = user
+        devstate["last_ts"] = time.time()
         logging.info("device is acquired by '{}'".format(user))
 
     def disconnect(self, port):
@@ -79,19 +115,23 @@ class Ser2NetWrap:
     def showport(self, port):
         return self.s2n.showport("localhost,{}".format(port))
 
-    def forward_device(self, devname, user, mode="tenet"):
+    def forward_device(self, devname, user, mode="telnet"):
         devstate = self._get_state(devname)
 
-        self._acquire_device(devstate, user)
+        devstate.acquire(user)
+        self.s2n.setportenable(devstate.endpoint, mode)
+        logging.info(f"forward device '{devname}' to {devstate.endpoint} in '{mode}' mode")
 
-        endpoint = devstate["endpoint"]
-        self.s2n.setportenable(endpoint, mode)
-        logging.info("forward device '{}' to {} in '{}' mode".format(devname, endpoint, mode))
-
-        telnet_dest = endpoint.replace(",", " ")
+        telnet_dest = devstate.endpoint.replace(",", " ")
         return success(
-            message="{} is forwarded to {}".format(devname, telnet_dest),
-            execute="telnet {}".format(telnet_dest)
+            message=f"{devname} is forwarded to {telnet_dest}",
+            execute=f"telnet {telnet_dest}"
+        )
+
+    def port_state(self, devname):
+        devstate = self._get_state(devname)
+        return success(
+            message=str(self.s2n.showport(devstate.endpoint))
         )
 
 
@@ -119,6 +159,7 @@ async def main_routine():
             if __devices.update():
                 logging.info("Devices were changed, update ser2net config")
                 __s2n_wrap.update_config(__devices.devs.values())
+            await __s2n_wrap.update_states()
             await asyncio.sleep(10)
     except:
         logging.debug("exceptions occured in main_routine")
@@ -152,8 +193,9 @@ def power(devname, user, mode):
     return failure("Not implemented, sorry")
 
 @register
-def sys_s2n_port_state(devname):
+def s2n_port_state(devname):
     """ System: print ser2net port state
+    args: devname
     """
     return str(__s2n_wrap.port_state(devname))
 

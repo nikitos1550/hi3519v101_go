@@ -10,7 +10,9 @@ DAEMON_HOME=/var/lib/buildbot/camstore
 
 function deploy() {
     echo "Stop running daemon..."
-    $DAEMON_HOME/control.sh stop_daemon
+    if [ -f $DAEMON_HOME/control.sh ]; then
+        $DAEMON_HOME/control.sh stop_daemon
+    fi
 
     echo "Install itself..."
     install
@@ -27,6 +29,7 @@ function deploy() {
 
 # Copy local camstore (both daemon and client) to its' home directory
 function install() {
+    echo "Install from $DIR to $DAEMON_HOME ..."
     rm -rf $DAEMON_HOME/*
     mkdir -p $DAEMON_HOME; cp $DIR/*.{py,sh} $DAEMON_HOME/
     mkdir -p $DAEMON_HOME/lib; cp $DIR/lib/*.py $DAEMON_HOME/lib
@@ -35,6 +38,7 @@ function install() {
 
 
 function start_daemon() {
+    stop_daemon
     $DIR/daemon.py --port $DAEMON_PORT --pidf $PID_FILE --detach
 }
 
