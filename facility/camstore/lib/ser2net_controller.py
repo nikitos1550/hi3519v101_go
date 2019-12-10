@@ -90,7 +90,7 @@ class Ser2NetWrap:
 
             logging.info(f"Release device '{devname}'")
             try:
-                self.s2n.disconnect(endpoint)
+                self.s2n.disconnect(devstate.endpoint)
             except: pass
             devstate.release()
             await asyncio.sleep(0) # to be asynchronous
@@ -101,24 +101,31 @@ class Ser2NetWrap:
             raise InvalidArgument("device '{}' does not exist".format(devname))
         return state
 
-    def _acquire_device(self, devstate, user):
-        owner = devstate.get("owner")
-        if (owner is not None) and (owner != user):
-            raise InvalidArgument("device is already acquired by '{}'".format(owner))
-        devstate["owner"] = user
-        devstate["last_ts"] = time.time()
-        logging.info("device is acquired by '{}'".format(user))
-
     def disconnect(self, port):
         return self.s2n.disconnect("localhost,{}".format(port))
 
     def showport(self, port):
         return self.s2n.showport("localhost,{}".format(port))
+    
+    def acquire_device(self, devname, user):
+        devstate = self._get_state(devname)
+        devstate.acquire(user)
+        logging.info(f"Device '{devname}' acquired by '{user}'")
+
+    def release_device(self, devname, user):
+        devstate = self._get_state(devname)
+        if devstate.owner != user:
+            raise InvalidArgument(f"device '{devname}' isn't owned by '{user}'")
+        try:
+            self.s2n.disconnect(devstate.endpoint)
+        except: pass
+        devstate.release()
+        logging.info(f"Device '{devname}' released by '{user}'")
 
     def forward_device(self, devname, user, mode="telnet"):
         devstate = self._get_state(devname)
-
         devstate.acquire(user)
+
         self.s2n.setportenable(devstate.endpoint, mode)
         logging.info(f"forward device '{devname}' to {devstate.endpoint} in '{mode}' mode")
 
@@ -169,18 +176,45 @@ async def main_routine():
 
 @register
 def list_devices():
-    """ Print list of available camera devices
+    """ Print list of available devices
     """
-    return success("\n".join(devname for devname in __devices.devs.keys()))
+    return success("\n".join(
+        f"{d.devname} {d.model}" for d in __devices.devs.values()
+    ))
 
 
 @register
 def forward_serial(devname, user, mode="telnet"):
-    """ Forward a device's serial port to TCP
-    args: devname user [mode=telnet]
+    """ Acquire device and forward its' serial port to TCP
+    args: devname [mode=telnet]
     """
     return __s2n_wrap.forward_device(devname, user, mode)
 
+
+@register
+def acquire_device(devname, user):
+    """ Acquire device for 5 minutes
+    args: devname
+    """
+    return __s2n_wrap.acquire_device(devname, user)
+
+
+@register
+def release_device(devname, user):
+    """ Release device acquired by user
+    args: devname
+    """
+    return __s2n_wrap.release_device(devname, user)
+
+
+@register
+def device_state(devname):
+    """ Print a device's state
+    args: devname
+    """
+    devstate = __s2n_wrap._get_state(devname)
+    dev = __devices.devs.get(devname)
+    return success(f"device={devname} model={dev.model} owner={devstate.owner}")
 
 @register
 def power(devname, user, mode):

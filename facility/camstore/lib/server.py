@@ -18,7 +18,12 @@ def register(func):
         raise Exception("Command {} already registered".format(cmd_name))
     
     @functools.wraps(func)
-    async def wrap(*args, **kwargs):
+    async def wrap(context, *args, **kwargs):
+        # take needed arguments from context
+        sign = inspect.signature(func)
+        for k, v in context.items():
+            if k in sign.parameters:
+                kwargs[k] = v
         try:
             if inspect.iscoroutinefunction(func):
                 res = await func(*args, **kwargs)
@@ -78,12 +83,40 @@ class Connection:
     def __init__(self, reader, writer):
         self.reader = reader
         self.writer = writer
+        self.context = {}
 
     def write(self, data):
         self.writer.write(str(data).encode("ascii") + b"\n")
 
     def set_ready(self):
         self.writer.write(b"#")
+
+    async def process_command(self, line):
+        logging.debug(f"Received command: {line}")
+
+        args = line.split(" ")
+        cmd_name = args[0].lower()
+
+        if cmd_name in ("exit", "quit"):
+            self.write(success("bye"))
+            return
+
+        if cmd_name == "set_user":
+            self.context["user"] = args[1]
+            logging.info("Set connection user '{}'".format(self.context["user"]))
+            return success("User '{}' set".format(self.context["user"]))
+
+        cmd = COMMANDS.get(cmd_name)
+        if cmd is None:
+            return failure(f"unknown command '{cmd_name}'")
+
+        res = cmd(self.context, *args[1:])
+        if inspect.iscoroutine(res):
+            res = await res
+        if res is None:
+            res = success("OK")
+        logging.debug(f"Response: {res}")
+        return res
 
     async def run(self):
         logging.info("Connection from {}:{} opened".format(*self.peer))
@@ -96,32 +129,20 @@ class Connection:
                         return
                     continue
 
-                args = line.split(" ")
-                cmd_name = args[0].lower()
-
-                if cmd_name in ("exit", "quit"):
-                    self.write(success("bye"))
-                    break
-
-                cmd = COMMANDS.get(cmd_name)
-                if cmd is not None:
-                    if inspect.iscoroutinefunction(cmd):
-                        res = await cmd(*args[1:])
-                    else:
-                        res = cmd(*args[1:])
-                    logging.debug("Response: {}".format(res))
-                    self.write(res)
+                response = await self.process_command(line)
+                if response is not None:
+                    self.write(response)
                 else:
-                    self.write(failure("Unknown command {}".format(cmd_name)))
-
+                    break
         except asyncio.CancelledError as err:
             self.write(failure("Server stopped"))
         except Exception as err:
             logging.exception("", exc_info=err)
-            self.write(failure("Internal error occurred: {}".format(err)))
+            self.write(failure(f"Internal error occurred: {err}"))
         finally:
             logging.info("Connection from {}:{} closed".format(*self.peer))
             self.writer.close()
+
 
 
 # -------------------------------------------------------------------------------------------------

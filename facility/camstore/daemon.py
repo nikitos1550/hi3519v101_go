@@ -17,7 +17,7 @@ def run(port, config):
     from lib.server import Server
     from lib import info, ser2net_controller, devices
 
-    logging.info("STARTED")
+    logging.info("--- STARTED")
 
     srv = Server()
 
@@ -34,7 +34,7 @@ def run(port, config):
     for signame in STOP_SIGNALS:
         eloop.remove_signal_handler(getattr(signal, signame))
 
-    logging.info("FINISHED")
+    logging.info("--- FINISHED")
 
 
 def main():

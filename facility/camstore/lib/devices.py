@@ -4,9 +4,15 @@ import asyncio
 from .server import routine
 
 
+KNOWN_MODELS = {
+    "/dev/ttyCAM1": "jvt_hi3519v101_imx274"
+}
+
+
 class Device:
     def __init__(self, devname):
         self.devname = devname
+        self.model = KNOWN_MODELS.get(devname, "")
         # it will also keep some important information
 
 

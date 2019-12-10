@@ -19,8 +19,10 @@ async def request(command, port):
         logging.error("Could not connect to localhost:{}".format(port))
         return
 
-    req = " ".join(command).encode("ascii") + b"\n"
+    writer.write("set_user {}".format(os.getlogin()).encode("ascii") + b"\n")
+    await reader.readuntil(b"#")
 
+    req = " ".join(command).encode("ascii") + b"\n"
     writer.write(req)
     try:
         resp = (await reader.readuntil(b"#"))[:-2]
@@ -46,6 +48,7 @@ def handle_response(resp):
             subprocess.run(args, shell=False)
             common.print_success("Telnet session completed\n")
 
+# -------------------------------------------------------------------------------------------------
 
 def main():
     import argparse
@@ -58,7 +61,8 @@ def main():
 
     eloop = asyncio.get_event_loop()
     response = eloop.run_until_complete(request(command=args.command, port=args.port))
-    handle_response(response)
+    if response is not None:
+        handle_response(response)
 
 
 main()
