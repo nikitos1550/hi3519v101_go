@@ -13,3 +13,5 @@ BR2_TOOLCHAIN_EXTERNAL_LOCALE=y
 # BR2_TOOLCHAIN_EXTERNAL_HAS_THREADS_DEBUG is not set
 BR2_TOOLCHAIN_EXTERNAL_HAS_SSP=y
 BR2_TARGET_OPTIMIZATION="-mcpu=cortex-a7 -mfloat-abi=softfp -mfpu=neon-vfpv4 -mno-unaligned-access -fno-aggressive-loop-optimizations"
+BR2_PACKAGE_BUSYBOX_CONFIG="$(TOPDIR)/../rootfs/busybox.config"
+
