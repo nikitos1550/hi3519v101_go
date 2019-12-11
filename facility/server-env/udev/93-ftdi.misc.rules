@@ -1,0 +1,7 @@
+#SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A50285BI", SYMLINK+="ttyRELAY0", GROUP="dialout", MODE="0777"
+
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="RELAY1", SYMLINK+="ttyRELAY1", GROUP="dialout", MODE="0777"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="RELAY2", SYMLINK+="ttyRELAY2", GROUP="dialout", MODE="0777"
+
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="VAMETER", SYMLINK+="ttyVAMETER", GROUP="dialout", MODE="0777"
+
