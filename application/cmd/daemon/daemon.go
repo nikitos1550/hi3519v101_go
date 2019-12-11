@@ -9,8 +9,10 @@ import (
 	"application/pkg/config"
 	"application/pkg/openapi"
 	"application/pkg/scripts"
-	"application/pkg/mpp"
+	_"application/pkg/mpp"
 	"application/pkg/streamer"
+
+    _"application/pkg/debug"
 	
 	//TODO avoid implicit
 	//packages with implicit init ( func init() )
@@ -37,7 +39,7 @@ func main() {
 					//some requests need mpp and other initilization
 	scripts.Init()	//
 
-	mpp.Init()
+	//mpp.Init()
 	streamer.Init()
 
 	scripts.Start()
