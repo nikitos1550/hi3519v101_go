@@ -111,7 +111,7 @@ def getI():
     #print("expected", answer_test)
     if answer == answer_test:
         i = (answer[3]<<8)+answer[4]
-        i = (i/10000)*1
+        i = (i/10000)*10
         #print("I=",i)
     else:
         i = -1
