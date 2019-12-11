@@ -14,12 +14,12 @@ import (
 )
 
 func init() {
-    openapi.AddRoute("connectWebrt",   "/jpeg/webrtc/connect",   "POST",      connectWebrtc)
+    openapi.AddRoute("connectWebrt",   "/webrtc/connect",   "POST",      connectWebrtc)
 }
 
 func Init() {
-
-
+    loadTestVideo()
+    parseTestVideo()
 }
 
 func connectWebrtc(w http.ResponseWriter, r *http.Request) {

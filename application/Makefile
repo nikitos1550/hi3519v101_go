@@ -82,6 +82,7 @@ deploy-dir-daemon:
 	cp -r ./scripts/* ./distrib/$(FAMILY)/opt/scripts
 	mkdir ./distrib/$(FAMILY)/etc
 	cp ./init/run.sh ./distrib/$(FAMILY)/opt
+	cp ./testvideo.h264 ././distrib/$(FAMILY)/opt
 
 deploy-dir-tester:
 	rm -rf ./distrib

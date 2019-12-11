@@ -10,6 +10,8 @@ func init() {
 	openapi.AddRoute("serveJpeg",   "/jpeg/{stream}.[jpg|jpeg]",   "GET",      serveJpeg)
 }
 
+func Init() {}
+
 func serveJpeg(w http.ResponseWriter, r *http.Request) {
 	log.Println("serveJpeg")
 	
