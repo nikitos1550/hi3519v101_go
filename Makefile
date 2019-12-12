@@ -24,13 +24,13 @@ APP_TARGET      ?= tester   #default target will be tester, daemon build on requ
 
 help:
 	@echo -e "Help:\n" \
-		" - make prepare            - prepare; MUST be done before anything\n"\
-		" - make deploy-app         - build&deploy application onto prticular board\n"\
-		" - make deploy-app-control - build&deploy application, then attach serial console onto prticular board\n"\
-		" - make control            - attach serial console onto prticular board\n"\
-		" - make rootfs.squashfs    - build application and pack it within RootFS image\n"\
-		" - make kernel             - build board kernel\n"\
-		" - make cleanall           - remove all artifacts"
+		" - make prepare                          - prepare; MUST be done before anything\n"\
+		" - make deploy-app                       - build&deploy application onto prticular board\n"\
+		" - make deploy-app-control-[uart|telnet] - build&deploy application, then attach serial console onto prticular board\n"\
+		" - make control-[uart|telnet]            - attach serial console onto prticular board\n"\
+		" - make rootfs.squashfs                  - build application and pack it within RootFS image\n"\
+		" - make kernel                           - build board kernel\n"\
+		" - make cleanall                         - remove all artifacts"
 
 prepare: $(BUILDROOT_DIR)
 	@echo "All prepared"
@@ -92,14 +92,29 @@ deploy-app: pack-app
 		--rootfs $(BOARD_OUTDIR)/rootfs+app.squashfs \
 		--initrd-size 16M --memory-size 256M
 
-deploy-app-control: deploy-app
-	screen -L /dev/ttyCAM$(CAMERA) 115200
+deploy-app-control-uart: deploy-app
+	miniterm /dev/ttyCAM$(CAMERA) 115200
+
+deploy-app-control-telnet: deploy-app
+	@echo "waiting for 10s"
+	@sleep 3
+	@echo "7s more..."
+	@sleep 5
+	@echo "be patient, 2s more"
+	telnet $(CAMERA_IP)
+
 
 ########################################################################
 
-control:
-	screen -L /dev/ttyCAM$(CAMERA) 115200
+control-uart:
+	miniterm /dev/ttyCAM$(CAMERA) 115200
 
-control-%:
-	screen -L /dev/ttyCAM$(subst control-,,$@) 115200
+control-uart-%:
+	miniterm /dev/ttyCAM$(subst control-,,$@) 115200
+
+control-telnet:
+	telnet $(CAMERA_IP)
+
+control-telnet-%:
+	telnet 192.168.10.1$(shell printf '%02d' $(subst control-telnet-,,$@))
 
