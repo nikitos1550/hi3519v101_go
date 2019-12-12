@@ -9,7 +9,13 @@ include $(THIS_DIR)Makefile.user.params
 BR             := buildroot-2019.08
 BUILDROOT_DIR  := $(abspath ./buildroot-2019.08)
 BOARD_OUTDIR   := $(abspath ./output/boards/$(BOARD))
+CAMERA_TTY     := /dev/ttyCAM$(CAMERA)
 CAMERA_IP      := 192.168.10.1$(shell printf '%02d' $(CAMERA))
+TELNET_PORT    := 453$(shell printf '%02d' $(CAMERA))
+
+########################################################################
+
+CAMSTORE       := $(THIS_DIR)/facility/camstore/control.sh client
 
 ########################################################################
 
@@ -24,13 +30,13 @@ APP_TARGET      ?= tester   #default target will be tester, daemon build on requ
 
 help:
 	@echo -e "Help:\n" \
-		" - make prepare            - prepare; MUST be done before anything\n"\
-		" - make deploy-app         - build&deploy application onto prticular board\n"\
-		" - make deploy-app-control - build&deploy application, then attach serial console onto prticular board\n"\
-		" - make control            - attach serial console onto prticular board\n"\
-		" - make rootfs.squashfs    - build application and pack it within RootFS image\n"\
-		" - make kernel             - build board kernel\n"\
-		" - make cleanall           - remove all artifacts"
+		" - make prepare                          - prepare; MUST be done once before anything\n"\
+		" - make deploy-app                       - build&deploy application onto particular board\n"\
+		" - make deploy-app-control-[uart|telnet] - build&deploy application, then attach control console onto particular board\n"\
+		" - make control-[uart|telnet]            - attach control console onto particular board\n"\
+		" - make rootfs.squashfs                  - build application and pack it within RootFS image\n"\
+		" - make kernel                           - build board kernel\n"\
+		" - make cleanall                         - remove all artifacts"
 
 prepare: $(BUILDROOT_DIR)
 	@echo "All prepared"
@@ -83,6 +89,12 @@ build-app: $(APP)/distrib/$(FAMILY)
 pack-app: $(BOARD_OUTDIR)/rootfs+app.squashfs $(BOARD_OUTDIR)/kernel/uImage
 
 deploy-app: pack-app
+	$(CAMSTORE) device_state $(CAMERA_TTY)
+	echo $$?
+	$(CAMSTORE) acquire_device $(CAMERA_TTY)
+	echo $$?
+	echo "TODO! update burner to use with camstore"
+	#exit 1
 	cd burner; authbind --deep ./burner2.py \
 		--port /dev/ttyCAM$(CAMERA) \
 		--reset-power "./power.py reset $(CAMERA)" \
@@ -92,14 +104,36 @@ deploy-app: pack-app
 		--rootfs $(BOARD_OUTDIR)/rootfs+app.squashfs \
 		--initrd-size 16M --memory-size 256M
 
-deploy-app-control: deploy-app
-	screen -L /dev/ttyCAM$(CAMERA) 115200
+deploy-app-control-uart: deploy-app control-uart
+
+deploy-app-control-telnet: deploy-app
+	@echo "waiting for 10s"
+	@sleep 3
+	@echo "7s more..."
+	@sleep 5
+	@echo "be patient, 2s more"
+	telnet $(CAMERA_IP)
+
 
 ########################################################################
 
-control:
-	screen -L /dev/ttyCAM$(CAMERA) 115200
+deprecated-control-uart:
+	miniterm $(CAMERA_TTY) 115200
 
-control-%:
-	screen -L /dev/ttyCAM$(subst control-,,$@) 115200
+control-uart:
+	#telnet localhost $(TELNET_PORT)
+	$(CAMSTORE) forward_serial $(CAMERA_TTY)
+
+deprecated-control-uart-%:
+	miniterm /dev/ttyCAM$(subst control-uart-,,$@) 115200
+
+control-uart-%:
+	#telnet localhost 453$(shell printf '%02d' $(subst control-uart-,,$@))
+	$(CAMSTORE) forward_serial /dev/ttyCAM$(subst control-uart-,,$@)
+
+control-telnet:
+	telnet $(CAMERA_IP)
+
+control-telnet-%:
+	telnet 192.168.10.1$(shell printf '%02d' $(subst control-telnet-,,$@))
 
