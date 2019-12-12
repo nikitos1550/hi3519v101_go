@@ -34,19 +34,18 @@ async def request(command, port):
     return json.loads(resp.decode("ascii"))
 
 
-def print_response(resp):
-    status = resp["status"]
-    common.print_success(status) if (status == common.STATUS_OK) else common.print_failure("OK")
-    print(" >> {}".format(resp["message"]))
-
-
 def handle_response(resp):
-    print_response(resp)
+    common.print_response(resp)
+    if resp.get("status") != common.STATUS_OK:
+        return -1
+
     if resp["exec"]:
         args = resp["exec"].split(" ")
         if args[0] == "telnet":
             subprocess.run(args, shell=False)
             common.print_success("Telnet session completed\n")
+
+    return 0
 
 # -------------------------------------------------------------------------------------------------
 
@@ -61,8 +60,11 @@ def main():
 
     eloop = asyncio.get_event_loop()
     response = eloop.run_until_complete(request(command=args.command, port=args.port))
-    if response is not None:
-        handle_response(response)
+    if response is None:
+        exit(-1)
+
+    rc = handle_response(response)
+    exit(rc)
 
 
 main()
