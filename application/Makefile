@@ -20,7 +20,8 @@ PATH    := $(PATH):$(GOPATH)/bin
 APPOUT  := $(abspath ../output/application)
 
 CGO_CFLAGS  := -I$(abspath sdk/$(FAMILY)/include)
-CGO_LDFLAGS := $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a)
+#CGO_LDFLAGS := $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a)
+CGO_LDFLAGS := $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a) $(abspath ../output/boards/$(BOARD)/cmos/lib$(CMOS).a) -ldl -lm
 
 CGOPARAMS := CGO_CFLAGS='$(CFLAGS) $(CGO_CFLAGS)' CGO_CFLAGS_ALLOW='.*' CGO_ENABLED=1 CGO_LDFLAGS='$(CGO_LDFLAGS)'
 
@@ -59,6 +60,17 @@ LIBS := $(wildcard sdk/$(FAMILY)/lib/*.a)
 libsdk:
 	$(AR) rcsT ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a $(LIBS)
 
+CMOSSRC := $(wildcard pkg/mpp/cmos/$(FAMILY)/$(CMOS)/*.c)
+CMOSOBJ := $(patsubst pkg/mpp/cmos/$(FAMILY)/$(CMOS)/%.c, ../output/boards/$(BOARD)/cmos/%.o, $(CMOSSRC))
+
+libcmos: $(CMOSOBJ)
+	@echo $(CMOSOBJ)
+	$(AR) rcs ../output/boards/$(BOARD)/cmos/lib$(CMOS).a $(CMOSOBJ)
+
+../output/boards/$(BOARD)/cmos/%.o: pkg/mpp/cmos/$(FAMILY)/$(CMOS)/%.c
+	[ -d ../output/boards/$(BOARD)/cmos ] || mkdir -p ../output/boards/$(BOARD)/cmos
+	$(CC) $(CFLAGS) -I$(abspath sdk/$(FAMILY)/include) -c $< -o $@
+
 generate:
 	GOPATH=$(GOPATH) $(GO) generate -tags "$(FAMILY)" application/pkg/koloader
 	#GOPATH=$(GOPATH) $(GO) generate -tags "hi3516av100" application/pkg/koloader
@@ -83,6 +95,8 @@ deploy-dir-daemon:
 	mkdir ./distrib/$(FAMILY)/etc
 	cp ./init/run.sh ./distrib/$(FAMILY)/opt
 	cp ./testvideo.h264 ././distrib/$(FAMILY)/opt
+	#mkdir ./distrib/$(FAMILY)/etc/init.d
+	#cp ./init/S99daemon ./distrib/$(FAMILY)/etc/init.d/
 
 deploy-dir-tester:
 	rm -rf ./distrib

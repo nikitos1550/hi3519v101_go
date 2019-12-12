@@ -4,29 +4,29 @@ import (
 	"flag"
 	"log"
 	"os"
+    //"io/ioutil"
 
 	"application/pkg/buildinfo"
 	"application/pkg/config"
 	"application/pkg/openapi"
 	"application/pkg/scripts"
-	_"application/pkg/mpp"
-	"application/pkg/streamer"
+	"application/pkg/mpp"
+	//"application/pkg/streamer"
 
     _"application/pkg/debug"
-	
-	//TODO avoid implicit
-	//packages with implicit init ( func init() )
 	_"application/pkg/utils/temperature"
 	_"application/pkg/utils/chip"
 )
 
 func main() {
+    //log.SetOutput(os.Stdout)
+    //log.SetOutput(ioutil.Discard)
 
 	flagVersion := flag.Bool("version", false, "Prints application version information")
 
 	log.Println("application daemon")
     flag.Parse()
-    
+
     if *flagVersion {
 		printVersion()
 		os.Exit(0)
@@ -39,8 +39,8 @@ func main() {
 					//some requests need mpp and other initilization
 	scripts.Init()	//
 
-	//mpp.Init()
-	streamer.Init()
+	mpp.Init()
+	//streamer.Init()
 
 	scripts.Start()
 	openapi.Start()

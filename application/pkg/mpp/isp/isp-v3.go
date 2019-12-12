@@ -108,7 +108,7 @@ import (
 
 func Init() {
     var errorCode C.int
-    
+
 	switch err := C.mpp3_isp_init(&errorCode); err {
     case C.ERR_NONE:
         log.Println("C.mpp3_isp_init() ok")
