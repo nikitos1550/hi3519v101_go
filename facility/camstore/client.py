@@ -34,16 +34,19 @@ async def request(command, port):
     return json.loads(resp.decode("ascii"))
 
 
-def handle_response(resp):
+def handle_response(resp, execute=True):
     common.print_response(resp)
     if resp.get("status") != common.STATUS_OK:
         return -1
 
     if resp["exec"]:
-        args = resp["exec"].split(" ")
-        if args[0] == "telnet":
-            subprocess.run(args, shell=False)
-            common.print_success("Telnet session completed\n")
+        if not execute:
+            print(resp["exec"])
+        else:
+            args = resp["exec"].split(" ")
+            if args[0] == "telnet":
+                subprocess.run(args, shell=False)
+                common.print_success("Telnet session completed\n")
 
     return 0
 
@@ -54,6 +57,7 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", "-p", type=int, default=43500, help="TCP port of the daemon")
+    parser.add_argument("--no-exec", action="store_true", help="Do not execute (telnet)")
     parser.add_argument("command", nargs="+", type=str, help="Command and arguments")
 
     args = parser.parse_args()
@@ -63,7 +67,7 @@ def main():
     if response is None:
         exit(-1)
 
-    rc = handle_response(response)
+    rc = handle_response(response, execute=(not args.no_exec))
     exit(rc)
 
 
