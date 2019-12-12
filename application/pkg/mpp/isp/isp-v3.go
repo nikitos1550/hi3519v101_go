@@ -41,13 +41,15 @@ int mpp3_isp_init(int *error_code) {
     strncpy(stAwbLib.acLibName, HI_AWB_LIB_NAME,    sizeof(HI_AWB_LIB_NAME));
     strncpy(stAfLib.acLibName,  HI_AF_LIB_NAME,     sizeof(HI_AF_LIB_NAME));
 
+
     //TODO
-    //if (c->snsobj->pfnRegisterCallback != HI_NULL) {
-    //    error_code = c->snsobj->pfnRegisterCallback(0, &stAeLib, &stAwbLib);
-    //    if (error_code != HI_SUCCESS) return ERR_GENERAL;
-    //} else {
-    //    return ERR_GENERAL;
-    //}
+    ISP_SNS_OBJ_S *cmos = &stSnsImx274Obj;
+    if (cmos->pfnRegisterCallback != HI_NULL) {
+        *error_code = cmos->pfnRegisterCallback(0, &stAeLib, &stAwbLib);
+        if (*error_code != HI_SUCCESS) return ERR_GENERAL;
+    } else {
+        return ERR_GENERAL;
+    }
 
     stLib.s32Id = 0;
     strcpy(stLib.acLibName, HI_AE_LIB_NAME);
