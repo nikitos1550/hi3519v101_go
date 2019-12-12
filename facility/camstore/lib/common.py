@@ -53,3 +53,13 @@ else:
 
     def print_success(msg):
         sys.stdout.write(msg)
+
+
+def print_response(response):
+    status = response["status"]
+    if status == STATUS_OK:
+        print_success(status)
+    else:
+        print_failure(status)
+    if "message" in response:
+        print(" >> {}".format(response["message"]))
