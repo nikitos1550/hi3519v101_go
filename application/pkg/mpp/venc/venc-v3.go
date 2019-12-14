@@ -10,7 +10,54 @@ package venc
 #define ERR_MPP                 2
 
 int mpp3_venc_sample_mjpeg(unsigned int *error_code) {
-    return 0;
+    *error_code = 0;
+
+    VENC_CHN_ATTR_S stVencChnAttr;
+    VENC_ATTR_MJPEG_S stMjpegAttr;
+    VENC_ATTR_MJPEG_CBR_S stMjpegCbr;
+
+    stVencChnAttr.stVeAttr.enType   = PT_MJPEG;
+    stMjpegAttr.u32MaxPicWidth      = 3840;
+    stMjpegAttr.u32MaxPicHeight     = 2160;
+    stMjpegAttr.u32PicWidth         = 3840;
+    stMjpegAttr.u32PicHeight        = 2160;
+    stMjpegAttr.u32BufSize          = 3840*2160*3;
+    stMjpegAttr.bByFrame            = HI_TRUE;
+
+    memcpy(&stVencChnAttr.stVeAttr.stAttrH264e, &stMjpegAttr, sizeof(VENC_ATTR_MJPEG_S));
+
+    stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_MJPEGCBR;
+    stMjpegCbr.u32StatTime          = 1;
+    stMjpegCbr.u32SrcFrmRate        = 30;//30;// input (vi) frame rate
+    stMjpegCbr.fr32DstFrmRate       = 1;//30;// target frame rate
+    stMjpegCbr.u32BitRate           = 1024*2;
+    stMjpegCbr.u32FluctuateLevel    = 1; // average bit rate
+
+    memcpy(&stVencChnAttr.stRcAttr.stAttrMjpegeCbr, &stMjpegCbr, sizeof(VENC_ATTR_MJPEG_CBR_S));
+
+    stVencChnAttr.stGopAttr.enGopMode  = VENC_GOPMODE_NORMALP;
+    stVencChnAttr.stGopAttr.stNormalP.s32IPQpDelta = 0;
+
+    *error_code = HI_MPI_VENC_CreateChn(1, &stVencChnAttr);
+    if (*error_code != HI_SUCCESS) return ERR_MPP;
+
+    *error_code = HI_MPI_VENC_StartRecvPic(1);
+    if (*error_code != HI_SUCCESS) return ERR_MPP;
+
+    MPP_CHN_S stSrcChn;
+    MPP_CHN_S stDestChn;
+
+    stSrcChn.enModId    = HI_ID_VPSS;
+    stSrcChn.s32DevId   = 0;
+    stSrcChn.s32ChnId   = 0;
+    stDestChn.enModId   = HI_ID_VENC;
+    stDestChn.s32DevId  = 0;
+    stDestChn.s32ChnId  = 1;
+
+    *error_code = HI_MPI_SYS_Bind(&stSrcChn, &stDestChn);
+    if (*error_code != HI_SUCCESS) return ERR_MPP;
+
+    return ERR_NONE;
 }
 
 int mpp3_venc_sample_h264(unsigned int *error_code) {
@@ -39,7 +86,7 @@ int mpp3_venc_sample_h264(unsigned int *error_code) {
     stH264Cbr.u32Gop            = 30;
     stH264Cbr.u32StatTime       = 1;
     stH264Cbr.u32SrcFrmRate     = 30;       //input (vi) frame rate
-    stH264Cbr.fr32DstFrmRate    = 30;       //target frame rate
+    stH264Cbr.fr32DstFrmRate    = 1;//30;       //target frame rate
     stH264Cbr.u32BitRate        = 1024*1;
     stH264Cbr.u32FluctuateLevel = 1;        //average bit rate
 
@@ -75,6 +122,7 @@ import "C"
 import (
     "log"
     "application/pkg/mpp/error"
+    "application/pkg/mpp/getloop"
 )
 
 func SampleMjpeg() {
@@ -89,6 +137,7 @@ func SampleMjpeg() {
         log.Fatal("Unexpected return ", err , " of C.mpp3_venc_sample_mjpeg()")
     }
 
+    getloop.AddVenc(1)
 }
 
 func SampleH264() {
@@ -103,5 +152,6 @@ func SampleH264() {
         log.Fatal("Unexpected return ", err , " of C.mpp3_venc_sample_h264()")
     }
 
+    getloop.AddVenc(0)
 }
 

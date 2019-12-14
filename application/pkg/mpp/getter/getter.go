@@ -1,5 +1,0 @@
-package getter
-
-func Init() {
-
-}

@@ -31,7 +31,7 @@ func loadTestVideo() {
         panic(err)
     }
 
-    log.Println("bytes read: ", bytesread)
+    log.Println("Test video bytes read: ", bytesread)
 }
 
 
@@ -50,7 +50,7 @@ func parseTestVideo() {
 
         if (found > 0) {
             nalType := buffer[i+found] & 0x1F
-            log.Println("Found ", i, " NAL ", nalType)
+            //log.Println("Found ", i, " NAL ", nalType)
 
             counter++
             frameOffset = append(frameOffset, i)
@@ -64,9 +64,9 @@ func parseTestVideo() {
     frameSize[counter-1] = len(buffer)-frameOffset[counter-1] //last frame szie
 
     frames=counter
-    log.Println("Total found ", frames)
-    log.Println("offsets: ",frameOffset)
-    log.Println("sizes: ", frameSize)
+    //log.Println("Total found ", frames)
+    //log.Println("offsets: ",frameOffset)
+    //log.Println("sizes: ", frameSize)
     //frames[i]
 }
 

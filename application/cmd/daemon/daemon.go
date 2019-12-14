@@ -11,7 +11,8 @@ import (
 	"application/pkg/openapi"
 	"application/pkg/scripts"
 	"application/pkg/mpp"
-	//"application/pkg/streamer"
+
+	_"application/pkg/streamer"
 
     _"application/pkg/debug"
 	_"application/pkg/utils/temperature"

@@ -95,8 +95,8 @@ deploy-dir-daemon:
 	mkdir ./distrib/$(FAMILY)/etc
 	cp ./init/run.sh ./distrib/$(FAMILY)/opt
 	cp ./testvideo.h264 ././distrib/$(FAMILY)/opt
-	#mkdir ./distrib/$(FAMILY)/etc/init.d
-	#cp ./init/S99daemon ./distrib/$(FAMILY)/etc/init.d/
+	mkdir ./distrib/$(FAMILY)/etc/init.d
+	cp ./init/S99daemon ./distrib/$(FAMILY)/etc/init.d/
 
 deploy-dir-tester:
 	rm -rf ./distrib
