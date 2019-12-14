@@ -10,7 +10,7 @@ GOARCH  := arm
 GOARM   := $(ARMV) #FROM Makefile.params
 GOENV   := GOPATH=$(GOPATH) GOOS=$(GOOS) GOARCH=$(GOARCH) GOARM=$(GOARM)
 
-GOTAGS_TESTER  := $(FAMILY)
+GOTAGS_TESTER  := $(FAMILY) tester
 GOTAGS_DAEMON  := $(FAMILY) imx274 openapi scripts debug
 #GOTAGS_DAEMON  := $(FAMILY) imx274 debug
 #GOTAGS  := $(FAMILY) netgo openapi debug lua onvif
@@ -20,8 +20,8 @@ PATH    := $(PATH):$(GOPATH)/bin
 APPOUT  := $(abspath ../output/application)
 
 CGO_CFLAGS  := -I$(abspath sdk/$(FAMILY)/include)
-#CGO_LDFLAGS := $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a)
-CGO_LDFLAGS := $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a) $(abspath ../output/boards/$(BOARD)/cmos/lib$(CMOS).a) -ldl -lm
+CGO_LDFLAGS := $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a) $(abspath ../output/boards/$(BOARD)/cmos/lib$(CMOS).a)
+#CGO_LDFLAGS := $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a) $(abspath ../output/boards/$(BOARD)/cmos/lib$(CMOS).a) -ldl -lm
 
 CGOPARAMS := CGO_CFLAGS='$(CFLAGS) $(CGO_CFLAGS)' CGO_CFLAGS_ALLOW='.*' CGO_ENABLED=1 CGO_LDFLAGS='$(CGO_LDFLAGS)'
 
@@ -107,12 +107,12 @@ deploy-dir-tester:
 	mkdir ./distrib/$(FAMILY)/etc/init.d
 	cp ./init/S99tester ./distrib/$(FAMILY)/etc/init.d/
 
-build-daemon: generate libsdk deploy-dir-daemon
+build-daemon: generate libsdk libcmos testvideo.h264 deploy-dir-daemon
 	$(eval GOTAGS := $(GOTAGS_DAEMON))
 	#$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS_DAEMON)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/daemon application/cmd/daemon
 	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/application application/cmd/daemon
 
-build-tester: generate libsdk deploy-dir-tester
+build-tester: generate libsdk libcmos deploy-dir-tester
 	$(eval GOTAGS := $(GOTAGS_TESTER))
 	#$(GOENV) $(CGOPARAMS) $(GO) build -tags "$(GOTAGS_TESTER)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/tester application/cmd/tester
 	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/application application/cmd/tester
