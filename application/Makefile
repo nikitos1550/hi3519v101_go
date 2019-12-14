@@ -11,7 +11,8 @@ GOARM   := $(ARMV) #FROM Makefile.params
 GOENV   := GOPATH=$(GOPATH) GOOS=$(GOOS) GOARCH=$(GOARCH) GOARM=$(GOARM)
 
 GOTAGS_TESTER  := $(FAMILY)
-GOTAGS_DAEMON  := $(FAMILY) openapi debug
+GOTAGS_DAEMON  := $(FAMILY) imx274 openapi scripts debug
+#GOTAGS_DAEMON  := $(FAMILY) imx274 debug
 #GOTAGS  := $(FAMILY) netgo openapi debug lua onvif
 
 PATH    := $(PATH):$(GOPATH)/bin
@@ -19,11 +20,12 @@ PATH    := $(PATH):$(GOPATH)/bin
 APPOUT  := $(abspath ../output/application)
 
 CGO_CFLAGS  := -I$(abspath sdk/$(FAMILY)/include)
-CGO_LDFLAGS := $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a)
+#CGO_LDFLAGS := $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a)
+CGO_LDFLAGS := $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a) $(abspath ../output/boards/$(BOARD)/cmos/lib$(CMOS).a) -ldl -lm
 
 CGOPARAMS := CGO_CFLAGS='$(CFLAGS) $(CGO_CFLAGS)' CGO_CFLAGS_ALLOW='.*' CGO_ENABLED=1 CGO_LDFLAGS='$(CGO_LDFLAGS)'
 
-EMBEDDVARS =  " -X 'application/pkg/buildinfo.BuildDateTime=$(shell date +%Y-%m-%d\ %H:%M)' \
+EMBEDDVARS :=   -X 'application/pkg/buildinfo.BuildDateTime=$(shell date +%Y-%m-%d\ %H:%M)' \
                 -X 'application/pkg/buildinfo.GoVersion=$(shell $(GO) version)' \
                 -X 'application/pkg/buildinfo.GccVersion=$(shell $(CC) --version)' \
                 -X 'application/pkg/buildinfo.BuildTags=$(GOTAGS)' \
@@ -37,7 +39,10 @@ EMBEDDVARS =  " -X 'application/pkg/buildinfo.BuildDateTime=$(shell date +%Y-%m-
                 -X 'application/pkg/buildinfo.CmosProfile=$(CMOS)' \
                 -X 'application/pkg/buildinfo.TotalRam=$(RAM_SIZE)' \
                 -X 'application/pkg/buildinfo.LinuxRam=$(RAM_LINUX)' \
-                -X 'application/pkg/buildinfo.MppRam=$(RAM_MPP)'"
+                -X 'application/pkg/buildinfo.MppRam=$(RAM_MPP)'
+
+GODEBUG := -s -w
+
 
 guard:
 	@echo "guard"
@@ -54,6 +59,17 @@ strip-ko:
 LIBS := $(wildcard sdk/$(FAMILY)/lib/*.a)
 libsdk:
 	$(AR) rcsT ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a $(LIBS)
+
+CMOSSRC := $(wildcard pkg/mpp/cmos/$(FAMILY)/$(CMOS)/*.c)
+CMOSOBJ := $(patsubst pkg/mpp/cmos/$(FAMILY)/$(CMOS)/%.c, ../output/boards/$(BOARD)/cmos/%.o, $(CMOSSRC))
+
+libcmos: $(CMOSOBJ)
+	@echo $(CMOSOBJ)
+	$(AR) rcs ../output/boards/$(BOARD)/cmos/lib$(CMOS).a $(CMOSOBJ)
+
+../output/boards/$(BOARD)/cmos/%.o: pkg/mpp/cmos/$(FAMILY)/$(CMOS)/%.c
+	[ -d ../output/boards/$(BOARD)/cmos ] || mkdir -p ../output/boards/$(BOARD)/cmos
+	$(CC) $(CFLAGS) -I$(abspath sdk/$(FAMILY)/include) -c $< -o $@
 
 generate:
 	GOPATH=$(GOPATH) $(GO) generate -tags "$(FAMILY)" application/pkg/koloader
@@ -73,9 +89,14 @@ deploy-dir-daemon:
 	mkdir ./distrib/$(FAMILY)
 	mkdir ./distrib/$(FAMILY)/opt
 	mkdir ./distrib/$(FAMILY)/opt/www
+	mkdir ./distrib/$(FAMILY)/opt/scripts
 	cp -r ./www/* ./distrib/$(FAMILY)/opt/www
+	cp -r ./scripts/* ./distrib/$(FAMILY)/opt/scripts
 	mkdir ./distrib/$(FAMILY)/etc
 	cp ./init/run.sh ./distrib/$(FAMILY)/opt
+	cp ./testvideo.h264 ././distrib/$(FAMILY)/opt
+	mkdir ./distrib/$(FAMILY)/etc/init.d
+	cp ./init/S99daemon ./distrib/$(FAMILY)/etc/init.d/
 
 deploy-dir-tester:
 	rm -rf ./distrib
@@ -89,18 +110,22 @@ deploy-dir-tester:
 build-daemon: generate libsdk deploy-dir-daemon
 	$(eval GOTAGS := $(GOTAGS_DAEMON))
 	#$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS_DAEMON)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/daemon application/cmd/daemon
-	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS)" -ldflags $(EMBEDDVARS) -o ./distrib/$(FAMILY)/opt/application application/cmd/daemon
+	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/application application/cmd/daemon
 
 build-tester: generate libsdk deploy-dir-tester
 	$(eval GOTAGS := $(GOTAGS_TESTER))
 	#$(GOENV) $(CGOPARAMS) $(GO) build -tags "$(GOTAGS_TESTER)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/tester application/cmd/tester
-	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS)" -ldflags $(EMBEDDVARS) -o ./distrib/$(FAMILY)/opt/application application/cmd/tester
+	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/application application/cmd/tester
 
 #buid-with-vendors: generate
 #	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags $(GOTAGS) -mod vendor -o $(APPOUT) application/cmd/daemon
 
+testvideo.h264:
+	ffmpeg -f lavfi -i testsrc=size=320x340 -t 30 -pix_fmt yuv420p -c:v libx264 -tune zerolatency -profile:v high -g 25 -vbsf h264_mp4toannexb -f h264 testvideo.h264
+
 clean:
 	rm -f $(APPOUT)
+	rm ./testvideo.h264
 
 freeze-vendors:
 	GOPATH=$(GOPATH) $(GO) mod vendor

@@ -1,4 +1,5 @@
-//+build openapi debug
+//+build debug
+//+build openapi 
 
 package mpp
 

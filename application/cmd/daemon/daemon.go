@@ -4,31 +4,49 @@ import (
 	"flag"
 	"log"
 	"os"
+    //"io/ioutil"
 
 	"application/pkg/buildinfo"
-	"application/pkg/mpp"
+	"application/pkg/config"
 	"application/pkg/openapi"
-	
+	"application/pkg/scripts"
+	"application/pkg/mpp"
+
+	_"application/pkg/streamer"
+
+    _"application/pkg/debug"
 	_"application/pkg/utils/temperature"
 	_"application/pkg/utils/chip"
 )
 
 func main() {
+    //log.SetOutput(os.Stdout)
+    //log.SetOutput(ioutil.Discard)
 
 	flagVersion := flag.Bool("version", false, "Prints application version information")
 
 	log.Println("application daemon")
     flag.Parse()
-    
+
     if *flagVersion {
 		printVersion()
 		os.Exit(0)
 	}
 
-	mpp.Init()
-	openapi.Init()
+	config.Init()
 
-	log.Println("loaded")
+	openapi.Init() 	//openapi init should go first, becasue of -openapi-routes flag
+					//same time, it will start serve requests immediately, but 
+					//some requests need mpp and other initilization
+	scripts.Init()	//
+
+	mpp.Init()
+	//streamer.Init()
+
+	scripts.Start()
+	openapi.Start()
+
+	log.Println("daemon init done")
 
 	select {}
 }

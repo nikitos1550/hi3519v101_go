@@ -1,3 +1,5 @@
+# Application notes
+=======
 # Application
 Application is wrote mainly in golang with a bit C (via cgo). 
 Application doesn`t cover firmware area. 
@@ -116,4 +118,3 @@ or
 ```console
 foo@build-hisi:~/hi3519v101_go/application$ make PARAMS_FILE=../output/boards/jvt_hi3519v101_imx274/Makefile.params build-daemon
 ```
-

@@ -11,6 +11,7 @@ import (
 	"os"
 	"time"
 	//"strings"
+	"strconv"
 )
 
 ////////////////////////////////////////////////////////
@@ -37,6 +38,7 @@ func AddRoute(name, pattern, method string, handlerfunc http.HandlerFunc) {
 	routes = append(routes, routeItem {name: name, method: method, pattern: pattern, handlerFunc: handlerfunc})
 }
 
+var router *mux.Router
 
 ////////////////////////////////////////////////////////
 
@@ -55,7 +57,7 @@ func init() {
 ////////////////////////////////////////////////////////
 
 func Init() {
-	router := newRouter()
+	router = newRouter()
 
 	//TODO use it or make another cmd/app to generate auto doc
 	if *flagPrintRoutes {
@@ -78,10 +80,14 @@ func Init() {
 		os.Exit(0)
 	}
 
+	//TODO check flags values
+}
+
+func Start() {
 	log.Println("Starting NET HTTP server")
 	//TODO check ability to bind port
 	srv := &http.Server{
-		Addr:           ":80",
+		Addr:           ":"+strconv.FormatUint(uint64(*flagHttpPort), 10),
 		Handler:        router,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,

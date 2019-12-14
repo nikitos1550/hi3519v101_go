@@ -7,6 +7,7 @@ import (
     "golang.org/x/sys/unix"
     "strings"
     "strconv"
+    //"time"
 )
 
 //TEMPORARY
@@ -71,6 +72,7 @@ func unload(modules [][2]string) {
         } else {
             log.Println(modules[i][0], " removed")
         }
+        //time.Sleep(1 * time.Second)
     }
 }
 
@@ -85,6 +87,7 @@ func load(modules [][2]string) {
         }
 
         //log.Println("Loading ", modules[i][0], " ", modules[i][1])
+        //TODO rework, remove err2
         err2 := unix.InitModule(data, modules[i][1])
         if err2 != nil {
             log.Println(modules[i][0], " loading error ", err2)
@@ -92,7 +95,10 @@ func load(modules [][2]string) {
         } else {
             log.Println(modules[i][0], " loaded")
         }
+        //time.Sleep(1 * time.Second)
     }
+    //time.Sleep(5 * time.Second)
+    //log.Println("Seems all modules loaded")
 }
 
 func setupParams(modules [][2]string) {
