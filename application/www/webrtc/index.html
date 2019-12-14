@@ -7,7 +7,7 @@
             min-height: 75px;
         }
     </style>
-    <script type="text/javascript" src="/js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="../js/jquery-3.4.1.min.js"></script>
     <script>
 
 /* eslint-env browser */
@@ -41,14 +41,15 @@ pc.onicecandidate = event => {
 
 // Offer to receive 1 audio, and 2 video tracks
 //pc.addTransceiver('audio', {'direction': 'recvonly'})
-pc.addTransceiver('video', {'direction': 'recvonly'})
+//pc.addTransceiver('video', {'direction': 'recvonly'})
+pc.addTransceiver('video', {})
 //pc.addTransceiver('video', {'direction': 'recvonly'})
 pc.createOffer().then(d => pc.setLocalDescription(d)).catch(log)
 
         window.startSession = () => {
             $.ajax({
                 type: "POST",
-                url: "/api/webrtc/connect",
+                url: "../api/webrtc/connect",
                 data: document.getElementById('localSessionDescription').value,
                 success: function( data ) {
                     $("#remoteSessionDescription" ).val(data);
@@ -66,6 +67,7 @@ pc.createOffer().then(d => pc.setLocalDescription(d)).catch(log)
                 }
             });            
         }
+
     </script>
     </head>
     <body>
@@ -75,8 +77,8 @@ pc.createOffer().then(d => pc.setLocalDescription(d)).catch(log)
 
         Golang base64 Session Description<br />
         <textarea id="remoteSessionDescription"> </textarea> <br/>
-        <button onclick="window.startSession()"> Start Session </button><br />
 
+        <button onclick="window.startSession()">/api/webrtc/connect</button><br />
         <br />
 
         Video<br />
