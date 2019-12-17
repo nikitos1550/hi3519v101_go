@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from device import Device
+from device import Device, SerialConn
 import argparse
 
 
@@ -21,7 +21,7 @@ if args.mode not in ("on", "off", "reset"):
 
 command = args.mode.encode("ascii") + b" " + bytes([0x30 + args.num]) + b"\n"
 
-pm = Device(port=PORT, baudrate=BAUDRATE)
+pm = Device(SerialConn(port=PORT, baudrate=BAUDRATE))
 while PROMPT not in pm.read_line():
     pass
 pm.write_data(command)
