@@ -7,6 +7,7 @@ import tempfile
 import utils
 from kv_read import kv_read
 from uboot_console import UBootConsole, UBootConsoleParams
+from device import SerialConn, TelnetConn
 
 
 # =====================================================================================================================
@@ -23,7 +24,8 @@ class UBootContext:
     @classmethod
     def add_args(cls, parser):
         parser.add_argument("--reset-power", required=False, help="Use given command to reset target device", metavar="CMD")
-        parser.add_argument("--port", "-p", required=True, help="Serial port device")
+        parser.add_argument("--telnet", action="store_true", help="Connect via Telnet")
+        parser.add_argument("--port", "-p", required=True, help="Serial port device OR Telnet's port")
         parser.add_argument("--baudrate", type=int, default=Defaults.dev_baudrate,
             help="Serial port baudrate (default: {})".format(Defaults.dev_baudrate))
         parser.add_argument("--uboot-params", type=kv_read, help="U-Boot console's parameters")
@@ -31,9 +33,12 @@ class UBootContext:
     def __init__(self, args):
         logging.info("U-Boot params: {}".format(args.uboot_params))
 
+        if args.telnet:
+            conn = TelnetConn(port=args.port)
+        else:
+            conn = SerialConn(port=args.port, baudrate=args.baudrate)
         self.uboot = UBootConsole(
-            port=args.port,
-            baudrate=args.baudrate,
+            conn=conn,
             logger=utils.get_device_logger("uboot", args.log_level),
             params=UBootConsoleParams(args.uboot_params if args.uboot_params else None)
         )
