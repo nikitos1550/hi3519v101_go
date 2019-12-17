@@ -40,11 +40,21 @@ def register(func):
 def routine(func):
     """ Decorator: function will be scheduled as a task
     """
+
+    name = func.__name__
+
     async def wrap():
-        try:
-            await func()
-        except Exception as err:
-            logging.error("Routine {} failed with {}: {}".format(func.__name__, err.__class__.__name__, err))
+        while True:
+            try:
+                logging.info(f"Start '{name}' routine...")
+                await func()
+            except asyncio.CancelledError as err:
+                logging.INFO(f"Routine '{name}' cancelled")
+                return
+            except Exception as err:
+                logging.error(f"Routine '{name}' failed with '{err.__class__.__name__}': {err}")
+                logging.info(f"Sleep 3 seconds before restart '{name}' routine")
+                await asyncio.sleep(3)
         
     asyncio.CancelledError
     ROUTINES[func.__name__] = wrap
