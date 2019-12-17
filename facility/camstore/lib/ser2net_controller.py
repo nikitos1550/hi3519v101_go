@@ -168,10 +168,10 @@ async def main_routine():
                 __s2n_wrap.update_config(__devices.devs.values())
             await __s2n_wrap.update_states()
             await asyncio.sleep(10)
-    except:
+    except Exception as err:
         logging.debug("exceptions occured in main_routine")
         await __s2n_wrap.stop()
-        raise
+        raise err
 
 
 @register
