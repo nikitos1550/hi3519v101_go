@@ -70,8 +70,9 @@ def relaystate():
             0x00, 0x25,
             0x00, 0x01]
     relay.write(addcrc(cmd))
-    answer = relay.readline()
+    answer = relay.read(8) #relay.readline()
     answer = list(answer)
+    #print(answer)
     if len(answer) < 4:
         print("\t\t\tNO ANSWER!!!")
         return 0
@@ -99,7 +100,8 @@ def relayon(num):
             0x00, 0x01, #data
             ((tmp & 0xFF00) >> 8), (tmp & 0x00FF)] #data
     relay.write(addcrc(cmd))
-    answer = relay.readline()
+    answer = relay.read(8) #relay.readline()
+    #print(answer)
 
 def relayoff(num):
     print("turn", num, "/ 15 relay off")
@@ -112,7 +114,8 @@ def relayoff(num):
             0x00, 0x00, #data
             ((tmp & 0xFF00) >> 8), (tmp & 0x00FF)] #data
     relay.write(addcrc(cmd))
-    answer = relay.readline()
+    answer = relay.read(8) #relay.readline()
+    #print (answer)
 
 def relayallon():
     print("turn all relays on")
@@ -124,7 +127,8 @@ def relayallon():
             0x00, 0x01, #data
             0xFF, 0xFF] #data
     relay.write(addcrc(cmd))
-    answer = relay.readline()
+    answer = relay.read(8) #relay.readline()
+    #print(answer)
 
 def relayalloff(): #(state, relay):
     print("turn all relays off")
@@ -136,7 +140,8 @@ def relayalloff(): #(state, relay):
             0x00, 0x00, #data
             0xFF, 0xFF] #data
     relay.write(addcrc(cmd))
-    answer = relay.readline()
+    answer = relay.read(8) #relay.readline()
+    #print(answer)
 
 #######################################################
 
@@ -188,7 +193,7 @@ if args.mode == "reset":
         print ("ERROR!!!")
         exit(2)
     relayoff(DEVICE)
-    relaystate()
+    #relaystate()
     exit(0)
 
 if args.mode == "on":
