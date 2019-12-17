@@ -48,15 +48,14 @@ def routine(func):
             try:
                 logging.info(f"Start '{name}' routine...")
                 await func()
-            except asyncio.CancelledError as err:
-                logging.INFO(f"Routine '{name}' cancelled")
+            except asyncio.CancelledError:
+                logging.info(f"Routine '{name}' cancelled")
                 return
             except Exception as err:
                 logging.error(f"Routine '{name}' failed with '{err.__class__.__name__}': {err}")
                 logging.info(f"Sleep 3 seconds before restart '{name}' routine")
                 await asyncio.sleep(3)
-        
-    asyncio.CancelledError
+
     ROUTINES[func.__name__] = wrap
     return wrap
 
@@ -180,6 +179,9 @@ class Server:
 
             await self._srv.wait_closed()
             logging.info("Server has stopped")
+
+            await asyncio.gather(*self._tasks, return_exceptions=True)
+            logging.info("All server's tasks completed")
         except:
             self.stop()
             raise
