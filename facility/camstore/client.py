@@ -5,10 +5,13 @@ import logging
 import subprocess
 import os, sys
 import json
-from lib import common
+
+if __package__:
+    from .lib import common
+else:
+    from lib import common
 
 
-logging.basicConfig(level=logging.WARNING)
 ALLOWED_EXEC_COMMANDS = ("telnet")
 
 
@@ -95,6 +98,8 @@ def main():
 
     args = parser.parse_args()
 
+    logging.basicConfig(level=logging.WARNING)
+
     eloop = asyncio.get_event_loop()
     try:
         response = eloop.run_until_complete(request(command=args.command, port=args.port))
@@ -108,4 +113,5 @@ def main():
         exit(-2)
 
 
-main()
+if __name__ == "__main__":
+    main()
