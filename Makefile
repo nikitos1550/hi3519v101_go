@@ -97,9 +97,9 @@ deploy-app: pack-app
 	#exit 1
 	cd burner; authbind --deep ./burner2.py \
 		--port /dev/ttyCAM$(CAMERA) \
-		--reset-power "./power.py reset $(CAMERA)" \
+		--reset-power "./power2.py --num $(CAMERA) reset" \
 		load \
-		--target-ip $(CAMERA_IP) --iface enp2s0 \
+		--target-ip $(CAMERA_IP) --iface enp3s0 \
 		--uimage $(BOARD_OUTDIR)/kernel/uImage \
 		--rootfs $(BOARD_OUTDIR)/rootfs+app.squashfs \
 		--initrd-size 16M --memory-size 256M
