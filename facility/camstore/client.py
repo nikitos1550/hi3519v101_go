@@ -36,8 +36,11 @@ class Connection:
 
     async def _make_request(self, request):
         self.writer.write(request.encode("ascii") + b"\n")
-        response = await self.reader.readuntil(b"#")
-        return response[:-2].decode("ascii")
+        try:
+            response = await self.reader.readuntil(b"#")
+            return response[:-2].decode("ascii")
+        except asyncio.IncompleteReadError as err:
+            return err.partial.decode("ascii").strip()
 
     async def request(self, req):
         resp = json.loads(await self._make_request(req))
