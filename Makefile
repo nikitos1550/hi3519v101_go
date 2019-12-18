@@ -96,6 +96,7 @@ deploy-app: pack-app
 	echo "TODO! update burner to use with camstore"
 	#exit 1
 	cd burner; authbind --deep ./burner2.py \
+        --log-level DEBUG \
 		--port /dev/ttyCAM$(CAMERA) \
 		--reset-power "./power2.py --num $(CAMERA) reset" \
 		load \
