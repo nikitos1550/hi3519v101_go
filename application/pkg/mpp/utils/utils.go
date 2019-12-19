@@ -1,4 +1,4 @@
-package mpp
+package utils
 
 // #include "mpi_sys.h"
 import "C"
