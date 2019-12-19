@@ -5,10 +5,13 @@ import logging
 import subprocess
 import os, sys
 import json
-from lib import common
+
+if __package__:
+    from .lib import common
+else:
+    from lib import common
 
 
-logging.basicConfig(level=logging.WARNING)
 ALLOWED_EXEC_COMMANDS = ("telnet")
 
 
@@ -36,8 +39,11 @@ class Connection:
 
     async def _make_request(self, request):
         self.writer.write(request.encode("ascii") + b"\n")
-        response = await self.reader.readuntil(b"#")
-        return response[:-2].decode("ascii")
+        try:
+            response = await self.reader.readuntil(b"#")
+            return response[:-2].decode("ascii")
+        except asyncio.IncompleteReadError as err:
+            return err.partial.decode("ascii").strip()
 
     async def request(self, req):
         resp = json.loads(await self._make_request(req))
@@ -92,6 +98,8 @@ def main():
 
     args = parser.parse_args()
 
+    logging.basicConfig(level=logging.WARNING)
+
     eloop = asyncio.get_event_loop()
     try:
         response = eloop.run_until_complete(request(command=args.command, port=args.port))
@@ -105,4 +113,5 @@ def main():
         exit(-2)
 
 
-main()
+if __name__ == "__main__":
+    main()

@@ -1,8 +1,67 @@
 #!/usr/bin/env python3
 import serial
 import sys
+from telnetlib import Telnet
 
 
+# -------------------------------------------------------------------------------------------------
+# Connect to a device's serial port using pyserial
+class SerialConn:
+    def __str__(self):
+        return f"serial({self.conn.port})"
+
+    def __init__(self, port, baudrate, read_timeout=None):
+        self.conn = serial.Serial(
+            port=port,
+            baudrate=baudrate,
+            timeout=read_timeout
+        )
+
+    def set_read_timeout(self, timeout):
+        self.conn.timeout = timeout
+
+    def close(self):
+        self.conn.close()
+
+    def reset_input_buffer(self):
+        self.conn.reset_input_buffer()
+
+    def write_data(self, data):
+        self.conn.write(data)
+
+    def read_line(self):
+        return self.conn.readline()
+
+
+# -------------------------------------------------------------------------------------------------
+# Connect to a device's telnet port
+class TelnetConn:
+    def __str__(self):
+        return f"telnet({self.host}:{self.port})"
+
+    def __init__(self, port, host="localhost", read_timeout=None):
+        self.host = host
+        self.port = port
+        self.conn = Telnet(host=self.host, port=self.port)
+        self._read_timeout = read_timeout
+
+    def set_read_timeout(self, timeout):
+        self._read_timeout = timeout
+
+    def close(self):
+        self.conn.close()
+
+    def reset_input_buffer(self):
+        self.conn.read_very_eager()
+
+    def write_data(self, data):
+        self.conn.write(data)
+
+    def read_line(self):
+        return self.conn.read_until(b"\n", timeout=self._read_timeout)
+
+
+# -------------------------------------------------------------------------------------------------
 class Device:
     def _log_data(self, prefix, data):
         if self.logger is None:
@@ -24,43 +83,40 @@ class Device:
 
     def dlog(self, message, *args, **kwargs):
         if self.logger is not None:
-            self.logger.info(str(self) + ": " + message.format(*args, **kwargs))
+            self.logger.info(f"{self}: " + message.format(*args, **kwargs))
 
     def __str__(self):
-        return self.serial.port
+        return self.conn.__str__()
 
     def __del__(self):
         self.close()
 
-    def __init__(self, port, baudrate, read_timeout=None, logger=None):
+    def __init__(self, conn, logger=None):
         self.logger = logger
-        self.serial = serial.Serial(
-            port=port,
-            baudrate=baudrate,
-            timeout=read_timeout
-        )
-        self.dlog("serial connection made")
+        self.conn = conn
+        self.dlog("connection made")
     
     def close(self):
-        if hasattr(self, "serial"):
-            self.serial.close()
-            self.dlog("serial connection closed")
+        if hasattr(self, "conn"):
+            self.conn.close()
+            self.dlog("connection closed")
 
     def clear_input_buff(self):
-        self.serial.reset_input_buffer()
+        self.conn.reset_input_buffer()
         self.dlog("clear input buffer")
 
     def write_data(self, data):
-        self.serial.write(data)
+        self.conn.write_data(data)
         self.log_out(data)
 
     def read_line(self):
-        line = self.serial.readline()
+        line = self.conn.read_line()
         if line:
             self.log_in(line)
         return line
 
 
+# -------------------------------------------------------------------------------------------------
 def read(dev, args):
     dev.dlog("Read from {}...", dev)
     while True:
@@ -82,55 +138,13 @@ def write(dev, args):
     dev.write_data(args.data.encode("ascii") + b"\n")
 
 
-def console(dev, args):
-    import signal, termios, tty, asyncio
-
-    dev.serial.timeout = 0.05
-
-    # prepare TTY
-    term_fd = sys.stdin.fileno()
-    orig_term_attrs = termios.tcgetattr(term_fd)
-    tty_attrs = orig_term_attrs[:]
-    tty_attrs[tty.LFLAG] &= ~(termios.ECHO | termios.ICANON)
-    termios.tcsetattr(term_fd, termios.TCSADRAIN, tty_attrs)
-
-    # handle Ctrl+C
-    running = True
-    def signal_handler(signal, frame):
-        nonlocal running
-        running = False
-    signal.signal(signal.SIGINT, signal_handler)
-
-    def on_stdin():
-        try:
-            s = sys.stdin.read(1).encode("ascii")
-            dev.write_data(s)
-        except: pass
-
-    async def read_from_dev():
-        dev.write_data(b"\n")
-        while running:
-            line = dev.read_line()
-            if line:
-                sys.stdout.write(line.decode("ascii"))
-            else:
-                sys.stdout.flush()
-                await asyncio.sleep(0.1)
-        
-    loop = asyncio.get_event_loop()
-    loop.add_reader(sys.stdin, on_stdin)
-    loop.run_until_complete(read_from_dev())
-
-    # restore terminal
-    termios.tcsetattr(term_fd, termios.TCSAFLUSH, orig_term_attrs)
-
-
 def main():
     import argparse
     import utils
     
     parser = argparse.ArgumentParser(description="Simple interaction via serial port")
     parser.add_argument("--port", required=True, help="Device that represents serial connection")
+    parser.add_argument("--telnet", action="store_true", help="COnnect via Telnet")
     parser.add_argument("--br", type=int, help="Serial baud rate", metavar="BAUDRATE", default=115200)
     parser.add_argument("--verbose", action="store_true", help="Enable logging", default=False)
     parser.set_defaults(act=console)
@@ -147,14 +161,14 @@ def main():
     write_parser.add_argument("--data", help="Data to be written into serial port", required=False)
     write_parser.set_defaults(act=write)
 
-    # console
-    console_parser = action_parsers.add_parser("console", help="Simple interactive console")
-    console_parser.set_defaults(act=console)
-
     args = parser.parse_args()
 
     logger = utils.get_device_logger(args.port) if args.verbose else None
-    device = Device(port=args.port, baudrate=args.br, logger=logger)
+    if args.telnet:
+        conn = TelnetConn(port=args.port)
+    else:
+        conn = SerialConn(port=args.port, baudrate=args.br)
+    device = Device(conn=conn, logger=logger)
     args.act(device, args)
 
 

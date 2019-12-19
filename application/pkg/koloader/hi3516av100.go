@@ -17,7 +17,7 @@ var (
         "mmz.ko",
         "hi_media.ko",
         "hi3516a_base.ko",
-        "hi3516a_sys.ko"
+        "hi3516a_sys.ko",
     }
 )
 

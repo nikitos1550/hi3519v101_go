@@ -35,11 +35,11 @@ class Devices:
         changed = False
 
         # remove
-        for devname in self.devs.keys():
-            if devname not in current:
-                self.devs.pop(devname)
-                logging.info("Device {} is removed".format(devname))
-                changed = True
+        to_remove = [devname for devname in self.devs.keys() if devname not in current]
+        for devname in to_remove:
+            self.devs.pop(devname)
+            logging.info("Device {} is removed".format(devname))
+            changed = True
 
         # add
         for devname in current:

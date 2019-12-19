@@ -49,7 +49,7 @@ func parseTestVideo() {
         }
 
         if (found > 0) {
-            nalType := buffer[i+found] & 0x1F
+            //nalType := buffer[i+found] & 0x1F
             //log.Println("Found ", i, " NAL ", nalType)
 
             counter++

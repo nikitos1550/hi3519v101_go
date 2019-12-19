@@ -3,6 +3,7 @@
 import os
 import sys
 import logging
+import logging.handlers
 
 
 STOP_SIGNALS = ("SIGINT", "SIGTERM")  # this signals will stop server
@@ -59,7 +60,13 @@ def main():
         if not args.pidf:
             args.pidf = PID_FILE
 
-    logging.basicConfig(level=logging.DEBUG, filename=args.logf, filemode="w")
+    logging.basicConfig(level=logging.DEBUG,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+        handlers=[logging.handlers.RotatingFileHandler(
+            filename=args.logf, mode="a", maxBytes=1024*512, backupCount=5
+        )]
+    )
+
     if args.pidf:
         with open(args.pidf, "w") as f:
             f.write(str(os.getpid()))

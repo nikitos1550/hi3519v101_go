@@ -1,4 +1,4 @@
-from device import Device
+from device import Device, SerialConn, TelnetConn
 from utils import get_device_logger
 
 
@@ -26,18 +26,9 @@ class UBootConsole:
     def dlog(self, *a, **kw):
         self.device.dlog(*a, **kw)
 
-    def __init__(self, device=None, port=None, baudrate=None, logger=None, params=UBootConsoleParams()):
-        if device is not None:
-            if (port, baudrate) != (None, None):
-                raise Exception("device, port&baudrate mustn't be used simultaneously")
-            device.serial.timeout = self.READ_TIMEOUT
-            device.logger = logger
-            self.device = device
-        elif None not in (port, baudrate):
-            self.device = Device(port=port, baudrate=baudrate, read_timeout=self.READ_TIMEOUT, logger=logger)
-        else:
-            raise Exception("Either device or port&baudrate must be defines")
-        
+    def __init__(self, conn, logger=None, params=UBootConsoleParams()):
+        conn.set_read_timeout(self.READ_TIMEOUT)
+        self.device = Device(conn=conn, logger=logger)
         self.params = params
         self.dlog("UBoot console constructed")
 
@@ -95,16 +86,3 @@ class UBootConsole:
 
     def bootm(self, uimage_addr):
         self.command("bootm {:#x}".format(uimage_addr), wait=False)
-
-
-if __name__ == "__main__":
-    import sys
-
-    logger = get_device_logger("uboot")
-    uboot = UBootConsole(port=sys.argv[1], baudrate=115200, logger=logger)
-    uboot.fetch_console()
-    
-    while True:
-        cmd = sys.stdin.readline().strip()
-        for l in uboot.command(cmd):
-            print(l)
