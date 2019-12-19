@@ -1,0 +1,29 @@
+TOOLCHAIN_NAME   := arm-buildroot-linux-uclibcgnueabi
+TOOLCHAIN        := $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_NAME)-
+
+CC      := $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_NAME)-gcc
+AR      := $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_NAME)-ar
+LD      := $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_NAME)-ld
+RANLIB  := $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_NAME)-ranlib
+GOBIN   := $(GOPATH)/bin
+GO      := $(TOOLCHAIN_DIR)/bin/go
+GOFMT   := $(TOOLCHAIN_DIR)/bin/gofmt
+M4      := $(TOOLCHAIN_DIR)/bin/m4
+NM      := $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_NAME)-nm
+STRIP   := $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_NAME)-strip
+SWIG    := $(TOOLCHAIN_DIR)/bin/swig
+
+CFLAGS  :=  -std=gnu11 \
+            -fPIC \
+            -mcpu=cortex-a7 \
+            -mfloat-abi=softfp \
+            -mfpu=neon-vfpv4 \
+            -mno-unaligned-access \
+            -fno-aggressive-loop-optimizations \
+            -O2 \
+            -fno-common -ffunction-sections
+
+ARMV    := 7
+
+
+
