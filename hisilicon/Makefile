@@ -4,7 +4,7 @@ ifndef FAMILY
 endif
 
 BUILDROOT_DIR  ?= $(abspath ../buildroot-2019.08)
-FAMILY_DIR     := $(abspath ../$(FAMILY))
+FAMILY_DIR     := $(abspath $(FAMILY))
 OUTDIR         ?= $(abspath ../output/hisilicon/$(FAMILY))
 
 TOOLCHAIN_DIR       := $(OUTDIR)/toolchain

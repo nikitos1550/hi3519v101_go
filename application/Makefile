@@ -20,10 +20,15 @@ PATH    := $(PATH):$(GOPATH)/bin
 APPOUT  := $(abspath ../output/application)
 
 CGO_CFLAGS  := -I$(abspath sdk/$(FAMILY)/include)
-CGO_LDFLAGS := $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a) $(abspath ../output/boards/$(BOARD)/cmos/lib$(CMOS).a)
+CGO_LDFLAGS_DAEMON :=   $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a) \
+                        $(abspath ../output/boards/$(BOARD)/cmos/lib$(CMOS).a)
+
+CGO_LDFLAGS_TESTER :=   $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a)
+
 #CGO_LDFLAGS := $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a) $(abspath ../output/boards/$(BOARD)/cmos/lib$(CMOS).a) -ldl -lm
 
-CGOPARAMS := CGO_CFLAGS='$(CFLAGS) $(CGO_CFLAGS)' CGO_CFLAGS_ALLOW='.*' CGO_ENABLED=1 CGO_LDFLAGS='$(CGO_LDFLAGS)'
+CGOPARAMS_TESTER := CGO_CFLAGS='$(CFLAGS) $(CGO_CFLAGS)' CGO_CFLAGS_ALLOW='.*' CGO_ENABLED=1 CGO_LDFLAGS='$(CGO_LDFLAGS_TESTER)'
+CGOPARAMS_DAEMON := CGO_CFLAGS='$(CFLAGS) $(CGO_CFLAGS)' CGO_CFLAGS_ALLOW='.*' CGO_ENABLED=1 CGO_LDFLAGS='$(CGO_LDFLAGS_DAEMON)'
 
 EMBEDDVARS :=   -X 'application/pkg/buildinfo.BuildDateTime=$(shell date +%Y-%m-%d\ %H:%M)' \
                 -X 'application/pkg/buildinfo.GoVersion=$(shell $(GO) version)' \
@@ -42,7 +47,6 @@ EMBEDDVARS :=   -X 'application/pkg/buildinfo.BuildDateTime=$(shell date +%Y-%m-
                 -X 'application/pkg/buildinfo.MppRam=$(RAM_MPP)'
 
 GODEBUG := -s -w
-
 
 guard:
 	@echo "guard"
@@ -110,12 +114,12 @@ deploy-dir-tester:
 build-daemon: generate libsdk libcmos testvideo.h264 deploy-dir-daemon
 	$(eval GOTAGS := $(GOTAGS_DAEMON))
 	#$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS_DAEMON)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/daemon application/cmd/daemon
-	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/application application/cmd/daemon
+	$(GOENV) $(CGOPARAMS_DAEMON) $(GO) build -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/application application/cmd/daemon
 
-build-tester: generate libsdk libcmos deploy-dir-tester
+build-tester: generate libsdk deploy-dir-tester
 	$(eval GOTAGS := $(GOTAGS_TESTER))
 	#$(GOENV) $(CGOPARAMS) $(GO) build -tags "$(GOTAGS_TESTER)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/tester application/cmd/tester
-	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/application application/cmd/tester
+	$(GOENV) $(CGOPARAMS_TESTER) $(GO) build -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/application application/cmd/tester
 
 #buid-with-vendors: generate
 #	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags $(GOTAGS) -mod vendor -o $(APPOUT) application/cmd/daemon

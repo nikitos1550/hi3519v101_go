@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"application/pkg/openapi"
 	"encoding/json"
+    "application/pkg/mpp/utils"
 )
 
 func init() {
@@ -22,7 +23,7 @@ func serveVersion(w http.ResponseWriter, r *http.Request) {
 	log.Println("mpp.serveVersion")
 
 	var schema serveVersionSchema
-	schema.Version = Version()
+	schema.Version = utils.Version()
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)

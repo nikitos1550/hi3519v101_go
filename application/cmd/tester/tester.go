@@ -9,7 +9,7 @@ import (
     "application/pkg/koloader"
     "application/pkg/utils/temperature"
     "application/pkg/utils/chip"
-    "application/pkg/mpp"
+    "application/pkg/mpp/utils"
     "application/pkg/buildinfo"
 )
 
@@ -45,7 +45,7 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
     schema.ChipDetectedReg  = chip.Detect(chip.RegId())
     schema.ChipDetectedMpp  = chip.Detect(chip.MppId())
 
-    schema.Mpp              = mpp.Version()
+    schema.Mpp              = utils.Version()
 
     schema.SysIdReg         = chip.RegId()
     schema.SysIdMpp         = chip.MppId()

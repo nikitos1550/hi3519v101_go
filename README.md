@@ -149,12 +149,6 @@ Each dir contains it's own README.md, that expand the topic.
 ├── burner - tool for deployment firmware to camera via u-boot
 ├── docs - documentation that didn`t find home in other dirs
 ├── facility - remote development server related files, configuraions, etc
-├── hi3516av100 - will be moved to ./hisilicon
-├── hi3516av200 - will be moved to ./hisilicon
-├── hi3516cv100 - will be moved to ./hisilicon
-├── hi3516cv200 - will be moved to ./hisilicon
-├── hi3516cv300 - will be moved to ./hisilicon
-├── hi3516cv500 - will be moved to ./hisilicon
 ├── hi3516ev200 - will be moved to ./hisilicon
 ├── hi3519av100 - will be moved to ./hisilicon
 ├── hi3559av100 - will be moved to ./hisilicon
