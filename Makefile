@@ -89,14 +89,9 @@ build-app: $(APP)/distrib/$(FAMILY)
 pack-app: $(BOARD_OUTDIR)/rootfs+app.squashfs $(BOARD_OUTDIR)/kernel/uImage
 
 deploy-app: pack-app
-	$(CAMSTORE) device_state $(CAMERA_TTY)
-	echo $$?
-	$(CAMSTORE) acquire_device $(CAMERA_TTY)
-	echo $$?
-	echo "TODO! update burner to use with camstore"
-	#exit 1
 	cd burner; authbind --deep ./burner2.py \
         --log-level DEBUG \
+		--mode camstore \
 		--port /dev/ttyCAM$(CAMERA) \
 		--reset-power "./power2.py --num $(CAMERA) reset" \
 		load \
