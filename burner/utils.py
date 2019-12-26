@@ -2,6 +2,10 @@ import random, logging, sys, os
 import tempfile, shutil
 
 
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+FACILITY_DIR = os.path.abspath(os.path.join(PROJECT_ROOT, "facility"))
+
+
 def __init_logger(
     name,
     level=logging.INFO,
