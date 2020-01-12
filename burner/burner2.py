@@ -1,13 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import logging
-import os
+import os, sys
 import shutil
 import tempfile
 import utils
 from kv_read import kv_read
 from uboot_console import UBootConsole, UBootConsoleParams
 from device import SerialConn, TelnetConn
+
+
+def create_camstore_client():
+    from utils import FACILITY_DIR
+    sys.path.insert(0, FACILITY_DIR)
+
+    from camstore.lib.client import Client
+
+    return Client("localhost", 43500)
 
 
 # =====================================================================================================================
@@ -23,20 +32,23 @@ class Defaults:
 class UBootContext:
     @classmethod
     def add_args(cls, parser):
+        parser.add_argument("--mode", choices=["raw", "camstore"], default="raw")
         parser.add_argument("--reset-power", required=False, help="Use given command to reset target device", metavar="CMD")
-        parser.add_argument("--telnet", action="store_true", help="Connect via Telnet")
-        parser.add_argument("--port", "-p", required=True, help="Serial port device OR Telnet's port")
+        parser.add_argument("--port", "-p", required=True, help="Serial port device")
         parser.add_argument("--baudrate", type=int, default=Defaults.dev_baudrate,
-            help="Serial port baudrate (default: {})".format(Defaults.dev_baudrate))
+            help="Serial port baudrate for raw mode (default: {})".format(Defaults.dev_baudrate))
         parser.add_argument("--uboot-params", type=kv_read, help="U-Boot console's parameters")
 
     def __init__(self, args):
         logging.info("U-Boot params: {}".format(args.uboot_params))
 
-        if args.telnet:
-            conn = TelnetConn(port=args.port)
+        if args.mode == "camstore":
+            self._client = create_camstore_client()
+            host, port = self._client.forward_serial(args.port)
+            conn = TelnetConn(port=port)
         else:
             conn = SerialConn(port=args.port, baudrate=args.baudrate)
+
         self.uboot = UBootConsole(
             conn=conn,
             logger=utils.get_device_logger("uboot", args.log_level),
