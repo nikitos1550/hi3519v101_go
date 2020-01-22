@@ -1,0 +1,2178 @@
+
+addrmap hi3516av200 {
+    name = "test name addrmap";
+
+    regfile {
+        name = "IVE register";
+        desc = "";
+    } ive @ 0x11040000;
+
+    regfile {
+        name = "VEDU register";
+        desc = "";
+    } vedu @ 0x11280000;
+
+    regfile {
+        name = "VICAP0 register";
+        desc = "";
+    } vicap0 @ 0x11380000;
+
+    regfile {
+        name = "VICAP1 register";
+        desc = "";
+    } vicap1 @ 0x11480000;
+
+
+    regfile {
+        reg {
+            name = "PERI_CRG_PLL0";
+            desc = "APLL configuration register 0";
+            regwidth = 32;
+
+            field {
+                desc = "Level-2 output frequency divider of the APLL";
+            } apll_postdiv2[30:28];
+            
+            field {
+                desc = "Level-1 output frequency divider of the APLL";
+            } apll_postdiv1[26:24];
+            
+            field {
+                desc = "Decimal part of the APLL frequency multiplication coefficient";
+            } apll_frac[23:0];
+
+        } peri_crg_pll0 @ 0x0000;
+
+        /*
+        reg {
+            name = "PERI_CRG_PLL1";
+            desc = "APLL configuration register 1";
+        } peri_crg_pll1 @ 0x0004;
+
+        reg {
+            name = "PERI_CRG_PLL4";
+            desc = "DPLL configuration register 0";
+        } peri_crg_pll4 @ 0x0010;
+
+        reg {
+            name = "PERI_CRG_PLL5";
+            desc = "DPLL configuration register 1";
+        } PERI_CRG_PLL5 @ 0x0014;
+
+        reg {
+            name = "PERI_CRG_PLL6";
+            desc = "VPLL configuration register 0";
+        } PERI_CRG_PLL6 @ 0x0018;
+
+        reg {
+            name = "PERI_CRG_PLL7";
+            desc = "VPLL configuration register 1";
+        } PERI_CRG_PLL7 @ 0x001C;
+
+        reg {
+            name = "PERI_CRG_PLL8";
+            desc = "EPLL configuration register 0";
+        } PERI_CRG_PLL8 @ 0x0020;
+
+        reg {
+            name = "PERI_CRG_PLL9";
+            desc = "EPLL configuration register 1";
+        } PERI_CRG_PLL9 @ 0x0024;
+
+        reg {
+            name = "PERI_CRG10";
+            desc = "CoreSight & A17 clock reset configuration register";
+        } PERI_CRG10 @ 0x0028;
+
+        reg {
+            name = "PERI_CRG11";
+            desc = "A7 clock reset configuration register";
+        } PERI_CRG11 @ 0x002C;
+
+        reg {
+            name = "PERI_CRG12";
+            desc = "DDR clock configuration register";
+        } PERI_CRG12 @ 0x0030;
+
+        reg {
+            name = "PERI_CRG13";
+            desc = "SoC frequency configuration register"
+        } PERI_CRG13 @ 0x0034;
+
+        reg {
+            name = "PERI_CRG15";
+            desc = "VI-MIPI clock reset configuration register";
+        } PERI_CRG15 @ 0x003C;
+
+        reg {
+            name = "PERI_CRG16";
+            desc = "Sensor clock configuration register";
+        } PERI_CRG16 @ 0x0040;
+
+        reg {
+            name = "PERI_CRG17";
+            desc = "VDP clock and reset control register"
+        } PERI_CRG17 @ 0x0044;
+
+        reg {
+            name = "PERI_CRG18";
+            desc = "LCD clock configuration register";
+        } PERI_CRG18 @ 0x0048;
+
+        reg {
+            name = "PERI_CRG19";
+            desc = "Media CBB frequency profile configuration register 1";
+        } PERI_CRG19 @ 0x004C;
+
+        reg {
+            name = "PERI_CRG20";
+            desc = "VEDU clock and soft reset control register";
+        } PERI_CRG20 @ 0x0050;
+
+        reg {
+            name = "PERI_CRG21";
+            desc = "Media CBB frequency configuration register 2";
+        } PERI_CRG21 @ 0x0054;
+
+        reg {
+            name = "PERI_CRG22";
+            desc = "VPSS clock and soft reset control register";
+        } PERI_CRG22 @ 0x0058;
+
+        reg {
+            name = "PERI_CRG23";
+            desc = "VGS clock and soft reset control register";
+        } PERI_CRG23 @ 0x005C;
+
+        reg {
+            name = "PERI_CRG24";
+            desc = "JPGE clock and soft reset control register";
+        } PERI_CRG24 @ 0x0060;
+
+        reg {
+            name = "PERI_CRG25";
+            desc = "TDE clock and soft reset control register";
+        } PERI_CRG25 @ 0x0064;
+
+        reg {
+            name = "PERI_CRG27";
+            desc = "IVE clock and soft reset control register";
+        } PERI_CRG27 @ 0x006C;
+
+        reg {
+            name = "PERI_CRG29";
+            desc = "GDC clock and soft reset control register";
+        } PERI_CRG29 @ 0x0074;
+
+        reg {
+            name = "PERI_CRG31";
+            desc = "Hash/LSADC/Cipher clock and soft reset control register";
+        } PERI_CRG31 @ 0x007C;
+         
+        reg {
+            name = "PERI_CRG32";
+            desc = "AIAO clock reset control register";
+        } PERI_CRG32 @ 0x0080;
+
+        reg {
+            name = "PERI_CRG33";
+            desc = "GZIP clock and soft reset control register";
+        } PERI_CRG33 @ 0x0084;
+
+        reg {
+            name = "PERI_CRG43";
+            desc = "COMB PHY clock reset control register";
+        } PERI_CRG43 @ 0x00AC;
+
+        reg {
+            name = "PERI_CRG44";
+            desc = "PCIe CTRL clock and soft reset control register";
+        } PERI_CRG44 @ 0x00B0;
+
+        reg {
+            name = "PERI_CRG45";
+            desc = "USB 2.0 clock and soft reset control register";
+        } PERI_CRG45 @ 0x00B4;
+
+        reg {
+            name = "PERI_CRG46";
+            desc = "USB 3.0 CTRL clock and soft reset control register";
+        } PERI_CRG46 @ 0x00B8;
+
+        reg {
+            name = "PERI_CRG48";
+            desc = "FMC clock and soft reset control register";
+        } PERI_CRG48 @ 0x00C0;
+        
+        reg {
+            name = "PERI_CRG49";
+            desc = "MMC0/1/2 clock and soft reset control register";
+        } PERI_CRG49 @ 0x00C4;
+
+        reg {
+            name = "PERI_CRG51";
+            desc = "GSF/GMAC clock and soft reset control register";
+        } PERI_CRG51 @ 0x00CC;
+
+        reg {
+            name = "PERI_CRG54";
+            desc = "DDRT and IO_HPM clock and soft reset control register";
+        } PERI_CRG54 @ 0x00D8;
+
+        reg {
+            name = "PERI_CRG55";
+            desc = "PWM clock and reset control register";
+        } PERI_CRG55 @ 0x00DC;
+
+        reg {
+            name = "PERI_CRG56";
+            desc = "RSA/TRNG/KLAD/DMA clock and soft reset control register";
+        } PERI_CRG56 @ 0x00E0;
+
+        reg {
+            name = "PERI_CRG57";
+            desc = "Clock soft reset control register for other APB modules";
+        } PERI_CRG57 @ 0x00E4;
+
+        reg {
+            name = "PERI_CRG58";
+            desc = "CRG status register";
+        } PERI_CRG58 @ 0x00E8;
+
+        reg {
+            name = "PERI_CRG59";
+            desc = "GMAC interface control register";
+        } PERI_CRG59 @ 0x00EC:
+
+        reg {
+            name = "PERI_CRG60";
+            desc = "GMAC interface status register";
+        } PERI_CRG60 @ 0x00F0
+
+        reg {
+            name = "PERI_CRG79";
+            desc = "SoC frequency status register";
+        } PERI_CRG79 @ 0x013C;
+        */
+    } crg @ 0x12010000;
+
+
+    regfile {
+        name = "MISC register";
+        desc = "";
+
+    } misc @ 0x12030000;
+
+
+
+    regfile {
+        reg {
+            name = "FLASH_TRIG";
+            desc = "FLASH_TRIG pin multiplexing control register.";
+            regwidth = 32;
+           
+            enum muxctrl_reg0_values {
+                gpio1_0     = 2'b00 { desc = "GPIO1_0"; };
+                flash_trig  = 2'b01 { desc = "FLASH_TRIG"; };
+                spi2_csn1   = 2'b10 { desc = "SPI2_CSN1"; };
+                pwm4        = 2'b11 { desc = "PWM4"; };
+            };
+
+            field {
+                desc = "FLASH_TRIG pin Function sel";
+                encode = muxctrl_reg0_values;
+            } select [32:0];
+
+        } muxctrl_reg0 @ 0x0000;
+
+        reg { 
+            name = "SHUTTER_TRIG";
+            desc = "SHUTTER_TRIG pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_reg1_values {
+                gpio1_1         = 2'b00 { desc = "GPIO1_1"; };
+                shutter_trig    = 2'b01 { desc = "SHUTTER_TRIG"; };
+                pwm5            = 2'b11 { desc = "PWM5"; };
+            };
+
+            field {
+                desc = "SHUTTER_TRIG pin Function sel";
+                encode = muxctrl_reg1_values;
+            } select [32:0];
+        } muxctrl_reg1 @ 0x0004;
+
+        reg {
+            name = "SENSOR1_CLK";
+            desc = "SENSOR1_CLK pin multiplexing control register.";  
+            regwidth = 32;
+
+            enum muxctrl_reg2_values {
+                gpio0_0     = 2'b00 { desc = "GPIO0_0"; };
+                sensor1_clk = 2'b01 { desc = "SENSOR1_CLK"; };
+            };
+
+            field {
+                desc = "SENSOR1_CLK pin Function sel";
+                encode = muxctrl_reg2_values;
+            } select [32:0];
+        } muxctrl_reg2 @ 0x0008;
+
+        reg {
+            name = "SENSOR1_RSTN";
+            desc = "SENSOR1_RSTN pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+                sensors1_rstn   = 2'b00 { desc = "SENSOR1_RSTN"; };
+                gpio0_1         = 2'b01 { desc = "GPIO0_1"; };
+            };
+
+            field {
+                desc = "SENSOR1_RSTN pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg3 @ 0x000C;
+
+        reg {
+            name = "SENSOR1_HS";
+            desc = "SENSOR1_HS pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+                gpio0_2     = 2'b00 { desc = "GPIO0_2"; };
+                sensor0_hs  = 2'b01 { desc = "SENSOR0_HS"; };
+                sensor1_hs2 = 2'b10 { desc = "SENSOR1_HS"; };
+            };
+
+            field {
+                desc = "SENSOR1_HS pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg4 @ 0x0010;
+
+        reg {
+            name = "SENSOR1_VS";
+            desc ="SENSOR1_VS pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+                gpio0_3     = 2'b00 { desc = "GPIO0_3"; };
+                sensors0_vs = 2'b01 { desc = "SENSOR0_VS"; };
+                sensors1_vs = 2'b10 { desc = "SENSOR1_VS"; };
+            };
+
+            field {
+                desc = "SENSOR1_VS pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg5 @ 0x0014;
+
+        reg {
+            name = "SPI1_SCLK";
+            desc = "SPI1_SCLK pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+                gpio0_4         = 2'b00 { desc = "GPIO0_4"; };
+                spi1_clk        = 2'b01 { desc = "SPI1_SCLK"; };
+                i2c1_scl        = 2'b10 { desc = "I2C1_SCL"; };
+                spi1_3wire_clk  = 2'b11 { desc = "SPI1_3WIRE_CLK"; };
+            };
+
+            field {
+                desc = "SPI1_SCLK pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg6 @ 0x0018;
+
+        reg {
+            name = "SPI1_SDO";
+            desc = "SPI1_SDO pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+                gpio0_5         = 2'b00 { desc = "GPIO0_5"; };
+                spi2_sdo        = 2'b01 { desc = "SPI1_SDO"; };
+                i2c1_sda        = 2'b10 { desc = "I2C1_SDA"; };
+                spi1_3wire_data = 2'b11 { desc = "SPI1_3WIRE_DATA"; };
+            };
+
+            field {
+                desc = "SPI1_SDO pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg7 @ 0x001C;
+
+        reg {
+            name = "SPI1_SDI";
+            desc = "SPI1_SDI pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+                gpio0_6     = 2'b00 { desc = "GPIO0_6"; };
+                spi1_sdi    = 2'b01 { desc = "SPI1_SDI"; };
+            };
+
+            field {
+                desc = "SPI1_SDI pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg8 @ 0x0020;
+
+        reg {
+            name = "SPI1_CSN";
+            desc = "SPI1_CSN pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+                gpio0_7         = 2'b00 { desc = "GPIO0_7"; };
+                spi1_csn        = 2'b01 { desc = "SPI1_CSN"; };
+                spi1_3wire_csn  = 2'b11 { desc = "SPI1_3WIRE_CSN"; };
+            };
+
+            field {
+                desc = "SPI1_CSN pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg9 @ 0x0024;
+
+        /*
+        reg {
+            name = "VI1_HS";
+            desc = "VI1_HS pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+                gpio3_0 = 2'b00 { desc = "GPIO3_0"; };
+                vi1_hs  = 2'b01 { desc = "VI1_HS"; };
+            };
+
+            field {
+                desc = "VI1_HS pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg10 @ 0x0028;
+
+        reg {
+            name = "VI1_VS";
+            desc = "VI1_VS pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+                gpio2_0 = 2'b00 { desc = "GPIO2_0"; };
+                vi1_vs  = 2'b01 { desc = "VI1_VS"; };
+            };
+
+            field {
+                desc = "VI1_VS pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg11 @ 0x002C;
+
+        reg {
+            name = "VI1_CLK";
+            desc = "VI1_CLK pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+                gpio2_1 = 2'b00 { desc = "GPIO2_1"; };
+                vi1_clk = 2'b01 { desc = "VI1_CLK"; };
+            }
+
+            field {
+                desc = "VI1_CLK pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg12 @ 0x0030;
+
+        reg {
+            name = "VI1_DATA0";
+            desc = "VI1_DATA0 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+                gpio2_2     = 2'b00 { desc = "GPIO2_2"; };
+                vi1_data0   = 2'b01 { desc = "VI1_DATA0"; };
+            }
+
+            field {
+                desc = "VI1_DATA0 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg13 @ 0x0034;
+
+        reg {
+            name = "VI1_DATA1";
+            desc = "VI1_DATA1 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+                gpio2_3     = 2'b00 { desc = "GPIO2_3"; };
+                vi1_Data1   = 2'b01 { desc = "VI1_DATA1"; };
+            }
+
+            field {
+                desc = "VI1_DATA1 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg14 @ 0x0038;
+
+        reg {
+            name = "VI1_DATA2";
+            desc = "VI1_DATA2 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+                gpio2_4     = 2'b00 { desc = "GPIO2_4"; };
+                vi1_data2   = 2'b01 { desc = "VI1_DATA2"; };
+            }
+
+            field {
+                desc = "VI1_DATA2 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg15 @ 0x003C;
+
+        reg {
+            name = "VI1_DATA3";
+            desc = "VI1_DATA3 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO2_5"; };
+2'b01 { desc = "VI1_DATA3"; };
+            }
+
+            field {
+                desc = "VI1_DATA3 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg16 @ 0x0040;
+
+        reg {
+            name = "VI1_DATA4";
+            desc = "VI1_DATA4 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO2_6"; };
+2'b01 { desc = "VI1_DATA4"; };
+            }
+
+            field {
+                desc = "VI1_DATA4 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg17 @ 0x0044;
+
+        reg {
+            name = "VI1_DATA5";
+            desc = "VI1_DATA5 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO2_7"; };
+2'b01 { desc = "VI1_DATA5"; };
+            }
+
+            field {
+                desc = "VI1_DATA5 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg18 @ 0x0048;
+
+        reg {
+            name = "SPI2_SCLK";
+            desc = "SPI2_SCLK pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO1_2"; };
+2'b01 { desc = "SPI2_SCLK"; };
+2'b10 { desc = "I2S_BCLK_RX"; };
+            }
+
+            field {
+                desc = "SPI2_SCLK pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg19 @ 0x004C;
+
+        reg {
+            name = "SPI2_SDO";
+            desc = "SPI2_SDO pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO1_3"; };
+2'b01 { desc = "SPI2_SDO"; };
+2'b10 { desc = "I2S_WS_RX"; };
+            }
+
+            field {
+                desc = "SPI2_SDO pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg20 @ 0x0050;
+
+        reg {
+            name = "SPI2_SDI";
+            desc = "SPI2_SDI pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO1_4"; };
+2'b01 { desc = "SPI2_SDI"; };
+            }
+
+            field {
+                desc = "SPI2_SDI pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg21 @ 0x0054;
+
+        reg {
+            name = "SPI2_CSN0";
+            desc = "SPI2_CSN0 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO1_5"; };
+2'b01 { desc = "SPI2_CSN0"; };
+            }
+
+            field {
+                desc = "SPI2_CSN0 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg22 @ 0x0058;
+
+        reg {
+            name = "I2C2_SDA";
+            desc = "I2C2_SDA pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO1_6"; };
+2'b01 { desc = "I2C2_SDA"; };
+            }
+
+            field {
+                desc = "I2C2_SDA pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg23 @ 0x005C;
+
+        reg {
+            name = "I2C2_SCL";
+            desc = "I2C2_SCL pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO1_7"; };
+2'b01 { desc = "I2C2_SCL"; };
+            }
+
+            field {
+                desc = "I2C2_SCL pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg24 @ 0x0060;
+
+        reg {
+            name = "JTAG_TRSTN";
+            desc = "JTAG_TRSTN pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO3_1"; };
+2'b01 { desc = "JTAG_TRSTN"; };
+2'b10 { desc = "I2S_WS_TX"; };
+2'b11 { desc = "PWM4"; };
+            }
+
+            field {
+                desc = "JTAG_TRSTN pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg25 @ 0x0064;
+
+        reg {
+            name = "JTAG_TCK";
+            desc = "JTAG_TCK pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO3_2"; };
+2'b01 { desc = "JTAG_TCK"; };
+2'b10 { desc = "I2S_MCLK"; };
+2'b11 { desc = "PWM5"; };
+            }
+
+            field {
+                desc = "JTAG_TCK pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg26 @ 0x0068;
+
+        reg {
+            name = "JTAG_TMS";
+            desc = "JTAG_TMS pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO3_3"; };
+2'b01 { desc = "JTAG_TMS"; };
+2'b10 { desc = "I2S_BCLK_TX"; };
+2'b11 { desc = "PWM6"; };
+            }
+
+            field {
+                desc = "JTAG_TMS pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg27 @ 0x006C;
+
+        reg {
+            name = "JTAG_TDO";
+            desc = "JTAG_TDO pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO3_4"; };
+2'b01 { desc = "JTAG_TDO"; };
+2'b10 { desc = "I2S_SD_TX"; };
+2'b11 { desc = "PWM7"; };
+            }
+
+            field {
+                desc = "JTAG_TDO pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg28 @ 0x0070;
+
+        reg {
+            name = "JTAG_TDI";
+            desc = "JTAG_TDI pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO3_5"; };
+2'b01 { desc = "JTAG_TDI"; };
+2'b10 { desc = "I2S_SD_RX"; };
+2'b11 { desc = "IR_IN"; };
+            }
+
+            field {
+                desc = "JTAG_TDI pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg29 @ 0x0074;
+
+        reg {
+            name = "PWM0";
+            desc = "PWM0 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "PMC_PWM0"; };
+2'b01 { desc = "GPIO3_6"; };
+2'b11 { desc = "PWM0"; };
+            }
+
+            field {
+                desc = "PWM0 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg30 @ 0x0078;
+
+        reg {
+            name = "PWM1";
+            desc = "PWM1 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "PMC_PWM1"; };
+2'b01 { desc = "GPIO3_7"; };
+2'b11 { desc = "PWM1"; };
+            }
+
+            field {
+                desc = "PWM1 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg31 @ 0x007C;
+
+        reg {
+            name = "PWM2";
+            desc = "PWM2 pin multiplexing control register."; 
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "PMC_PWM2"; };
+2'b01 { desc = "GPIO4_0"; };
+2'b11 { desc = "PWM2"; };
+            }
+
+            field {
+                desc = "PWM2 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg32 @ 0x0080;
+
+        reg {
+            name = "PWM3";
+            desc = "PWM3 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "PMC_PWM3"; };
+2'b01 { desc = "GPIO4_1"; };
+2'b11 { desc = "PWM3"; };
+            }
+
+            field {
+                desc = "PWM3 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg33 @ 0x0084;
+
+        reg {
+            name = "UART1_RTSN";
+            desc = "UART1_RTSN pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO5_0"; };
+2'b01 { desc = "UART1_RTSN"; };
+2'b10 { desc = "UART3_RXD"; };
+2'b11 { desc = "PWM3"; };
+            }
+
+            field {
+                desc = "UART1_RTSN pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg34 @ 0x0088;
+
+        reg {
+            name = "UART1_RXD";
+            desc = "UART1_RXD pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO5_1"; };
+2'b01 { desc = "UART1_RXD"; };
+            }
+
+            field {
+                desc = "UART1_RXD pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg35 @ 0x008C;
+
+        reg {
+            name = "UART1_CTSN";
+            desc = "UART1_CTSN pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO5_2"; };
+2'b01 { desc = "UART1_CTSN"; };
+2'b10 { desc = "UART3_TXD"; };
+            }
+
+            field {
+                desc = "UART1_CTSN pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg36 @ 0x0090;
+
+        reg {
+            name = "UART1_TXD";
+            desc = "UART1_TXD pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO5_3"; };
+2'b01 { desc = "UART1_TXD"; };
+            }
+
+            field {
+                desc = "UART1_TXD pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg37 @ 0x0094;
+
+        reg {
+            name = "UART2_RXD";
+            desc = "UART2_RXD pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO5_4"; };
+2'b01 { desc = "UART2_RXD"; };
+2'b11 { desc = "PWM4"; };
+            }
+
+            field {
+                desc = "UART2_RXD pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg38 @ 0x0098;
+
+        reg {
+            name = "UART2_TXD";
+            desc = "UART2_TXD pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO5_5"; };
+2'b01 { desc = "UART2_TXD"; };
+2'b11 { desc = "PWM5"; };
+            }
+
+            field {
+                desc = "UART2_TXD pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg39 @ 0x009C;
+
+        reg {
+            name = "UART2_RTSN";
+            desc = "UART2_RTSN pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+3'b000 { desc = "GPIO5_6"; };
+3'b001 { desc = "UART2_RTSN"; };
+3'b010 { desc = "UART4_RXD"; };
+3'b011 { desc = "PWM6"; };
+3'b101 { desc = "TEMPER_DQ"; };
+            }
+
+            field {
+                desc = "UART2_RTSN pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg40 @ 0x00A0;
+
+        reg {
+            name = "UART2_CTSN";
+            desc = "UART2_CTSN pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO5_7"; };
+2'b01 { desc = "UART2_CTSN"; };
+2'b10 { desc = "UART4_TXD"; };
+2'b11 { desc = "PWM7"; };
+            }
+
+            field {
+                desc = "UART2_CTSN pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg41 @ 0x00A4;
+
+        reg {
+            name = "USB3_PWREN";
+            desc = "USB3_PWREN pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO4_2"; };
+2'b01 { desc = "USB3_PWREN"; };
+2'b10 { desc = "PCIE_CLK_REQ_N"; };
+            }
+
+            field {
+                desc = "USB3_PWREN pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg42 @ 0x00A8;
+
+        reg {
+            name = "SDIO0_CARD_POWER_EN";
+            desc = "SDIO0_CARD_POWER_EN pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO4_3"; };
+2'b01 { desc = "SDIO0_CARD_POWER_EN"; };
+            }
+
+            field {
+                desc = "SDIO0_CARD_POWER_EN pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg43 @ 0x00AC;
+
+        reg {
+            name = "SDIO0_CARD_DETECT";
+            desc = "SDIO0_CARD_DETECT pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO6_0"; };
+2'b01 { desc = "SDIO0_CARD_DETECT"; };
+            }
+
+            field {
+                desc = "SDIO0_CARD_DETECT pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg44 @ 0x00B0;
+
+        reg {
+            name = "SDIO0_CWPR";
+            desc = "SDIO0_CWPR pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO6_1"; };
+2'b01 { desc = "SDIO0_CWPR"; };
+            }
+
+            field {
+                desc = "SDIO0_CWPR pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg45 @ 0x00B4;
+
+        reg {
+            name = "SDIO0_CCLK_OUT";
+            desc = "SDIO0_CCLK_OUT pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO6_2"; };
+2'b01 { desc = "SDIO0_CCLK_OUT"; };
+            }
+
+            field {
+                desc = "SDIO0_CCLK_OUT pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg46 @ 0x00B8;
+
+        reg {
+            name = "SDIO0_CCMD";
+            desc = "SDIO0_CCMD pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO6_3"; };
+2'b01 { desc = "SDIO0_CCMD"; };
+            }
+
+            field {
+                desc = "SDIO0_CCMD pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg47 @ 0x00BC;
+
+        reg {
+            name = "SDIO0_CDATA0";
+            desc = "SDIO0_CDATA0 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO6_4"; };
+2'b01 { desc = "SDIO0_CDATA0"; };
+            }
+
+            field {
+                desc = "SDIO0_CDATA0 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg48 @ 0x00C0;
+
+        reg {
+            name = "SDIO0_CDATA1";
+            desc = "SDIO0_CDATA1 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "TEST_CLK"; };
+2'b01 { desc = "SDIO0_CDATA1"; };
+2'b10 { desc = "GPIO6_5"; };
+            }
+
+            field {
+                desc = "SDIO0_CDATA1 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg49 @ 0x00C4;
+
+        reg {
+            name = "SDIO0_CDATA2";
+            desc = "SDIO0_CDATA2 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO6_6"; };
+2'b01 { desc = "SDIO0_CDATA2"; };
+            }
+
+            field {
+                desc = "SDIO0_CDATA2 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg50 @ 0x00C8;
+
+        reg {
+            name = "SDIO0_CDATA3";
+            desc = "SDIO0_CDATA3 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO6_7"; };
+2'b01 { desc = "SDIO0_CDATA3"; };
+            }
+
+            field {
+                desc = "SDIO0_CDATA3 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg51 @ 0x00CC;
+
+        reg {
+            name = "SDIO1_CARD_POWER_EN";
+            desc = "SDIO1_CARD_POWER_EN pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO4_4"; };
+2'b01 { desc = "SDIO1_CARD_POWER_EN"; };
+            }
+
+            field {
+                desc = "SDIO1_CARD_POWER_EN pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg52 @ 0x00D0;
+
+        reg {
+            name = "SDIO1_CARD_DETECT";
+            desc = "SDIO1_CARD_DETECT pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO7_0"; };
+2'b01 { desc = "SDIO1_CARD_DETECT"; };
+            }
+
+            field {
+                desc = "SDIO1_CARD_DETECT pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg53 @ 0x00D4;
+
+        reg {
+            name = "SDIO1_CWPR";
+            desc = "SDIO1_CWPR pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO7_1"; };
+2'b01 { desc = "SDIO1_CWPR"; };
+            }
+
+            field {
+                desc = "SDIO1_CWPR pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg54 @ 0x00D8;
+
+        reg {
+            name = "SDIO1_CCLK_OUT";
+            desc = "SDIO1_CCLK_OUT pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO7_2"; };
+2'b01 { desc = "SDIO1_CCLK_OUT"; };
+            }
+
+            field {
+                desc = "SDIO1_CCLK_OUT pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg55 @ 0x00DC;
+
+        reg {
+            name = "SDIO1_CCMD";
+            desc = "SDIO1_CCMD pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO7_3"; };
+2'b01 { desc = "SDIO1_CCMD"; };
+            }
+
+            field {
+                desc = "SDIO1_CCMD pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg56 @ 0x00E0;
+
+        reg {
+            name = "SDIO1_CDATA0";
+            desc = "SDIO1_CDATA0 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO7_4"; };
+2'b01 { desc = "SDIO1_CDATA0"; };
+            }
+
+            field {
+                desc = "SDIO1_CDATA0 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg57 @ 0x00E4;
+
+        reg {
+            name = "SDIO1_CDATA1";
+            desc = "SDIO1_CDATA1 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO7_5"; };
+2'b01 { desc = "SDIO1_CDATA1"; };
+            }
+
+            field {
+                desc = "SDIO1_CDATA1 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg58 @ 0x00E8;
+
+        reg {
+            name = "SDIO1_CDATA2";
+            desc ="SDIO1_CDATA2 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO7_6"; };
+2'b01 { desc = "SDIO1_CDATA2"; };
+            }
+
+            field {
+                desc = "SDIO1_CDATA2 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg59 @ 0x00EС;
+
+        reg {
+            name = "SDIO1_CDATA3";
+            desc = "SDIO1_CDATA3 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO7_7"; };
+2'b01 { desc = "SDIO1_CDATA3"; };
+            }
+
+            field {
+                desc = "SDIO1_CDATA3 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg60 @ 0x00F0;
+
+        reg {
+            name = "USB2_PWREN";
+            desc = "USB2_PWREN pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO4_5"; };
+2'b01 { desc = "USB2_PWREN"; };
+            }
+
+            field {
+                desc = "USB2_PWREN pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg61 @ 0x00F4;
+
+        reg {
+            name = "VO_CLK";
+            desc = "VO_CLK pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO4_6"; };
+2'b01 { desc = "VO_CLK"; };
+            }
+
+            field {
+                desc = "VO_CLK pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg62 @ 0x00F8;
+
+        reg {
+            name = "VO_DATA0";
+            desc = "VO_DATA0 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO8_0"; };
+2'b01 { desc = "VO_DATA0"; };
+            }
+
+            field {
+                desc = "VO_DATA0 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg63 @ 0x00FC;
+
+        reg {
+            name = "VO_DATA1";
+            desc = "VO_DATA1 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO8_1"; };
+2'b01 { desc = "VO_DATA1"; };
+            }
+
+            field {
+                desc = "VO_DATA1 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg64 @ 0x0100;
+
+        reg {
+            name = "VO_DATA2";
+            desc = "VO_DATA2 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO8_2"; };
+2'b01 { desc = "VO_DATA2"; };
+            }
+
+            field {
+                desc = "VO_DATA2 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg65 @ 0x0104;
+
+        reg {
+            name = "VO_DATA3";
+            desc ="VO_DATA3 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO8_3"; };
+2'b01 { desc = "VO_DATA3"; };
+            }
+
+            field {
+                desc = "VO_DATA3 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg66 @ 0x0108;
+
+        reg {
+            name = "VO_DATA4";
+            desc = "VO_DATA4 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO8_4"; };
+2'b01 { desc = "VO_DATA4"; };
+            }
+
+            field {
+                desc = "VO_DATA4 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg67 @ 0x010C;
+
+        reg {
+            name = "VO_DATA5";
+            desc ="VO_DATA5 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO8_5"; };
+2'b01 { desc = "VO_DATA5"; };
+            }
+
+            field {
+                desc = "VO_DATA5 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        ] muxctrl_reg68 @ 0x0110;
+
+        reg {
+            name = "VO_DATA6";
+            desc = "VO_DATA6 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO8_6"; };
+2'b01 { desc = "VO_DATA6"; };
+            }
+
+            field {
+                desc = "VO_DATA6 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg69 @ 0x0114;
+
+        reg {
+            name = "VO_DATA7";
+            desc = "VO_DATA7 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO8_7"; };
+2'b01 { desc = "VO_DATA7"; };
+            }
+
+            field {
+                desc = "VO_DATA7 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg70 @ 0x0118;
+
+        reg {
+            name = "VO_DATA8";
+            desc ="VO_DATA8 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO9_0"; };
+2'b01 { desc = "VO_DATA8"; };
+            }
+
+            field {
+                desc = "VO_DATA8 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg71 @ 0x011C;
+
+        reg {
+            name = "VO_DATA9";
+            desc ="VO_DATA9 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO9_1"; };
+2'b01 { desc = "VO_DATA9"; };
+2'b11 { desc = "VO_VS"; };
+            }
+
+            field {
+                desc = "VO_DATA9 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg72 @ 0x0120;
+
+        reg {
+            name = "VO_DATA10";
+            desc ="VO_DATA10 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO9_2"; };
+2'b01 { desc = "VO_DATA10"; };
+2'b11 { desc = "VO_HS"; };
+            }
+
+            field {
+                desc = "VO_DATA10 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg73 @ 0x0124;
+
+        reg {
+            name = "VO_DATA11";
+            desc ="VO_DATA11 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO9_3"; };
+2'b01 { desc = "VO_DATA11"; };
+2'b11 { desc = "VO_DE"; };
+            }
+
+            field {
+                desc = "VO_DATA11 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg74 @ 0x0128;
+
+        reg {
+            name = "VO_DATA12";
+            desc = "VO_DATA12 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO9_4"; };
+2'b01 { desc = "VO_DATA12"; };
+2'b10 { desc = "SPI3_SCLK"; };
+2'b11 { desc = "I2C3_SCL"; };
+            }
+
+            field {
+                desc = "VO_DATA12 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg75 @ 0x012C;
+
+        reg {
+            name = "VO_DATA13";
+            desc = "VO_DATA13 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO9_5"; };
+2'b01 { desc = "VO_DATA13"; };
+2'b10 { desc = "SPI3_SDO"; };
+2'b11 { desc = "I2C3_SDA"; };
+            }
+
+            field {
+                desc = "VO_DATA13 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg76 @ 0x0130;
+
+        reg {
+            name = "VO_DATA14";
+            desc ="VO_DATA14 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO9_6"; };
+2'b01 { desc = "VO_DATA14"; };
+2'b10 { desc = "SPI3_SDI"; };
+            }
+
+            field {
+                desc = "VO_DATA14 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg77 @ 0x0134;
+
+        reg {
+            name = "VO_DATA15";
+            desc = "VO_DATA15 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO9_7"; };
+2'b01 { desc = "VO_DATA15"; };
+2'b10 { desc = "SPI3_CSN"; };
+            }
+
+            field {
+                desc = "VO_DATA15 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg78 @ 0x0138;
+
+        reg {
+            name = "RGMII_TX_EN";
+            desc = "RGMII_TX_EN pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO10_0"; };
+2'b01 { desc = "VO_VS"; };
+2'b10 { desc = "RGMII_TX_EN"; };
+            }
+
+            field {
+                desc = "RGMII_TX_EN pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg79 @ 0x013C;
+
+        reg {
+            name = "RGMII_TX_CLK";
+            desc ="RGMII_TX_CLK pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO10_1"; };
+2'b01 { desc = "VO_DATA18"; };
+2'b10 { desc = "RGMII_TX_CLK"; };
+2'b11 { desc = "RMII_CLK"; };
+            }
+
+            field {
+                desc = "RGMII_TX_CLK pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg80 @ 0x0140;
+
+        reg {
+            name = "RGMII_TXD0";
+            desc = "RGMII_TXD0 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO10_2"; };
+2'b01 { desc = "VO_DATA16"; };
+2'b10 { desc = "RGMII_TXD0"; };
+            }
+
+            field {
+                desc = "RGMII_TXD0 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg81 @ 0x0144;
+
+        reg {
+            name = "RGMII_TXD1";
+            desc = "RGMII_TXD1 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO10_3"; };
+2'b01 { desc = "VO_DATA20"; };
+2'b10 { desc = "RGMII_TXD1"; };
+            }
+
+            field {
+                desc = "RGMII_TXD1 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg82 @ 0x0148;
+
+        reg {
+            name = "RGMII_TXD2";
+            desc = "RGMII_TXD2 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO10_4"; };
+2'b01 { desc = "VO_DATA17"; };
+2'b10 { desc = "RGMII_TXD2"; };
+            }
+
+            field {
+                desc = "RGMII_TXD2 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg83 @ 0x014C;
+
+        reg {
+            name = "RGMII_TXD3";
+            desc = "RGMII_TXD3 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO10_5"; };
+2'b01 { desc = "VO_HS"; };
+2'b10 { desc = "RGMII_TXD3"; };
+            }
+
+            field {
+                desc = "RGMII_TXD3 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg84 @ 0x0150;
+
+        reg {
+            name = "RGMII_RX_CLK";
+            desc = "RGMII_RX_CLK pin multiplexing control register."
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO10_6"; };
+2'b01 { desc = "VO_DATA19"; };
+2'b10 { desc = "RGMII_RX_CLK"; };
+            }
+
+            field {
+                desc = "RGMII_RX_CLK pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg85 @ 0x0154;
+
+        reg {
+            name = "RGMII_RX_DV";
+            desc = "RGMII_RX_DV pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO10_7"; };
+2'b01 { desc = "VO_DATA23"; };
+2'b10 { desc = "RGMII_RX_DV"; };
+            }
+
+            field {
+                desc = "RGMII_RX_DV pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg86 @ 0x0158;
+
+        reg {
+            name = "RGMII_RXD0";
+            desc ="RGMII_RXD0 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO11_0"; };
+2'b01 { desc = "VO_DATA22"; };
+2'b10 { desc = "RGMII_RXD0"; };
+            }
+
+            field {
+                desc = "RGMII_RXD0 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg87 @ 0x015C;
+
+        reg {
+            name = "RGMII_RXD1";
+            desc = "RGMII_RXD1 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO11_1"; };
+2'b01 { desc = "SPI3_SCLK"; };
+2'b10 { desc = "RGMII_RXD1"; };
+2'b11 { desc = "I2C3_SCL"; };
+            }
+
+            field {
+                desc = "RGMII_RXD1 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg88 @ 0x0160;
+
+        reg {
+            name = "RGMII_RXD2";
+            desc = "RGMII_RXD2 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO11_2"; };
+2'b01 { desc = "VO_DE"; };
+2'b10 { desc = "RGMII_RXD2"; };
+            }
+
+            field {
+                desc = "RGMII_RXD2 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg89 @ 0x0164;
+
+        reg {
+            name = "RGMII_RXD3";
+            desc = "RGMII_RXD3 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO11_3"; };
+2'b01 { desc = "VO_DATA21"; };
+2'b10 { desc = "RGMII_RXD3"; };
+            }
+
+            field {
+                desc = "RGMII_RXD3 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg90 @ 0x0168;
+
+        reg {
+            name = "EPHY_RSTN";
+            desc = "EPHY_RSTN pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO11_4"; };
+2'b10 { desc = "EPHY_RSTN"; };
+            }
+
+            field {
+                desc = "EPHY_RSTN pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg91 @ 0x016C;
+
+        reg {
+            name = "EPHY_CLK";
+            desc = "EPHY_CLK pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO11_5"; };
+2'b01 { desc = "SPI3_SDI"; };
+2'b10 { desc = "EPHY_CLK"; };
+            }
+
+            field {
+                desc = "EPHY_CLK pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg92 @ 0x0170;
+
+        reg { 
+            name = "MDCK";
+            desc = "MDCK pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO11_6"; };
+2'b01 { desc = "SPI3_CSN"; };
+2'b10 { desc = "MDCK"; };
+            }
+
+            field {
+                desc = "MDCK pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg93 @ 0x0174;
+
+        reg {
+            name = "MDIO";
+            desc = "MDIO pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO11_7"; };
+2'b01 { desc = "SPI3_SDO"; };
+2'b10 { desc = "MDIO"; };
+2'b11 { desc = "I2C3_SDA"; };
+            }
+
+            field {
+                desc = "MDIO pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg94 @ 0x0178;
+
+        reg {
+            name = "SENSOR0_CLK";
+            desc = "SENSOR0_CLK pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO12_0"; };
+2'b01 { desc = "SENSOR0_CLK"; };
+            }
+
+            field {
+                desc = "SENSOR0_CLK pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        }  muxctrl_reg95 @ 0x017C;
+        */
+        reg {
+            name = "SENSOR0_RSTN";
+            desc = "SENSOR0_RSTN pin multiplexing control register."; 
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "SENSOR0_RSTN"; };
+2'b01 { desc = "GPIO12_1"; };
+            }
+
+            field {
+                desc = "SENSOR0_RSTN pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg96 @ 0x0180;
+
+        reg {
+            name = "SENSOR0_HS";
+            desc = "SENSOR0_HS pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO12_2"; };
+2'b01 { desc = "SENSOR0_HS"; };
+2'b10 { desc = "SENSOR1_HS"; };
+            }
+
+            field {
+                desc = "SENSOR0_HS pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg97 @ 0x0184;
+
+        reg {
+            name = "SENSOR0_VS";
+            desc = "SENSOR0_VS pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO12_3"; };
+2'b01 { desc = "SENSOR0_VS"; };
+2'b10 { desc = "SENSOR1_VS"; };
+            }
+
+            field {
+                desc = "SENSOR0_VS pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg98 @ 0x0188;
+
+        reg {
+            name = "SPI0_SCLK";
+            desc = "SPI0_SCLK pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO12_4"; };
+2'b01 { desc = "SPI0_SCLK"; };
+2'b10 { desc = "I2C0_SCL"; };
+2'b11 { desc = "SPI0_3WIRE_CLK"; };
+            }
+
+            field {
+                desc = "SPI0_SCLK pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg99 @ 0x018C;
+
+        reg {
+            name = "SPI0_SDO";
+            desc = "SPI0_SDO pin multiplexing control register."; 
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO12_5"; };
+2'b01 { desc = "SPI0_SDO"; };
+2'b10 { desc = "I2C0_SDA"; };
+2'b11 { desc = "SPI0_3WIRE_DATA"; };
+            }
+
+            field {
+                desc = "SPI0_SDO pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg100 @ 0x0190;
+
+        reg {
+            name = "SPI0_SDI";
+            desc = "SPI0_SDI pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO12_6"; };
+2'b01 { desc = "SPI0_SDI"; };
+            }
+
+            field {
+                desc = "SPI0_SDI pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg101 @ 0x0194;
+
+        reg {
+            name = "SPI0_CSN";
+            desc = "SPI0_CSN pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "GPIO12_7"; };
+2'b01 { desc = "SPI0_CSN"; };
+2'b11 { desc = "SPI0_3WIRE_CSN"; };
+            }
+
+            field {
+                desc = "SPI0_CSN pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg102 @ 0x0198;
+
+        reg {
+            name = "SAR_ADC_CH1";
+            desc ="SAR_ADC_CH1 pin multiplexing control register.";  
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "SAR_ADC_CH1 "; };
+2'b01 { desc = "GPIO16_1"; };
+            }
+
+            field {
+                desc = "SAR_ADC_CH1 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg118 @ 0x01D8;
+
+        reg {
+            name = "SAR_ADC_CH2";
+            desc = "SAR_ADC_CH2 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "SAR_ADC_CH2"; };
+2'b01 { desc = "GPIO16_2"; };
+            }
+
+            field {
+                desc = "SAR_ADC_CH2 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg119 @ 0x01DC;
+
+        reg { 
+            name = "SAR_ADC_CH3";
+            desc = "SAR_ADC_CH3 pin multiplexing control register.";
+            regwidth = 32;
+
+            enum muxctrl_regX_values {
+2'b00 { desc = "SAR_ADC_CH3"; };
+2'b01 { desc = "GPIO16_3"; };
+2'b11 { desc = "TEMPER_DQ"; };
+            }
+
+            field {
+                desc = "SAR_ADC_CH3 pin Function sel";
+                encode = muxctrl_regX_values;
+            } select [1:0];
+        } muxctrl_reg120 @ 0x01E0;
+
+    } pinmux @ 0x12040000;
+
+    regfile {
+        name = "";
+        desc = "I/O CTRL configuration register";
+
+    } io_ctrl @ 0x12040800;
+
+    regfile {
+        name = "MDDRC/DDR PHY register";
+        desc = "";
+    } mddrc_ddr @ 0x12060000;
+
+    regfile {
+        name = "PMC register";
+        desc = "";
+    } pmc @ 0x120A0000;
+
+    regfile {
+        name = "GPIO0 register";
+        desc = "";
+
+        /*
+        reg {
+            name = "GPIO_DATA";
+            desc = "GPIO data register";
+        } gpio_data @ 0x000;    
+        */    
+
+        reg {
+            name = "GPIO_DIR GPIO direction control register";
+            desc = "GPIO_DIR is a GPIO direction control register. 
+                    It is used to configure the direction of each GPIO pin.";
+
+            field {
+                desc = "GPIO direction control register. Bit[7:0] correspond to
+                        GPIO_DATA [7:0] respectively. Each bit can be controlled
+                        separately. 0: input, 1: output";
+            } gpio_dir [7:0];
+        } gpio_dir @ 0x400;
+
+        reg {
+            name = "GPIO_IS GPIO interrupt trigger register";
+            desc = "GPIO_IS is a GPIO interrupt trigger register. It is used to configure the interrupt trigger mode.";
+            
+            field {
+                desc = "GPIO interrupt trigger control register. Bit[7:0] correspond to
+                        GPIO_DATA [7:0]. Each bit is controlled separately.
+                        0: edge-sensitive mode, 1: level-sensitive mode";
+            } gpio_is [7:0];
+        } gpio_is @ 0x404;
+
+        reg {
+            name = "GPIO_IBE GPIO interrupt dual-edge trigger register";
+            desc = "GPIO_IBE is a GPIO interrupt dual-edge trigger register. 
+                    It is used to configure the edge trigger mode of each GPIO pin.";
+
+            field {
+                desc = "GPIO interrupt edge control register. Bit[7:0] correspond to
+                        GPIO_DATA [7:0] respectively. Each bit is controlled
+                        independently.
+                        0: single-edge-sensitive mode. The GPIO_IEV register controls
+                        whether the interrupt is rising-edge-sensitive or
+                        falling-edge-sensitive.
+                        1: dual-edge-sensitive mode";
+            } gpio_ibe [7:0];
+        } gpio_ibe @ 0x408;
+
+        reg {
+            name = "GPIO_IEV GPIO interrupt trigger event register";
+            desc = "GPIO_IEV is a GPIO interrupt event register. 
+                    It is used to configure the interrupt trigger event of each GPIO pin";
+
+            field {
+                desc = "GPIO interrupt trigger event register. Bit[7:0] correspond to
+                        GPIO_DATA [7:0]. Each bit is controlled separately.
+                        0: falling-edge-sensitive mode or low-level-sensitive mode
+                        1: rising-edge-sensitive mode or high-level-sensitive mode.";
+            } gpio_iev[7:0];
+        } gpio_iev @ 0x40C;
+
+        reg {
+            name = "GPIO_IE GPIO interrupt mask register";
+            desc = "GPIO_IE is a GPIO interrupt mask register. It is used to mask GPIO interrupts.";
+
+            field {
+                desc = "GPIO interrupt mask register. Bit[7:0] correspond to GPIO_DATA
+                        [7:0]. Each bit is controlled separately.
+                        0: masked,
+                        1: not masked";
+            } gpio_ie [7:0];
+        } gpio_ie @ 0x410;
+
+        reg {
+            name = "GPIO_RIS GPIO raw interrupt status register";
+            desc = "GPIO_RIS is a GPIO raw interrupt status register. 
+                    It is used to query the raw interrupt status of each GPIO pin.";
+            
+            field {
+                desc = "GPIO raw interrupt status register. Bit[7:0] correspond to
+                        GPIO_DATA [7:0], indicating the unmasked interrupt status. The
+                        status cannot be masked and controlled by the GPIO_IE register.
+                        0: No interrupt occurs.
+                        1: An interrupt is generated.";
+            } gpio_ris [7:0];
+        } gpio_ris @ 0x414;
+
+        reg {
+            name = "GPIO_MIS GPIO masked interrupt status register";
+            desc = "GPIO_MIS is a GPIO masked interrupt status register. 
+                    It is used to query the masked interrupt status of each GPIO pin.";
+
+            field {
+                desc = "GPIO masked interrupt status register. Bit[7:0] correspond to
+                        GPIO_DATA [7:0], indicating the masked interrupt status. The
+                        status is controlled by the GPIO_IE register.
+                        0: The interrupt is invalid.
+                        1: The interrupt is valid.";
+            } gpio_mis [7:0];
+        } gpio_mis @ 0x418;
+        reg {
+            name = "GPIO_IC GPIO interrupt clear register";
+            desc = "GPIO_IC is a GPIO interrupt clear register. 
+                    It is used to clear the interrupts generated by
+                    GPIO pins and clear the GPIO_RIS and GPIO_MIS registers.";
+            
+            field {
+                desc = "GPIO interrupt clear register. Bit[7:0] correspond to
+                        GPIO_DATA [7:0]. Each bit is controlled separately.
+                        0: no effect
+                        1: cleared";
+            } gpio_ic [7:0];
+        } gpio_ic @ 0x41C;
+
+    } gpio0 @ 0x12140000;
+
+} hi3516av200;
+
+
