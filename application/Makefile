@@ -77,6 +77,7 @@ libcmos: $(CMOSOBJ)
 
 generate:
 	GOPATH=$(GOPATH) $(GO) generate -tags "$(FAMILY)" application/pkg/koloader
+	GOPATH=$(GOPATH) $(GO) generate -tags "$(FAMILY)" application/pkg/utils/regs
 	#GOPATH=$(GOPATH) $(GO) generate -tags "hi3516av100" application/pkg/koloader
 	#GOPATH=$(GOPATH) $(GO) generate -tags "generate hi3516av200" application/pkg/koloader
 	#GOPATH=$(GOPATH) $(GO) generate -tags "generate hi3516cv100" application/pkg/koloader
@@ -133,3 +134,6 @@ clean:
 
 freeze-vendors:
 	GOPATH=$(GOPATH) $(GO) mod vendor
+
+install-deps:
+	GOPATH=$(GOPATH) $(GO) get -u golang.org/x/tools/cmd/goyacc
