@@ -9,7 +9,7 @@ func init() {
 }
 
 func getTemperature() (float32, error) {
-    var tempCode uint32 = hiutils.ReadDevMem32(0x120300A4)
+    var tempCode uint32 = utils.ReadDevMem32(0x120300A4)
     var temp float32 = ((( float32(tempCode & 0x3FF)-125)/806)*165)-40
 
     return temp, nil

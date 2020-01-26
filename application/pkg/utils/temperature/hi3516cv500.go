@@ -9,7 +9,7 @@ func init() {
 }
 
 func Get() (float32, error) {
-    var tempCode uint32 = hiutils.ReadDevMem32(0x120300BC)
+    var tempCode uint32 = utils.ReadDevMem32(0x120300BC)
     var temp float32 = ((( float32(tempCode & 0x3FF)-136)/793)*165)-40
     return temp, nil
 }
