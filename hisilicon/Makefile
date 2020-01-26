@@ -3,7 +3,7 @@ ifndef FAMILY
     $(error 'FAMILY' variable must be defined)
 endif
 
-BUILDROOT_DIR  ?= $(abspath ../buildroot-2019.08)
+BUILDROOT_DIR  ?= $(abspath ../buildroot-2019.11.1)
 FAMILY_DIR     := $(abspath $(FAMILY))
 OUTDIR         ?= $(abspath ../output/hisilicon/$(FAMILY))
 

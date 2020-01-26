@@ -6,6 +6,7 @@
 /buildroot-2019.05.1-toolchain
 /screenlog*
 /buildroot-2019.08
+/buildroot-2019.11.1
 /Makefile.user.params
 
 **/*.pyc

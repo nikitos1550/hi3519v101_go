@@ -6,8 +6,8 @@ endif
 
 include $(THIS_DIR)Makefile.user.params
 
-BR             := buildroot-2019.08
-BUILDROOT_DIR  := $(abspath ./buildroot-2019.08)
+BR             := buildroot-2019.11.1
+BUILDROOT_DIR  := $(abspath ./buildroot-2019.11.1)
 BOARD_OUTDIR   := $(abspath ./output/boards/$(BOARD))
 CAMERA_TTY     := /dev/ttyCAM$(CAMERA)
 CAMERA_IP      := 192.168.10.1$(shell printf '%02d' $(CAMERA))
