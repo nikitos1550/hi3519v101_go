@@ -76,6 +76,11 @@ def validate_ip_address(ip_str):  # throw on error
 
 # =====================================================================================================================
 def from_hsize(val):  # throw on error
+    prefixes = {"0b": 2, "0o": 8, "0x": 16}
+    base = prefixes.get(val[:2])
+    if base is not None:
+        return int(val[2:], base)
+
     suffixes = {"B": 1, "K": 1 << 10, "M": 1 << 20, "G": 1 << 30}
     if val[-1].isalpha():
         mul = suffixes.get(val[-1].upper())

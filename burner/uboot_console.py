@@ -81,8 +81,8 @@ class UBootConsole:
             v = v.replace(";", "\;")
             self.command("setenv {} {}".format(k, v))
 
-    def tftp(self, offset, file_name):
-        self.command("tftp {:#x} {}".format(offset, file_name))
+    def tftp(self, offset, filename, upload_size=""):
+        self.command(f"tftp {offset:#x} {filename} {upload_size}")
 
     def bootm(self, uimage_addr):
         self.command("bootm {:#x}".format(uimage_addr), wait=False)
