@@ -11,7 +11,7 @@ GOARM   := $(ARMV) #FROM Makefile.params
 GOENV   := GOPATH=$(GOPATH) GOOS=$(GOOS) GOARCH=$(GOARCH) GOARM=$(GOARM)
 
 GOTAGS_TESTER  := $(FAMILY) tester
-GOTAGS_DAEMON  := $(FAMILY) imx274 openapi scripts debug
+GOTAGS_DAEMON  := $(FAMILY) imx274 openapi scripts debug netgo
 #GOTAGS_DAEMON  := $(FAMILY) imx274 debug
 #GOTAGS  := $(FAMILY) netgo openapi debug lua onvif
 
@@ -46,7 +46,8 @@ EMBEDDVARS :=   -X 'application/pkg/buildinfo.BuildDateTime=$(shell date +%Y-%m-
                 -X 'application/pkg/buildinfo.LinuxRam=$(RAM_LINUX)' \
                 -X 'application/pkg/buildinfo.MppRam=$(RAM_MPP)'
 
-GODEBUG := -s -w
+#NO DEBUG SYMBOLS, COMMENT IF WANT TO TURN ON DEBUG
+GODEBUG := -s -w -extldflags "-static"
 
 guard:
 	@echo "guard"

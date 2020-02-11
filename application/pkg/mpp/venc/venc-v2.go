@@ -2,8 +2,8 @@
 
 package venc
 
-func Init() {
-}
+//func Init() {
+//}
 
 func SampleMjpeg() {
 }

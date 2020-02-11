@@ -30,7 +30,7 @@ int mpp3_venc_sample_mjpeg(unsigned int *error_code) {
     stMjpegCbr.u32StatTime          = 1;
     stMjpegCbr.u32SrcFrmRate        = 30;//30;// input (vi) frame rate
     stMjpegCbr.fr32DstFrmRate       = 1;//30;// target frame rate
-    stMjpegCbr.u32BitRate           = 1024*2;
+    stMjpegCbr.u32BitRate           = 1024*16;
     stMjpegCbr.u32FluctuateLevel    = 1; // average bit rate
 
     memcpy(&stVencChnAttr.stRcAttr.stAttrMjpegeCbr, &stMjpegCbr, sizeof(VENC_ATTR_MJPEG_CBR_S));
@@ -122,7 +122,10 @@ import "C"
 import (
     "log"
     "application/pkg/mpp/error"
-    "application/pkg/mpp/getloop"
+)
+
+var (
+    SampleMjpegFrames   *frames
 )
 
 func SampleMjpeg() {
@@ -137,7 +140,9 @@ func SampleMjpeg() {
         log.Fatal("Unexpected return ", err , " of C.mpp3_venc_sample_mjpeg()")
     }
 
-    getloop.AddVenc(1)
+    //TODO //create corresponding encoder object
+    SampleMjpegFrames = CreateFrames(3)
+    addVenc(1)
 }
 
 func SampleH264() {
@@ -152,6 +157,7 @@ func SampleH264() {
         log.Fatal("Unexpected return ", err , " of C.mpp3_venc_sample_h264()")
     }
 
-    getloop.AddVenc(0)
+    //TODO //create corresponding encoder object
+    addVenc(0) //add venc to get loop
 }
 

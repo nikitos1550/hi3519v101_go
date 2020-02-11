@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/gorilla/mux v1.7.3
+	github.com/gorilla/websocket v1.4.1
 	github.com/pion/webrtc/v2 v2.1.16
 	github.com/shuLhan/go-bindata v3.4.0+incompatible // indirect
 	github.com/yuin/gopher-lua v0.0.0-20191128022950-c6266f4fe8d7

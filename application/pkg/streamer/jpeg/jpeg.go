@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"application/pkg/openapi"
 
-    "application/pkg/mpp/getloop"
+    "application/pkg/mpp/venc"
 )
 
 func init() {
@@ -21,7 +21,19 @@ func serveJpeg(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "image/jpeg")
 
-    getloop.TmpLock()
-    w.Write(([]byte)(getloop.TmpGet()))
-    getloop.TmpUnlock()
+    //TODO loop moved to VENC package
+    //venc.TmpLock()
+    //w.Write(([]byte)(venc.TmpGet()))
+    //venc.TmpUnlock()
+
+    /*
+    size, _ := venc.F.Size()
+    buf     := make([]byte, size)
+    venc.F.Read(buf)
+    w.Write(buf)
+    */
+
+    //copied, err := venc.F.WriteTo(w)
+    copied, err := venc.SampleMjpegFrames.WriteTo(w)
+    log.Println("serveJpeg copied", copied, " error", err)
 }

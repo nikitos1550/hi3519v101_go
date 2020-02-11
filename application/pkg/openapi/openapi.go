@@ -12,11 +12,14 @@ import (
 	"time"
 	//"strings"
 	"strconv"
+
+   // "github.com/gorilla/websocket"
 )
 
 ////////////////////////////////////////////////////////
 
 const apiPrefix string = "/api/"
+const wsPrefix string = "/ws/"
 
 type routeItem struct {
 	name        string
@@ -29,6 +32,7 @@ type routeItems []routeItem
 
 var apiRoutes	routeItems //var for initial api routes storage
 var routes		routeItems
+var wsRoutes    routeItems
 
 func AddApiRoute(name, pattern, method string, handlerfunc http.HandlerFunc) {
 	apiRoutes = append(apiRoutes, routeItem {name: name, method: method, pattern: pattern, handlerFunc: handlerfunc})
@@ -36,6 +40,10 @@ func AddApiRoute(name, pattern, method string, handlerfunc http.HandlerFunc) {
 
 func AddRoute(name, pattern, method string, handlerfunc http.HandlerFunc) {
 	routes = append(routes, routeItem {name: name, method: method, pattern: pattern, handlerFunc: handlerfunc})
+}
+
+func AddWsRoute(name, pattern, method string, handlerfunc http.HandlerFunc) {
+    wsRoutes = append(wsRoutes, routeItem {name: name, method: method, pattern: pattern, handlerFunc: handlerfunc})
 }
 
 var router *mux.Router
@@ -109,6 +117,15 @@ func Start() {
 func newRouter() *mux.Router {
 	router := mux.NewRouter() //.StrictSlash(true)
 
+    for _, route := range wsRoutes {
+        router.
+            PathPrefix(wsPrefix).
+            Methods(route.method).
+            Path(route.pattern).
+            Name(route.name).
+            Handler(route.handlerFunc)
+    }
+
 	for _, route := range apiRoutes {
 		router.
 			PathPrefix(apiPrefix).
@@ -128,5 +145,8 @@ func newRouter() *mux.Router {
 
 	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir(*flagWwwPath))))
 
+    router.Use(authMiddleware)
 	return router
 }
+
+
