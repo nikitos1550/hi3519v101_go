@@ -90,6 +90,17 @@ def upload_files_via_tftp(uboot, listen_ip, listen_port, files_and_addrs):
 
 
 # =====================================================================================================================
+def download_files_via_tftp(uboot, listen_ip, listen_port, files_addrs_lens):
+    with tempfile.TemporaryDirectory() as tmpdir:
+        with utils.TftpContext(tmpdir, listen_ip=listen_ip, listen_port=listen_port):
+            for filename, addr, size in files_addrs_lens:
+                logging.info(f"Download {utils.to_hsize(size)} to '{filename}' via TFTP from {addr:#x} address")
+                tmp_filename = os.path.join(tmpdir, filename)
+                uboot.tftp(addr, tmp_filename, size)
+                utils.copy_to_dir(tmp_filename, "./")
+
+
+# =====================================================================================================================
 class MemProbeAction:
     @classmethod
     def register(cls, aps):
@@ -184,6 +195,31 @@ class LoadAction:
 
 
 # =====================================================================================================================
+class SpiDumpAction:
+    @classmethod
+    def register(cls, aps):
+        parser = aps.add_parser("spi-dump", help="Dump SPI-Flash content")
+
+        NetworkContext.add_args(parser)
+        parser.add_argument("--offset", required=False, type=int, default=0, help="SPI Flash offset")
+        parser.add_argument("--length", required=True, type=utils.from_hsize, help="Size in bytes")
+        parser.add_argument("--dst-file", required=True, type=str, help="Destination file")
+
+        parser.set_defaults(action=cls.run)
+    
+    @staticmethod
+    def run(uboot: UBootConsole, args):
+        BASE_ADDR = 0x82000000
+        network = NetworkContext(args)
+        uboot.setenv(ipaddr=network.target_ip, netmask=network.mask, serverip=network.host_ip)
+        uboot.command("sf probe 0")
+        uboot.command(f"sf read {BASE_ADDR:#x} {args.offset:#x} {args.length:#x}")
+        download_files_via_tftp(uboot, network.host_ip, 69, [
+            (args.dst_file, BASE_ADDR, args.length)
+        ])
+
+
+# =====================================================================================================================
 class PrintEnvAction:
     @classmethod
     def register(cls, aps):
@@ -216,6 +252,7 @@ def main():
     MacAction.register(action_parsers)
     LoadAction.register(action_parsers)
     MemProbeAction.register(action_parsers)
+    SpiDumpAction.register(action_parsers)
 
     args = parser.parse_args()
 
