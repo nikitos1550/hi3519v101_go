@@ -27,22 +27,40 @@ func CreateFrames(num int) *frames {
 
 
 func (f *frames) Write(p []byte) (n int, err error) {
-    var last int
-    f.rwmux.RLock() //calc next frame address
-    if f.last == (cap(f.frames)-1) {
-        last = 0
-    } else {
-        last = f.last + 1
-    }
-    f.rwmux.RUnlock()
+    frame := f.nextFrame()
     //log.Println("Frames Write ", last)
-    n, err = f.frames[last].Write(p)
-    f.rwmux.Lock() //new frame done, let us update value
-    f.last = last
-    f.rwmux.Unlock()
+    n, err = f.frames[frame].Write(p)
+    f.setFrame(frame)
     return n, err
 }
 
+func (f *frames) nextFrame() int {
+    var next int
+    f.rwmux.RLock() //calc next frame address
+    if f.last == (cap(f.frames)-1) {
+        next = 0
+    } else {
+        next = f.last + 1
+    }
+    f.rwmux.RUnlock()
+    return next
+}
+
+func (f *frames) setFrame(frame int) {
+    f.rwmux.Lock() //new frame done, let us update value
+    f.last = frame
+    f.rwmux.Unlock()
+}
+
+func (f *frames) Writev(p [][]byte) (n int, err error) {
+    frame := f.nextFrame()
+    //log.Println("Frames Write ", last)
+    n, err = f.frames[frame].Writev(p)
+    f.setFrame(frame)
+    return n, err
+}
+
+/* DEPRECATED
 func (f *frames) Append(p []byte) (n int, err error) { //TOREMOVE change for multi write
     f.rwmux.Lock()
     //log.Println("Frames Append ", f.last)
@@ -50,6 +68,7 @@ func (f *frames) Append(p []byte) (n int, err error) { //TOREMOVE change for mul
     f.rwmux.Unlock()
     return n, err
 }
+*/
 
 func (f *frames) WriteTo(w io.Writer) (n int, err error) {
     f.rwmux.RLock()

@@ -78,6 +78,23 @@ func (f *frame) Write(p []byte) (n int, err error) { //write to frame from p
     return n, nil
 }
 
+func (f *frame) Writev(p [][]byte) (n int, err error) { //write to frame from multiple buffers
+    f.rwmux.Lock()
+    var length int
+    for _,pp := range p {
+        length = length + len(pp)
+    }
+    f.data = make([]byte, length)
+    var offset int
+    for _,pp := range p {
+        n = copy(f.data[offset:], pp)
+        offset = offset + n
+    }
+    f.rwmux.Unlock()
+    return length, nil
+}
+
+/* DEPRECATED
 func (f *frame) Append(p []byte) (n int, err error) {//TOREMOVE change to multi write
     f.rwmux.Lock()
     //TODO
@@ -90,6 +107,7 @@ func (f *frame) Append(p []byte) (n int, err error) {//TOREMOVE change to multi 
     f.rwmux.Unlock()
     return n, nil
 }
+*/
 
 func (f *frame) WriteTo (w io.Writer) (n int, err error) { // read from frame to writer
     f.rwmux.RLock()

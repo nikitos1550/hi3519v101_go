@@ -27,6 +27,9 @@ func go_callback_receive_data(venc_channel C.int, data_pointer * C.data_from_c, 
         //mux.Lock() //move near encoder object access
         //log.Println("Total ", length, " bytes")
         length = 0
+
+        pp := make([][]byte, num)
+
         for i := 0; i < num; i++ {
             length      = length + int(dataFromC[i].length)
         }
@@ -36,14 +39,16 @@ func go_callback_receive_data(venc_channel C.int, data_pointer * C.data_from_c, 
         for i := 0; i < num; i++ {
             //log.Println("Item length ", dataFromC[i].length)
             //this data slice is safe!!!
-            data := (*[1 << 28]byte)(unsafe.Pointer(dataFromC[i].data))[:dataFromC[i].length:dataFromC[i].length]
+            pp[i] = (*[1 << 28]byte)(unsafe.Pointer(dataFromC[i].data))[:dataFromC[i].length:dataFromC[i].length]
             ///*copied := */ copy(array[offset:(offset+int(dataFromC[i].length))], data)
             //F.Append(data)
+            /*
             if i == 0 {
                 SampleMjpegFrames.Write(data)
             } else {
                 SampleMjpegFrames.Append(data)
             }
+            */
             /*TODO
                 find corresponding go space encoder object and copy data there
                 encoder := findEncoder(vencChannel)
@@ -58,6 +63,7 @@ func go_callback_receive_data(venc_channel C.int, data_pointer * C.data_from_c, 
             //log.Println("copied ", copied, " bytes")
             //offset      = offset + int(dataFromC[i].length)
         }
+        SampleMjpegFrames.Writev(pp)
         //mux.Unlock() //move near encoder object access
     }
 

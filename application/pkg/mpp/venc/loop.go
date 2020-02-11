@@ -20,13 +20,12 @@ struct st_loop_vencs {
     int fd;
 } loop_vencs[NUM_VENCS];
 
+
 int mpp_data_loop_add(unsigned int *error_code, unsigned int venc_channel_id) {
     *error_code = 0;
 
-    //int venc_fd = HI_MPI_VENC_GetFd(venc_channel_id);
     int venc_fd = mpp_venc_getfd(venc_channel_id);
 
-    //TODO make it proper way
     int i;
     for (i=0; i<NUM_VENCS; i++) {
         if (loop_vencs[i].id == -1) {
@@ -49,14 +48,13 @@ int mpp_data_loop_add(unsigned int *error_code, unsigned int venc_channel_id) {
 int mpp_data_loop_del(unsigned int *error_code, unsigned int venc_channel_id) {
     *error_code = 0;
 
-    //int venc_fd = HI_MPI_VENC_GetFd(venc_channel_id);
     int venc_fd = mpp_venc_getfd(venc_channel_id);
 
-    //TODO make it proper way
     int i;
     for (i=0; i<NUM_VENCS; i++) {
         if (loop_vencs[i].id == venc_fd) {
             loop_vencs[i].id = -1;
+            loop_vencs[i].fd = -1;
             break;
         }
     }
@@ -104,9 +102,10 @@ void * mpp_data_loop_thread() {
         //printf("event_count = %d\n", event_count);
         if (event_count == 0) continue;
 
-        int i, j;
+        int i;
         for(i = 0; i < event_count; i++) {
             //printf("Triggered fd %d\n", events[i].data.fd);
+            int j;
             for(j=0; j<NUM_VENCS; j++) {
                 if (loop_vencs[j].fd == events[i].data.fd) {
                     mpp_data_loop_get_data(loop_vencs[j].id);
