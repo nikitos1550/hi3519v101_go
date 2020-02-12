@@ -13,9 +13,9 @@ import (
 
 type frames struct {
     frames  []frame
-    //num     int //no need golang store it inside slice object
-    last    int
+
     rwmux   sync.RWMutex
+    last    int
 }
 
 func CreateFrames(num int) *frames {
@@ -25,13 +25,11 @@ func CreateFrames(num int) *frames {
     return frames
 }
 
-
-func (f *frames) Write(p []byte) (n int, err error) {
-    frame := f.nextFrame()
-    //log.Println("Frames Write ", last)
-    n, err = f.frames[frame].Write(p)
-    f.setFrame(frame)
-    return n, err
+func (f *frames) GetLastFrame() *frame {
+    f.rwmux.RLock()
+    last := f.last
+    f.rwmux.RUnlock()
+    return &f.frames[last]
 }
 
 func (f *frames) nextFrame() int {
@@ -46,48 +44,59 @@ func (f *frames) nextFrame() int {
     return next
 }
 
-func (f *frames) setFrame(frame int) {
+func (f *frames) setLastFrame(frame int) {
     f.rwmux.Lock() //new frame done, let us update value
     f.last = frame
     f.rwmux.Unlock()
 }
 
-func (f *frames) Writev(p [][]byte) (n int, err error) {
+func (f *frames) WriteNext(p []byte, seq uint32) (n int, err error) {
     frame := f.nextFrame()
-    //log.Println("Frames Write ", last)
-    n, err = f.frames[frame].Writev(p)
-    f.setFrame(frame)
+    n, err = f.frames[frame].Write(p, seq)
+    f.setLastFrame(frame)
     return n, err
 }
 
-/* DEPRECATED
-func (f *frames) Append(p []byte) (n int, err error) { //TOREMOVE change for multi write
-    f.rwmux.Lock()
-    //log.Println("Frames Append ", f.last)
-    n, err = f.frames[f.last].Append(p)
-    f.rwmux.Unlock()
+func (f *frames) WritevNext(p [][]byte, seq uint32) (n int, err error) {
+    frame := f.nextFrame()
+    n, err = f.frames[frame].Writev(p, seq)
+    f.setLastFrame(frame)
     return n, err
 }
-*/
 
-func (f *frames) WriteTo(w io.Writer) (n int, err error) {
+/***********************/
+
+func (f *frames) Read(buf []byte, num int) (n int, err error) {
+    if num > len(f.frames) {
+        return 0, nil //TODO
+    }
     f.rwmux.RLock()
-    //log.Println("Frames WriteTo ", f.last)
-    n, err = f.frames[f.last].WriteTo(w)
+    n, err = f.frames[num].Read(buf)
     f.rwmux.RUnlock()
     return n, err
 }
 
-func (f *frames) Read(buf []byte) (n int, err error) {
+func (f *frames) ReadLast(buf []byte) (n int, err error) {
     f.rwmux.RLock()
     n, err = f.frames[f.last].Read(buf)
     f.rwmux.RUnlock()
     return n, err
 }
 
+func (f *frames) WriteTo(w io.Writer, num int) (n int, err error) {
+    if num > len(f.frames) {
+        return 0, nil //TODO
+    }
+    f.rwmux.RLock()
+    n, err = f.frames[f.last].WriteTo(w)
+    f.rwmux.RUnlock()
+    return n, err
+}
 
-//func (f *frames) lastFrame() (*frame, error) {
-//    return nil, nil
-//}
-
+func (f *frames) WriteLastTo(w io.Writer) (n int, err error) {
+    f.rwmux.RLock()
+    n, err = f.frames[f.last].WriteTo(w)
+    f.rwmux.RUnlock()
+    return n, err
+}
 

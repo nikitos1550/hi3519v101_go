@@ -1,3 +1,5 @@
+//+build streamerWebrtc
+
 package webrtc
 
 import (
@@ -38,6 +40,7 @@ func loadTestVideo() {
 func parseTestVideo() {
     var i int
     var counter int = 0
+    //log.Println("buffer len=", len(buffer))
     for i=0;i<(len(buffer)-4);i++ {
         //log.Println(buffer[i], " ", buffer[i+1], " ", buffer[i+2], " ", buffer[i+3])
         found := 0
@@ -46,9 +49,11 @@ func parseTestVideo() {
         //} else 
         if  (buffer[i]  == 0 && buffer[i+1] == 0 && buffer[i+2] == 0 && buffer[i+3] == 1) {
             found = 4
+            //log.Println("Found new NAL")
         }
 
         if (found > 0) {
+            
             //nalType := buffer[i+found] & 0x1F
             //log.Println("Found ", i, " NAL ", nalType)
 

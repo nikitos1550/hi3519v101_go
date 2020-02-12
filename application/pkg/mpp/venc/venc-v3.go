@@ -71,9 +71,9 @@ int mpp3_venc_sample_h264(unsigned int *error_code) {
 
     stH264Attr.u32MaxPicWidth   = 3840;
     stH264Attr.u32MaxPicHeight  = 2160;
-    stH264Attr.u32PicWidth      = 3840;         //the picture width
-    stH264Attr.u32PicHeight     = 2160;         //the picture height
-    stH264Attr.u32BufSize       = 3840*2160*4;  //stream buffer size
+    stH264Attr.u32PicWidth      = 1280;//3840;         //the picture width
+    stH264Attr.u32PicHeight     = 720;//2160;         //the picture height
+    stH264Attr.u32BufSize       = 3840*2160*1.5;  //stream buffer size
     stH264Attr.u32Profile       = 2;            //0: baseline; 1:MP; 2:HP;  3:svc_t
     stH264Attr.bByFrame         = HI_TRUE;      //get stream mode is slice mode or frame mode?
     //stH264Attr.u32BFrameNum   = 0;            //0: not support B frame; >=1: number of B frames 
@@ -83,10 +83,10 @@ int mpp3_venc_sample_h264(unsigned int *error_code) {
 
     stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_H264CBR;
 
-    stH264Cbr.u32Gop            = 30;
+    stH264Cbr.u32Gop            = 25;
     stH264Cbr.u32StatTime       = 1;
     stH264Cbr.u32SrcFrmRate     = 30;       //input (vi) frame rate
-    stH264Cbr.fr32DstFrmRate    = 1;//30;       //target frame rate
+    stH264Cbr.fr32DstFrmRate    = 25;//30;       //target frame rate
     stH264Cbr.u32BitRate        = 1024*1;
     stH264Cbr.u32FluctuateLevel = 1;        //average bit rate
 
@@ -126,6 +126,9 @@ import (
 
 var (
     SampleMjpegFrames   *frames
+    SampleH264Frames    *frames
+    SampleH264Notify    chan int
+    SampleH264Start     chan int
 )
 
 func SampleMjpeg() {
@@ -158,6 +161,8 @@ func SampleH264() {
     }
 
     //TODO //create corresponding encoder object
+    SampleH264Frames = CreateFrames(10)
+    SampleH264Notify = make(chan int, 10)
+    SampleH264Start  = make(chan int, 1)
     addVenc(0) //add venc to get loop
 }
-

@@ -9,8 +9,6 @@ import (
     "application/pkg/mpp/vi"
     "application/pkg/mpp/vpss"
     "application/pkg/mpp/venc"
-
-    //"application/pkg/mpp/getloop"
 )
 
 func Init() {
@@ -24,12 +22,11 @@ func Init() {
     vpss.Init()
 
     venc.Init()
-    //getloop.Init() //should be moved to venc package
 
     //init sample videopipeline
     vpss.SampleChannel0()
 
-    //venc.SampleH264()
+    venc.SampleH264()
     venc.SampleMjpeg()
-
+    
 }

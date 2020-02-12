@@ -13,10 +13,9 @@ int mpp_venc_getfd(int venc_channel_id);
 typedef struct st_data_from_c {
     char            *data;
     int             length;
-    unsigned long   ts;
 } data_from_c;
 
-void go_callback_receive_data(int venc, data_from_c * data_pointer, int num);
+void go_callback_receive_data(int venc, unsigned int seq, data_from_c * data_pointer, int num);
 
 
 #endif //_LOOP_H

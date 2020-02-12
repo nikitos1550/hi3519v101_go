@@ -1,3 +1,5 @@
+//+build nobuild
+
 package chip
 
 // #include "hi_common.h"

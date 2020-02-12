@@ -1,3 +1,5 @@
+//+build streamerJpeg
+
 package jpeg
 
 import (
@@ -21,19 +23,10 @@ func serveJpeg(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "image/jpeg")
 
-    //TODO loop moved to VENC package
-    //venc.TmpLock()
-    //w.Write(([]byte)(venc.TmpGet()))
-    //venc.TmpUnlock()
-
-    /*
-    size, _ := venc.F.Size()
-    buf     := make([]byte, size)
-    venc.F.Read(buf)
-    w.Write(buf)
-    */
-
     //copied, err := venc.F.WriteTo(w)
-    copied, err := venc.SampleMjpegFrames.WriteTo(w)
-    log.Println("serveJpeg copied", copied, " error", err)
+    //size, seq, _ := venc.SampleMjpegFrames.GetLastFrame().Info()
+    //log.Println("size=", size, " seq=", seq)
+    venc.SampleMjpegFrames.WriteLastTo(w)
+    //copied, err := venc.SampleMjpegFrames.WriteLastTo(w)
+    //log.Println("serveJpeg copied", copied, " error", err)
 }

@@ -1,12 +1,19 @@
 package streamer
 
 import (
-	//TODO avoid implicit init
-	_"application/pkg/streamer/jpeg"
-    _"application/pkg/streamer/webrtc"
+	"application/pkg/streamer/file"
+    "application/pkg/streamer/jpeg"
+    "application/pkg/streamer/raw"
+    "application/pkg/streamer/rtsp"
+    "application/pkg/streamer/webrtc"
+    "application/pkg/streamer/ws"
 )
 
-//func Init() {
-//    //jpeg.Init()
-//    //webrtc.Init()
-//}
+func Init() {
+    file.Init()
+    jpeg.Init()
+    raw.Init()
+    rtsp.Init()
+    webrtc.Init()
+    ws.Init()
+}

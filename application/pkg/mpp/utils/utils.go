@@ -11,3 +11,10 @@ func Version() string {
     return mppVersion
 }
 
+func MppId() uint32 {
+    var id C.HI_U32
+    C.HI_MPI_SYS_GetChipId(&id)
+
+    return uint32(id)
+}
+

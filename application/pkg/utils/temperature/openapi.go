@@ -38,6 +38,4 @@ func serveTemperature(w http.ResponseWriter, r *http.Request) {
     } else {
 		w.WriteHeader(http.StatusNotFound)//TODO correct http return code
     }
-
-
 }

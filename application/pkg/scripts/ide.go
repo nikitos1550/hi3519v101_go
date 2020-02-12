@@ -1,5 +1,5 @@
 // +build scripts
-// +build scripts-ide
+// +build scriptsIde
 
 // HTTP API exposes ability to create/edit/delete/debug scripts in runtime
 

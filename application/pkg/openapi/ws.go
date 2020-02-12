@@ -1,17 +1,16 @@
-// +build openapi
+//+build openapi
+//+build debug
 
 package openapi
 
 import (
 	"log"
 	"net/http"
-    "github.com/gorilla/websocket"
+    //"github.com/gorilla/websocket"
 )
 
-var Upgrader = websocket.Upgrader{} // use default options
-
 func init() {
-    AddWsRoute("wsEcho",      "/echo",     "GET",      wsEcho)
+    AddWsRoute("wsEcho",      "/debug/echo",     "GET",      wsEcho)
 }
 
 func wsEcho(w http.ResponseWriter, r *http.Request) {
@@ -23,6 +22,8 @@ func wsEcho(w http.ResponseWriter, r *http.Request) {
         return
     }
     defer c.Close()
+
+    log.Println("WS connection established")
 
     for {
         mt, message, err := c.ReadMessage()

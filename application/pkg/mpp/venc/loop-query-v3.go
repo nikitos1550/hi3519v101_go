@@ -63,7 +63,7 @@ void mpp_data_loop_get_data(unsigned int venc_channel) {
         st_data[i].length = stStream.pstPack[i].u32Len;
     }
     //printf("NEW FRAME len = %d!\n", len);
-    go_callback_receive_data(venc_channel, st_data, stStream.u32PackCount);
+    go_callback_receive_data(venc_channel, stStream.u32Seq, st_data, stStream.u32PackCount);
 
     free(st_data);
 

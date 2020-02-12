@@ -11,7 +11,7 @@ GOARM   := $(ARMV) #FROM Makefile.params
 GOENV   := GOPATH=$(GOPATH) GOOS=$(GOOS) GOARCH=$(GOARCH) GOARM=$(GOARM)
 
 GOTAGS_TESTER  := $(FAMILY) tester
-GOTAGS_DAEMON  := $(FAMILY) imx274 openapi scripts debug netgo
+GOTAGS_DAEMON  := $(FAMILY) imx274 openapi scripts debug netgo streamerJpeg streamerFile streamerWebrtc
 #GOTAGS_DAEMON  := $(FAMILY) imx274 debug
 #GOTAGS  := $(FAMILY) netgo openapi debug lua onvif
 
@@ -95,12 +95,14 @@ deploy-dir-daemon:
 	mkdir ./distrib/$(FAMILY)
 	mkdir ./distrib/$(FAMILY)/opt
 	mkdir ./distrib/$(FAMILY)/opt/www
+	mkdir ./distrib/$(FAMILY)/opt/storage
 	mkdir ./distrib/$(FAMILY)/opt/scripts
 	cp -r ./www/* ./distrib/$(FAMILY)/opt/www
 	cp -r ./scripts/* ./distrib/$(FAMILY)/opt/scripts
 	mkdir ./distrib/$(FAMILY)/etc
 	cp ./init/run.sh ./distrib/$(FAMILY)/opt
 	cp ./testvideo.h264 ././distrib/$(FAMILY)/opt
+	cp ./testvideo.mp4 ././distrib/$(FAMILY)/opt
 	mkdir ./distrib/$(FAMILY)/etc/init.d
 	cp ./init/S99daemon ./distrib/$(FAMILY)/etc/init.d/
 
@@ -113,7 +115,7 @@ deploy-dir-tester:
 	mkdir ./distrib/$(FAMILY)/etc/init.d
 	cp ./init/S99tester ./distrib/$(FAMILY)/etc/init.d/
 
-build-daemon: generate libsdk libcmos testvideo.h264 deploy-dir-daemon
+build-daemon: generate libsdk libcmos testvideo.mp4 testvideo.h264 deploy-dir-daemon
 	$(eval GOTAGS := $(GOTAGS_DAEMON))
 	#$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS_DAEMON)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/daemon application/cmd/daemon
 	$(GOENV) $(CGOPARAMS_DAEMON) $(GO) build -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/application application/cmd/daemon
@@ -128,6 +130,9 @@ build-tester: generate libsdk deploy-dir-tester
 
 testvideo.h264:
 	ffmpeg -f lavfi -i testsrc=size=320x340 -t 30 -pix_fmt yuv420p -c:v libx264 -tune zerolatency -profile:v main -g 25 -vbsf h264_mp4toannexb -f h264 testvideo.h264
+
+testvideo.mp4: testvideo.h264
+	MP4Box -add testvideo.h264 -fps 25 testvideo.mp4
 
 clean:
 	rm -f $(APPOUT)

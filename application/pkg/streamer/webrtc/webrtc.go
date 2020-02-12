@@ -1,3 +1,5 @@
+//+build streamerWebrtc
+
 package webrtc
 
 import (
@@ -14,19 +16,22 @@ import (
 
     "io/ioutil"
     //"reflect"
+
+    "application/pkg/mpp/venc"
 )
 
 func init() {
     openapi.AddApiRoute("connectWebrt",   "/webrtc/connect",   "POST",      connectWebrtc)
 
-    Init()
-    log.Println("WebRTC inited")
+    //Init()
+    //log.Println("WebRTC inited")
 }
 
 func Init() {
     loadTestVideo()
     parseTestVideo()
 
+    
     go func() {
         // Create a new RTCPeerConnection, to evaluate our sdp in advance
         log.Println("Webrtc: stunning in advance")
@@ -44,6 +49,7 @@ func Init() {
         }
         log.Println("Webrtc: stunning in advance DONE")
     }()
+    
 }
 
 func connectWebrtc(w http.ResponseWriter, r *http.Request) {
@@ -141,7 +147,51 @@ func connectWebrtc(w http.ResponseWriter, r *http.Request) {
         if (connectionState.String() == "connected") {
             log.Println("Webrtc: Time to start data push (with small 1s delay)!")
             time.Sleep(time.Millisecond * 1000)
+
             go func() {
+
+                
+                var start bool
+                venc.SampleH264Start <- 100
+                for {
+                    //for {
+                    //    select {
+                    //    case msg := <-venc.SampleH264Notify:
+                    //        //new frame arrived
+                    //        log.Println("cleaning channel", msg)
+                    //    default:
+                    //        break
+                    //        log.Println("go go go")
+                    //    }
+                    //}
+
+                    <-venc.SampleH264Notify
+                    //log.Println("webrtc new frame arrived", msg)
+                    buf := make([]byte, 1024*1024)
+                    n,_ := venc.SampleH264Frames.ReadLast(buf)
+                    //log.Println("WEBRTC got", n, " bytes len(buf)=", len(buf))
+                    //log.Println(buf[0], buf[1], buf[2], buf[3], buf[4], buf[5])
+                    nalType := buf[4] & 0x1F
+                    //log.Println("WEBRTC Found NAL ", nalType)
+
+                    if start == false {
+                        if nalType == 7 {
+                            start = true
+                        } else {
+                            log.Println("Waiting for SPS")
+                        }
+                    }
+                    if start == true {
+                        //log.Println("WEBRTC sending data")
+                        var h264Err error
+                        if h264Err = videoTrack.WriteSample(media.Sample{Data: buf[0:n], Samples: 90000}); h264Err != nil {
+                            log.Println("Webrtc: ", h264Err)
+                        }
+                    }
+                }
+                
+                /*
+                //test video streaming
                 sleepTime := time.Millisecond * 40
 
                 var i int
@@ -158,6 +208,7 @@ func connectWebrtc(w http.ResponseWriter, r *http.Request) {
                         i=1
                     }
                 }
+                */
             }()
 
         }

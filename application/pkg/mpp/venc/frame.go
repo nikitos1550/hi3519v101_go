@@ -7,46 +7,18 @@ import (
 )
 
 type frame struct {
-    data    []byte
-    //mux     sync.Mutex
     rwmux   sync.RWMutex
-    ts      uint64
+    data    []byte
+    seq      uint32
 }
 
-/*
-type frames struct {
-    frames  []frame
-    //num     int //no need golang store it inside slice object
-    last    int
-}
-
-
-func (f *frames) nextFrame() (*frame, error) {
-    return nil, nil
-}
-
-func (f *frames) lastFrame() (*frame, error) {
-    return nil, nil
-}
-*/
-/*
-func (f *frame) Lock() {
-    f.mux.Lock()
-}
-
-func (f *frame) Unlock() {
-    f.mux.Unlock()
-}
-*/
-
-//Not atomic op
-func (f *frame) Size() (n int, err error) {
+//Not atomic op TODO
+func (f *frame) Info() (size int, seq uint32, err error) {
     f.rwmux.RLock()
-    n = len(f.data)
+    n := len(f.data)
     f.rwmux.RUnlock()
-    return n, nil
+    return n, f.seq, nil
 }
-
 
 func (f *frame) Delete() (err error) {
     f.rwmux.Lock()
@@ -55,30 +27,18 @@ func (f *frame) Delete() (err error) {
     return nil
 }
 
-func (f *frame) Read(buf []byte) (n int, err error) { //read from frame to buf
-    f.rwmux.RLock()
-    if len(buf) < len(f.data) {
-        return 0, nil //TODO error
-    } else {
-        n = copy(buf, f.data)
-    }
-    f.rwmux.RUnlock()
-    return n, nil
-}
-
-func (f *frame) Write(p []byte) (n int, err error) { //write to frame from p
+func (f *frame) Write(p []byte, seq uint32) (n int, err error) { //write to frame from p
     f.rwmux.Lock()
     //Naive implementation with disaster reallocs
-    //if cap(f.data) < len(p) { //ERROR
-        f.data = make([]byte, len(p))
-    //}
+    f.data = make([]byte, len(p))
     n = copy(f.data, p)
+    f.seq = seq
     //log.Println("Frames Write buf len=", len(f.data), " cap=", cap(f.data))
     f.rwmux.Unlock()
     return n, nil
 }
 
-func (f *frame) Writev(p [][]byte) (n int, err error) { //write to frame from multiple buffers
+func (f *frame) Writev(p [][]byte, seq uint32) (n int, err error) { //write to frame from multiple buffers
     f.rwmux.Lock()
     var length int
     for _,pp := range p {
@@ -90,24 +50,21 @@ func (f *frame) Writev(p [][]byte) (n int, err error) { //write to frame from mu
         n = copy(f.data[offset:], pp)
         offset = offset + n
     }
+    f.seq = seq
     f.rwmux.Unlock()
     return length, nil
 }
 
-/* DEPRECATED
-func (f *frame) Append(p []byte) (n int, err error) {//TOREMOVE change to multi write
-    f.rwmux.Lock()
-    //TODO
-    tmp := make([]byte, len(f.data))
-    copy(tmp, f.data)
-    f.data = make([]byte, len(tmp)+len(p))
-    copy(f.data, tmp)
-    copy(f.data[len(tmp):], p)
-    n = len(f.data)
-    f.rwmux.Unlock()
+func (f *frame) Read(buf []byte) (n int, err error) { //read from frame to buf
+    f.rwmux.RLock()
+    defer f.rwmux.RUnlock()
+    if len(buf) < len(f.data) {
+        return 0, nil //TODO error
+    } else {
+        n = copy(buf, f.data)
+    }
     return n, nil
 }
-*/
 
 func (f *frame) WriteTo (w io.Writer) (n int, err error) { // read from frame to writer
     f.rwmux.RLock()

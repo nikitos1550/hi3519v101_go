@@ -1,3 +1,5 @@
+//+build streamerRaw
+
 package raw
 
 import (

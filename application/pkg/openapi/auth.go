@@ -3,7 +3,7 @@
 package openapi
 
 import (
-    "log"
+    //"log"
     "net/http"
 )
 
@@ -11,8 +11,8 @@ import (
 // Middleware function, which will be called for each request
 func authMiddleware(next http.Handler) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        token := r.Header.Get("X-Session-Token")
-        log.Println("X-Session-Token:", token)
+        //token := r.Header.Get("X-Session-Token")
+        //log.Println("X-Session-Token:", token)
         next.ServeHTTP(w, r)
 
         /*

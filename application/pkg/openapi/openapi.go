@@ -13,7 +13,7 @@ import (
 	//"strings"
 	"strconv"
 
-   // "github.com/gorilla/websocket"
+    "github.com/gorilla/websocket"
 )
 
 ////////////////////////////////////////////////////////
@@ -47,6 +47,12 @@ func AddWsRoute(name, pattern, method string, handlerfunc http.HandlerFunc) {
 }
 
 var router *mux.Router
+
+//var Upgrader = websocket.Upgrader{} // use default options
+var Upgrader = websocket.Upgrader{
+    ReadBufferSize:  1024,
+    WriteBufferSize: 1024,
+}
 
 ////////////////////////////////////////////////////////
 
@@ -115,11 +121,14 @@ func Start() {
 }
 
 func newRouter() *mux.Router {
-	router := mux.NewRouter() //.StrictSlash(true)
+	router      := mux.NewRouter() //.StrictSlash(true)
+    wsRouter    := router.PathPrefix(wsPrefix).Subrouter()
+    apiRouter   := router.PathPrefix(apiPrefix).Subrouter()
+
+    //wsRouter.Use(wsMiddleware)
 
     for _, route := range wsRoutes {
-        router.
-            PathPrefix(wsPrefix).
+        wsRouter.
             Methods(route.method).
             Path(route.pattern).
             Name(route.name).
@@ -127,8 +136,7 @@ func newRouter() *mux.Router {
     }
 
 	for _, route := range apiRoutes {
-		router.
-			PathPrefix(apiPrefix).
+		apiRouter.
 			Methods(route.method).
 			Path(route.pattern).
 			Name(route.name).
@@ -145,7 +153,7 @@ func newRouter() *mux.Router {
 
 	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir(*flagWwwPath))))
 
-    router.Use(authMiddleware)
+    //router.Use(authMiddleware)
 	return router
 }
 

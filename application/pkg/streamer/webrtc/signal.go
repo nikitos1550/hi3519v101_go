@@ -1,3 +1,5 @@
+//+build streamerWebrtc
+
 //https://github.com/pion/webrtc/blob/master/examples/internal/signal/signal.go
 // Package signal contains helpers to exchange the SDP session
 // description between examples.

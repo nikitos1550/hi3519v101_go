@@ -1,3 +1,5 @@
+//+build streamerWs
+
 package ws
 
 import (

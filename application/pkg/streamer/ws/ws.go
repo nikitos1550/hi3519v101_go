@@ -1,3 +1,5 @@
+//+build streamerWs
+
 package ws
 
 import (
@@ -8,6 +10,8 @@ import (
 func init() {
     openapi.AddWsRoute("wsVideo",      "/video",     "GET",      wsVideo)
 }
+
+func Init() {}
 
 func wsVideo(w http.ResponseWriter, r *http.Request) {
     log.Println("wsEcho")
