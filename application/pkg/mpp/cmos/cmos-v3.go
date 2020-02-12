@@ -16,7 +16,17 @@ struct hi3516av200_cmos hi3516av200_cmoses[] = {
 */
 //import "C"
 
-func getBayer() {
+import (
 
+
+)
+
+type cmos struct {
+    vendor      string
+    model       string
+    note        string
+
+    width       uint
+    height      uint
+    fps         uint
 }
-

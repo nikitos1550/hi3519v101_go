@@ -21,7 +21,7 @@ APPOUT  := $(abspath ../output/application)
 
 CGO_CFLAGS  := -I$(abspath sdk/$(FAMILY)/include)
 CGO_LDFLAGS_DAEMON :=   $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a) \
-                        $(abspath ../output/boards/$(BOARD)/cmos/lib$(CMOS).a)
+                        $(abspath ../output/boards/$(BOARD)/cmos/lib_cmoses.a)
 
 CGO_LDFLAGS_TESTER :=   $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a)
 
@@ -65,16 +65,31 @@ LIBS := $(wildcard sdk/$(FAMILY)/lib/*.a)
 libsdk:
 	$(AR) rcsT ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a $(LIBS)
 
-CMOSSRC := $(wildcard pkg/mpp/cmos/$(FAMILY)/$(CMOS)/*.c)
-CMOSOBJ := $(patsubst pkg/mpp/cmos/$(FAMILY)/$(CMOS)/%.c, ../output/boards/$(BOARD)/cmos/%.o, $(CMOSSRC))
+CMOSES := $(wildcard pkg/mpp/cmos/$(FAMILY)/*/)
+CMOSDIRS := $(patsubst pkg/mpp/cmos/$(FAMILY)/%/, ../output/boards/$(BOARD)/cmos/%/, $(CMOSES))
 
-libcmos: $(CMOSOBJ)
-	@echo $(CMOSOBJ)
-	$(AR) rcs ../output/boards/$(BOARD)/cmos/lib$(CMOS).a $(CMOSOBJ)
+CMOSSRC   := $(wildcard pkg/mpp/cmos/$(FAMILY)/*/*.c)
+CMOSOBJ := $(patsubst pkg/mpp/cmos/$(FAMILY)/%.c, ../output/boards/$(BOARD)/cmos/%.o, $(CMOSSRC))
 
-../output/boards/$(BOARD)/cmos/%.o: pkg/mpp/cmos/$(FAMILY)/$(CMOS)/%.c
-	[ -d ../output/boards/$(BOARD)/cmos ] || mkdir -p ../output/boards/$(BOARD)/cmos
+#CMOSSRC := $(wildcard pkg/mpp/cmos/$(FAMILY)/*/*.c)
+#CMOSOBJ := $(patsubst pkg/mpp/cmos/$(FAMILY)/$(CMOS)/%.c, ../output/boards/$(BOARD)/%/%.o, $(CMOSSRC))
+
+../output/boards/$(BOARD)/cmos/lib_cmoses.a: $(CMOSDIRS) $(CMOSOBJ)
+	$(AR) rcs ../output/boards/$(BOARD)/cmos/lib_cmoses.a $(CMOSOBJ)
+
+../output/boards/$(BOARD)/cmos/%/:
+	[ -d $@ ] || mkdir -p $@
+
+../output/boards/$(BOARD)/cmos/%.o: pkg/mpp/cmos/$(FAMILY)/%.c
 	$(CC) $(CFLAGS) -I$(abspath sdk/$(FAMILY)/include) -c $< -o $@
+
+#libcmos: $(CMOSOBJ)
+#	@echo $(CMOSOBJ)
+#	$(AR) rcs ../output/boards/$(BOARD)/cmos/lib$(CMOS).a $(CMOSOBJ)
+
+#../output/boards/$(BOARD)/cmos/%.o: pkg/mpp/cmos/$(FAMILY)/$(CMOS)/%.c
+#	[ -d ../output/boards/$(BOARD)/cmos ] || mkdir -p ../output/boards/$(BOARD)/cmos
+#	$(CC) $(CFLAGS) -I$(abspath sdk/$(FAMILY)/include) -c $< -o $@
 
 generate:
 	GOPATH=$(GOPATH) $(GO) generate -tags "$(FAMILY)" application/pkg/koloader
@@ -115,7 +130,7 @@ deploy-dir-tester:
 	mkdir ./distrib/$(FAMILY)/etc/init.d
 	cp ./init/S99tester ./distrib/$(FAMILY)/etc/init.d/
 
-build-daemon: generate libsdk libcmos testvideo.mp4 testvideo.h264 deploy-dir-daemon
+build-daemon: generate libsdk ../output/boards/$(BOARD)/cmos/lib_cmoses.a testvideo.mp4 testvideo.h264 deploy-dir-daemon
 	$(eval GOTAGS := $(GOTAGS_DAEMON))
 	#$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS_DAEMON)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/daemon application/cmd/daemon
 	$(GOENV) $(CGOPARAMS_DAEMON) $(GO) build -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/application application/cmd/daemon
