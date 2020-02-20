@@ -14,6 +14,7 @@ import (
 func init() {
     AddApiRoute("systemDate",      "/system/date",     "GET",      systemDate)
     AddApiRoute("systemNetwork",   "/system/network",  "GET",      systemNetwork)
+	AddApiRoute("apiRoot",   "/",  "GET",      apiRoot)
 }
 
 
@@ -66,5 +67,20 @@ func systemNetwork(w http.ResponseWriter, r *http.Request) {
 			}
 
 		}
+	}
+}
+
+func apiRoot(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+
+	fmt.Fprintf(w, "All available api:\n\n")
+	fmt.Fprintf(w, "///////////////////////////////////////////////\n\n")
+
+	for _, route := range apiRoutes {
+		fmt.Fprintf(w, "Api name: %s \n", route.name)
+		fmt.Fprintf(w, "Method: %s \n", route.method)
+		fmt.Fprintf(w, "Address: %s \n", route.pattern)
+		fmt.Fprintf(w, "-----------------------------------------------\n\n")
 	}
 }

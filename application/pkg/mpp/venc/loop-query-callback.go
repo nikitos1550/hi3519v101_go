@@ -26,7 +26,6 @@ func go_callback_receive_data(venc_channel C.int, seq C.uint, data_pointer * C.d
     sequence    = uint32(seq)
 
     dataFromC   := (*[1 << 10]C.data_from_c)(unsafe.Pointer(data_pointer))[:num:num]
-
     if (vencChannel == 0) { //SampleH264
         length = 0
         pp := make([][]byte, num)
@@ -44,6 +43,7 @@ func go_callback_receive_data(venc_channel C.int, seq C.uint, data_pointer * C.d
                     return
             }
         }
+
         if tmp == 1 {
             for i := 0; i < num; i++ {
                 //data := (*[1 << 28]byte)(unsafe.Pointer(dataFromC[i].data))[:dataFromC[i].length:dataFromC[i].length]
@@ -63,7 +63,18 @@ func go_callback_receive_data(venc_channel C.int, seq C.uint, data_pointer * C.d
                 */
             }
             SampleH264Frames.WritevNext(pp, sequence)
-            SampleH264Notify <- int(sequence)
+            //SampleH264Notify <- int(sequence)
+
+			ch, exists := EncoderSubscriptions[vencChannel]
+			if (exists) {
+				log.Println("write chunks", num)
+				for i := 0; i < num; i++ {
+					ch <- pp[i]
+					log.Println("write", len(pp[i]))
+				}
+			} else {
+				log.Println("no sub")
+			}
         }
     } else {
     //if (vencChannel == 1) { //SampleMjpeg
