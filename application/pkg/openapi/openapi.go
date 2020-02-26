@@ -48,6 +48,42 @@ func AddWsRoute(name, pattern, method string, handlerfunc http.HandlerFunc) {
 
 var router *mux.Router
 
+////////
+/*
+func AddApiRoute2(name, pattern, method string, Method) {
+    apiRoutes = append(apiRoutes, routeItem {name: name, method: method, pattern: pattern, handlerFunc: handlerfunc})
+}
+*/
+
+type Method interface {
+    getInputJson()  int
+    getOutputJson() int
+}
+
+func serveApi(w http.ResponseWriter, r *http.Request) {
+    log.Println("serveApi")
+
+    w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+    w.WriteHeader(http.StatusOK)
+
+    //find corresponding api
+    /*
+    var dtSchema apiAnswerSystemDateTimeSchema
+    t := time.Now()
+
+    dtSchema.Formatted = t
+    dtSchema.Secs = t.Unix()
+    dtSchema.Nanosecs = t.UnixNano()
+    */
+    /*
+    dtSchemaJson, _ := json.Marshal(dtSchema)
+    fmt.Fprintf(w, "%s", string(dtSchemaJson))
+    */
+}
+
+
+////////
+
 //var Upgrader = websocket.Upgrader{} // use default options
 var Upgrader = websocket.Upgrader{
     ReadBufferSize:  1024,
@@ -59,21 +95,45 @@ var Upgrader = websocket.Upgrader{
 var flagUdsPath 	*string
 var flagHttpPort	*uint
 var flagWwwPath		*string
-var flagPrintRoutes	*bool
+//var flagPrintRoutes	*bool
 
 func init() {
 	flagUdsPath     = flag.String   ("openapi-socket", 	"/tmp/application.sock", "UDS socket file absolute path")
 	flagHttpPort    = flag.Uint     ("openapi-port", 	80,                  	 "Http port")
 	flagWwwPath     = flag.String   ("openapi-www", 	"/opt/www",           	 "Www static files path")
-	flagPrintRoutes = flag.Bool		("openapi-routes",	false, 					 "Prints application version information")
+	//flagPrintRoutes = flag.Bool		("openapi-routes",	false, 					 "Prints application version information")
 }
 
 ////////////////////////////////////////////////////////
+
+func PrintInfo() {
+    router = newRouter()
+
+        //TODO use it or make another cmd/app to generate auto doc
+        router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+            t, err := route.GetPathTemplate()
+            if err != nil {
+                return err
+            }
+            m, err := route.GetMethods()
+            if err != nil {
+                return err
+            }
+            //r, err := route.GetPathRegexp()
+            //if err == nil {
+            //  return err
+            //}
+            log.Println(m, " ", t)//, " ", r)
+            return nil
+        })
+
+}
 
 func Init() {
 	router = newRouter()
 
 	//TODO use it or make another cmd/app to generate auto doc
+    /*
 	if *flagPrintRoutes {
 		router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 			t, err := route.GetPathTemplate()
@@ -93,7 +153,7 @@ func Init() {
 		})
 		os.Exit(0)
 	}
-
+    */
 	//TODO check flags values
 }
 

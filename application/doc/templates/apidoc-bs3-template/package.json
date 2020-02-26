@@ -1,0 +1,24 @@
+{
+  "name": "apidoc-template-bs3",
+  "version": "0.2.0",
+  "description": "Bootstrap 3 template for apiDoc",
+  "main": "template/index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shvelo/apidoc-bs3-template.git"
+  },
+  "keywords": [
+    "apidoc",
+    "bootstrap",
+    "template"
+  ],
+  "author": "Nick Shvelidze <captain@pirrate.me>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/shvelo/apidoc-bs3-template/issues"
+  },
+  "homepage": "https://github.com/shvelo/apidoc-bs3-template#readme"
+}

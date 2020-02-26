@@ -3,12 +3,14 @@
 package mipi
 
 /*
-#include "../include/hi3516av200_mpp.h"
+#include "../include/mpp_v3.h"
+
 #include <string.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+#ifdef HI3516AV200
 combo_dev_attr_t LVDS_6lane_SENSOR_IMX274_12BIT_8M_NOWDR_ATTR =
 {
     .devno = 0,
@@ -61,7 +63,44 @@ combo_dev_attr_t LVDS_6lane_SENSOR_IMX274_12BIT_8M_NOWDR_ATTR =
         }
     }
 };
+#endif
+#ifdef HI3516CV300
+combo_dev_attr_t MIPI_4lane_SENSOR_IMX290_12BIT_1080_NOWDR_ATTR = 
+{
+    .devno = 0,
+    .input_mode = INPUT_MODE_MIPI, 
+    {
+        .mipi_attr = 
+        {
+            RAW_DATA_12BIT,
+            HI_MIPI_WDR_MODE_NONE,
+            {0, 1, 2, 3}
+        }
+    }
+};
 
+combo_dev_attr_t MIPI_4lane_SENSOR_IMX290_10BIT_1080_2DOL1_ATTR = 
+{
+    .devno = 0,
+    .input_mode = INPUT_MODE_MIPI,    
+
+    .mipi_attr =    
+    {
+        .raw_data_type = RAW_DATA_10BIT,
+        .wdr_mode = HI_MIPI_WDR_MODE_DOL,
+        .lane_id = {0, 1, 2, 3}
+    }
+};
+
+combo_dev_attr_t MIPI_CMOS323_ATTR = 
+{
+    // input mode
+    .input_mode = INPUT_MODE_CMOS,
+    {
+        
+    }
+};
+#endif
 
 #define ERR_NONE    0
 #define ERR_GENERAL 1
@@ -76,7 +115,13 @@ int mpp3_mipi_init(int *error_code) {
     combo_dev_attr_t stcomboDevAttr;
 
     //TODO
+    #ifdef HI3516AV200
     memcpy(&stcomboDevAttr, &LVDS_6lane_SENSOR_IMX274_12BIT_8M_NOWDR_ATTR, sizeof(combo_dev_attr_t));
+    #endif
+    #ifdef HI3516CV300
+    memcpy(&stcomboDevAttr, &MIPI_CMOS323_ATTR, sizeof(combo_dev_attr_t));
+    #endif
+
     stcomboDevAttr.devno = 0;
 
     if(ioctl(fd, HI_MIPI_RESET_MIPI, &stcomboDevAttr.devno)) {

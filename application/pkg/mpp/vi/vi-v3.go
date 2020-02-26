@@ -3,7 +3,7 @@
 package vi
 
 /*
-#include "../include/hi3516av200_mpp.h"
+#include "../include/mpp_v3.h"
 #include <string.h>
 
 VI_DEV_ATTR_S DEV_ATTR_LVDS_BASE =

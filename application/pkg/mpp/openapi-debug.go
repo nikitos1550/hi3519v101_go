@@ -18,6 +18,11 @@ func init() {
 	openapi.AddApiRoute("debugUmapFile",   "/debug/umap/{file}",   "GET",      debugUmapFile)
 }
 
+/**
+ * @api {get} /debug/umap Get list of mpp debug umap files
+ * @apiName GetUmap
+ * @apiGroup MPP
+ */
 func debugUmap(w http.ResponseWriter, r *http.Request) {
     log.Println("debugUmap")
 
@@ -45,6 +50,11 @@ func debugUmap(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, files[num-1].Name())
 }
 
+/**
+ * @api {get} /debug/umap/:file Cat mpp debug umap file
+ * @apiName GetUmapFile
+ * @apiGroup MPP
+ */
 func debugUmapFile(w http.ResponseWriter, r *http.Request) {
     log.Println("debugUmapFile")
 

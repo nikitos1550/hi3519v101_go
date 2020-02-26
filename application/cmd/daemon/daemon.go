@@ -13,6 +13,8 @@ import (
 	"application/pkg/scripts"
 	"application/pkg/mpp"
 
+    "application/pkg/mpp/cmos"
+
 	"application/pkg/streamer"
 
     _"application/pkg/debug"
@@ -58,6 +60,8 @@ func main() {
 func usage() {
         fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
         printVersion()
+        openapi.PrintInfo()
+        cmos.PrintInfo()
         flag.PrintDefaults()
 }
 

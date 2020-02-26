@@ -1,0 +1,1276 @@
+openapi: 3.0.0
+info:
+  title: OpenHisiIpCam API
+  version: 0.0.1
+  x-logo:
+    url: "/nikitos1550/images/gopher200.png"
+    backgroundColor: "#FFFFFF"
+    altText: "OpenHisiIpCam logo"
+  contact:
+    name: Contacts
+    email: info@openhisiipcam.org
+    url: https://www.openhisiipcam.org
+  license:
+    name: Unknown
+    url: '#'
+  description: |
+    This is experimental HTTP API for OpenHisiIpCam project. \
+    This file supposed to be deployed to the camera wrapped by **swagger ui**. \
+    All method can queryed from this page, several typical examples included.
+servers:
+  - url: '/api'
+    description: 'Standalone camera'
+
+################################################################################
+
+paths:
+
+  /system:
+    get:
+      tags:
+        - system
+      summary: 'Get application general build information'
+      operationId: 'system'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            text/plain:
+              schema:
+               type: string
+
+  /system/temperature:
+    get:
+      tags:
+        - system
+      summary: 'Get internal sensor temperature'
+      operationId: 'systemTemperature'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemTemperature'
+        '501':
+          description: 'Not implemented'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: integer
+                    format: int64 
+              examples:
+              error:
+                summary: 'error return'
+                value:
+                  error: 501
+      x-code-samples:
+        - lang: Lua
+          label: Lua API
+          source: |
+            -- sample Lua api call 
+            responce = openhisiipcam.system.temperature()
+            print(responce["temperature_c"])
+            print(responce["temperature_f"])
+            print(responce["temperature_k"])
+            -- testing long code listing
+            -- 1
+            -- 2
+            -- 3
+            -- 4
+
+  /system/date:
+    get:
+      tags:
+        - system
+      summary: 'Get system date and time'
+      operationId: 'systemDate'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemDateTime'
+
+  /system/network:
+    get:
+      tags:
+        - system
+      summary: 'Get network information'
+      operationId: 'systemNetwork'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            text/plain:
+              schema:
+               type: string
+
+################################################################################
+
+  /debug/umap:
+    get:
+      tags:
+        - debug
+      summary: 'MPP debug avalible information overview'
+      operationId: 'debugUmap'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            text/plain:
+              schema:
+               type: string
+
+  /debug/umap/{file}:
+    parameters:
+      - name: file
+        in: path
+        schema:
+            type: string
+        description: File name
+        required: true
+    get:
+      tags:
+        - debug
+      summary: 'Show debug information'
+      operationId: 'debugUmapFile'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            text/plain:
+              schema:
+               type: string
+        '404':
+          description: 'File not found'
+          
+  /debug/vars:
+    get:
+      tags:
+        - debug
+      summary: 'Show GO debug information'
+      operationId: 'debugVars'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            text/plain:
+              schema:
+               type: string
+
+  /debug/logmpp:
+    get:
+      tags:
+        - debug
+      summary: 'Show /dev/logmpp debug information'
+      operationId: 'debugLogMpp'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            text/plain:
+              schema:
+               type: string
+
+
+################################################################################
+
+  /channels:
+    get:
+      tags:
+        - channels
+      summary: 'List all channels'
+      operationId: 'channelsList'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChannelsList'
+
+  /channels/{id}:
+    parameters:
+      - name: id
+        in: path
+        schema:
+            type: integer
+        description: Channel id
+        required: true
+    get:
+      tags:
+        - channels
+      summary: 'Get channel information'
+      operationId: 'channelFetch'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChannelItem'
+        '404':
+          description: 'Channel not found'
+    put:
+      tags:
+        - channels
+      summary: 'Enable channel'
+      operationId: 'channelEnable'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChannelParams"
+            examples:
+              chn_640x360_1fps:
+                summary: '640x360 1fps'
+                value:
+                  width: 640
+                  height: 360
+                  fps: 1
+              chn_19200x1080_15fps:
+                summary: '1920x1080 15fps'
+                value:
+                  width: 1920
+                  height: 1080
+                  fps: 15
+              chn_1280x720_30fps:
+                summary: '1280x720 30fps'
+                value:
+                  width: 1280
+                  height: 720
+                  fps: 30
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChannelItem'          
+        '400':
+          description: 'Bad params'
+        '404':
+          description: 'Channel not found'
+        '405':
+          description: 'Not allowed (already enabled)'
+    delete:
+      tags:
+        - channels
+      summary: 'Disable channel'
+      operationId: 'channelDisable'
+      responses:
+        '204':
+          description: 'Success'
+        '404':
+          description: 'Channel not found'
+        '405':
+          description: 'Not allowed (already disabled)'
+
+################################################################################
+
+  /encoders:
+    get:
+      tags:
+        - encoders
+      summary: 'List all encoders'
+      operationId: 'encodersList'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EncodersList'
+
+  /encoders/{id}:
+    parameters:
+      - name: id
+        in: path
+        schema:
+            type: integer
+        description: Encoder id
+        required: true
+    get:
+      tags:
+        - encoders
+      summary: 'Get encoder information'
+      operationId: 'encoderFetch'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EncoderItem"
+        '404':
+          description: 'Encoder not found'
+        '501':
+          description: 'Not implemented'
+    delete:
+      tags:
+        - encoders
+      summary: 'Delete encoder'
+      operationId: 'encoderDelete'
+      responses:
+        '204':
+          description: 'Deleted succesfully'
+        '404':
+          description: 'Encoder not found'
+        '501':
+          description: 'Not implemented'
+
+################################################################################
+  /encoders/mjpeg/cbr:
+    post:
+      tags:
+        - encoders
+      summary: 'Create new mjpeg cbr encoders'
+      operationId: 'encodersMjpegCbrCreate'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EncoderMjpegCbrCreate"
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EncoderMjpegCbrItem"          
+        '400':
+          description: 'Bad params'
+        '405':
+          description: 'Not allowed (max num exceed)'
+        '501':
+          description: 'Not implemented'
+
+  /encoders/mjpeg/vbr:
+    post:
+      tags:
+        - encoders
+      summary: 'Create new mjpeg vbr encoders'
+      operationId: 'encodersMjpegVbrCreate'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EncoderMjpegVbrCreate"
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EncoderMjpegVbrItem"                  
+        '400':
+          description: 'Bad params'
+        '405':
+          description: 'Not allowed (max num exceed)'
+        '501':
+          description: 'Not implemented'
+
+  /encoders/mjpeg/fixqp:
+    post:
+      tags:
+        - encoders
+      summary: 'Create new mjpeg fixqp encoders'
+      operationId: 'encodersMjpegFixqpCreate'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EncoderMjpegFixqpCreate"
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EncoderMjpegFixqpItem"                  
+        '400':
+          description: 'Bad params'
+        '405':
+          description: 'Not allowed (max num exceed)'
+        '501':
+          description: 'Not implemented'
+
+################################################################################
+
+  /encoders/mjpeg/cbr/{id}:
+    parameters:
+      - name: id
+        in: path
+        schema:
+            type: integer
+        description: Encoder id
+        required: true
+    get:
+      tags:
+        - encoders
+      summary: 'Fetch Mjpeg CBR encoder information'
+      operationId: 'encoderMjpegCbrFetch'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EncoderMjpegCbrItem"
+        '404':
+          description: 'Encoder not found'
+        '501':
+          description: 'Not implemented'
+    patch:
+      tags:
+        - encoders
+      summary: 'Update encoder settings'
+      operationId: 'encoderMjpegCbrUpdate'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EncoderMjpegCbrParams"
+      responses:
+        '204':
+          description: 'Success'
+        '400':
+          description: "Bad parameters"
+        '404':
+          description: 'Encoder not found'
+        '501':
+          description: 'Not implemented'
+
+################################################################################
+
+  /encoders/mjpeg/vbr/{id}:
+    parameters:
+      - name: id
+        in: path
+        schema:
+            type: integer
+        description: Encoder id
+        required: true
+    get:
+      tags:
+        - encoders
+      summary: 'Fetch Mjpeg VBR encoder information'
+      operationId: 'encoderMjpegVbrFetch'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EncoderMjpegVbrItem"
+        '404':
+          description: 'Encoder not found'
+        '501':
+          description: 'Not implemented'
+    patch:
+      tags:
+        - encoders
+      summary: 'Update encoder settings'
+      operationId: 'encoderMjpegVbrUpdate'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EncoderMjpegVbrParams"
+      responses:
+        '204':
+          description: 'Success'
+        '400':
+          description: "Bad parameters"
+        '404':
+          description: 'Encoder not found'
+        '501':
+          description: 'Not implemented'
+
+################################################################################
+
+  /encoders/mjpeg/fixqp/{id}:
+    parameters:
+      - name: id
+        in: path
+        schema:
+            type: integer
+        description: Encoder id
+        required: true
+    get:
+      tags:
+        - encoders
+      summary: 'Get encoder information'
+      operationId: 'encoderMjpegFixqpFetch'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EncoderMjpegFixqpItem"
+        '404':
+          description: 'Encoder not found'
+        '501':
+          description: 'Not implemented'
+    patch:
+      tags:
+        - encoders
+      summary: 'Update encoder settings'
+      operationId: 'encoderMjpegFixqpUpdate'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EncoderMjpegFixqpParams"
+      responses:
+        '204':
+          description: 'Success'
+        '400':
+          description: "Bad parameters"
+        '404':
+          description: 'Encoder not found'
+        '501':
+          description: 'Not implemented'
+
+################################################################################
+
+  /encoders/h264/cbr:
+    post:
+      tags:
+        - encoders
+      summary: 'Create new h.264 cbr encoders'
+      operationId: 'encodersH264CbrCreate'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EncoderH26XCbrCreate"
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EncoderH26XCbrItem"             
+        '400':
+          description: 'Bad params'
+        '405':
+          description: 'Not allowed (max num exceed)'
+        '501':
+          description: 'Not implemented'
+
+  /encoders/h264/vbr:
+    post:
+      tags:
+        - encoders
+      summary: 'Create new h.264 vbr encoders'
+      operationId: 'encodersH264VbrCreate'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EncoderH26XVbrCreate"
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EncoderH26XVbrItem"             
+        '400':
+          description: 'Bad params'
+        '405':
+          description: 'Not allowed (max num exceed)'
+        '501':
+          description: 'Not implemented'
+
+  /encoders/h264/fixqp:
+    post:
+      tags:
+        - encoders
+      summary: 'Create new h.264 fixqp encoders'
+      operationId: 'encodersH264FixqpCreate'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EncoderH26XFixqpCreate"
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EncoderH26XFixqpItem"             
+        '400':
+          description: 'Bad params'
+        '405':
+          description: 'Not allowed (max num exceed)'
+        '501':
+          description: 'Not implemented'
+
+################################################################################
+
+  /encoders/h264/cbr/{id}:
+    parameters:
+      - name: id
+        in: path
+        schema:
+            type: integer
+        description: Encoder id
+        required: true
+    get:
+      tags:
+        - encoders
+      summary: 'Get encoder information'
+      operationId: 'encoderH264CbrFetch'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EncoderH26XCbrItem"
+        '404':
+          description: 'Encoder not found'
+        '501':
+          description: 'Not implemented'
+    patch:
+      tags:
+        - encoders
+      summary: 'Update encoder settings'
+      operationId: 'encoderH264CbrUpdate'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/H26XCbrParams"
+      responses:
+        '204':
+          description: 'Success'
+        '400':
+          description: "Bad parameters"
+        '404':
+          description: 'Encoder not found'
+        '501':
+          description: 'Not implemented'
+
+################################################################################
+
+  /encoders/h264/vbr/{id}:
+    parameters:
+      - name: id
+        in: path
+        schema:
+            type: integer
+        description: Encoder id
+        required: true
+    get:
+      tags:
+        - encoders
+      summary: 'Get encoder information'
+      operationId: 'encoderH264VbrFetch'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EncoderH26XVbrItem"
+        '404':
+          description: 'Encoder not found'
+        '501':
+          description: 'Not implemented'
+    patch:
+      tags:
+        - encoders
+      summary: 'Update encoder settings'
+      operationId: 'encoderH264VbrUpdate'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/H26XVbrParams"
+      responses:
+        '204':
+          description: 'Success'
+        '400':
+          description: "Bad parameters"
+        '404':
+          description: 'Encoder not found'
+        '501':
+          description: 'Not implemented'
+
+################################################################################
+
+  /encoders/h264/fixqp/{id}:
+    parameters:
+      - name: id
+        in: path
+        schema:
+            type: integer
+        description: Encoder id
+        required: true
+    get:
+      tags:
+        - encoders
+      summary: 'Get encoder information'
+      operationId: 'encoderH264FixqpFetch'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EncoderH26XFixqpItem"
+        '404':
+          description: 'Encoder not found'
+        '501':
+          description: 'Not implemented'
+    patch:
+      tags:
+        - encoders
+      summary: 'Update encoder settings'
+      operationId: 'encoderH264FixqpUpdate'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/H26XFixqpParams"
+      responses:
+        '204':
+          description: 'Success'
+        '400':
+          description: "Bad parameters"
+        '404':
+          description: 'Encoder not found'
+        '501':
+          description: 'Not implemented'
+
+################################################################################
+  /encoders/h265/cbr:
+    post:
+      tags:
+        - encoders
+      summary: 'Create new h.265 cbr encoders'
+      operationId: 'encodersH265CbrCreate'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EncoderH26XCbrCreate"
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EncoderH26XCbrItem"             
+        '400':
+          description: 'Bad params'
+        '405':
+          description: 'Not allowed (max num exceed)'
+        '501':
+          description: 'Not implemented'
+
+  /encoders/h265/vbr:
+    post:
+      tags:
+        - encoders
+      summary: 'Create new h.265 vbr encoders'
+      operationId: 'encodersH265VbrCreate'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EncoderH26XVbrCreate"
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EncoderH26XVbrItem"             
+        '400':
+          description: 'Bad params'
+        '405':
+          description: 'Not allowed (max num exceed)'
+        '501':
+          description: 'Not implemented'
+
+  /encoders/h265/fixqp:
+    post:
+      tags:
+        - encoders
+      summary: 'Create new h.265 fixqp encoders'
+      operationId: 'encodersH265FixqpCreate'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EncoderH26XFixqpCreate"
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EncoderH26XFixqpItem"             
+        '400':
+          description: 'Bad params'
+        '405':
+          description: 'Not allowed (max num exceed)'
+        '501':
+          description: 'Not implemented'
+
+################################################################################
+
+  /encoders/h265/cbr/{id}:
+    parameters:
+      - name: id
+        in: path
+        schema:
+            type: integer
+        description: Encoder id
+        required: true
+    get:
+      tags:
+        - encoders
+      summary: 'Get encoder information'
+      operationId: 'encoderH265CbrFetch'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EncoderH26XCbrItem"
+        '404':
+          description: 'Encoder not found'
+        '501':
+          description: 'Not implemented'
+    patch:
+      tags:
+        - encoders
+      summary: 'Update encoder settings'
+      operationId: 'encoderH265CbrUpdate'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/H26XCbrParams"
+      responses:
+        '204':
+          description: 'Success'
+        '400':
+          description: "Bad parameters"
+        '404':
+          description: 'Encoder not found'
+        '501':
+          description: 'Not implemented'
+
+################################################################################
+
+  /encoders/h265/vbr/{id}:
+    parameters:
+      - name: id
+        in: path
+        schema:
+            type: integer
+        description: Encoder id
+        required: true
+    get:
+      tags:
+        - encoders
+      summary: 'Get encoder information'
+      operationId: 'encoderH265VbrFetch'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EncoderH26XVbrItem"
+        '404':
+          description: 'Encoder not found'
+        '501':
+          description: 'Not implemented'
+    patch:
+      tags:
+        - encoders
+      summary: 'Update encoder settings'
+      operationId: 'encoderH265VbrUpdate'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/H26XVbrParams"
+      responses:
+        '204':
+          description: 'Success'
+        '400':
+          description: "Bad parameters"
+        '404':
+          description: 'Encoder not found'
+        '501':
+          description: 'Not implemented'
+
+################################################################################
+
+  /encoders/h265/fixqp/{id}:
+    parameters:
+      - name: id
+        in: path
+        schema:
+            type: integer
+        description: Encoder id
+        required: true
+    get:
+      tags:
+        - encoders
+      summary: 'Get encoder information'
+      operationId: 'encoderH265FixqpFetch'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EncoderH26XFixqpItem"
+        '404':
+          description: 'Encoder not found'
+        '501':
+          description: 'Not implemented'
+    patch:
+      tags:
+        - encoders
+      summary: 'Update encoder settings'
+      operationId: 'encoderH265FixqpUpdate'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/H26XFixqpParams"
+      responses:
+        '204':
+          description: 'Success'
+        '400':
+          description: "Bad parameters"
+        '404':
+          description: 'Encoder not found'
+        '501':
+          description: 'Not implemented'
+          
+################################################################################
+
+  /encoders/{id}/image.jpeg:
+    parameters:
+      - name: id
+        in: path
+        schema:
+            type: integer
+        description: Encoder id
+        required: true
+    get:
+      tags:
+        - serve
+      summary: 'Get jpeg image'
+      operationId: 'serveJpeg'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            image/jpeg:
+              schema:
+               type: string
+               format: binary
+        '404':
+          description: 'Encoder not found'
+        '405':
+          description: 'Not jpeg encoder'
+        '501':
+          description: 'Not implemented'
+
+################################################################################
+
+tags:
+  - name: system
+    description: General system information and control
+  - name: debug
+    description: Useful debug information
+  - name: channels
+    description: Channels control
+  - name: encoders
+    description: Encoders control
+  - name: serve
+    description: Data serve
+
+################################################################################
+
+components:
+  schemas:
+    SystemTemperature:
+      type: object
+      properties:
+        temperature_c:
+          type: number
+          format: float
+        temperature_f:
+          type: number
+          format: float
+        temperature_k:
+          type: number
+          format: float
+
+    SystemDateTime:
+      type: object
+      properties:
+        formatted:
+          type: string
+          format: date-time
+        secs:
+          type: integer
+          format: uint64
+        nanosecs:
+          type: integer
+          format: uint64
+
+################################################################################
+
+    ChannelsList:
+      type: array
+      items:
+        $ref: "#/components/schemas/ChannelItem"
+
+    ChannelItem:
+        allOf:
+          - type: object
+            properties:
+              id:
+                type: integer
+                description: 'Channel id'            
+              enabled:
+                type: boolean
+                description: 'Is channel active?'
+          - $ref: "#/components/schemas/ChannelParams"
+
+    ChannelParams:
+      type: object
+      properties:
+        width:
+          type: integer
+        height:
+          type: integer
+        fps:
+          type: integer   
+
+################################################################################
+      
+    EncodersList:
+      type: array
+      items:
+        $ref: "#/components/schemas/EncoderItem"
+      
+    EncoderItem:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: integer
+              description: 'Encoder id'          
+            codec:
+              type: string
+              enum: ['mjpeg', 'h264', 'h265']
+            rc:
+              type: string
+              enum: ['cbr', 'vbr', 'fixqp', 'avbr', 'qvbr', 'qmap']
+            profile:
+              type: string
+              enum: ['baseline', 'main', 'high']              
+        - $ref: "#/components/schemas/EncoderCommon"  
+            
+    EncoderCommon:
+      type: object
+      properties:
+        width:
+          type: integer
+          description: 'Width of the output image'
+        height:
+          type: integer
+          description: 'Height of the output image'
+        fps:
+          type: integer
+          description: 'Framerate of the output image'
+        channel:
+          type: integer
+          description: 'Parent channel id'
+          
+################################################################################
+      
+    EncoderMjpegCbrCreate:
+      allOf:
+        - $ref: "#/components/schemas/EncoderCommon"
+        - $ref: "#/components/schemas/EncoderMjpegCbrParams"
+        
+    EncoderMjpegCbrItem:
+      allOf:
+        - $ref: "#/components/schemas/EncoderItem"
+        - $ref: "#/components/schemas/EncoderMjpegCbrParams"
+        
+    EncoderMjpegCbrParams:
+      type: object
+      properties:
+        bitrate:
+          type: integer
+          description: 'Width of the output image'
+        stattime:
+          type: integer
+          description: 'Framerate of the output image'
+        fluctuate:
+          type: integer
+          description: 'Framerate of the output image'        
+
+    #######################
+
+    EncoderMjpegVbrCreate:
+      allOf:
+        - $ref: "#/components/schemas/EncoderCommon"
+        - $ref: "#/components/schemas/EncoderMjpegVbrParams"
+
+    EncoderMjpegVbrItem:
+      allOf:
+        - $ref: "#/components/schemas/EncoderItem"
+        - $ref: "#/components/schemas/EncoderMjpegVbrParams"
+      
+    EncoderMjpegVbrParams:
+      type: object
+      properties:
+        stattime: 
+          type: integer
+        maxbitrate:
+          type: integer
+        maxqfactor:
+          type: integer
+        minqfactor:
+          type: integer
+
+    #####################
+
+    EncoderMjpegFixqpCreate:
+      allOf:
+        - $ref: "#/components/schemas/EncoderCommon"
+        - $ref: "#/components/schemas/EncoderMjpegFixqpParams"
+
+    EncoderMjpegFixqpItem:
+      allOf:
+        - $ref: "#/components/schemas/EncoderItem"
+        - $ref: "#/components/schemas/EncoderMjpegFixqpParams"
+
+    EncoderMjpegFixqpParams:
+      type: object
+      properties:
+        qfactor:
+          type: integer
+      
+################################################################################
+      
+    EncoderH26XCbrCreate:
+      allOf:
+        - $ref: "#/components/schemas/EncoderCommon"
+        - $ref: "#/components/schemas/H26XCbrParams"
+
+    EncoderH26XCbrItem:
+      allOf:
+        - $ref: "#/components/schemas/EncoderItem"
+        - $ref: "#/components/schemas/H26XCbrParams"
+
+    #####################
+    
+    EncoderH26XVbrCreate:
+      allOf:
+        - $ref: "#/components/schemas/EncoderCommon"
+        - $ref: "#/components/schemas/H26XVbrParams"
+
+    EncoderH26XVbrItem:
+      allOf:
+        - $ref: "#/components/schemas/EncoderItem"
+        - $ref: "#/components/schemas/H26XVbrParams"
+
+    #####################
+      
+    EncoderH26XFixqpCreate:
+      allOf:
+        - $ref: "#/components/schemas/EncoderCommon"
+        - $ref: "#/components/schemas/H26XFixqpParams"
+
+    EncoderH26XFixqpItem:
+      allOf:
+        - $ref: "#/components/schemas/EncoderItem"
+        - $ref: "#/components/schemas/H26XFixqpParams"
+
+################################################################################
+
+    H26XCbrParams:
+      type: object
+      properties:
+        gop:
+          type: integer
+        stattime:
+          type: integer
+        bitrate: 
+          type: integer
+        fluctuate: 
+          type: integer    
+    
+    H26XVbrParams:
+      type: object
+      properties:
+        gop: 
+          type: integer
+        stattime: 
+          type: integer
+        maxbitrate:
+          type: integer
+        maxqp: 
+          type: integer
+        minqp: 
+          type: integer
+        miniqp: 
+          type: integer    
+    
+    H26XFixqpParams:
+      type: object
+      properties:
+        gop: 
+          type: integer
+        iqp: 
+          type: integer
+        pqp: 
+          type: integer
+        bqp: 
+          type: integer

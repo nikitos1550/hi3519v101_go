@@ -3,7 +3,8 @@
 package isp
 
 /*
-#include "../include/hi3516av200_mpp.h"
+#include "../include/mpp_v3.h"
+
 #include <string.h>
 #include <pthread.h>
 
@@ -43,6 +44,7 @@ int mpp3_isp_init(int *error_code) {
 
 
     //TODO
+    #ifdef HI3516AV200
     ISP_SNS_OBJ_S *cmos = &stSnsImx274Obj;
     if (cmos->pfnRegisterCallback != HI_NULL) {
         *error_code = cmos->pfnRegisterCallback(0, &stAeLib, &stAwbLib);
@@ -50,6 +52,11 @@ int mpp3_isp_init(int *error_code) {
     } else {
         return ERR_GENERAL;
     }
+    #endif
+    #ifdef HI3516CV300
+    //*error_code = sensor_register_callback();
+    //if (*error_code != HI_SUCCESS) return ERR_MPP;
+    #endif
 
     stLib.s32Id = 0;
     strcpy(stLib.acLibName, HI_AE_LIB_NAME);
@@ -85,8 +92,10 @@ int mpp3_isp_init(int *error_code) {
     stPubAttr.stWndRect.s32Y        = 0;
     stPubAttr.stWndRect.u32Width    = 3840;     //TODO What is WND rect?
     stPubAttr.stWndRect.u32Height   = 2160;    //TODO
+    #ifdef HI3516AV200
     stPubAttr.stSnsSize.u32Width    = 3840;
     stPubAttr.stSnsSize.u32Height   = 2160;
+    #endif
 
     *error_code = HI_MPI_ISP_SetPubAttr(0, &stPubAttr);
     if (*error_code != HI_SUCCESS) return ERR_MPP;

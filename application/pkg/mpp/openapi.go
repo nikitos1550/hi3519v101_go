@@ -19,6 +19,11 @@ type serveVersionSchema struct {
 	Version	string	`json:"version"`
 }
 
+/**
+ * @api {get} /mpp/version Get MPP version
+ * @apiName GetVersion
+ * @apiGroup MPP
+ */
 func serveVersion(w http.ResponseWriter, r *http.Request) {
 	log.Println("mpp.serveVersion")
 

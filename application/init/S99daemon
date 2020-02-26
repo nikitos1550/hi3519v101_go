@@ -6,7 +6,7 @@
 start() {
     echo "S99 DAEMON"
     #. /etc/board.config
-    dmesg -n 1
+    #dmesg -n 1
     /opt/application &
 }
 

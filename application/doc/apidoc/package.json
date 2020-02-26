@@ -1,0 +1,76 @@
+{
+  "name": "apidoc",
+  "version": "0.20.1",
+  "description": "RESTful web API Documentation Generator",
+  "author": "Peter Rottmann <rottmann@inveris.de>",
+  "license": "MIT",
+  "preferGlobal": true,
+  "bin": "bin/apidoc",
+  "main": "./lib/index.js",
+  "homepage": "http://apidocjs.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/apidoc/apidoc.git"
+  },
+  "bugs": {
+    "url": "https://github.com/apidoc/apidoc/issues"
+  },
+  "scripts": {
+    "test": "npm run jshint && mocha test/",
+    "jshint": "jshint lib/ test/",
+    "build-example": "bin/apidoc -i example/ -o tmp/",
+    "update-lodash": "./node_modules/lodash-cli/bin/lodash -p -o template/vendor/lodash.custom.min.js include=groupBy,each,extend,some exports=amd"
+  },
+  "keywords": [
+    "api",
+    "apidoc",
+    "doc",
+    "documentation",
+    "rest",
+    "restful"
+  ],
+  "engines": {
+    "node": ">= 0.10.0"
+  },
+  "dependencies": {
+    "apidoc-core": "^0.11.1",
+    "commander": "^2.20.0",
+    "fs-extra": "^8.1.0",
+    "lodash": "^4.17.15",
+    "markdown-it": "^10.0.0",
+    "nodemon": "^2.0.2",
+    "winston": "^3.2.1"
+  },
+  "devDependencies": {
+    "amdefine": "^1.0.1",
+    "apidoc-example": "^0.2.1",
+    "bootstrap": "3.4.1",
+    "jquery": "3.4.1",
+    "jshint": "^2.11.0",
+    "lodash-cli": "^4.17.5",
+    "mocha": "^6.2.2",
+    "path-to-regexp": "^3.2.0",
+    "semver": "^6.3.0",
+    "should": "~13.2.1",
+    "webfontloader": "^1.6.28"
+  },
+  "jshintConfig": {
+    "camelcase": true,
+    "curly": false,
+    "eqeqeq": true,
+    "forin": true,
+    "latedef": false,
+    "newcap": true,
+    "undef": true,
+    "unused": true,
+    "trailing": true,
+    "node": true,
+    "browser": true,
+    "predef": [
+      "it",
+      "describe",
+      "before",
+      "after"
+    ]
+  }
+}

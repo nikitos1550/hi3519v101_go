@@ -21,6 +21,11 @@ type serveInfoSchema struct {
 	//DetectMpp	string	`json:"detectedchipmpp"`
 }
 
+/**
+ * @api {get} /chip Get chip information
+ * @apiName GetChipInfo
+ * @apiGroup Common
+ */
 func serveInfo(w http.ResponseWriter, r *http.Request) {
 	log.Println("chip.serveInfo")
 

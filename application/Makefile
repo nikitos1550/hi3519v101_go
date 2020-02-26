@@ -8,10 +8,20 @@ GOPATH := $(abspath ../output/go_workspace)
 GOOS    := linux
 GOARCH  := arm
 GOARM   := $(ARMV) #FROM Makefile.params
-GOENV   := GOPATH=$(GOPATH) GOOS=$(GOOS) GOARCH=$(GOARCH) GOARM=$(GOARM)
+GOENV   := GOPATH=$(GOPATH) GOOS=$(GOOS) GOARCH=$(GOARCH) GOARM=$(GOARM) 
+#GOROOT_FINAL="/test/"
 
-GOTAGS_TESTER  := $(FAMILY) tester
-GOTAGS_DAEMON  := $(FAMILY) imx274 openapi scripts debug netgo streamerJpeg streamerFile streamerWebrtc
+APIDOC          := tools/apidoc/bin/apidoc
+APIDOCOPENAPI   := tools/apidoc-openapi/bin/apidoc-openapi
+REDOC           := ../tools/redoc/cli/redoc-cli
+
+FAMILY_UPPERCASE    := $(shell echo '$(FAMILY)' | tr '[:lower:]' '[:upper:]')
+CHIP_UPPERCASE      := $(shell echo '$(CHIP)' | tr '[:lower:]' '[:upper:]')
+
+GOTAGS_TESTER  := $(FAMILY) $(CHIP) tester netgo nethttpomithttp2
+GOTAGS_DAEMON  := $(FAMILY) $(CHIP) netgo nethttpomithttp2 imx274 openapi scripts debug streamerJpeg streamerFile streamerWebrtc
+#GOTAGS_DAEMON  := $(FAMILY) $(CHIP) netgo nethttpomithttp2 imx274 openapi debug streamerJpeg 
+#GOTAGS_DAEMON  := $(FAMILY) $(CHIP) imx274 openapi debug netgo streamerJpeg
 #GOTAGS_DAEMON  := $(FAMILY) imx274 debug
 #GOTAGS  := $(FAMILY) netgo openapi debug lua onvif
 
@@ -19,7 +29,7 @@ PATH    := $(PATH):$(GOPATH)/bin
 
 APPOUT  := $(abspath ../output/application)
 
-CGO_CFLAGS  := -I$(abspath sdk/$(FAMILY)/include)
+CGO_CFLAGS  := -I$(abspath sdk/$(FAMILY)/include) -D$(FAMILY_UPPERCASE) -D$(CHIP_UPPERCASE)
 CGO_LDFLAGS_DAEMON :=   $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a) \
                         $(abspath ../output/boards/$(BOARD)/cmos/lib_cmoses.a)
 
@@ -91,9 +101,10 @@ CMOSOBJ := $(patsubst pkg/mpp/cmos/$(FAMILY)/%.c, ../output/boards/$(BOARD)/cmos
 #	[ -d ../output/boards/$(BOARD)/cmos ] || mkdir -p ../output/boards/$(BOARD)/cmos
 #	$(CC) $(CFLAGS) -I$(abspath sdk/$(FAMILY)/include) -c $< -o $@
 
-generate:
-	GOPATH=$(GOPATH) $(GO) generate -tags "$(FAMILY)" application/pkg/koloader
+generate: apidoc
+	GOPATH=$(GOPATH) $(GO) generate -tags "$(FAMILY)" application/pkg/ko
 	GOPATH=$(GOPATH) $(GO) generate -tags "$(FAMILY)" application/pkg/utils/regs
+	#GOPATH=$(GOPATH) $(GO) generate -tags "$(FAMILY) openapi" application/pkg/openapi
 	#GOPATH=$(GOPATH) $(GO) generate -tags "hi3516av100" application/pkg/koloader
 	#GOPATH=$(GOPATH) $(GO) generate -tags "generate hi3516av200" application/pkg/koloader
 	#GOPATH=$(GOPATH) $(GO) generate -tags "generate hi3516cv100" application/pkg/koloader
@@ -130,15 +141,25 @@ deploy-dir-tester:
 	mkdir ./distrib/$(FAMILY)/etc/init.d
 	cp ./init/S99tester ./distrib/$(FAMILY)/etc/init.d/
 
+TRIMPATH :=/home/nikitos1550/work/hi3519v101_go/application
+
 build-daemon: generate libsdk ../output/boards/$(BOARD)/cmos/lib_cmoses.a testvideo.mp4 testvideo.h264 deploy-dir-daemon
 	$(eval GOTAGS := $(GOTAGS_DAEMON))
 	#$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS_DAEMON)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/daemon application/cmd/daemon
-	$(GOENV) $(CGOPARAMS_DAEMON) $(GO) build -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/application application/cmd/daemon
+	$(GOENV) $(CGOPARAMS_DAEMON) $(GO) build -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/application application/cmd/daemon
+	#$(GOENV) $(CGOPARAMS_DAEMON) $(GO) tool nm -size ./distrib/$(FAMILY)/opt/application | grep runtime.pclntab
 
 build-tester: generate libsdk deploy-dir-tester
 	$(eval GOTAGS := $(GOTAGS_TESTER))
 	#$(GOENV) $(CGOPARAMS) $(GO) build -tags "$(GOTAGS_TESTER)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/tester application/cmd/tester
 	$(GOENV) $(CGOPARAMS_TESTER) $(GO) build -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/application application/cmd/tester
+
+build-object:
+	#$(eval GOTAGS := $(GOTAGS_DAEMON))
+	#$(GOENV) $(CGOPARAMS_DAEMON) $(GO) build -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" \
+    #    -o ./distrib/$(FAMILY)/_cache/cmos.a \
+    #    application/pkg/mpp/cmos/hi3516cv300/imx290
+	$(GOENV) $(CGOPARAMS_DAEMON) $(GO) tool nm ./distrib/$(FAMILY)/opt/application
 
 #buid-with-vendors: generate
 #	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags $(GOTAGS) -mod vendor -o $(APPOUT) application/cmd/daemon
@@ -158,3 +179,14 @@ freeze-vendors:
 
 install-deps:
 	GOPATH=$(GOPATH) $(GO) get -u golang.org/x/tools/cmd/goyacc
+	GOPATH=$(GOPATH) $(GO) get -u github.com/shuLhan/go-bindata
+	go get -u github.com/shuLhan/go-bindata
+
+apidoc:
+	$(APIDOCOPENAPI) -p ./api/apidoc.json -s ./pkg -o ./api/openapi_extracted.json -v
+	cd api; ./openapi.sh
+	$(APIDOC) -c ./api/apidoc.json -i ./pkg -o ./api/docs-openapi
+	$(REDOC) bundle ./api/openapi.json --options ./api/redoc.conf
+	mv redoc-static.html ./api/
+	$(REDOC) bundle ./api/openhisiipcam.yaml --options ./api/redoc.conf
+	mv redoc-static.html ./api/redoc-static2.html

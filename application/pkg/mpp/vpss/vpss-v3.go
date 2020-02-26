@@ -3,7 +3,8 @@
 package vpss
 
 /*
-#include "../include/hi3516av200_mpp.h"
+#include "../include/mpp_v3.h"
+
 #include <string.h>
 
 #define ERR_NONE                    0
@@ -25,12 +26,26 @@ int mpp3_vpss_init(unsigned int *error_code) {
     stVpssGrpAttr.bDciEn            = HI_FALSE;
     stVpssGrpAttr.enDieMode         = VPSS_DIE_MODE_NODIE;
     stVpssGrpAttr.enPixFmt          = PIXEL_FORMAT_YUV_SEMIPLANAR_420;//SAMPLE_PIXEL_FORMAT;
+    #ifdef HI3516AV200
     stVpssGrpAttr.bStitchBlendEn    = HI_FALSE;
+    #endif
 
+    #ifdef HI3516AV200
     stVpssGrpAttr.stNrAttr.enNrType                         = VPSS_NR_TYPE_VIDEO;
     stVpssGrpAttr.stNrAttr.stNrVideoAttr.enNrRefSource      = VPSS_NR_REF_FROM_RFR;//VPSS_NR_REF_FROM_CHN0, VPSS_NR_REF_FROM_SRC
     stVpssGrpAttr.stNrAttr.stNrVideoAttr.enNrOutputMode     = VPSS_NR_OUTPUT_NORMAL;//VPSS_NR_OUTPUT_DELAY NORMAL
     stVpssGrpAttr.stNrAttr.u32RefFrameNum                   = 2;
+    #endif
+    
+    //    stVpssGrpAttr.u32MaxW = global_width;
+    //    stVpssGrpAttr.u32MaxH = global_height;
+    //    stVpssGrpAttr.bIeEn = HI_FALSE;
+    //    stVpssGrpAttr.bNrEn = HI_TRUE;//HI_FALSE;//HI_TRUE;
+    //    stVpssGrpAttr.bHistEn = HI_FALSE;
+    //    stVpssGrpAttr.bSharpenEn = HI_FALSE;//HI_TRUE;
+    //    stVpssGrpAttr.enDieMode = VPSS_DIE_MODE_NODIE;
+    //    stVpssGrpAttr.enPixFmt = PIXEL_FORMAT_YUV_SEMIPLANAR_420;
+    
 
     *error_code = HI_MPI_VPSS_CreateGrp(0, &stVpssGrpAttr);
     if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VPSS_CreateGrp;

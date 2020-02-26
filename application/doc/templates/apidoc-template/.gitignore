@@ -1,0 +1,19 @@
+!.gitkeep
+ #templorary file for `nexe`
+/tmp/
+
+/ts-build/
+
+#on-premise deployment .key, .license and .profile
+.key
+.license
+.profile
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+.DS_Store

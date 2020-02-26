@@ -3,7 +3,7 @@
 package mpp
 
 /*
-#include "./include/hi3516av200_mpp.h"
+#include "./include/mpp_v3.h"
 
 #define ERR_NONE    0
 #define ERR_MPP     1
@@ -35,7 +35,7 @@ import (
     "log"
     "os"
 
-	"application/pkg/koloader"
+	"application/pkg/ko"
     "application/pkg/utils"
     "application/pkg/mpp/error"
 )
@@ -83,7 +83,7 @@ func systemInit() {
     }
 	//delete_module("hi3519v101_isp", NULL);//ATTENTION THIS IS NEED FOR PROPER APP RERUN, also some info here
     //http://bbs.ebaina.com/forum.php?mod=viewthread&tid=13925&extra=&highlight=run%2Bae%2Blib%2Berr%2B0xffffffff%21&page=1
-	koloader.UnloadAll()
+	ko.UnloadAll()
 
 	//sensor0 pinmux
 	utils.WriteDevMem32(0x1204017c, 0x1);  //#SENSOR0_CLK
@@ -174,7 +174,7 @@ func systemInit() {
 
 	utils.WriteDevMem32(0x120300e0, 0xd); // internal codec: AIO MCLK out, CODEC AIO TX MCLK 
 
-	koloader.LoadAll()
+	ko.LoadAll()
 
 	//imx274)
     //tmp=0x11;

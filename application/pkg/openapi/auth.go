@@ -1,4 +1,4 @@
-// +build openapi
+// +build ignore
 
 package openapi
 

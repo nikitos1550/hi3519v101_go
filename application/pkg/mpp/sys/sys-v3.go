@@ -3,7 +3,8 @@
 package sys
 
 /*
-#include "../include/hi3516av200_mpp.h"
+#include "../include/mpp_v3.h"
+
 #include <string.h>
 
 #define ERR_NONE                0
