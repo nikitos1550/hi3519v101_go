@@ -59,7 +59,15 @@ kernel: $(BOARD_OUTDIR)/kernel/uImage
 
 $(BOARD_OUTDIR)/rootfs+app.squashfs: $(BOARD_OUTDIR)/rootfs+app
 	rm -f $@
-	mksquashfs $< $@ -all-root
+	mksquashfs $< $@ -all-root -comp xz -b 64K -Xdict-size 100%
+	rm -f $(BOARD_OUTDIR)/rootfs+app.squashfs.xz
+	mksquashfs $< $(BOARD_OUTDIR)/rootfs+app.squashfs.xz -all-root -comp xz -b 64K -Xdict-size 100%
+	rm -f $(BOARD_OUTDIR)/rootfs+app.squashfs.lz4
+	mksquashfs $< $(BOARD_OUTDIR)/rootfs+app.squashfs.lz4 -all-root -comp lz4 -b 64K -Xhc
+	rm -f $(BOARD_OUTDIR)/rootfs+app.squashfs.lzo
+	mksquashfs $< $(BOARD_OUTDIR)/rootfs+app.squashfs.lzo -all-root -comp lzo -b 64K -Xcompression-level 9
+	rm -f $(BOARD_OUTDIR)/rootfs+app.squashfs.gzip
+	mksquashfs $< $(BOARD_OUTDIR)/rootfs+app.squashfs.gzip -all-root -comp gzip -b 64K -Xcompression-level 9
 
 $(BOARD_OUTDIR)/rootfs+app: $(BOARD_OUTDIR)/rootfs $(APP)/distrib/$(FAMILY)
 	rm -rf $@; mkdir -p $@
@@ -98,7 +106,7 @@ deploy-app: pack-app
 		--target-ip $(CAMERA_IP) --iface enp3s0 \
 		--uimage $(BOARD_OUTDIR)/kernel/uImage \
 		--rootfs $(BOARD_OUTDIR)/rootfs+app.squashfs \
-		--initrd-size 16M --memory-size 256M
+		--initrd-size 16M --memory-size $(RAM_LINUX)M
 
 deploy-app-control-uart: deploy-app control-uart
 
@@ -115,6 +123,13 @@ deploy-app-control-telnet: deploy-app
 
 deprecated-control-uart:
 	miniterm $(CAMERA_TTY) 115200
+
+catch-uboot:
+	cd burner; ./burner2.py \
+		--port /dev/ttyCAM$(CAMERA) \
+		--reset-power "./power2.py --num $(CAMERA) reset" \
+		--mode camstore printenv
+	$(CAMSTORE) forward_serial $(CAMERA_TTY)
 
 control-uart:
 	#telnet localhost $(TELNET_PORT)

@@ -87,8 +87,9 @@ $(ROOTFS_DIR): $(BUILDROOT_DIR) $(ROOTFS_BR_CONFIG) $(TOOLCHAIN_DIR)
 $(KERNEL_SOURCE_DIR): $(FAMILY_DIR)/kernel/linux.tar.gz
 	rm -rf $@; mkdir -p $@
 	tar -C $@ --strip-components=1 -xf $<
-	cd $@; for P in $(FAMILY_DIR)/kernel/patches/*.patch; do patch -p1 < $$P; done
-	cp -r $(FAMILY_DIR)/kernel/files/* $@/
+	cd $@; shopt -s nullglob; for P in $(FAMILY_DIR)/kernel/patches/*.patch; do patch -p1 < $$P; done
+	shopt -s nullglob; for P in $(FAMILY_DIR)/kernel/files/*; do cp -r $$P $(@) ; done
+	#cp -r $(FAMILY_DIR)/kernel/files/* $@/
 
 $(KERNEL_MAKEFILE): ./Makefile.kernel
 	mkdir -p `dirname $@`

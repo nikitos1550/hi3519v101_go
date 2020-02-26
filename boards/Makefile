@@ -91,7 +91,8 @@ $(MAKEFILE_PARAMS): $(BOARD_DIR)/config $(FAMILY_DIR)/Makefile.params
 
 $(ROOTFS_DIR): $(FAMILY_OUTDIR)/rootfs $(BOARD_DIR)/putonrootfs $(BOARD_DIR)/config
 	rm -rf $@; mkdir -p $@; cp -r $</* $@/
-	if [ -d $(BOARD_DIR)/putonrootfs ]; then cp -r $(BOARD_DIR)/putonrootfs/* $@/; fi
+	#if [ -d $(BOARD_DIR)/putonrootfs ]; then cp -r $(BOARD_DIR)/putonrootfs/* $@/; fi
+	if [ -d $(BOARD_DIR)/putonrootfs ]; then shopt -s nullglob; for P in $(BOARD_DIR)/putonrootfs/*; do cp -r $$P $(@) ; done; fi
 	cat $(BOARD_DIR)/config | tr -d "[:blank:]" > $@/etc/board.config
 
 # --- KERNEL ------------------------------------------------------------------------------------------------
