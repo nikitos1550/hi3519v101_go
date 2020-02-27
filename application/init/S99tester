@@ -5,9 +5,9 @@
 
 start() {
 	echo "S99 TESTER"
-    #. /etc/board.config
-#	dmesg -n 1
-	/opt/application -memtotal 512 -memlinux 256 &
+    	. /opt/board.config
+	#dmesg -n 1
+	/opt/application -mem-total=$RAM_SIZE -mem-linux=$RAM_LINUX -mem-mpp=$RAM_MPP &
 }
 
 stop() {

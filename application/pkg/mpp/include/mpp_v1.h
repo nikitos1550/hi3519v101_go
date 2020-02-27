@@ -1,7 +1,7 @@
 #ifndef MPP_V1_H_
 #define MPP_V1_H_
 
-#ifdef HI3516CV100
+#ifdef HI3516CV100 //Family includes
     #include "../include/hi3516cv100_mpp.h"
 #endif
 

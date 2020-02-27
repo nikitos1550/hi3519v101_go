@@ -2,54 +2,75 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
-    "fmt"
-    //"io/ioutil"
+	"regexp"
+	"strconv"
 
 	"application/pkg/buildinfo"
 	//"application/pkg/config"
+	"application/pkg/mpp"
 	"application/pkg/openapi"
 	"application/pkg/scripts"
-	"application/pkg/mpp"
 
-    "application/pkg/mpp/cmos"
+	"application/pkg/mpp/cmos"
 
 	"application/pkg/streamer"
 
-    _"application/pkg/debug"
-	_"application/pkg/utils/temperature"
-	_"application/pkg/utils/chip"
+	_ "application/pkg/debug"
+	"application/pkg/ko"
+	_ "application/pkg/utils/chip"
+	_ "application/pkg/utils/temperature"
 )
 
 func main() {
-    //log.SetOutput(os.Stdout)
-    //log.SetOutput(ioutil.Discard)
-    flag.Usage = usage
+	//log.SetOutput(os.Stdout)
+	//log.SetOutput(ioutil.Discard)
+	flag.Usage = usage
 	//flagVersion := flag.Bool("version", false, "Prints application version information")
+	flag.UintVar(&ko.MemTotal, "mem-total", 32, "Total RAM size, MB")
+	flag.UintVar(&ko.MemLinux, "mem-linux", 20, "RAM size passed to Linux kernel, rest will be used for MPP, MB")
+	flag.UintVar(&ko.MemMpp, "mem-mpp", 12, "RAM size passed to MPP, MB")
 
 	//log.Println("application daemon")
-    flag.Parse()
+	flag.Parse()
 
-    /*
-    if *flagVersion {
-		printVersion()
+	cmdline, err := ioutil.ReadFile("/proc/cmdline")
+	if err != nil {
+		log.Println("Can`t read /proc/cmdline")
 		os.Exit(0)
 	}
-    */
+	cmdlineStr := string(cmdline)
+	re := regexp.MustCompile("mem=([0-9]*)M")
+	foundLinuxMem := re.FindStringSubmatch(cmdlineStr)
+	log.Println("CMDLINE Linux memory (MB) = ", foundLinuxMem[1])
+
+	foundLinuxMemUint, _ := strconv.ParseUint(foundLinuxMem[1], 10, 32)
+	if foundLinuxMemUint != uint64(ko.MemLinux) {
+		log.Println("Linux mem mistmatch!")
+		os.Exit(0)
+	}
+	/*
+		    if *flagVersion {
+				printVersion()
+				os.Exit(0)
+			}
+	*/
 
 	//config.Init() //deprecated, use cmd and scripts
 
-	openapi.Init() 	//openapi init should go first, becasue of -openapi-routes flag
-					//same time, it will start serve requests immediately, but 
-					//some requests need mpp and other initilization
+	openapi.Init() //openapi init should go first, becasue of -openapi-routes flag
+	//same time, it will start serve requests immediately, but
+	//some requests need mpp and other initilization
 
-	scripts.Init()	//
+	scripts.Init() //
 
 	mpp.Init()      //Init mpp and all subsystems
 	streamer.Init() //Init streamers
 
-    //Start serving after everything inited and setuped
+	//Start serving after everything inited and setuped
 	scripts.Start()
 	openapi.Start()
 
@@ -58,11 +79,11 @@ func main() {
 }
 
 func usage() {
-        fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
-        printVersion()
-        openapi.PrintInfo()
-        cmos.PrintInfo()
-        flag.PrintDefaults()
+	fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
+	printVersion()
+	openapi.PrintInfo()
+	cmos.PrintInfo()
+	flag.PrintDefaults()
 }
 
 func printVersion() {

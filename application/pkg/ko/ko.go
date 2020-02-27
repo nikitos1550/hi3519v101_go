@@ -10,32 +10,11 @@ import (
 	//"time"
 )
 
-//TEMPORARY
-/*
-//hi3519v101+imx274
 var (
-	memMppSize uint   = 256
-	memLinux   uint   = 256
-	memTotal   uint   = 512
-	chip       string = "hi3519v101"
-)
-*/
-/*
-//hi3516cv100+imx122
-var (
-	memMppSize uint   = 64
-	memLinux   uint   = 64
-	memTotal   uint   = 128
-	chip       string = "hi3516cv100"
-)
-*/
-
-//hi3516av100+imx178
-var (
-	memMppSize uint   = 128
-	memLinux   uint   = 128
-	memTotal   uint   = 256
-	chip       string = "hi3516av100"
+	MemMpp   uint   = 12
+	MemLinux uint   = 20
+	MemTotal uint   = 32
+	chip     string = "hi3516av100"
 )
 
 func LoadMinimal() {
@@ -122,13 +101,17 @@ func load(modules [][2]string) {
 }
 
 func setupParams(modules [][2]string) {
-	var memStartAddr uint64 = 0x80000000 + (uint64(memLinux) * 1024 * 1024)
-	var memMppSize uint64 = uint64(memTotal - memLinux)
+	var memStartAddr uint64 = 0x80000000 + (uint64(MemLinux) * 1024 * 1024)
+	var memMpp2 uint = MemTotal - MemLinux
+
+	if memMpp2 != MemMpp {
+		panic("Incorrect mpp memory size")
+	}
 
 	for i := 0; i < len(modules); i++ {
 		modules[i][1] = strings.Replace(modules[i][1], "{memStartAddr}", strconv.FormatUint(memStartAddr, 16), -1)
-		modules[i][1] = strings.Replace(modules[i][1], "{memMppSize}", strconv.FormatUint(memMppSize, 10), -1)
-		modules[i][1] = strings.Replace(modules[i][1], "{memTotalSize}", strconv.FormatUint(uint64(memTotal), 10), -1)
+		modules[i][1] = strings.Replace(modules[i][1], "{memMppSize}", strconv.FormatUint(uint64(MemMpp), 10), -1)
+		modules[i][1] = strings.Replace(modules[i][1], "{memTotalSize}", strconv.FormatUint(uint64(MemTotal), 10), -1)
 		modules[i][1] = strings.Replace(modules[i][1], "{chipName}", chip, -1)
 
 		log.Println(modules[i][0], " prepared options ", modules[i][1])

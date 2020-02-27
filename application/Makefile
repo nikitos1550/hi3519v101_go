@@ -29,7 +29,8 @@ PATH    := $(PATH):$(GOPATH)/bin
 
 APPOUT  := $(abspath ../output/application)
 
-CGO_CFLAGS  := -I$(abspath sdk/$(FAMILY)/include) -D$(FAMILY_UPPERCASE) -D$(CHIP_UPPERCASE)
+CGO_CFLAGS  := -I$(abspath sdk/$(FAMILY)/include) -D$(FAMILY_UPPERCASE) 
+#-D$(CHIP_UPPERCASE)
 CGO_LDFLAGS_DAEMON :=   $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a) \
                         $(abspath ../output/boards/$(BOARD)/cmos/lib_cmoses.a)
 
@@ -131,6 +132,7 @@ deploy-dir-daemon:
 	cp ./testvideo.mp4 ././distrib/$(FAMILY)/opt
 	mkdir ./distrib/$(FAMILY)/etc/init.d
 	cp ./init/S99daemon ./distrib/$(FAMILY)/etc/init.d/
+	cp ../boards/$(BOARD)/config ./distrib/$(FAMILY)/opt/board.config
 
 deploy-dir-tester:
 	rm -rf ./distrib
@@ -140,6 +142,7 @@ deploy-dir-tester:
 	mkdir ./distrib/$(FAMILY)/etc
 	mkdir ./distrib/$(FAMILY)/etc/init.d
 	cp ./init/S99tester ./distrib/$(FAMILY)/etc/init.d/
+	cp ../boards/$(BOARD)/config ./distrib/$(FAMILY)/opt/board.config
 
 TRIMPATH :=/home/nikitos1550/work/hi3519v101_go/application
 
