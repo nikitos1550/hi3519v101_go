@@ -1,4 +1,6 @@
-## Env build for custom board
+## TODO!!! Env build for custom board
+
+Naming: {VENDOR}_{MODEL}_{CHIP}_{CMOS}
 
 1. Build kernel with custom config and custom dts
 2. Use custom toolchain
