@@ -116,6 +116,7 @@ func systemNetwork(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+*/
 
 func apiRoot(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
@@ -131,4 +132,3 @@ func apiRoot(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "-----------------------------------------------\n\n")
 	}
 }
-*/
