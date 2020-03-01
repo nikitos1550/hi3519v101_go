@@ -130,6 +130,7 @@ var (
     SampleH264Frames    *frames
     SampleH264Notify    chan int
     SampleH264Start     chan int
+	EncoderSubscriptions map[int] chan []byte
 )
 
 func SampleMjpeg() {
@@ -165,5 +166,14 @@ func SampleH264() {
     SampleH264Frames = CreateFrames(10)
     SampleH264Notify = make(chan int, 10)
     SampleH264Start  = make(chan int, 1)
+	EncoderSubscriptions = make(map[int] chan []byte)
     addVenc(0) //add venc to get loop
+}
+
+func SubsribeEncoder(encoderId int, ch chan []byte) {
+	EncoderSubscriptions[encoderId] = ch
+}
+
+func RemoveSubscription(encoderId int) {
+	delete(EncoderSubscriptions, encoderId)
 }
