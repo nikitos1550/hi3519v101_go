@@ -6,7 +6,7 @@ import argparse
 
 PORT_RELAY1 = "/dev/ttyRELAY1"
 BAUDRATE_RELAY1 = 115200
-PORT_RELAY2 = "/dev/ttyRELAY1"
+PORT_RELAY2 = "/dev/ttyRELAY2"
 BAUDRATE_RELAY2 = 115200
 
 TIMEOUT = 1
@@ -169,18 +169,22 @@ if args.num < 1 or args.num > 32:
     print("Device number is out of range, expected [1;32]")
     exit(1)
 
-num = args.num - 1
+#num = args.num - 1
 
-if args.num > 15:
+if args.num > 16:
     print("CHOOSED RELAY2")
     PORT = PORT_RELAY2
     BAUDRATE = BAUDRATE_RELAY2
-    DEVICE = num-16
+    DEVICE = args.num-16
 else:
     print("CHOOSED RELAY1")
     PORT = PORT_RELAY1
     BAUDRATE = BAUDRATE_RELAY1
-    DEVICE = num
+    DEVICE = args.num
+
+print("PORT", PORT)
+DEVICE = DEVICE - 1
+print("RELAY ID", DEVICE)
 
 relay = serial.Serial(PORT, BAUDRATE, timeout = TIMEOUT)
 
