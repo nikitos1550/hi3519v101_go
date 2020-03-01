@@ -8,6 +8,14 @@
 #ifndef __HI_TYPE_H__
 #define __HI_TYPE_H__
 
+#ifdef __KERNEL__
+
+#include <linux/types.h>
+#else
+
+#include <stdint.h>
+#endif
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C"{
@@ -26,13 +34,12 @@ typedef unsigned char           HI_U8;
 typedef unsigned short          HI_U16;
 typedef unsigned int            HI_U32;
 typedef unsigned long           HI_UL;
+typedef uintptr_t               HI_UINTPTR_T;
 
 typedef char                    HI_CHAR;
 typedef signed char             HI_S8;
 typedef short                   HI_S16;
 typedef int                     HI_S32;
-
-
 typedef long                    HI_SL;
 
 typedef float                   HI_FLOAT;
@@ -46,11 +53,8 @@ typedef double                  HI_DOUBLE;
     typedef __int64             HI_S64;
 #endif
 
-#define HI_VOID                 void
-
 typedef unsigned long           HI_SIZE_T;
 typedef unsigned long           HI_LENGTH_T;
-
 typedef long int                HI_PHYS_ADDR_T;
 
 typedef unsigned int            HI_HANDLE;
@@ -63,16 +67,15 @@ typedef enum {
     HI_TRUE  = 1,
 } HI_BOOL;
 
-
 #ifndef NULL
-    #define NULL        0L
+    #define NULL                0L
 #endif
 
-#define HI_NULL         0L
-#define HI_SUCCESS      0
-#define HI_FAILURE      (-1)
+#define HI_NULL                 0L
+#define HI_SUCCESS              0
+#define HI_FAILURE              (-1)
 
-
+#define HI_VOID                 void
 
 typedef unsigned char           hi_uchar;
 typedef unsigned char           hi_u8;
@@ -99,6 +102,7 @@ typedef unsigned long           hi_length_t;
 typedef hi_u32                  hi_handle;
 
 typedef HI_BOOL                 hi_bool;
+typedef HI_UINTPTR_T            hi_uintptr_t;
 
 /** @} */  /** <!-- ==== Structure Definition end ==== */
 

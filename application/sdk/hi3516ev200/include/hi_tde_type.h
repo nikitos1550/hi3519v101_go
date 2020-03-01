@@ -114,12 +114,6 @@ typedef enum hiTDE2_MB_COLORFMT_E
 } TDE2_MB_COLOR_FMT_E;
 
 /**Structure of the bitmap information set by customers*/
-#ifdef ALIGN_NUM
-#undef ALIGN_NUM
-#define ALIGN_NUM 8
-#endif
-#define ATTRIBUTE __attribute__((aligned (ALIGN_NUM)))
-
 typedef struct hiTDE2_SURFACE_S
 {
     HI_U64 PhyAddr;              /**<Header address of a bitmap or the Y component*/

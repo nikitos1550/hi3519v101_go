@@ -3,7 +3,7 @@
  ******************************************************************************
  File Name     : tde_errcode.h
 Version       : Initial Draft
-Author        : Hisilicon multimedia software group
+Author        : sdk
 Created       :
 Last Modified :
 Description   : err code define
@@ -13,7 +13,6 @@ History       : May modify the code to errcode.h FOR hi3110
 #ifndef __TDE_ERRCODE_H__
 #define __TDE_ERRCODE_H__
 
-//#include "hi_debug.h"
 #include "hi_type.h"
 
 #ifdef __cplusplus
@@ -22,7 +21,6 @@ extern "C" {
 #endif
 #endif /* __cplusplus */
 
-//#define HI_ID_TDE 100
 /* tde start err no. */
 #define HI_ERR_TDE_BASE  ((HI_S32)( ((0x80UL + 0x20UL)<<24) | (100 << 16 ) | (4 << 13) | 1 ))
 

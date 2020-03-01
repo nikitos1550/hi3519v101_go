@@ -30,54 +30,46 @@
 
 #ifdef __cplusplus
 #if __cplusplus
-extern "C"{
+extern "C" {
 #endif
 #endif /* End of #ifdef __cplusplus */
 
-typedef struct hiAENC_ATTR_G711_S
-{
-    HI_U32 resv;            /*reserve item*/
-}AENC_ATTR_G711_S;
+typedef struct hiAENC_ATTR_G711_S {
+    HI_U32 resv;            /* reserve item */
+} AENC_ATTR_G711_S;
 
-typedef struct hiAENC_ATTR_G726_S
-{
+typedef struct hiAENC_ATTR_G726_S {
     G726_BPS_E enG726bps;
-}AENC_ATTR_G726_S;
+} AENC_ATTR_G726_S;
 
-typedef struct hiAENC_ATTR_ADPCM_S
-{
+typedef struct hiAENC_ATTR_ADPCM_S {
     ADPCM_TYPE_E enADPCMType;
-}AENC_ATTR_ADPCM_S;
+} AENC_ATTR_ADPCM_S;
 
-typedef struct hiAENC_ATTR_LPCM_S
-{
-    HI_U32 resv;            /*reserve item*/
-}AENC_ATTR_LPCM_S;
+typedef struct hiAENC_ATTR_LPCM_S {
+    HI_U32 resv;            /* reserve item */
+} AENC_ATTR_LPCM_S;
 
-typedef struct hiAENC_ENCODER_S
-{
+typedef struct hiAENC_ENCODER_S {
     PAYLOAD_TYPE_E  enType;
     HI_U32          u32MaxFrmLen;
     HI_CHAR         aszName[17];    /* encoder type,be used to print proc information */
     HI_S32          (*pfnOpenEncoder)(HI_VOID *pEncoderAttr, HI_VOID **ppEncoder); /* pEncoder is the handle to control the encoder */
     HI_S32          (*pfnEncodeFrm)(HI_VOID *pEncoder, const AUDIO_FRAME_S *pstData,
-                        HI_U8 *pu8Outbuf,HI_U32 *pu32OutLen);
+                        HI_U8 *pu8Outbuf, HI_U32 *pu32OutLen);
     HI_S32          (*pfnCloseEncoder)(HI_VOID *pEncoder);
 } AENC_ENCODER_S;
 
-typedef struct hiAENC_CHN_ATTR_S
-{
-    PAYLOAD_TYPE_E      enType;         /*payload type ()*/
-	HI_U32 				u32PtNumPerFrm;
-    HI_U32              u32BufSize;      /*buf size [2~MAX_AUDIO_FRAME_NUM]*/
-    HI_VOID ATTRIBUTE   *pValue;  /*point to attribute of definite audio encoder*/
-}AENC_CHN_ATTR_S;
+typedef struct hiAENC_CHN_ATTR_S {
+    PAYLOAD_TYPE_E      enType;
+    HI_U32              u32PtNumPerFrm;
+    HI_U32              u32BufSize;      /* buf size [2~MAX_AUDIO_FRAME_NUM] */
+    HI_VOID ATTRIBUTE   *pValue;  /* point to attribute of definite audio encoder */
+} AENC_CHN_ATTR_S;
 
-typedef enum hiEN_AENC_ERR_CODE_E
-{
-    AENC_ERR_ENCODER_ERR     = 64 ,
-    AENC_ERR_VQE_ERR        = 65 ,
-
+typedef enum hiEN_AENC_ERR_CODE_E {
+    AENC_ERR_ENCODER_ERR     = 64,
+    AENC_ERR_VQE_ERR         = 65,
 } EN_AENC_ERR_CODE_E;
 
 
@@ -107,7 +99,7 @@ typedef enum hiEN_AENC_ERR_CODE_E
 #define HI_ERR_AENC_BUF_EMPTY         HI_DEF_ERR(HI_ID_AENC, EN_ERR_LEVEL_ERROR, EN_ERR_BUF_EMPTY)
 /* no buffer for new data */
 #define HI_ERR_AENC_BUF_FULL          HI_DEF_ERR(HI_ID_AENC, EN_ERR_LEVEL_ERROR, EN_ERR_BUF_FULL)
-/* system is not ready,had not initialed or loaded*/
+/* system is not ready,had not initialed or loaded */
 #define HI_ERR_AENC_SYS_NOTREADY      HI_DEF_ERR(HI_ID_AENC, EN_ERR_LEVEL_ERROR, EN_ERR_SYS_NOTREADY)
 /* encoder internal err */
 #define HI_ERR_AENC_ENCODER_ERR       HI_DEF_ERR(HI_ID_AENC, EN_ERR_LEVEL_ERROR, AENC_ERR_ENCODER_ERR)
@@ -121,5 +113,5 @@ typedef enum hiEN_AENC_ERR_CODE_E
 #endif
 #endif /* End of #ifdef __cplusplus */
 
-#endif/* End of #ifndef __HI_COMM_AENC_H__*/
+#endif/* End of #ifndef __HI_COMM_AENC_H__ */
 

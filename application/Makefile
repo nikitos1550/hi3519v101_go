@@ -155,7 +155,8 @@ build-daemon: generate libsdk ../output/boards/$(BOARD)/cmos/lib_cmoses.a testvi
 build-tester: generate libsdk deploy-dir-tester
 	$(eval GOTAGS := $(GOTAGS_TESTER))
 	#$(GOENV) $(CGOPARAMS) $(GO) build -tags "$(GOTAGS_TESTER)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/tester application/cmd/tester
-	$(GOENV) $(CGOPARAMS_TESTER) $(GO) build -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/application application/cmd/tester
+	#$(GOENV) $(CGOPARAMS_TESTER) $(GO) build -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/application application/cmd/tester
+	$(GOENV) $(CGOPARAMS_TESTER) $(GO) build -compiler=gccgo -a -tags "$(GOTAGS)" -o ./distrib/$(FAMILY)/opt/application application/cmd/tester
 
 build-object:
 	#$(eval GOTAGS := $(GOTAGS_DAEMON))

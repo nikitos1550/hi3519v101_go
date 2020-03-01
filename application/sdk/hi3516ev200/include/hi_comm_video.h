@@ -28,6 +28,7 @@ extern "C" {
 #define DST_LENS_COEF_SEG  3
 #define SRC_LENS_COEF_NUM  4
 #define DST_LENS_COEF_NUM  4
+#define DST_LENS_COEF_SEG_POINT  (DST_LENS_COEF_SEG - 1)
 
 #define ISP_BAYER_CHN   (4)
 
@@ -186,6 +187,7 @@ typedef enum hiPIXEL_FORMAT_E
     PIXEL_FORMAT_YYVU_PACKAGE_422,
     PIXEL_FORMAT_UVYY_PACKAGE_422,
     PIXEL_FORMAT_VUYY_PACKAGE_422,
+    PIXEL_FORMAT_VY1UY0_PACKAGE_422,
 
     PIXEL_FORMAT_YUV_400,
     PIXEL_FORMAT_UV_420,
@@ -340,6 +342,7 @@ typedef struct hiISP_FRAME_INFO_S
     HI_U32      u32SensorID;               /* which sensor is used */
     HI_U32      u32SensorMode;
     HI_U32      u32HmaxTimes;              /* Sensor HmaxTimes,unit is ns */
+    HI_U32      u32Vmax;                   /* Sensor Vmax,unit is line */
     HI_U32      u32VcNum;                  /* when dump wdr frame, which is long or short  exposure frame. */
 } ISP_FRAME_INFO_S;
 
@@ -539,14 +542,15 @@ typedef struct hiLDC_ATTR_S
 
 typedef struct hiLDCV2_ATTR_S
 {
-    HI_S32 s32FocalLenX;                                            /*RW; focal length in horizontal direction, with 2 decimal numbers*/
-    HI_S32 s32FocalLenY;                                            /*RW; focal length in vertical direction, with 2 decimal numbers*/
-    HI_S32 s32CoorShiftX;                                           /*RW; coordinate of image center, with 2 decimal numbers*/
-    HI_S32 s32CoorShiftY;                                           /*RW; Y coordinate of image center, with 2 decimal numbers*/
-    HI_S32 as32SrcCaliRatio[SRC_LENS_COEF_SEG][SRC_LENS_COEF_NUM];  /*RW; lens distortion coefficients of the source image, with 5 decimal numbers*/
-    HI_S32 s32SrcJunPt;                                             /*RW; Junction Point of the two segments*/
-    HI_S32 as32DstCaliRatio[DST_LENS_COEF_SEG][DST_LENS_COEF_NUM];  /*RW; lens distortion coefficients, with 5 decimal numbers*/
-    HI_S32 as32DstJunPt[DST_LENS_COEF_SEG - 1];                     /*RW; Junction Point of the three segments*/
+    HI_S32 s32FocalLenX;                                            /* RW; focal length in horizontal direction, with 2 decimal numbers */
+    HI_S32 s32FocalLenY;                                            /* RW; focal length in vertical direction, with 2 decimal numbers */
+    HI_S32 s32CoorShiftX;                                           /* RW; coordinate of image center, with 2 decimal numbers */
+    HI_S32 s32CoorShiftY;                                           /* RW; Y coordinate of image center, with 2 decimal numbers */
+    HI_S32 as32SrcCaliRatio[SRC_LENS_COEF_SEG][SRC_LENS_COEF_NUM];  /* RW; lens distortion coefficients of the source image, with 5 decimal numbers */
+    HI_S32 s32SrcJunPt;                                             /* RW; Junction Point of the two segments */
+    HI_S32 as32DstCaliRatio[DST_LENS_COEF_SEG][DST_LENS_COEF_NUM];  /* RW; lens distortion coefficients, with 5 decimal numbers */
+    HI_S32 as32DstJunPt[DST_LENS_COEF_SEG_POINT];                   /* RW; Junction Point of the three segments */
+    HI_S32 s32MaxDu;                                                /* RW; max undistorted distance before 3rd polynomial drop, with 16bits decimal */
 } LDCV2_ATTR_S;
 
 typedef enum hiLDC_VIEW_TYPE_E

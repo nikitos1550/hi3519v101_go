@@ -182,6 +182,29 @@ N/A
 N/A
 */
 HI_VOID AACEncoderClose (AAC_ENCODER_S* hAacPlusEnc);
+
+/**
+\brief register sbrenc module.
+\attention \n
+N/A
+\param[in] pModuleHandle  pointer to WorkHandle of sbrenc module
+\retval ::HI_SUCCESS   : Success
+\retval ::HI_FAILURE   : FAILURE
+\see \n
+N/A
+*/
+HI_S32  AACEncoderRegisterModule(HI_VOID* pModuleHandle);
+
+/**
+\brief Get WorkHandle of sbrenc module.
+\attention \n
+N/A
+\retval ::HI_VOID *    : pointer to WorkHandle of sbrenc module
+\see \n
+N/A
+*/
+HI_VOID * HI_AAC_SBRENC_GetHandle(HI_VOID);
+
 /** @} */  /** <!-- ==== API declaration end ==== */
 
 #ifdef __cplusplus

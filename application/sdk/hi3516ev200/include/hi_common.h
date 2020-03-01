@@ -115,12 +115,16 @@ typedef HI_S32 MIPI_DEV;
 typedef HI_S32 SLAVE_DEV;
 typedef HI_S32 SVP_NNIE_HANDLE;
 typedef HI_S32 SVP_DSP_HANDLE;
+typedef HI_S32 SVP_ALG_CHN;
 typedef HI_S32 VPSS_GRP;
 typedef HI_S32 VPSS_GRP_PIPE;
 typedef HI_S32 VPSS_CHN;
 typedef HI_S32 AVS_GRP;
 typedef HI_S32 AVS_PIPE;
 typedef HI_S32 AVS_CHN;
+typedef HI_S32 MCF_GRP;
+typedef HI_S32 MCF_PIPE;
+typedef HI_S32 MCF_CHN;
 
 #define HI_INVALID_CHN (-1)
 #define HI_INVALID_WAY (-1)
@@ -206,6 +210,7 @@ typedef enum hiMOD_ID_E
     HI_ID_PM           = 58,
     HI_ID_SVP_ALG      = 59,
 	HI_ID_IVP          = 60,
+	HI_ID_MCF          = 61,
 
     HI_ID_BUTT,
 } MOD_ID_E;
@@ -285,6 +290,7 @@ typedef struct hiMPP_CHN_S
 #define MPP_MOD_TDE       "tde"
 #define MPP_MOD_ISP       "isp"
 #define MPP_MOD_USR       "usr"
+#define MPP_MOD_MCF       "mcf"
 #define MPP_MOD_PM        "pm"
 #define MPP_MOD_MFUSION   "motionfusion"
 

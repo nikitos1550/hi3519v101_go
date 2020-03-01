@@ -257,6 +257,28 @@ N/A
 */
 HI_S32  AACFlushCodec(HAACDecoder hAACDecoder);
 
+/**
+\brief register sbrdec module
+\attention \n
+N/A
+\param[in] pModuleHandle     : pointer to WorkHandle of sbrdec module
+\retval :: HI_SUCCESS        : Success
+\retval :: ERROR_CODE        : FAILURE, return error_code.
+\see \n
+N/A
+*/
+HI_S32  AACDecoderRegisterModule(HI_VOID* pModuleHandle);
+
+/**
+\brief Get WorkHandle of sbrdec module
+\attention \n
+N/A
+\retval :: HI_VOID *          : pointer to WorkHandle of sbrdec module
+\see \n
+N/A
+*/
+HI_VOID * HI_AAC_SBRDEC_GetHandle(HI_VOID);
+
 /** @} */  /** <!-- ==== API declaration end ==== */
 
 

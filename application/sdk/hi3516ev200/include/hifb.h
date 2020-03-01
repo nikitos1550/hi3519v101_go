@@ -238,6 +238,7 @@ typedef enum
     HIFB_LAYER_BUF_ONE    = 0x1,       /**<  1 display buf in fb */
     HIFB_LAYER_BUF_NONE   = 0x2,       /**<  no display buf in fb,the buf user refreshed will be directly set to VO*/
     HIFB_LAYER_BUF_DOUBLE_IMMEDIATE=0x3, /**< 2 display buf in fb, each refresh will be displayed*/
+    HIFB_LAYER_BUF_FENCE = 0x4, /**<  2 display buf in fb with fence */
     HIFB_LAYER_BUF_BUTT
 } HIFB_LAYER_BUF_E;
 

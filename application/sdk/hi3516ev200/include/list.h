@@ -100,7 +100,7 @@ static inline void list_splice_init(struct list_head *list, struct list_head *he
 }
 
 #define list_entry(ptr, type, member) \
-    ((type *)((unsigned long)(ptr)-((unsigned long)(&((type *)1)->member) - 1)))
+    ((type *)((uintptr_t)(ptr)-((unsigned long)(&((type *)1)->member) - 1)))
 
 #define list_for_each(pos, head) \
     for (pos = (head)->next; pos != (head); pos = pos->next)
