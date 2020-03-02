@@ -4,78 +4,105 @@ package file
 
 import (
     "flag"
-    //"fmt"
-    "log"
     "net/http"
 	"os"
-    "application/pkg/openapi"
+	"path"
+
+	"application/pkg/openapi"
 	"application/pkg/mpp/venc"
+	 
+	"github.com/google/uuid"
 )
 
 var flagStoragePath     *string
 
-var (
+type activeRecord struct {
     Payload    chan []byte
 	Started    bool
+	EncoderId  int
 	F *os.File
+}
+
+type responseRecord struct {
+	RecordId string
+	Message string
+}
+
+var (
+	ActiveRecords map[string] activeRecord
 )
 
 func init() {
-    flagStoragePath     = flag.String   ("streamer-file-storage",     "/opt/storage",              "files storage path")
+    flagStoragePath = flag.String("streamer-file-storage", "/tmp", "files storage path")
+	ActiveRecords = make(map[string] activeRecord)
 
-    openapi.AddApiRoute("listRecords",  "/files",           "GET",      listRecords)
-
-    openapi.AddApiRoute("infoRecord",   "/files/id",        "GET",      infoRecord)
-    openapi.AddApiRoute("getRawRecord", "/files/id.h264",   "GET",      getRawRecord)
-    openapi.AddApiRoute("getMP4Record", "/files/id.mp4",    "GET",      getMP4Record)
-    openapi.AddApiRoute("deleteRecord", "/files/id",        "DELETE",   deleteRecord)
-
-    openapi.AddApiRoute("statusRecord", "/files/record",    "GET",      statusRecord)
-    openapi.AddApiRoute("startRecord",  "/files/record",    "POST",     startRecord)
-    openapi.AddApiRoute("stopRecord",   "/files/record",    "DELETE",   stopRecord)
-
-    openapi.AddApiRoute("startNewRecord", "/files/record/start", "GET",      startNewRecord)
-    openapi.AddApiRoute("startNewRecord", "/files/record/stop", "GET",      stopNewRecord)
-	Started = false
+    openapi.AddApiRoute("startNewRecord", "/files/record/start", "GET", startNewRecord)
+    openapi.AddApiRoute("stopRecord", "/files/record/stop", "GET", stopNewRecord)
 }
 
-func Init() {}
-
-func listRecords(w http.ResponseWriter, r *http.Request)  {}
-
-func infoRecord(w http.ResponseWriter, r *http.Request)  {}
-func getRawRecord(w http.ResponseWriter, r *http.Request)  {}
-func getMP4Record(w http.ResponseWriter, r *http.Request)  {}
-func deleteRecord(w http.ResponseWriter, r *http.Request)  {}
-
-func statusRecord(w http.ResponseWriter, r *http.Request) {}
-func startRecord(w http.ResponseWriter, r *http.Request)  {}
-func stopRecord(w http.ResponseWriter, r *http.Request)  {}
+func Init() {
+}
 
 func startNewRecord(w http.ResponseWriter, r *http.Request)  {
-	Payload  = make(chan []byte, 100)
-	venc.SubsribeEncoder(0, Payload)
-	Started = true
-	venc.SampleH264Start <- 100
-	F,err := os.Create("/tmp/out.h264")
-	if err != nil {
-        log.Println("Error open file ")
+	uuid := uuid.New().String()
+	ok, encoderId := openapi.GetIntParameter(w, r, "encoderId")
+	if !ok {
+		return
+	}
+
+	recordFolder := path.Join(*flagStoragePath, uuid)
+	folderErr := os.MkdirAll(recordFolder, os.ModePerm)
+	if folderErr != nil {
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{RecordId: "", Message: "Failed to create folder " + recordFolder})
+		return
     }
+	
+	file := path.Join(recordFolder, "out.h264.tmp")
+	f,err := os.Create(file)
+	if err != nil {
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{RecordId: "", Message: "Failed to create file " + file})
+		return
+    }
+	
+	ActiveRecords[uuid] = activeRecord{
+		Payload: make(chan []byte, 100),
+		Started: true,
+		EncoderId: encoderId,
+		F: f,
+	}
+
+	venc.SubsribeEncoder(encoderId, ActiveRecords[uuid].Payload)
+	venc.SampleH264Start <- 100
+	
     go func() {
 		for {
-			if (!Started){
+			if (!ActiveRecords[uuid].Started){
 				break
 			}
 
-			data := <- Payload
-			log.Println("Readed ", len(data))
-			F.Write(data)
+			data := <- ActiveRecords[uuid].Payload
+			ActiveRecords[uuid].F.Write(data)
 		}
     }()
+
+	openapi.ResponseSuccessWithDetails(w, responseRecord{RecordId: uuid, Message: "Record was started"})
 }
 
 func stopNewRecord(w http.ResponseWriter, r *http.Request)  {
-	venc.RemoveSubscription(0)
-	Started = false
-	F.Close()
+	ok, recordId := openapi.GetStringParameter(w, r, "recordId")
+	if !ok {
+		return
+	}
+
+	record, exists := ActiveRecords[recordId]
+	if (!exists) {
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{RecordId: recordId, Message: "Record not found or not started"})
+		return
+	}
+
+	venc.RemoveSubscription(record.EncoderId)
+	record.Started = false
+	record.F.Close()
+
+	openapi.ResponseSuccessWithDetails(w, responseRecord{RecordId: recordId, Message: "Record was stopped"})
 }
