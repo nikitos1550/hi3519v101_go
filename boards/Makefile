@@ -100,6 +100,13 @@ $(ROOTFS_DIR): $(FAMILY_OUTDIR)/rootfs $(BOARD_DIR)/putonrootfs $(BOARD_DIR)/con
 $(KERNEL_UIMAGE): $(KERNEL_DIR) $(MAKEFILE_PARAMS) $(TOOLCHAIN_DIR)
 	make -C $(KERNEL_DIR) MAKEFILE_PARAMS=$(MAKEFILE_PARAMS) build
 
+#kernel-config:
+#	if [ -e $(BOARD_DIR)/kernel/kernel.config ]; then \
+#	         cp $(BOARD_DIR)/kernel/kernel.config $(FAMILY_OUTDIR)/kernel/linux/.config; \
+#	elif [ -e $(FAMILY_DIR)/kernel/$(CHIP).generic.config ]; then \
+#                cp $(FAMILY_DIR)/kernel/$(CHIP).generic.config $(FAMILY_OUTDIR)/kernel/linux/.config; \
+#        fi
+
 $(KERNEL_DIR): $(FAMILY_OUTDIR)/kernel
 	rm -rf $@; mkdir -p $@; cp -r $</* $@/
 	if [ -e $(BOARD_DIR)/kernel/patch ]; then \

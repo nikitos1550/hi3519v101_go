@@ -25,6 +25,39 @@
 |31|HISILICON|DEMB|hi3516dv300|imx290|official dev board|
 |32|HISILICON|DEMBVERC|hi3559av100|imx334|official dev board|
 
+## Checklist
+
+- hi3516av100 family
+	- [X] hi3516av100
+	- [X] hi3516dv100                              
+- hi3516av200 family
+	- [X] hi3519v101
+	- [X] hi3516av200 **TBD**
+- hi3516cv100 family
+	- [X] hi3516cv100
+	- [ ] hi3518cv100
+	- [ ] hi3518ev100
+- hi3516cv200 family
+	- [ ] hi3516cv200
+	- [ ] hi3518ev200
+	- [ ] hi3518ev201                 
+- hi3516cv300 family
+	- [X] hi3516cv300
+	- [X] hi3516ev100
+- hi3516cv500 family
+	- [ ] hi3516cv500 **N/A**
+	- [X] hi3516dv300
+	- [X] hi3516av300
+- hi3516ev200 family
+	- [X] hi3516ev300
+	- [X] hi3516ev200
+	- [ ] hi3516dv200 **N/A**
+	- [ ] hi3518ev300 **N/A**
+- hi3519av100 family
+	- [ ] hi3519av100 **N/A**
+- hi3559av100 family
+	- [X] hi3559av100
+
 ---------------------
 
 # 24.02.2020 facility cameras

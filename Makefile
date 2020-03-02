@@ -51,6 +51,13 @@ cleanall:
 
 # -----------------------------------------------------------------------------------------------------------
 
+rootfs-only.squashfs: $(BOARD_OUTDIR)/rootfs.squashfs
+	@echo "--- RootFS only image is ready: $^"
+
+$(BOARD_OUTDIR)/rootfs.squashfs: $(BOARD_OUTDIR)/rootfs
+	rm -f $@
+	mksquashfs $< $@ -all-root -comp xz -b 64K -Xdict-size 100%
+
 rootfs.squashfs: $(BOARD_OUTDIR)/rootfs+app.squashfs
 	@echo "--- RootFS image is ready: $^"
 
@@ -92,9 +99,26 @@ $(BOARD_OUTDIR)/kernel/uImage:
 
 # ====================================================================================================================
 
+build-rootfs: $(BOARD_OUTDIR)/rootfs
+
 build-app: $(APP)/distrib/$(FAMILY)
 
 pack-app: $(BOARD_OUTDIR)/rootfs+app.squashfs $(BOARD_OUTDIR)/kernel/uImage
+
+pack: $(BOARD_OUTDIR)/rootfs.squashfs $(BOARD_OUTDIR)/kernel/uImage
+
+deploy: pack
+	cd burner; authbind --deep ./burner2.py \
+        --log-level DEBUG \
+                --mode camstore \
+                --port /dev/ttyCAM$(CAMERA) \
+                --reset-power "./power2.py --num $(CAMERA) reset" \
+                load \
+                --target-ip $(CAMERA_IP) --iface enp3s0 \
+                --uimage $(BOARD_OUTDIR)/kernel/uImage \
+                --rootfs $(BOARD_OUTDIR)/rootfs.squashfs \
+                --initrd-size $(shell ls -s --block-size=1048576 $(BOARD_OUTDIR)/rootfs.squashfs | cut -d' ' -f1)M --memory-size $(RAM_LINUX)M \
+                --lconsole "ttyAMA0,115200"
 
 deploy-app: pack-app
 	cd burner; authbind --deep ./burner2.py \
@@ -112,7 +136,17 @@ deploy-app: pack-app
 
 deploy-app-control-uart: deploy-app control-uart
 
+deploy-control-uart: deploy control-uart
+
 deploy-app-control-telnet: deploy-app
+	@echo "waiting for 10s"
+	@sleep 3
+	@echo "7s more..."
+	@sleep 5
+	@echo "be patient, 2s more"
+	telnet $(CAMERA_IP)
+
+deploy-app-control-telnet: deploy
 	@echo "waiting for 10s"
 	@sleep 3
 	@echo "7s more..."

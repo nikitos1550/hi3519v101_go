@@ -1,4 +1,4 @@
-TOOLCHAIN_NAME   := arm-buildroot-linux-gnueabi
+TOOLCHAIN_NAME   := arm-buildroot-linux-uclibcgnueabi
 TOOLCHAIN        := $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_NAME)-
 
 CC      := $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_NAME)-gcc
@@ -15,7 +15,7 @@ SWIG    := $(TOOLCHAIN_DIR)/bin/swig
 
 CFLAGS  :=  -std=gnu11 \
             -fPIC \
-            -mcpu=cortex-a73.cortex-a53 \
+            -mcpu=cortex-a7 \
             -mfloat-abi=softfp \
             -mfpu=neon-vfpv4 \
             -mno-unaligned-access \
@@ -23,5 +23,5 @@ CFLAGS  :=  -std=gnu11 \
             -O2 \
             -fno-common -ffunction-sections
 
-ARMV    := 8
+ARMV    := 7
 
