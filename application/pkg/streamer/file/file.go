@@ -33,7 +33,7 @@ var (
 )
 
 func init() {
-    flagStoragePath = flag.String("streamer-file-storage", "/tmp", "files storage path")
+    flagStoragePath = flag.String("streamer-file-storage", "/opt/nfs", "files storage path")
 	ActiveRecords = make(map[string] activeRecord)
 
     openapi.AddApiRoute("startNewRecord", "/files/record/start", "GET", startNewRecord)
@@ -72,7 +72,6 @@ func startNewRecord(w http.ResponseWriter, r *http.Request)  {
 	}
 
 	venc.SubsribeEncoder(encoderId, ActiveRecords[uuid].Payload)
-	venc.SampleH264Start <- 100
 	
     go func() {
 		for {
