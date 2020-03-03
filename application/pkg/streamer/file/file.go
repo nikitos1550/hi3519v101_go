@@ -73,6 +73,7 @@ func init() {
     openapi.AddApiRoute("startNewRecord", "/files/record/start", "GET", startNewRecord)
     openapi.AddApiRoute("stopRecord", "/files/record/stop", "GET", stopRecord)
 
+    openapi.AddApiRoute("listRecord", "/files/record/info", "GET", listRecord)
     openapi.AddApiRoute("listAllRecords", "/files/record/listall", "GET", listAllRecords)
     openapi.AddApiRoute("listActiveRecords", "/files/record/listactive", "GET", listActiveRecords)
     openapi.AddApiRoute("listFinishedRecords", "/files/record/listfinished", "GET", listFinishedRecords)
@@ -220,34 +221,66 @@ func stopRecord(w http.ResponseWriter, r *http.Request)  {
 	openapi.ResponseSuccessWithDetails(w, responseRecord{RecordId: recordId, Message: "Record was stopped"})
 }
 
+func addActiveRecord(records *[]recordInfo, record activeRecord, uuid string)  {
+	info := recordInfo{
+		RecordId: uuid,
+		Status: "recording",
+		EncoderId: record.EncoderId,
+		Size: record.Size,
+		Duration: fmt.Sprintf("%v", time.Now().Sub(record.StartTime)),
+		StartTime: record.StartTime,
+	}
+	
+	*records = append(*records, info)
+}
+
 func addActiveRecords(records *[]recordInfo)  {
 	for uuid, record := range ActiveRecords {
-		info := recordInfo{
-			RecordId: uuid,
-			Status: "recording",
-			EncoderId: record.EncoderId,
-			Size: record.Size,
-			Duration: fmt.Sprintf("%v", time.Now().Sub(record.StartTime)),
-			StartTime: record.StartTime,
-		}
-	
-		*records = append(*records, info)
+		addActiveRecord(records, record, uuid)
 	}
+}
+
+func addFinishedRecord(records *[]recordInfo, record storedRecord)  {
+	info := recordInfo{
+		RecordId: record.RecordId,
+		Status: "finished",
+		EncoderId: record.EncoderId,
+		Size: record.Size,
+		Duration: fmt.Sprintf("%v", record.EndTime.Sub(record.StartTime)),
+		StartTime: record.StartTime,
+	}
+	
+	*records = append(*records, info)
 }
 
 func addFinishedRecords(records *[]recordInfo)  {
 	for _, record := range StoredRecords.Records {
-		info := recordInfo{
-			RecordId: record.RecordId,
-			Status: "finished",
-			EncoderId: record.EncoderId,
-			Size: record.Size,
-			Duration: fmt.Sprintf("%v", record.EndTime.Sub(record.StartTime)),
-			StartTime: record.StartTime,
-		}
-	
-		*records = append(*records, info)
+		addFinishedRecord(records, record)
 	}
+}
+
+func listRecord(w http.ResponseWriter, r *http.Request)  {
+	ok, recordId := openapi.GetStringParameter(w, r, "recordId")
+	if !ok {
+		return
+	}
+
+	var records []recordInfo
+	active, activeExists := ActiveRecords[recordId]
+	if (activeExists) {
+		addActiveRecord(&records, active, recordId)
+		openapi.ResponseSuccessWithDetails(w, records)
+		return
+	}
+
+	stored, storedExists := StoredRecords.Records[recordId]
+	if (storedExists) {
+		addFinishedRecord(&records, stored)
+		openapi.ResponseSuccessWithDetails(w, records)
+		return
+	}
+
+	openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{RecordId: recordId, Message: "Record not found"})
 }
 
 func listAllRecords(w http.ResponseWriter, r *http.Request)  {
