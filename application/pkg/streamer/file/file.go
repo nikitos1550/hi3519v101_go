@@ -70,8 +70,12 @@ func init() {
 	ActiveRecords = make(map[string] activeRecord)
 	StoredRecords.Records = make(map[string] storedRecord)
 
+    openapi.AddApiRoute("apiDescription", "/files/record", "GET", apiDescription)
+
     openapi.AddApiRoute("startNewRecord", "/files/record/start", "GET", startNewRecord)
     openapi.AddApiRoute("stopRecord", "/files/record/stop", "GET", stopRecord)
+
+	openapi.AddApiRoute("downloadRecord", "/files/record/download", "GET", downloadRecord)
 
     openapi.AddApiRoute("listRecord", "/files/record/info", "GET", listRecord)
     openapi.AddApiRoute("listAllRecords", "/files/record/listall", "GET", listAllRecords)
@@ -139,6 +143,10 @@ func saveRecord(uuid string, record activeRecord) {
 	delete(ActiveRecords, uuid)
 
 	writeStoredRecords()
+}
+
+func apiDescription(w http.ResponseWriter, r *http.Request)  {
+	openapi.ApiDescription(w, r, "Records api:\n\n", "/files/record")
 }
 
 func startNewRecord(w http.ResponseWriter, r *http.Request)  {
@@ -219,6 +227,22 @@ func stopRecord(w http.ResponseWriter, r *http.Request)  {
 	ActiveRecords[recordId] = record
 
 	openapi.ResponseSuccessWithDetails(w, responseRecord{RecordId: recordId, Message: "Record was stopped"})
+}
+
+func downloadRecord(w http.ResponseWriter, r *http.Request)  {
+	ok, recordId := openapi.GetStringParameter(w, r, "recordId")
+	if !ok {
+		return
+	}
+
+	record, exists := StoredRecords.Records[recordId]
+	if (!exists) {
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{RecordId: recordId, Message: "Record not found"})
+		return
+	}
+
+	w.Header().Set("Content-Disposition", "attachment; filename=" + recordId + ".h264")
+	http.ServeFile(w, r, record.Files[0])
 }
 
 func addActiveRecord(records *[]recordInfo, record activeRecord, uuid string)  {
