@@ -3,10 +3,12 @@
 package file
 
 import (
+    "bytes"
     "flag"
     "net/http"
 	"os"
 	"path"
+	"time"
 
 	"application/pkg/openapi"
 	"application/pkg/mpp/venc"
@@ -21,6 +23,8 @@ type activeRecord struct {
 	Started    bool
 	EncoderId  int
 	F *os.File
+	Size int
+	StartTime time.Time 
 }
 
 type responseRecord struct {
@@ -41,6 +45,12 @@ func init() {
 }
 
 func Init() {
+}
+
+
+func keyFrame(data []byte) bool {
+	keyData := []byte{0x00, 0x00, 0x00, 0x01, 0x67}
+	return bytes.HasPrefix(data, keyData)
 }
 
 func startNewRecord(w http.ResponseWriter, r *http.Request)  {
@@ -69,6 +79,8 @@ func startNewRecord(w http.ResponseWriter, r *http.Request)  {
 		Started: true,
 		EncoderId: encoderId,
 		F: f,
+		Size: 0,
+		StartTime: time.Now(),
 	}
 
 	venc.SubsribeEncoder(encoderId, ActiveRecords[uuid].Payload)
@@ -80,7 +92,21 @@ func startNewRecord(w http.ResponseWriter, r *http.Request)  {
 			}
 
 			data := <- ActiveRecords[uuid].Payload
+			if (ActiveRecords[uuid].Size == 0){
+				if (!keyFrame(data)){
+					continue
+				}
+
+				record := ActiveRecords[uuid]
+				record.StartTime = time.Now()
+				ActiveRecords[uuid] = record
+			}
+
 			ActiveRecords[uuid].F.Write(data)
+
+			record := ActiveRecords[uuid]
+			record.Size += len(data)
+			ActiveRecords[uuid] = record
 		}
     }()
 
