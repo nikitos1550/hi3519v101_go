@@ -3,14 +3,16 @@
 package file
 
 import (
-    "bytes"
+	"bytes"
 	"encoding/json"
-    "flag"
-    "io/ioutil"
-    "log"
-    "net/http"
+	"flag"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
 	"os"
 	"path"
+	"strings"
 	"time"
 
 	"application/pkg/openapi"
@@ -25,7 +27,8 @@ type activeRecord struct {
     Payload    chan []byte
 	Started    bool
 	EncoderId  int
-	F *os.File
+	CurrentFile *os.File
+	CurrentFilePath string
 	Size int
 	StartTime time.Time 
 }
@@ -37,6 +40,15 @@ type storedRecord struct {
 	StartTime time.Time 
 	EndTime time.Time 
 	Files []string
+}
+
+type recordInfo struct {
+	RecordId  string
+	Status    string
+	EncoderId  int
+	Size int
+	Duration string
+	StartTime time.Time 
 }
 
 type storedRecords struct {
@@ -59,7 +71,11 @@ func init() {
 	StoredRecords.Records = make(map[string] storedRecord)
 
     openapi.AddApiRoute("startNewRecord", "/files/record/start", "GET", startNewRecord)
-    openapi.AddApiRoute("stopRecord", "/files/record/stop", "GET", stopNewRecord)
+    openapi.AddApiRoute("stopRecord", "/files/record/stop", "GET", stopRecord)
+
+    openapi.AddApiRoute("listAllRecords", "/files/record/listall", "GET", listAllRecords)
+    openapi.AddApiRoute("listActiveRecords", "/files/record/listactive", "GET", listActiveRecords)
+    openapi.AddApiRoute("listFinishedRecords", "/files/record/listfinished", "GET", listFinishedRecords)
 
 	readStoredRecords()
 }
@@ -72,7 +88,7 @@ func getStoredPath() string {
 }
 
 func writeStoredRecords() {
-	json, _ := json.Marshal(StoredRecords)	
+	json, _ := json.MarshalIndent(StoredRecords, "", "  ")
     err := ioutil.WriteFile(getStoredPath(), json, 0644)	
     if err != nil {
 		log.Println("Failed to write records to file " + getStoredPath())
@@ -99,7 +115,16 @@ func keyFrame(data []byte) bool {
 
 func saveRecord(uuid string, record activeRecord) {
 	venc.RemoveSubscription(record.EncoderId)
-	record.F.Close()
+	record.CurrentFile.Close()
+
+	finalFilePath := record.CurrentFilePath
+	if (strings.HasSuffix(finalFilePath, ".tmp")){
+		finalFilePath = finalFilePath[0:len(finalFilePath)-len(".tmp")]
+		err := os.Rename(record.CurrentFilePath, finalFilePath)
+		if err != nil {
+			log.Println("Failed to move file " + record.CurrentFilePath + " to " + finalFilePath)
+		}
+	}
 
 	StoredRecords.Records[uuid] = storedRecord{
 		EncoderId: record.EncoderId,
@@ -107,7 +132,7 @@ func saveRecord(uuid string, record activeRecord) {
 		Size: record.Size,
 		StartTime: record.StartTime,
 		EndTime: time.Now(),
-		Files: []string{},
+		Files: []string{finalFilePath},
 	}
 
 	delete(ActiveRecords, uuid)
@@ -140,7 +165,8 @@ func startNewRecord(w http.ResponseWriter, r *http.Request)  {
 		Payload: make(chan []byte, 100),
 		Started: true,
 		EncoderId: encoderId,
-		F: f,
+		CurrentFile: f,
+		CurrentFilePath: file,
 		Size: 0,
 		StartTime: time.Now(),
 	}
@@ -165,7 +191,7 @@ func startNewRecord(w http.ResponseWriter, r *http.Request)  {
 				ActiveRecords[uuid] = record
 			}
 
-			ActiveRecords[uuid].F.Write(data)
+			ActiveRecords[uuid].CurrentFile.Write(data)
 
 			record := ActiveRecords[uuid]
 			record.Size += len(data)
@@ -176,7 +202,7 @@ func startNewRecord(w http.ResponseWriter, r *http.Request)  {
 	openapi.ResponseSuccessWithDetails(w, responseRecord{RecordId: uuid, Message: "Record was started"})
 }
 
-func stopNewRecord(w http.ResponseWriter, r *http.Request)  {
+func stopRecord(w http.ResponseWriter, r *http.Request)  {
 	ok, recordId := openapi.GetStringParameter(w, r, "recordId")
 	if !ok {
 		return
@@ -192,4 +218,53 @@ func stopNewRecord(w http.ResponseWriter, r *http.Request)  {
 	ActiveRecords[recordId] = record
 
 	openapi.ResponseSuccessWithDetails(w, responseRecord{RecordId: recordId, Message: "Record was stopped"})
+}
+
+func addActiveRecords(records *[]recordInfo)  {
+	for uuid, record := range ActiveRecords {
+		info := recordInfo{
+			RecordId: uuid,
+			Status: "recording",
+			EncoderId: record.EncoderId,
+			Size: record.Size,
+			Duration: fmt.Sprintf("%v", time.Now().Sub(record.StartTime)),
+			StartTime: record.StartTime,
+		}
+	
+		*records = append(*records, info)
+	}
+}
+
+func addFinishedRecords(records *[]recordInfo)  {
+	for _, record := range StoredRecords.Records {
+		info := recordInfo{
+			RecordId: record.RecordId,
+			Status: "finished",
+			EncoderId: record.EncoderId,
+			Size: record.Size,
+			Duration: fmt.Sprintf("%v", record.EndTime.Sub(record.StartTime)),
+			StartTime: record.StartTime,
+		}
+	
+		*records = append(*records, info)
+	}
+}
+
+func listAllRecords(w http.ResponseWriter, r *http.Request)  {
+	var records []recordInfo
+	addActiveRecords(&records)
+	addFinishedRecords(&records)
+	openapi.ResponseSuccessWithDetails(w, records)
+}
+
+func listActiveRecords(w http.ResponseWriter, r *http.Request)  {
+	var records []recordInfo
+	addActiveRecords(&records)
+	openapi.ResponseSuccessWithDetails(w, records)
+}
+
+func listFinishedRecords(w http.ResponseWriter, r *http.Request)  {
+	var records []recordInfo
+	addFinishedRecords(&records)
+	openapi.ResponseSuccessWithDetails(w, records)
 }

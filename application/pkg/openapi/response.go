@@ -26,7 +26,7 @@ func response(w http.ResponseWriter, status int, message string, details interfa
 	responseBody.Message = message
 	responseBody.Details = details
 
-	responseBodyJson, _ := json.Marshal(responseBody)
+	responseBodyJson, _ := json.MarshalIndent(responseBody, "", "  ")
 	fmt.Fprintf(w, "%s", string(responseBodyJson))
 }
 
