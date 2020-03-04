@@ -81,6 +81,7 @@ func init() {
     openapi.AddApiRoute("listAllRecords", "/files/record/listall", "GET", listAllRecords)
     openapi.AddApiRoute("listActiveRecords", "/files/record/listactive", "GET", listActiveRecords)
     openapi.AddApiRoute("listFinishedRecords", "/files/record/listfinished", "GET", listFinishedRecords)
+    openapi.AddApiRoute("removeRecord", "/files/record/remove", "GET", removeRecord)
 
 	readStoredRecords()
 }
@@ -324,4 +325,36 @@ func listFinishedRecords(w http.ResponseWriter, r *http.Request)  {
 	var records []recordInfo
 	addFinishedRecords(&records)
 	openapi.ResponseSuccessWithDetails(w, records)
+}
+
+func removeRecord(w http.ResponseWriter, r *http.Request)  {
+	ok, recordId := openapi.GetStringParameter(w, r, "recordId")
+	if !ok {
+		return
+	}
+
+	record, recordExists := StoredRecords.Records[recordId]
+	if (!recordExists) {
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{RecordId: recordId, Message: "Record not found"})
+		return
+	}
+
+	var err error
+	for _, file := range record.Files {
+		err = os.RemoveAll(file)
+        if err != nil {
+            log.Println("Failed to remove file " + file)
+        }
+	}
+
+	recordPath := path.Join(*flagStoragePath, recordId)
+	err = os.RemoveAll(recordPath)
+	if err != nil {
+		log.Println("Failed to remove folder " + recordPath)
+	}
+
+	delete(StoredRecords.Records, recordId)
+	writeStoredRecords()
+
+	openapi.ResponseSuccessWithDetails(w, responseRecord{RecordId: recordId, Message: "Record was removed"})
 }
