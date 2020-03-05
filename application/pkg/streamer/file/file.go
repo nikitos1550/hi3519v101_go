@@ -145,8 +145,9 @@ func saveRecord(uuid string, record activeRecord) {
 	record.CurrentFile.Close()
 
 	finalFilePath := record.CurrentFilePath
-	if (strings.HasSuffix(finalFilePath, ".tmp")){
-		finalFilePath = finalFilePath[0:len(finalFilePath)-len(".tmp")]
+	if (strings.HasSuffix(finalFilePath, ".h264.tmp")){
+		finalFilePath = finalFilePath[0:len(finalFilePath)-len(".h264.tmp")]
+		finalFilePath += strconv.Itoa(len(record.Chunks) - 1) + ".h264"
 		err := os.Rename(record.CurrentFilePath, finalFilePath)
 		if err != nil {
 			log.Println("Failed to move file " + record.CurrentFilePath + " to " + finalFilePath)
@@ -173,6 +174,79 @@ func apiDescription(w http.ResponseWriter, r *http.Request)  {
 	openapi.ApiDescription(w, r, "Records api:\n\n", "/files/record")
 }
 
+func writeVideoData(uuid string, chunks int, duration int){
+	for {
+		if (!ActiveRecords[uuid].Started){
+			saveRecord(uuid, ActiveRecords[uuid])
+			break
+		}
+
+		data := <- ActiveRecords[uuid].Payload
+		if (ActiveRecords[uuid].Size == 0){
+			if (!keyFrame(data)){
+				continue
+			}
+
+			record := ActiveRecords[uuid]
+			record.StartTime = time.Now()
+
+			c := chunk{
+				FilePath: record.CurrentFilePath,
+				Size: 0,
+				StartTime: record.StartTime,
+				EndTime: time.Now(),
+			}
+
+			record.Chunks = append(record.Chunks, c)
+			ActiveRecords[uuid] = record
+		}
+
+		if (chunks != 0){
+			record := ActiveRecords[uuid]
+
+			chunkDuration := time.Now().Sub(record.Chunks[len(record.Chunks) - 1].StartTime)
+			if (chunkDuration.Seconds() >= float64(duration) && keyFrame(data)){
+				record.CurrentFile.Close()
+				finalFilePath := record.CurrentFilePath
+				if (strings.HasSuffix(finalFilePath, ".tmp")){
+					finalFilePath = finalFilePath[0:len(finalFilePath)-len(".h264.tmp")]
+					finalFilePath += strconv.Itoa(len(record.Chunks) - 1) + ".h264"
+					err := os.Rename(record.CurrentFilePath, finalFilePath)
+					if err != nil {
+						log.Println("Failed to move file " + record.CurrentFilePath + " to " + finalFilePath)
+					}
+				}
+
+				f,err := os.Create(record.CurrentFilePath)
+				if err != nil {
+					log.Println("Failed to create file " + record.CurrentFilePath)
+				}
+
+				record.CurrentFile = f
+				record.Chunks[len(record.Chunks) - 1].FilePath = finalFilePath
+
+				c := chunk{
+					FilePath: record.CurrentFilePath,
+					Size: 0,
+					StartTime: time.Now(),
+					EndTime: time.Now(),
+				}
+				record.Chunks = append(record.Chunks, c)
+
+				ActiveRecords[uuid] = record
+			}
+		}
+
+		ActiveRecords[uuid].CurrentFile.Write(data)
+
+		record := ActiveRecords[uuid]
+		record.Size += len(data)
+		record.Chunks[len(record.Chunks) - 1].Size += len(data)
+		record.Chunks[len(record.Chunks) - 1].EndTime = time.Now()
+		ActiveRecords[uuid] = record
+	}
+}
+
 func startNewRecord(w http.ResponseWriter, r *http.Request)  {
 	uuid := uuid.New().String()
 	ok, encoderId := openapi.GetIntParameter(w, r, "encoderId")
@@ -181,7 +255,7 @@ func startNewRecord(w http.ResponseWriter, r *http.Request)  {
 	}
 
 	chunks := openapi.GetIntParameterOrDefault(w, r, "chunks", 0)
-	chunkDuration := openapi.GetIntParameterOrDefault(w, r, "chunkDuration", 0)
+	chunkDuration := openapi.GetIntParameterOrDefault(w, r, "chunkDuration", 30)
 
 	recordFolder := path.Join(*flagStoragePath, uuid)
 	folderErr := os.MkdirAll(recordFolder, os.ModePerm)
@@ -211,44 +285,7 @@ func startNewRecord(w http.ResponseWriter, r *http.Request)  {
 	venc.SubsribeEncoder(encoderId, ActiveRecords[uuid].Payload)
 	
     go func() {
-		for {
-			if (!ActiveRecords[uuid].Started){
-				saveRecord(uuid, ActiveRecords[uuid])
-				break
-			}
-
-			data := <- ActiveRecords[uuid].Payload
-			if (ActiveRecords[uuid].Size == 0){
-				if (!keyFrame(data)){
-					continue
-				}
-
-				record := ActiveRecords[uuid]
-				record.StartTime = time.Now()
-
-				c := chunk{
-					FilePath: record.CurrentFilePath,
-					Size: 0,
-					StartTime: record.StartTime,
-					EndTime: time.Now(),
-				}
-
-				record.Chunks = append(record.Chunks, c)
-				ActiveRecords[uuid] = record
-			}
-
-			if (chunks != 0){
-				log.Println(chunkDuration)
-			}
-
-			ActiveRecords[uuid].CurrentFile.Write(data)
-
-			record := ActiveRecords[uuid]
-			record.Size += len(data)
-			record.Chunks[len(record.Chunks) - 1].Size += len(data)
-			record.Chunks[len(record.Chunks) - 1].EndTime = time.Now()
-			ActiveRecords[uuid] = record
-		}
+		writeVideoData(uuid, chunks, chunkDuration)
     }()
 
 	openapi.ResponseSuccessWithDetails(w, responseRecord{RecordId: uuid, Message: "Record was started"})
