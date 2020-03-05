@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"strconv"    
 	"strings"
 	"time"
 
@@ -22,6 +23,14 @@ import (
 )
 
 var flagStoragePath     *string
+var downloadLink string
+
+type chunk struct {
+	FilePath string
+	Size int
+	StartTime time.Time 
+	EndTime time.Time 
+}
 
 type activeRecord struct {
     Payload    chan []byte
@@ -31,6 +40,7 @@ type activeRecord struct {
 	CurrentFilePath string
 	Size int
 	StartTime time.Time 
+	Chunks []chunk
 }
 
 type storedRecord struct {
@@ -39,7 +49,15 @@ type storedRecord struct {
 	Size int
 	StartTime time.Time 
 	EndTime time.Time 
-	Files []string
+	Chunks []chunk
+}
+
+type chunkInfo struct {
+	DownloadLink string
+	Size int
+	StartTime time.Time 
+	EndTime time.Time 
+	Duration string
 }
 
 type recordInfo struct {
@@ -49,6 +67,8 @@ type recordInfo struct {
 	Size int
 	Duration string
 	StartTime time.Time 
+	EndTime time.Time 
+	Chunks []chunkInfo
 }
 
 type storedRecords struct {
@@ -69,13 +89,14 @@ func init() {
     flagStoragePath = flag.String("streamer-file-storage", "/opt/nfs", "files storage path")
 	ActiveRecords = make(map[string] activeRecord)
 	StoredRecords.Records = make(map[string] storedRecord)
+	downloadLink = "/files/record/download"
 
     openapi.AddApiRoute("apiDescription", "/files/record", "GET", apiDescription)
 
     openapi.AddApiRoute("startNewRecord", "/files/record/start", "GET", startNewRecord)
     openapi.AddApiRoute("stopRecord", "/files/record/stop", "GET", stopRecord)
 
-	openapi.AddApiRoute("downloadRecord", "/files/record/download", "GET", downloadRecord)
+	openapi.AddApiRoute("downloadRecord", downloadLink, "GET", downloadRecord)
 
     openapi.AddApiRoute("listRecord", "/files/record/info", "GET", listRecord)
     openapi.AddApiRoute("listAllRecords", "/files/record/listall", "GET", listAllRecords)
@@ -132,13 +153,15 @@ func saveRecord(uuid string, record activeRecord) {
 		}
 	}
 
+	record.Chunks[len(record.Chunks) - 1].FilePath = finalFilePath
+
 	StoredRecords.Records[uuid] = storedRecord{
 		EncoderId: record.EncoderId,
 		RecordId: uuid,
 		Size: record.Size,
 		StartTime: record.StartTime,
-		EndTime: time.Now(),
-		Files: []string{finalFilePath},
+		EndTime: record.Chunks[len(record.Chunks) - 1].EndTime,
+		Chunks: record.Chunks,
 	}
 
 	delete(ActiveRecords, uuid)
@@ -156,6 +179,9 @@ func startNewRecord(w http.ResponseWriter, r *http.Request)  {
 	if !ok {
 		return
 	}
+
+	chunks := openapi.GetIntParameterOrDefault(w, r, "chunks", 0)
+	chunkDuration := openapi.GetIntParameterOrDefault(w, r, "chunkDuration", 0)
 
 	recordFolder := path.Join(*flagStoragePath, uuid)
 	folderErr := os.MkdirAll(recordFolder, os.ModePerm)
@@ -179,6 +205,7 @@ func startNewRecord(w http.ResponseWriter, r *http.Request)  {
 		CurrentFilePath: file,
 		Size: 0,
 		StartTime: time.Now(),
+		Chunks: []chunk{},
 	}
 
 	venc.SubsribeEncoder(encoderId, ActiveRecords[uuid].Payload)
@@ -198,13 +225,28 @@ func startNewRecord(w http.ResponseWriter, r *http.Request)  {
 
 				record := ActiveRecords[uuid]
 				record.StartTime = time.Now()
+
+				c := chunk{
+					FilePath: record.CurrentFilePath,
+					Size: 0,
+					StartTime: record.StartTime,
+					EndTime: time.Now(),
+				}
+
+				record.Chunks = append(record.Chunks, c)
 				ActiveRecords[uuid] = record
+			}
+
+			if (chunks != 0){
+				log.Println(chunkDuration)
 			}
 
 			ActiveRecords[uuid].CurrentFile.Write(data)
 
 			record := ActiveRecords[uuid]
 			record.Size += len(data)
+			record.Chunks[len(record.Chunks) - 1].Size += len(data)
+			record.Chunks[len(record.Chunks) - 1].EndTime = time.Now()
 			ActiveRecords[uuid] = record
 		}
     }()
@@ -236,17 +278,34 @@ func downloadRecord(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
+	chunk := openapi.GetIntParameterOrDefault(w, r, "chunk", 0)
+
 	record, exists := StoredRecords.Records[recordId]
 	if (!exists) {
 		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{RecordId: recordId, Message: "Record not found"})
 		return
 	}
 
-	w.Header().Set("Content-Disposition", "attachment; filename=" + recordId + ".h264")
-	http.ServeFile(w, r, record.Files[0])
+	w.Header().Set("Content-Disposition", "attachment; filename=" + recordId + "_chunk_" + strconv.Itoa(chunk) + ".h264")
+	http.ServeFile(w, r, record.Chunks[chunk].FilePath)
 }
 
-func addActiveRecord(records *[]recordInfo, record activeRecord, uuid string)  {
+func addChunksInfo(r *http.Request, inputChunks []chunk, chunksCount int, recordId string, outputChunks* []chunkInfo){
+	for i := 0; i < chunksCount; i++ {
+		link := downloadLink + "?recordId=" + recordId + "&chunk=" + strconv.Itoa(i)
+		info := chunkInfo{
+			DownloadLink: link,
+			Size: inputChunks[i].Size,
+			StartTime: inputChunks[i].StartTime,
+			EndTime: inputChunks[i].EndTime,
+			Duration: fmt.Sprintf("%v", inputChunks[i].EndTime.Sub(inputChunks[i].StartTime)),
+		}
+
+		*outputChunks = append(*outputChunks, info)
+	}
+}
+
+func addActiveRecord(r *http.Request, records *[]recordInfo, record activeRecord, uuid string)  {
 	info := recordInfo{
 		RecordId: uuid,
 		Status: "recording",
@@ -254,18 +313,22 @@ func addActiveRecord(records *[]recordInfo, record activeRecord, uuid string)  {
 		Size: record.Size,
 		Duration: fmt.Sprintf("%v", time.Now().Sub(record.StartTime)),
 		StartTime: record.StartTime,
+		EndTime: time.Now(),
+		Chunks: []chunkInfo{},
 	}
+
+	addChunksInfo(r, record.Chunks, len(record.Chunks) - 1, info.RecordId, &info.Chunks)
 	
 	*records = append(*records, info)
 }
 
-func addActiveRecords(records *[]recordInfo)  {
+func addActiveRecords(r *http.Request, records *[]recordInfo)  {
 	for uuid, record := range ActiveRecords {
-		addActiveRecord(records, record, uuid)
+		addActiveRecord(r, records, record, uuid)
 	}
 }
 
-func addFinishedRecord(records *[]recordInfo, record storedRecord)  {
+func addFinishedRecord(r *http.Request, records *[]recordInfo, record storedRecord)  {
 	info := recordInfo{
 		RecordId: record.RecordId,
 		Status: "finished",
@@ -273,14 +336,18 @@ func addFinishedRecord(records *[]recordInfo, record storedRecord)  {
 		Size: record.Size,
 		Duration: fmt.Sprintf("%v", record.EndTime.Sub(record.StartTime)),
 		StartTime: record.StartTime,
+		EndTime: record.EndTime,
+		Chunks: []chunkInfo{},
 	}
 	
+	addChunksInfo(r, record.Chunks, len(record.Chunks), info.RecordId, &info.Chunks)
+
 	*records = append(*records, info)
 }
 
-func addFinishedRecords(records *[]recordInfo)  {
+func addFinishedRecords(r *http.Request, records *[]recordInfo)  {
 	for _, record := range StoredRecords.Records {
-		addFinishedRecord(records, record)
+		addFinishedRecord(r, records, record)
 	}
 }
 
@@ -293,14 +360,14 @@ func listRecord(w http.ResponseWriter, r *http.Request)  {
 	var records []recordInfo
 	active, activeExists := ActiveRecords[recordId]
 	if (activeExists) {
-		addActiveRecord(&records, active, recordId)
+		addActiveRecord(r, &records, active, recordId)
 		openapi.ResponseSuccessWithDetails(w, records)
 		return
 	}
 
 	stored, storedExists := StoredRecords.Records[recordId]
 	if (storedExists) {
-		addFinishedRecord(&records, stored)
+		addFinishedRecord(r, &records, stored)
 		openapi.ResponseSuccessWithDetails(w, records)
 		return
 	}
@@ -310,20 +377,20 @@ func listRecord(w http.ResponseWriter, r *http.Request)  {
 
 func listAllRecords(w http.ResponseWriter, r *http.Request)  {
 	var records []recordInfo
-	addActiveRecords(&records)
-	addFinishedRecords(&records)
+	addActiveRecords(r, &records)
+	addFinishedRecords(r, &records)
 	openapi.ResponseSuccessWithDetails(w, records)
 }
 
 func listActiveRecords(w http.ResponseWriter, r *http.Request)  {
 	var records []recordInfo
-	addActiveRecords(&records)
+	addActiveRecords(r, &records)
 	openapi.ResponseSuccessWithDetails(w, records)
 }
 
 func listFinishedRecords(w http.ResponseWriter, r *http.Request)  {
 	var records []recordInfo
-	addFinishedRecords(&records)
+	addFinishedRecords(r, &records)
 	openapi.ResponseSuccessWithDetails(w, records)
 }
 
@@ -340,10 +407,10 @@ func removeRecord(w http.ResponseWriter, r *http.Request)  {
 	}
 
 	var err error
-	for _, file := range record.Files {
-		err = os.RemoveAll(file)
+	for _, chunk := range record.Chunks {
+		err = os.RemoveAll(chunk.FilePath)
         if err != nil {
-            log.Println("Failed to remove file " + file)
+            log.Println("Failed to remove file " + chunk.FilePath)
         }
 	}
 

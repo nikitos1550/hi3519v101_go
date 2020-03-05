@@ -39,3 +39,26 @@ func GetIntParameter(w http.ResponseWriter, r *http.Request, name string) (bool,
 
 	return true, num
 }
+
+func GetStringParameterOrDefault(w http.ResponseWriter, r *http.Request, name string, defaultValue string) (string) {
+	value, ok := r.URL.Query()[name]
+	if !ok {
+		return defaultValue
+	}
+
+	return value[0]
+}
+
+func GetIntParameterOrDefault(w http.ResponseWriter, r *http.Request, name string, defaultValue int) (int) {
+	value, ok := r.URL.Query()[name]
+	if !ok {
+		return defaultValue
+	}
+
+	num, err := strconv.Atoi(value[0])
+	if err != nil {
+		return defaultValue
+	}
+
+	return num
+}
