@@ -133,6 +133,8 @@ deploy-dir-daemon:
 	mkdir ./distrib/$(FAMILY)/etc/init.d
 	cp ./init/S99daemon ./distrib/$(FAMILY)/etc/init.d/
 	cp ../boards/$(BOARD)/config ./distrib/$(FAMILY)/opt/board.config
+	mkdir ./distrib/$(FAMILY)/opt/configs
+	cp ../application/configs/* ./distrib/$(FAMILY)/opt/configs/
 
 deploy-dir-tester:
 	rm -rf ./distrib
@@ -143,6 +145,8 @@ deploy-dir-tester:
 	mkdir ./distrib/$(FAMILY)/etc/init.d
 	cp ./init/S99tester ./distrib/$(FAMILY)/etc/init.d/
 	cp ../boards/$(BOARD)/config ./distrib/$(FAMILY)/opt/board.config
+	mkdir ./distrib/$(FAMILY)/opt/configs
+	cp ../application/configs/* ./distrib/$(FAMILY)/opt/configs/
 
 TRIMPATH :=/home/nikitos1550/work/hi3519v101_go/application
 

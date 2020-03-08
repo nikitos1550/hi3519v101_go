@@ -7,6 +7,7 @@ package venc
 import "C"
 
 import (
+	"log"
 	"unsafe"
 )
 
@@ -15,7 +16,7 @@ func go_callback_receive_data(venc_channel C.int, seq C.uint, data_pointer *C.da
 	vencChannel := int(venc_channel)
 	num := int(data_num)
 
-	ch, exists := EncoderSubscriptions[vencChannel]
+	channels, exists := EncoderSubscriptions[vencChannel]
 	if (!exists) {
 		return
 	}
@@ -35,5 +36,10 @@ func go_callback_receive_data(venc_channel C.int, seq C.uint, data_pointer *C.da
 		offset = offset + n
 	}
 
-	ch <- data
+	for ch,enabled := range channels {
+		if (enabled){
+			log.Println("Write data to channel ", vencChannel)
+			ch <- data
+		}
+	}
 }
