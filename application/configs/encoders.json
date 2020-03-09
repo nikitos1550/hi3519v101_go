@@ -14,28 +14,14 @@
     "Bitrate": 16384
   },
   "H264_1280_720_1M": {
-    "VencId": 0,
-    "Format": "h264",
-    "Width": 1280,
-    "Height": 720,
-    "Bitrate": 1024
-  },
-  "H264_1280_720_1M_1": {
-    "VencId": 1,
+    "VencId": 2,
     "Format": "h264",
     "Width": 1280,
     "Height": 720,
     "Bitrate": 1024
   },
   "H264_1920_1080_1M": {
-    "VencId": 1,
-    "Format": "h264",
-    "Width": 1920,
-    "Height": 1080,
-    "Bitrate": 1024
-  },
-  "H264_1920_1080_1M_1": {
-    "VencId": 2,
+    "VencId": 3,
     "Format": "h264",
     "Width": 1920,
     "Height": 1080,

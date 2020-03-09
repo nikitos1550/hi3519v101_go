@@ -53,7 +53,7 @@ int mpp3_venc_sample_mjpeg(unsigned int *error_code, int width, int height, int 
     stSrcChn.s32ChnId   = 0;
     stDestChn.enModId   = HI_ID_VENC;
     stDestChn.s32DevId  = 0;
-    stDestChn.s32ChnId  = 1;
+    stDestChn.s32ChnId  = channelId;
 
     *error_code = HI_MPI_SYS_Bind(&stSrcChn, &stDestChn);
     if (*error_code != HI_SUCCESS) return ERR_MPP;
@@ -110,7 +110,7 @@ int mpp3_venc_sample_h264(unsigned int *error_code, int width, int height, int b
     stSrcChn.s32ChnId   = 0;
     stDestChn.enModId   = HI_ID_VENC;
     stDestChn.s32DevId  = 0;
-    stDestChn.s32ChnId  = 0;
+    stDestChn.s32ChnId  = channelId;
 
     *error_code = HI_MPI_SYS_Bind(&stSrcChn, &stDestChn);
     if (*error_code != HI_SUCCESS) return ERR_MPP;
