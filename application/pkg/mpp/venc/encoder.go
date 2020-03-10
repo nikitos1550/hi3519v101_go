@@ -1,60 +1,64 @@
 package venc
 
-type NewDataMsg struct {
+import (
+	"encoding/json"
+	"io/ioutil"
+	"log"
+	"net/http"
 
+	"application/pkg/openapi"
+)
+
+type Encoder struct {
+    VencId int
+    Format string 
+    Width int 
+    Height int 
+    Bitrate int 
 }
 
-type Subscriber struct {
-    data    chan NewDataMsg
+type encoderInfo struct {
+    Name string
+    Format string 
+    Width int 
+    Height int 
+    Bitrate int 
 }
 
-type encoder struct {
-    vencId      uint32
-    subscribers map[*Subscriber]bool
-    subscribe   chan *Subscriber //channel for subscription
-    unsubscribe chan *Subscriber //channel for unsubscription
-    newData     chan *NewDataMsg //channel for new data
+var Encoders map[string] Encoder
 
-    frames      frames
+func init() {
+    openapi.AddApiRoute("listEncoders", "/encoders", "GET", listEncoders)
+	Encoders = make(map[string] Encoder)
+	readEncoders()
 }
 
-var encoders []encoder
-
-func findEncoder(vencId uint32) (*encoder, error) { //
+func readEncoders() {
+	path := "/opt/configs/encoders.json"
+    data, err := ioutil.ReadFile(path)
+    if err != nil {
+		log.Fatal("Failed to read records from file " + path)
+		return
+    }
     
-    return nil, nil
+	err = json.Unmarshal(data, &Encoders)
+    if err != nil {
+        log.Fatal("Failed to parse records from file " + path)
+    }
 }
 
-func createEncoder(vencId uint32) (*encoder, error) {
-    return nil, nil
+func listEncoders(w http.ResponseWriter, r *http.Request)  {
+	var encodersInfo []encoderInfo
+	for name, encoder := range Encoders {
+		info := encoderInfo{
+			Name: name,
+			Format: encoder.Format,
+			Width: encoder.Width,
+			Height: encoder.Height,
+			Bitrate: encoder.Bitrate,
+		}
+	
+		encodersInfo = append(encodersInfo, info)
+	}
+	openapi.ResponseSuccessWithDetails(w, encodersInfo)
 }
-func (e *encoder) deleteEncoder() {}
-
-func (e *encoder) subscribeEncoder(s *Subscriber) {}
-func (e *encoder) unSubscribeEncoder(s *Subscriber) {}
-
-func (e *encoder) routineEncoder() { //goroutine that process data to subscribers
-    /*
-        receive messages from
-            subscribe channel
-                on receive check is it new client or existing one (if existing WARN!)
-                add client to list
-            unsubscribe channel
-                on reveive delete from clients list
-            new frame channel
-                iterate through clients, check input channel for each client if full than increase skip value for client
-                for each client send info about new data
-            delete itself channel
-                on receive force unsubscribe all clients
-    */
-}
-/* Destroy process
-    Consider that children don`t have access to parent memory, access is only allowed by pointers
-    before we will destroy hub, we should somehow be sure that all children will not try to access hub`s memory
-
-    Option 1
-        Parent closes channel, child on read from closed channel will notice it and inform parent by unsubscribe that 
-        it is save to delete it from list, consider these parent can detroy itself safe on 0 clients.
-
-
-*/

@@ -30,7 +30,4 @@ func Init() {
 	//init sample videopipeline
 	vpss.SampleChannel0()
 
-	venc.SampleH264()
-	venc.SampleMjpeg()
-
 }

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 	//"net"
 )
@@ -118,17 +119,25 @@ func systemNetwork(w http.ResponseWriter, r *http.Request) {
 }
 */
 
-func apiRoot(w http.ResponseWriter, r *http.Request) {
+func ApiDescription(w http.ResponseWriter, r *http.Request, header string, filter string) {
 	w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
-	fmt.Fprintf(w, "All available api:\n\n")
+	fmt.Fprintf(w, header)
 	fmt.Fprintf(w, "///////////////////////////////////////////////\n\n")
 
 	for _, route := range apiRoutes {
+		if (len(filter) > 0 && !strings.HasPrefix(route.pattern, filter)){
+			continue
+		}
+
 		fmt.Fprintf(w, "Api name: %s \n", route.name)
 		fmt.Fprintf(w, "Method: %s \n", route.method)
 		fmt.Fprintf(w, "Address: %s \n", route.pattern)
 		fmt.Fprintf(w, "-----------------------------------------------\n\n")
 	}
+}
+
+func apiRoot(w http.ResponseWriter, r *http.Request) {
+	ApiDescription(w, r, "All available api:\n\n", "")
 }

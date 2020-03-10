@@ -17,7 +17,7 @@ import (
     "io/ioutil"
     //"reflect"
 
-    "application/pkg/mpp/venc"
+    //"application/pkg/mpp/venc"
 )
 
 func init() {
@@ -152,7 +152,7 @@ func connectWebrtc(w http.ResponseWriter, r *http.Request) {
 
                 
                 var start bool
-                venc.SampleH264Start <- 100
+                //venc.SampleH264Start <- 100
                 for {
                     //for {
                     //    select {
@@ -165,10 +165,12 @@ func connectWebrtc(w http.ResponseWriter, r *http.Request) {
                     //    }
                     //}
 
-                    <-venc.SampleH264Notify
+                    //<-venc.SampleH264Notify
                     //log.Println("webrtc new frame arrived", msg)
                     buf := make([]byte, 1024*1024)
-                    n,_ := venc.SampleH264Frames.ReadLast(buf)
+                    //n,_ := venc.SampleH264Frames.ReadLast(buf) 
+					n:=0
+
                     //log.Println("WEBRTC got", n, " bytes len(buf)=", len(buf))
                     //log.Println(buf[0], buf[1], buf[2], buf[3], buf[4], buf[5])
                     nalType := buf[4] & 0x1F
