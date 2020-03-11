@@ -102,7 +102,7 @@ CMOSOBJ := $(patsubst pkg/mpp/cmos/$(FAMILY)/%.c, ../output/boards/$(BOARD)/cmos
 #	[ -d ../output/boards/$(BOARD)/cmos ] || mkdir -p ../output/boards/$(BOARD)/cmos
 #	$(CC) $(CFLAGS) -I$(abspath sdk/$(FAMILY)/include) -c $< -o $@
 
-generate: apidoc
+generate: 
 	GOPATH=$(GOPATH) $(GO) generate -tags "$(FAMILY)" application/pkg/ko
 	GOPATH=$(GOPATH) $(GO) generate -tags "$(FAMILY)" application/pkg/utils/regs
 	#GOPATH=$(GOPATH) $(GO) generate -tags "$(FAMILY) openapi" application/pkg/openapi
@@ -198,3 +198,6 @@ apidoc:
 	mv redoc-static.html ./api/
 	$(REDOC) bundle ./api/openhisiipcam.yaml --options ./api/redoc.conf
 	mv redoc-static.html ./api/redoc-static2.html
+
+tinygo:
+	GOPATH=$(GOPATH) $(GO) get -d -u github.com/tinygo-org/tinygo
