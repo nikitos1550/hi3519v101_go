@@ -4,6 +4,8 @@ package file
 
 import (
 	"bytes"
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -30,6 +32,7 @@ type chunk struct {
 	Size int
 	StartTime time.Time 
 	EndTime time.Time 
+	Md5 string
 }
 
 type activeRecord struct {
@@ -58,6 +61,7 @@ type chunkInfo struct {
 	StartTime time.Time 
 	EndTime time.Time 
 	Duration string
+	Md5 string
 }
 
 type recordInfo struct {
@@ -140,7 +144,7 @@ func keyFrame(data []byte) bool {
 	return bytes.HasPrefix(data, keyData)
 }
 
-func saveRecord(uuid string, record activeRecord) {
+func saveRecord(uuid string, record activeRecord, md5Hash string) {
 	venc.RemoveSubscription(record.EncoderId, record.Payload)
 	record.CurrentFile.Close()
 
@@ -155,6 +159,7 @@ func saveRecord(uuid string, record activeRecord) {
 	}
 
 	record.Chunks[len(record.Chunks) - 1].FilePath = finalFilePath
+	record.Chunks[len(record.Chunks) - 1].Md5 = md5Hash
 
 	StoredRecords.Records[uuid] = storedRecord{
 		EncoderId: record.EncoderId,
@@ -175,9 +180,11 @@ func apiDescription(w http.ResponseWriter, r *http.Request)  {
 }
 
 func writeVideoData(uuid string, chunks int, duration int){
+	h := md5.New()
 	for {
 		if (!ActiveRecords[uuid].Started){
-			saveRecord(uuid, ActiveRecords[uuid])
+			md5Hash := hex.EncodeToString(h.Sum(nil))
+			saveRecord(uuid, ActiveRecords[uuid], md5Hash)
 			break
 		}
 
@@ -195,6 +202,7 @@ func writeVideoData(uuid string, chunks int, duration int){
 				Size: 0,
 				StartTime: record.StartTime,
 				EndTime: time.Now(),
+				Md5: "",
 			}
 
 			record.Chunks = append(record.Chunks, c)
@@ -224,12 +232,16 @@ func writeVideoData(uuid string, chunks int, duration int){
 
 				record.CurrentFile = f
 				record.Chunks[len(record.Chunks) - 1].FilePath = finalFilePath
+				md5Hash := hex.EncodeToString(h.Sum(nil))
+				h.Reset()
+				record.Chunks[len(record.Chunks) - 1].Md5 = md5Hash
 
 				c := chunk{
 					FilePath: record.CurrentFilePath,
 					Size: 0,
 					StartTime: time.Now(),
 					EndTime: time.Now(),
+					Md5: "",
 				}
 				record.Chunks = append(record.Chunks, c)
 
@@ -238,6 +250,7 @@ func writeVideoData(uuid string, chunks int, duration int){
 		}
 
 		ActiveRecords[uuid].CurrentFile.Write(data)
+		h.Write(data)
 
 		record := ActiveRecords[uuid]
 		record.Size += len(data)
@@ -321,14 +334,25 @@ func downloadRecord(w http.ResponseWriter, r *http.Request)  {
 
 	chunk := openapi.GetIntParameterOrDefault(w, r, "chunk", 0)
 
-	record, exists := StoredRecords.Records[recordId]
-	if (!exists) {
-		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{RecordId: recordId, Message: "Record not found"})
+	activeRecord, activeExists := ActiveRecords[recordId]
+	if (activeExists) {
+		if (chunk < len(activeRecord.Chunks) - 1){
+			w.Header().Set("Content-Disposition", "attachment; filename=" + recordId + "_chunk_" + strconv.Itoa(chunk) + ".h264")
+			w.Header().Set("Md5", activeRecord.Chunks[chunk].Md5)
+			http.ServeFile(w, r, activeRecord.Chunks[chunk].FilePath)
+			return
+		}
+	}
+
+	storedRecord, storedExists := StoredRecords.Records[recordId]
+	if (storedExists) {
+		w.Header().Set("Content-Disposition", "attachment; filename=" + recordId + "_chunk_" + strconv.Itoa(chunk) + ".h264")
+		w.Header().Set("Md5", storedRecord.Chunks[chunk].Md5)
+		http.ServeFile(w, r, storedRecord.Chunks[chunk].FilePath)
 		return
 	}
 
-	w.Header().Set("Content-Disposition", "attachment; filename=" + recordId + "_chunk_" + strconv.Itoa(chunk) + ".h264")
-	http.ServeFile(w, r, record.Chunks[chunk].FilePath)
+	openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{RecordId: recordId, Message: "Record not found"})
 }
 
 func addChunksInfo(r *http.Request, inputChunks []chunk, chunksCount int, recordId string, outputChunks* []chunkInfo){
@@ -340,6 +364,7 @@ func addChunksInfo(r *http.Request, inputChunks []chunk, chunksCount int, record
 			StartTime: inputChunks[i].StartTime,
 			EndTime: inputChunks[i].EndTime,
 			Duration: fmt.Sprintf("%v", inputChunks[i].EndTime.Sub(inputChunks[i].StartTime)),
+			Md5: inputChunks[i].Md5,
 		}
 
 		*outputChunks = append(*outputChunks, info)
