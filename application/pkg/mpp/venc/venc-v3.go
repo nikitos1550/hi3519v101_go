@@ -77,7 +77,7 @@ int mpp3_venc_sample_h264(unsigned int *error_code, int width, int height, int b
     stH264Attr.u32BufSize       = 3840*2160*1.5;  //stream buffer size
     stH264Attr.u32Profile       = 2;            //0: baseline; 1:MP; 2:HP;  3:svc_t
     stH264Attr.bByFrame         = HI_TRUE;      //get stream mode is slice mode or frame mode?
-    //stH264Attr.u32BFrameNum   = 0;            //0: not support B frame; >=1: number of B frames 
+    //stH264Attr.u32BFrameNum   = 0;            //0: not support B frame; >=1: number of B frames
     //stH264Attr.u32RefNum      = 1;            //0: default; number of refrence frame
 
     memcpy(&stVencChnAttr.stVeAttr.stAttrH264e, &stH264Attr, sizeof(VENC_ATTR_H264_S));
@@ -117,24 +117,59 @@ int mpp3_venc_sample_h264(unsigned int *error_code, int width, int height, int b
 
     return ERR_NONE;
 }
+
+int mpp3_venc_delete_encoder(unsigned int *error_code, int channelId) {
+	*error_code = 0;
+
+	//HI_S32 HI_MPI_VENC_StopRecvPic(VENC_CHN VeChn);
+	//HI_S32 HI_MPI_VENC_CloseFd(VENC_CHN VeChn);
+	//HI_S32 HI_MPI_VENC_DestroyChn(VENC_CHN VeChn);
+
+        *error_code = HI_MPI_VENC_StopRecvPic(channelId);
+        if (*error_code != HI_SUCCESS) return ERR_MPP;
+
+	*error_code = HI_MPI_VENC_DestroyChn(channelId);
+	if (*error_code != HI_SUCCESS) return ERR_MPP;
+
+	return ERR_NONE;
+}
 */
 import "C"
 
 import (
-    "log"
-    "application/pkg/mpp/error"
+	"application/pkg/mpp/error"
+	"log"
 )
 
 var (
-	EncoderSubscriptions map[int] map[chan []byte]bool
+	EncoderSubscriptions map[int]map[chan []byte]bool
 )
 
 func init() {
-	EncoderSubscriptions = make(map[int] map[chan []byte]bool)
+	EncoderSubscriptions = make(map[int]map[chan []byte]bool)
 }
 
-func createEncoder(encoder Encoder){
-    var errorCode C.uint
+func deleteEncoder(encoder Encoder) {
+	var errorCode C.uint
+	var err C.int
+
+	delVenc(encoder.VencId) //first we remove fd from loop
+
+	err = C.mpp3_venc_delete_encoder(&errorCode, C.int(encoder.VencId))
+	switch err {
+	case C.ERR_NONE:
+		log.Println("Encoder deleted ", encoder.VencId)
+	case C.ERR_MPP:
+		log.Fatal("Failed to delete encoder ", encoder.VencId, " error ", error.Resolve(int64(errorCode)))
+	default:
+		log.Fatal("Failed to delete encoder ", encoder.VencId, "Unexpected return ", err)
+
+	}
+
+}
+
+func createEncoder(encoder Encoder) {
+	var errorCode C.uint
 	var err C.int
 	switch encoder.Format {
 	case "h264":
@@ -144,42 +179,41 @@ func createEncoder(encoder Encoder){
 	default:
 		log.Println("Unknown encoder format ", encoder.Format)
 	}
-	
-    switch err {
-    case C.ERR_NONE:
-        log.Println("Encoder created ", encoder.Format)
-    case C.ERR_MPP:
-        log.Fatal("Failed to create encoder ",  encoder.Format, " error ", error.Resolve(int64(errorCode)))
-    default:
-        log.Fatal("Failed to create encoder ",  encoder.Format, "Unexpected return ", err)
-    }
 
-    addVenc(encoder.VencId)
+	switch err {
+	case C.ERR_NONE:
+		log.Println("Encoder created ", encoder.Format)
+	case C.ERR_MPP:
+		log.Fatal("Failed to create encoder ", encoder.Format, " error ", error.Resolve(int64(errorCode)))
+	default:
+		log.Fatal("Failed to create encoder ", encoder.Format, "Unexpected return ", err)
+	}
+
+	addVenc(encoder.VencId)
 }
-
 
 func SubsribeEncoder(encoderId string, ch chan []byte) {
 	encoder, encoderExists := Encoders[encoderId]
-	if (!encoderExists) {
+	if !encoderExists {
 		log.Println("Failed to find encoder ", encoderId)
 		return
 	}
 
 	channels, exists := EncoderSubscriptions[encoder.VencId]
-	if (!exists) {
+	if !exists {
 		createEncoder(encoder)
 		channels = make(map[chan []byte]bool)
-	} else if (!hasSubscription(encoder.VencId)){
+	} else if !hasSubscription(encoder.VencId) {
 		addVenc(encoder.VencId)
 	}
 
-	channels[ch]=true
+	channels[ch] = true
 	EncoderSubscriptions[encoder.VencId] = channels
 }
 
 func hasSubscription(vencId int) bool {
 	for _, value := range EncoderSubscriptions[vencId] {
-		if (value){
+		if value {
 			return true
 		}
 	}
@@ -188,15 +222,15 @@ func hasSubscription(vencId int) bool {
 
 func RemoveSubscription(encoderId string, ch chan []byte) {
 	encoder, encoderExists := Encoders[encoderId]
-	if (!encoderExists) {
+	if !encoderExists {
 		log.Println("Failed to find encoder ", encoderId)
 		return
 	}
 
 	EncoderSubscriptions[encoder.VencId][ch] = false
 
-	if (!hasSubscription(encoder.VencId)){
+	if !hasSubscription(encoder.VencId) {
 		log.Println("No subscriptions for ", encoder.VencId, " remove venc")
-		delVenc(encoder.VencId)
+		deleteEncoder(encoder) //delVenc(encoder.VencId)
 	}
 }
