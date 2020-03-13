@@ -1,0 +1,16 @@
+cmos:
+        get:
+            tags:
+                - cmos
+            summary: 'CMOS information'
+            operationId: 'mppCmos'
+            responses:
+                '200':
+                    description: 'Success'
+                    content:
+                        text/plain:
+                            schema:
+                                type: string
+
+description: |
+    This is CMOS API description

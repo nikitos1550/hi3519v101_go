@@ -1,4 +1,4 @@
-/mpp/venc:
+venc:
     get:
         summary: 'Show all encoders'
         tags:
@@ -12,21 +12,22 @@
                             schema:
                                 type: string
     post:
-        summary: 'Create encoder of first avalible num'
+        summary: 'Create encoder'
         tags:
             - venc
         operationId: 'vencCreate'
-/mpp/venc/{id}:    
+
+venc/{id}:    
     get:
         summary: 'Show ecnoder information'
         tags:
             - venc
         operationId: 'vencIdShow'
-    post:
-        summary: 'Create encoder of target num'
-        tags:
-            - venc
-        operationId: 'vencIdCreate'
+    #post:
+    #     summary: 'Create encoder of target num'
+    #     tags:
+    #         - venc
+    #    operationId: 'vencIdCreate'
     put:
         summary: 'Change encoder runtime settings'
         tags:
@@ -38,3 +39,12 @@
             - venc
         operationId: 'vencIdDelete'
 
+
+description: |
+    Encoder can be Jpeg/Mjpeg, H264, H265.
+    There are static and dynamic parameters that can and should be setuped during creation.
+    Dynamic parameters can be changed during encoder operation, static can`t be.
+    
+    Amount of encoders is limited, due to hardware limitations.
+
+    Encoder is binded to some channel. That channel shoud be created before encoder creation.

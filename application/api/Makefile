@@ -4,15 +4,17 @@ all: build redoctmp
 	#@echo "TODO"
 
 build:
-	speccy resolve ./src/_main.yml -v > $(SPEC)
+	speccy resolve ./src/main.yml -v > $(SPEC)
 
 lint:
 	speccy lint $(SPEC) -v
 
 
-GOPHER200       := $(shell cat ./images/gopher200.png | base64 -w 0)
-DOWNLOAD       := $(shell cat ./images/download_button.png | base64 -w 0)
-FAVICON         := $(shell cat ./favicon.ico | base64 -w 0)
+GOPHER200   := $(shell cat ./images/gopher200.png | base64 -w 0)
+DOWNLOAD    := $(shell cat ./images/download_button.png | base64 -w 0)
+FAVICON     := $(shell cat ./images/favicon.ico | base64 -w 0)
+
+VERSION 	:= 0.0.1
 
 openapipostprocess:
 	#echo $(GOPHER200PNG)
@@ -23,9 +25,10 @@ openapipostprocess:
 	rm ./redoc-static_base64.html
 	sed "s!<head>!<head><link rel='shortcut icon' href='data:image\/x-icon;base64,$(FAVICON)'!g" ./redoc-static_base64_2.html > ./redoc-static_base64_3.html
 	rm ./redoc-static_base64_2.html
-	#./tools/minify/minify ./redoc-static_base64_3.html > ./docs/gohisicam/latest/index.html
-	cp ./redoc-static_base64_3.html ./gohisicam.html
+	sed "s!VERSION!$(VERSION)!g" ./redoc-static_base64_3.html > ./redoc-static_base64_4.html
 	rm ./redoc-static_base64_3.html
+	cp ./redoc-static_base64_4.html ./gohisicam.html
+	rm ./redoc-static_base64_4.html
 
 redoctmp: openapipostprocess
 	#redoc-cli bundle $(SPEC) 

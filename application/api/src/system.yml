@@ -1,4 +1,4 @@
-/system/date:
+date:
     get:
       tags:
         - system
@@ -27,4 +27,5 @@ components:
           type: integer
           format: uint64
 
-
+description: |
+    This is system API description

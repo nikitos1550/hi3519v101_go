@@ -1,5 +1,4 @@
-paths:
-    /debug/umap:
+umap:
         get:
             tags:
                 - debug
@@ -12,7 +11,7 @@ paths:
                         text/plain:
                             schema:
                                 type: string
-    /debug/umap/{file}:
+umap/{file}:
         parameters:
             -   name: file
                 in: path
@@ -47,4 +46,11 @@ paths:
                                             ...
                 '404':
                     description: 'File not found'
+
+description: |
+    If application was built with debug enabled, than this API subset will be exposed.
+
+    This debug has nothing to do with debug build in compilation terms. 
+    This means compiled in debug package, that allow you low level monitoring 
+    of audio/video pipeline and golnag expvars.
 
