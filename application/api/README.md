@@ -1,13 +1,5 @@
-  x-logo:
-    url: "/img/gologo.png"
-    backgroundColor: "#FFFFFF"
-    altText: "OpenHisiIpCam logo"
+# Notes
 
-  contact:
-    name: OpenHisiIpCam
-    email: info@openhisiipcam.org
-    url: https://www.openhisiipcam.org
-  license:
-    name: Unknown
-    url: '#'
-
+first build redoc
+* npm install
+* build.sh

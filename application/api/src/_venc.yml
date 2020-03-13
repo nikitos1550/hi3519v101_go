@@ -1,0 +1,40 @@
+/mpp/venc:
+    get:
+        summary: 'Show all encoders'
+        tags:
+            - venc
+        operationId: 'vencShow'
+        responses:
+                '200':
+                    description: 'Success'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+    post:
+        summary: 'Create encoder of first avalible num'
+        tags:
+            - venc
+        operationId: 'vencCreate'
+/mpp/venc/{id}:    
+    get:
+        summary: 'Show ecnoder information'
+        tags:
+            - venc
+        operationId: 'vencIdShow'
+    post:
+        summary: 'Create encoder of target num'
+        tags:
+            - venc
+        operationId: 'vencIdCreate'
+    put:
+        summary: 'Change encoder runtime settings'
+        tags:
+            - venc
+        operationId: 'vencIdChange'
+    delete:
+        summary: 'Stop encoder'
+        tags:
+            - venc
+        operationId: 'vencIdDelete'
+
