@@ -35,12 +35,12 @@ info:
 
     |Family     |SoCs                   |SDK version|CMOS  | Comments|
     |-----------|-----------------------|-----------|------|---------|
+    |hi3516av100| **TBD**               |           |      |**TBD**  |
+    |hi3516av200| hi3519v101            |2.0.5.0    |imx274|Main testing system|
     |hi3516cv100| **TBD**               |           |      |**TBD**  |
     |hi3516cv200| **TBD**               |           |      |**TBD**  |
     |hi3516cv300| **TBD**               |           |      |**TBD**  |
     |hi3516cv500| **TBD**               |           |      |**TBD**  |
-    |hi3516av100| **TBD**               |           |      |**TBD**  |
-    |hi3516av200| hi3519v101            |2.0.5.0    |imx274|Main testing system|
     |hi3516ev200| **TBD**               |           |      |**TBD**  |
     |hi3519av100| **TBD**               |           |      |**TBD**  |
     |hi3559av100| **TBD**               |           |      |**TBD**  |
@@ -52,7 +52,7 @@ info:
     There are several requirements for GNU/Linux system used for GoHisiCam software deploy:
 
     * **Vendors patched Linux kernel used. Kernel version should match MPP library version.** *As software uses closed vendor (HiSilicon) 
-    libraries for internal audio/video related hardware, these libraries relay on vendor patched kernel.*
+    libraries for internal audio/video related hardware, these libraries relay on vendor`s patched kernel.*
     * **No kernel (*.ko) modules related to audio/video SoC peripheral are managed by other software.** *GoHisiCam load/unload kernel audio/video related modules itself,
     so preloading or runtime manipulation them by other application will cause error.*
     * **Other software doesn`t control auio/video peripheral hardware.** *Besides closed vendor libraries for audio/video peripheral control, 
