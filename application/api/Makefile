@@ -1,10 +1,12 @@
 SPEC	:=	gohisicam.yml
+#SPEC    :=  ./src/main.yml
 
 all: build redoctmp
 	#@echo "TODO"
 
 build:
-	speccy resolve ./src/main.yml -v > $(SPEC)
+	#speccy resolve ./src/main.yml -v > $(SPEC)
+	swagger-cli bundle ./src/main.yml > $(SPEC)
 
 lint:
 	speccy lint $(SPEC) -v
@@ -14,7 +16,7 @@ GOPHER200   := $(shell cat ./images/gopher200.png | base64 -w 0)
 DOWNLOAD    := $(shell cat ./images/download_button.png | base64 -w 0)
 FAVICON     := $(shell cat ./images/favicon.ico | base64 -w 0)
 
-VERSION 	:= 0.0.1
+VERSION 	:= 0.0.1-alpha
 
 openapipostprocess:
 	#echo $(GOPHER200PNG)

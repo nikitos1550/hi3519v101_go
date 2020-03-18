@@ -1,3 +1,12 @@
+# width
+# height
+# fps
+#
+# crop
+#
+#
+#
+
 channel:
     get:
         summary: 'Show all channels'
@@ -12,21 +21,37 @@ channel:
                             schema:
                                 type: string
 channel/{id}:
+    parameters:
+        - name: id
+          in: path
+          schema:
+            type: int
+          description: "Channel id"
+          required: true
     get:
         summary: 'Show channel information'
         tags:
             - channel
         operationId: 'vpssIdShow'
+        responses:
+            '200':
+                description: "Success"
     post:
         summary: 'Start channel'
         tags:
             - channel
         operationId: 'vpssIdCreate'
+        responses:
+            '200':
+                description: "Success"
     delete:
         summary: 'Stop channel'
         tags:
             - channel
         operationId: 'vpssIdDelete'
+        responses:
+            "200":
+                description: "Success"
 
 description: |
     This API allows you control channels. 

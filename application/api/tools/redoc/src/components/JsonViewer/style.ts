@@ -27,7 +27,7 @@ export const jsonStyles = css`
   }
 
   .ellipsis:after {
-    content: ' … ';
+    content: ' ... ';
   }
 
   .collapsible {
