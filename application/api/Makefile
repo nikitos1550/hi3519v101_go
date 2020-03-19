@@ -1,12 +1,17 @@
 SPEC	:=	gohisicam.yml
-#SPEC    :=  ./src/main.yml
 
 all: build redoctmp
 	#@echo "TODO"
 
 build:
-	#speccy resolve ./src/main.yml -v > $(SPEC)
-	swagger-cli bundle ./src/main.yml > $(SPEC)
+	#speccy resolve --json-schema ./src/main.yml -v > $(SPEC)
+	#swagger-cli bundle -r ./src/main.yml > $(SPEC)
+	rm -rf ./spec
+	json-refs resolve ./src/main.yml --force > ./src/main_resolved.json
+	sed 's!ref": "~!ref": "!g' ./src/main_resolved.json > ./src/main_resolved_fixed.json
+	java -jar ./tools/swagger-codegen-cli.jar generate -l openapi -i ./src/main_resolved_fixed.json -o ./spec
+	rm ./src//main_resolved.json
+	rm ./src//main_resolved_fixed.json
 
 lint:
 	speccy lint $(SPEC) -v
@@ -20,7 +25,8 @@ VERSION 	:= 0.0.1-alpha
 
 openapipostprocess:
 	#echo $(GOPHER200PNG)
-	./tools/redoc/cli/index.js bundle $(SPEC) --options ./redoc.conf.json;
+	#./tools/redoc/cli/index.js bundle $(SPEC) --options ./redoc.conf.json;
+	./tools/redoc/cli/index.js bundle ./spec/openapi.json --options ./redoc.conf.json;
 	sed "s!GOPHER200!data:image\/png;base64,$(GOPHER200)!g" ./redoc-static.html > ./redoc-static_base64.html
 	rm ./redoc-static.html
 	sed "s!DOWNLOAD!data:image\/png;base64,$(DOWNLOAD)!g" ./redoc-static_base64.html > ./redoc-static_base64_2.html

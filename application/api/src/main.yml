@@ -1,95 +1,19 @@
 openapi: 3.0.1
 info:
-  title: GoHisiCam
-  version: VERSION
-  x-logo:
-    url: "GOPHER200"
-    backgroundColor: "#FFFFFF"
-    altText: "GoHisiCam"
-    href: "#"
-  contact:
-    email: info@openhisiipcam.org
-    url: https://www.openhisiipcam.org
-  description: |
-    > ATTENTION!!! GoHisiCam is still at early development stage. Not all planned functions work. Of cource there are bugs.
-
-    ## Quick links
-    
-    * <a target="_blank" href="https://www.openhisiipcam.org">Project website</a>
-    * <a target="_blank" href="https://github.com/OpenHisiIpCam/gohisicam-releases/releases">GoHisiCam releases</a>.
-    * <a target="_blank" href="https://github.com/OpenHisiIpCam/br-hisicam">BR-HisiCam sources</a>.
-    * <a target="_blank" href="https://www.openhisiipcam.org/gohisicam/latest/">Latest version</a> of this documentation,
-        documentation for <a target="_blank" href="https://www.openhisiipcam.org/gohisicam/">other versions</a>.
-
-    # General information
-
-    ## About
-
-    **GoHisiCam is audio/video core software for HiSilicon`s System-On-a-Chip ip cameras written in Go and C.**
-
-    GoHisiCam takes care about audio video pipeline management, cmos image sensor configuring, streaming and allow flexible
-    configuring of all process behaviour.
-
-    ~At the moment GoHisiCam hardcoded to setup one jpeg stream. 
-    Jpeg stream is binded to http streamer (/jpeg/1.jpg).~
-
-    ## Hardware support
-
-    |Family     |Mpp |SoCs               |SDK version|CMOS  | Comments|
-    |-----------|----|-------------------|-----------|------|---------|
-    |hi3516av100|v2  |**TBD**            |           |      |**TBD**  |
-    |hi3516av200|v3  |hi3519v101         |2.0.5.0    |imx274|Main testing system|
-    |hi3516cv100|v1  |**TBD**            |           |      |**TBD**  |
-    |hi3516cv200|v2  |**TBD**            |           |      |**TBD**  |
-    |hi3516cv300|v3  |**TBD**            |           |      |**TBD**  |
-    |hi3516cv500|v4  |**TBD**            |           |      |**TBD**  |
-    |hi3516ev200|v4  |**TBD**            |           |      |**TBD**  |
-    |hi3519av100|v4  |**TBD**            |           |      |**TBD**  |
-    |hi3559av100|v4  |**TBD**            |           |      |**TBD**  |
-
-    # Usage
-
-    ## Deploy 
-    GoHisiCam is distributed as fully staticaly linked binaries. Separate binary is provided for each SoC family.
-    For example **gohisicam-hi3516av200-0.0.1** means build for hi3516av200 family.
-
-    There are several requirements for GNU/Linux system used for GoHisiCam software deploy:
-
-    * **Vendors patched Linux kernel used. Kernel version should match MPP library version.** *As software uses closed vendor (HiSilicon) 
-    libraries for internal audio/video related hardware, these libraries relay on vendor`s patched kernel.*
-    * **No kernel (*.ko) modules related to audio/video SoC peripheral are managed by other software.** *GoHisiCam load/unload kernel audio/video related modules itself,
-    so preloading or runtime manipulation them by other application will cause error.*
-    * **Other software doesn`t control auio/video peripheral hardware.** *Besides closed vendor libraries for audio/video peripheral control, 
-    software manipulates related internal SoC registers. It is supposed that it will be monopoly user of that registers.*
-    
-    For detailed information about deploy use 
-    <a target="_blank" href="https://github.com/OpenHisiIpCam/br-hisicam">BR-HisiCam</a> 
-    as reference.
-
-    ## Configuration options
-
-    |Option|Value|Default|Description|Comments|
-    |------|-----|-------|-----------|--------|
-    |help|N/A|N/A|Print help inormation| Your best friend, prints help, build information and exits|
-    |openapi-port|uint|80|Http port|It is assumed that the software will be installed on a specially prepared build of the GNU/Linux operating system.|
-    |openapi-socket|
-    |openapi-www|
-    |openapi-api-prefix|
-    |scripts-dir|
-    |scripts-init|
-    |streamer-file-storage|
-
-    # Inernal structure
-
-    ## Audio/video pipeline structure
-
-    ```
-    CMOS -> Channels -> Ecnoders -> Streamers
-    ```
-
-#servers:
-#  - url: '/api'
-#    description: 'Standalone camera'
+    #$ref: "info.yaml#/info"
+    title: GoHisiCam
+    version: VERSION
+    x-logo:
+        url: "GOPHER200"
+        backgroundColor: "#FFFFFF"
+        altText: "GoHisiCam"
+        href: "#"
+    contact:
+        email: info@openhisiipcam.org
+        url: https://www.openhisiipcam.org
+    description: 
+        $ref: "info.yaml#/info/description"
+      
 
 paths:
   /:
@@ -111,67 +35,80 @@ paths:
  
 
   /openapi.json:
-    $ref: "misc.yml#/openapi.json"
+    $ref: "~misc.yml#/openapi.json"
   /openapi.yml:
-      $ref: "misc.yml#/openapi.yml"
+      $ref: "~misc.yml#/openapi.yml"
 
 
   /api/system/date:
-      $ref: "system.yml#/date"
+      $ref: "~system.yml#/date"
 
   /api/debug/umap:
-    $ref: "debug.yml#/umap"
+    $ref: "~debug.yml#/umap"
   /api/debug/umap/{file}:
-    $ref: "debug.yml#/umap~1{file}"
+    $ref: "~debug.yml#/umap~1{file}"
 
   /api/mpp/cmos:
-      $ref: "cmos.yml#/cmos"
+      $ref: "~cmos.yml#/cmos"
 
   /api/mpp/channel:
-      $ref: "channel.yml#/channel"
+      $ref: "~channel.yml#/channel"
   /api/mpp/channel/{id}:
-      $ref: "channel.yml#/channel~1{id}"
+      $ref: "~channel.yml#/channel~1{id}"
 
   /api/mpp/venc:
-    $ref: "venc.yml#/venc"
+    $ref: "~venc.yml#/venc"
   /api/mpp/venc/{id}:
-    $ref: "venc.yml#/venc~1{id}"
+    $ref: "~venc.yml#/venc~1{id}"
 
-  /jpeg/1920_1080.jpg:
-    get:
-      tags:
-        - jpeg
-      summary: 'Get jpeg image 1920x1080 resolution'
-      operationId: 'serveJpeg1920x1080'
-      responses:
-        '200':
-          description: 'Success'
-          content:
-            image/jpeg:
-              schema:
-               type: string
-               format: binary
-  /jpeg/3840_2160.jpg:
-    get:
-      tags:
-        - jpeg
-      summary: 'Get jpeg image 3840x2160 resolution'
-      operationId: 'serveJpeg3840x2160'
-      responses:
-        '200':
-          description: 'Success'
-          content:
-            image/jpeg:
-              schema:
-               type: string
-               format: binary
+  /api/streamer/jpeg:
+    $ref: "~jpeg.yml#/jpeg"
+  /api/streamer/jpeg/{id}:
+    $ref: "~jpeg.yml#/jpeg~1{id}"
+  /jpeg/{name}.jpg:
+    $ref: "~jpeg.yml#/~1{name}.jpg"
+
+    #  /jpeg/1920_1080.jpg:
+    #    get:
+    #      tags:
+    #        - jpeg
+    #      summary: 'Get jpeg image 1920x1080 resolution'
+    #      operationId: 'serveJpeg1920x1080'
+    #      responses:
+    #        '200':
+    #          description: 'Success'
+    #          content:
+    #            image/jpeg:
+    #              schema:
+    #               type: string
+    #               format: binary
+    #  /jpeg/3840_2160.jpg:
+    #    get:
+    #      tags:
+    #        - jpeg
+    #      summary: 'Get jpeg image 3840x2160 resolution'
+    #      operationId: 'serveJpeg3840x2160'
+    #      responses:
+    #        '200':
+    #          description: 'Success'
+    #          content:
+    #            image/jpeg:
+    #              schema:
+    #               type: string
+    #               format: binary
+               
+  /api/streamer/rtp:
+    $ref: "~rtp.yml#/rtp"
+  /api/streamer/rtp/{id}:
+    $ref: "~rtp.yml#/rtp~1{id}"
 
 #  /file:
 #      $ref: "_file.yml#/record"
 
-components:
-    schemas:
-         $ref: "venc.yml#/components/schemas"
+               #components:
+               #venc:
+               #schemas:
+               #$ref: "venc.yml#/components/schemas"
         #    - $ref: "venc.yml#/components/schemas"
         #    - $ref: "system.yml#/components/schemas"
             
@@ -190,6 +127,8 @@ x-tagGroups:
     tags:
       - jpeg
       - file
+      - pipe
+      - rtp
   - name: Unsorted API
     tags:
         - other
@@ -223,13 +162,24 @@ tags:
     x-displayName: Encoders
 
   - name: jpeg
-    description: Simple hardcoded serving jpeg image over http.
-    x-displayName: Jpeg over http
+    description: "jpeg.yml#/description"
+    x-displayName: Jpeg
 
   - name: file
     description: 
         $ref: "file.yml#/description"
     x-displayName: Files
+
+  - name: pipe
+    description:
+        $ref: "pipe.yml#/description"
+    x-displayName: Pipe
+
+  - name: rtp
+    description:
+        $ref: "rtp.yml#/description"
+    x-displayName: RTP
+
 
   - name: other
     description: |

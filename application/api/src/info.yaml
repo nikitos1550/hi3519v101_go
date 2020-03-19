@@ -1,0 +1,128 @@
+info:
+ description: |
+    > **ATTENTION!!!** GoHisiCam is still at early development stage. Not all planned functions work. Of cource there are bugs.
+    > Untill version 1.0.0 API can be changed in any way. This document contents all ideas, even far future features, 
+    > for actual status see release info.
+
+    ## Quick links
+    
+    * <a target="_blank" href="https://www.openhisiipcam.org">Project website</a>
+    * <a target="_blank" href="https://github.com/OpenHisiIpCam/gohisicam-releases/releases">GoHisiCam releases</a>.
+    * <a target="_blank" href="https://github.com/OpenHisiIpCam/br-hisicam">BR-HisiCam sources</a>.
+    * <a target="_blank" href="https://www.openhisiipcam.org/gohisicam/latest/">Latest version</a> of this documentation,
+        documentation for <a target="_blank" href="https://www.openhisiipcam.org/gohisicam/">other versions</a>.
+
+    # General information
+
+    ## About
+
+    **GoHisiCam is audio/video core software for HiSilicon`s System-On-a-Chip ip cameras written in Go and C.**
+
+    GoHisiCam takes care about audio video pipeline management, cmos image sensor configuring, streaming and allow flexible
+    configuring of all process behaviour.
+
+    ~At the moment GoHisiCam hardcoded to setup one jpeg stream. 
+    Jpeg stream is binded to http streamer (/jpeg/1.jpg).~
+
+    ## Hardware support
+
+    |Family     |Mpp |SoCs               |SDK version|CMOS  | Comments|
+    |-----------|----|-------------------|-----------|------|---------|
+    |hi3516av100|v2  |**TBD**            |           |      |**TBD**  |
+    |hi3516av200|v3  |hi3519v101         |2.0.5.0    |imx274|Main testing system|
+    |hi3516cv100|v1  |**TBD**            |           |      |**TBD**  |
+    |hi3516cv200|v2  |**TBD**            |           |      |**TBD**  |
+    |hi3516cv300|v3  |**TBD**            |           |      |**TBD**  |
+    |hi3516cv500|v4  |**TBD**            |           |      |**TBD**  |
+    |hi3516ev200|v4  |**TBD**            |           |      |**TBD**  |
+    |hi3519av100|v4  |**TBD**            |           |      |**TBD**  |
+    |hi3559av100|v4  |**TBD**            |           |      |**TBD**  |
+
+    # Usage
+
+    ## Deploy 
+    GoHisiCam is distributed as fully staticaly linked binaries. Separate binary is provided for each SoC family.
+    For example **gohisicam-hi3516av200-0.0.1** means build for hi3516av200 family.
+
+    There are several requirements for GNU/Linux system used for GoHisiCam software deploy:
+
+    * **Vendors patched Linux kernel used. Kernel version should match MPP library version.** *As software uses closed vendor (HiSilicon) 
+    libraries for internal audio/video related hardware, these libraries relay on vendor`s patched kernel.*
+    * **No kernel (*.ko) modules related to audio/video SoC peripheral are managed by other software.** *GoHisiCam load/unload kernel audio/video related modules itself,
+    so preloading or runtime manipulation them by other application will cause error.*
+    * **Other software doesn`t control auio/video peripheral hardware.** *Besides closed vendor libraries for audio/video peripheral control, 
+    software manipulates related internal SoC registers. It is supposed that it will be monopoly user of that registers.*
+    
+    For detailed information about deploy use 
+    <a target="_blank" href="https://github.com/OpenHisiIpCam/br-hisicam">BR-HisiCam</a> 
+    as reference.
+
+    ## Configuration options
+
+    |Option|Value|Default|Description|Comments|
+    |------|-----|-------|-----------|--------|
+    |help|N/A|N/A|Print help inormation| Your best friend, prints help, build information and exits|
+    |openapi-port|uint|80|Http port|It is assumed that the software will be installed on a specially prepared build of the GNU/Linux operating system.|
+    |openapi-socket|
+    |openapi-www|
+    |openapi-api-prefix|
+    |scripts-dir|
+    |scripts-init|
+    |streamer-file-storage|
+
+    # Inernal structure
+
+    ## Audio/video pipeline structure
+
+    ```
+    CMOS -> Channels -> Ecnoders -> Streamers
+    ```
+    
+    # Cases
+    This section should describe typical cases, explain how to solve particular typical tasks and so on.
+
+    ## Proxy UI 
+    Suppose you want combine GoHisiCam and other software in same GNU/Linux system running on device and have
+    one entry point to control overall system.
+ 
+    ## Custom control protocol
+    Suppose you want integrate device to your Apple driven Smart Home System.
+
+    ## Syncing cameras
+    Suppose you want grab data from several cameras and match frames from them.
+
+    ## Distributed recording
+    Suppose your task is record data from many cameras and collect them using ordinary existing network infrastructure.
+
+    ## Custom protocol streaming
+    Suppose you have to stream (push or pull) data from device using your custom data channel/protocol.
+
+    ## TBD
+    Need more cases! 
+
+    # Todo
+    
+    ## Lua scripting
+    Lua as initial configuration language.
+    
+    ## Processing/Analytics
+    How to do video analytics.
+
+    ## Events and actions 
+    How to perform some actions on some events.
+
+    ## Audio
+    Audio subsytem...
+
+    ## GPIO
+    Gpio subsytem including ircut, motorized lenses, etc...
+
+    ## External MCU
+    Story about external MCU and communicatuions with it via serial port.
+
+    ## Auth
+    How to ACL system.
+
+    ## Secure/Chipher
+    Encriptions and others related things.
+

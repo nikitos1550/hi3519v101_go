@@ -25,7 +25,7 @@ export class SideMenu extends React.Component<{ menu: MenuStore; className?: str
       >
         <MenuItems items={store.items} onActivate={this.activate} root={true} />
         <RedocAttribution>
-          <a href="https://www.openhisiipcam.org">Return to the OpenHisiIpCam website</a>
+          <a href="https://www.openhisiipcam.org">OpenHisiIpCam website</a>
         </RedocAttribution>
       </PerfectScrollbarWrap>
     );

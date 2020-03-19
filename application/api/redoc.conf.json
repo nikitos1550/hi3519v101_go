@@ -4,6 +4,6 @@
     "expandResponses": "",
     "hideSingleRequestSampleTab":1,
     "menuToggle":1,
-    "expandSingleSchemaField":1,
-    "jsonSampleExpandLevel":3
+    "expandSingleSchemaField":0,
+    "jsonSampleExpandLevel":0
 }

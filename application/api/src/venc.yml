@@ -1,14 +1,3 @@
-#
-# type: mjpeg, h.264, h.265
-# cbr, vbr, etc
-#
-# width 
-# height
-# target_fps
-#
-# gop
-#
-
 venc:
     get:
         summary: 'Show all encoders'
@@ -23,7 +12,15 @@ venc:
                             schema:
                                 type: array
                                 items:
-                                    $ref: "#/components/schemas/Encoder"
+                                    allOf:
+                                        - $ref: "#/components/schemas/Encoder"
+                                        - type: object
+                                          properties:
+                                              id:
+                                                  type: integer
+                                                  description: "Encoder id"
+                                              stat:
+                                                $ref: "#/components/schemas/EncoderStat"
     post:
         summary: 'Create encoder'
         tags:
@@ -34,27 +31,21 @@ venc:
             As we want this method to work for all combinations of encoder type + encoder mode + MPP version,
             we described request parameters as composition of all avalible params. But not all params are taked 
             into account in each particular case.
+
+            tes test
         requestBody:
             required: true
             content:
                 application/json:
                     schema:
                         $ref: "#/components/schemas/Encoder"
-                        #type: object
-                        #required:
-                        #    - pet_type
-                        #properties:
-                        #    pet_type:
-                        #        type: string
-                        #discriminator:
-                        #    propertyName: pet_type
-                        #    mapping:
-                        #        dog: "#/components/schemas/Dog"
-                        #        cat: "#/components/schemas/Cat"
-                        #        lizard: "#/components/schemas/Lizard"
         responses:
             "200":
-                description: "Success"
+                description: "Encoder created"
+            "401":
+                description: "Params error"
+            "402":
+                description: "No more encoders can be created"
 
 venc/{id}:    
     parameters:
@@ -72,11 +63,16 @@ venc/{id}:
         operationId: 'vencIdShow'
         responses:
             "200":
-                description: "Success"
+                description: "Encoder information"
                 content:
                     application/json:
                         schema:
-                            $ref: "#/components/schemas/Encoder"
+                            allOf:
+                                - $ref: "#/components/schemas/Encoder"
+                                - type: object
+                                  properties:
+                                      stat:
+                                          $ref: "#/components/schemas/EncoderStat"
             "404":
                 description: "Encoder not found"
     put:
@@ -90,122 +86,46 @@ venc/{id}:
                 application/json:
                     schema:
                         type: object
-                        properties:
-                            gop: 
-                                $ref: "#/components/schemas/gop"
-                            dynamic:
-                                oneOf:
-                                    - $ref: "#/components/schemas/EncoderCbrParams"
-                                    - $ref: "#/components/schemas/EncoderVbrParams"
-                                    - $ref: "#/components/schemas/EncoderAVbrParams"
-                                    - $ref: "#/components/schemas/EncoderQVbrParams"
-                                    - $ref: "#/components/schemas/EncoderFixQpParams"
+                        oneOf:
+                            - $ref: "#/components/schemas/EncoderCbrParams"
+                            - $ref: "#/components/schemas/EncoderVbrParams"
+                            - $ref: "#/components/schemas/EncoderAVbrParams"
+                            - $ref: "#/components/schemas/EncoderFixQpParams"
+                              #discriminator:
+                              #propertyName: type
+                              #mapping:                
+                              #  test1: "#/components/venc/EncoderCbrParams"
+                              #  test2: "#/components/venc/EncoderVbrParams"
         responses:
             "200":
                 description: "Settings changed"
-                #content:
-                #    application/json:
-                #        schema:
-                #            oneOf:
-                #                - $ref: "#/components/schemas/EncoderCbrParams"
-                #                - $ref: "#/components/schemas/EncoderVbrParams"
-                #                - $ref: "#/components/schemas/EncoderAVbrParams"
-                #                - $ref: "#/components/schemas/EncoderQVbrParams"
-                #                - $ref: "#/components/schemas/EncoderFixQpParams"
             "404":
                 description: "Encoder not found"
     delete:
-        summary: 'Stop encoder'
+        summary: 'Destroy encoder'
         tags:
             - venc
         operationId: 'vencIdDelete'
         responses:
             "200":
-                description: "Encoder deleted"
+                description: "Encoder destroyed"
             "404":
                 description: "Encoder not found"
 
 components:
     schemas:
-        #Pet:
-        #    type: object
-        #    required:
-        #        - pet_type
-        #    properties:
-        #        pet_type:
-        #            type: string
-        #    discriminator:
-        #        propertyName: pet_type
-        #        mapping:
-        #            dog: "#/components/schemas/Dog"
-        #            cat: "#/components/schemas/Cat"
-        #            lizard: "#/components/schemas/Lizard"
-        Dog:
-            allOf:
-                #- $ref: "#/components/schemas/Pet"
-                - type: object
-                # all other properties specific to a `Dog`
-                  properties:
-                    pet_type:
-                        type: string
-                    bark:
-                        type: string
-        Cat:
-            allOf:
-                #- $ref: "#/components/schemas/Pet"
-                - type: object
-                # all other properties specific to a `Cat`
-                  properties:
-                    pet_type:
-                        type: string
-                    name:
-                        type: string
-        Lizard:
-            allOf:
-                #- $ref: "#/components/schemas/Pet"
-                - type: object
-                # all other properties specific to a `Lizard`
-                  properties:
-                    pet_type:
-                        type: string
-                    lovesRocks:
-                        type: boolean
-        EncodersList:
-            type: object
-            properties:
-            #additionalProperties:
-                #id:
-                    #type: int
-                    #description: "Encoder id"
-                    #type:
-                    #type: string
-                    #    description: "Encoder type mjpeg|h.264|h.265"
-                    #staticParams:
-                    #typeA:
-                    #type: string
-                test:
-                    oneOf:
-                        - $ref: '#/components/schemas/staticParams'
-                        - $ref: '#/components/schemas/staticParams2'
-                          #discriminator:
-                          #propertyName: typeA
-                        #mapping:
-                            #mjpeg: '#/components/schemas/staticParams'
-                            #    h264: '#/components/schemas/staticParams2'
-
-                        #dynamicParams:
-                        #type: object
-                        #description: "Dynamic parameters, can be changed during operation"
-                        #properties:
-                        #bitrate:
-                        #    type: int
+    #venc:
         Encoder:
                   type: object
                   description: "General Encoder struct"
                   required:
+                        - channel
                         - type
                         - profile
                   properties:
+                        channel:
+                            type: integer
+                            description: "Source channel id"
                         type:
                             type: string
                             enum: 
@@ -213,17 +133,7 @@ components:
                                 - h264
                                 - h265
                             description: |
-                                |family     |types              |
-                                |-----------|-------------------|
-                                |hi3516av100|mjpeg, h.264, h265 |
-                                |hi3516av200|mjpeg, h.264, h265 |
-                                |hi3516cv100|mjpeg, h.264       |
-                                |hi3516cv200|mjpeg, h.264       |
-                                |hi3516cv300|mjpeg, h.264, h.265|
-                                |hi3516cv500|mjpeg, h.264, h.265|
-                                |hi3516ev200|mjpeg, h.264, h.265|
-                                |hi3519av100|mjpeg, h.264, h.265|
-                                |hi3559av100|mjpeg, h.264, h.265|
+                                See Codec support section
                         profile:
                             type: string
                             enum:
@@ -232,49 +142,29 @@ components:
                                 - main10
                                 - high
                             description: |
-                                |family     |mjpeg   |h.264               |h.265       |
-                                |-----------|--------|--------------------|------------|
-                                |hi3516av100|baseline|baseline, main, high|main        |
-                                |hi3516av200|baseline|baseline, main, high|main        |
-                                |hi3516cv100|baseline|baseline, main      |-           |
-                                |hi3516cv200|baseline|baseline, main, high|-           |
-                                |hi3516cv300|baseline|baseline, main, high|main        |
-                                |hi3516cv500|baseline|baseline, main, high|main        |
-                                |hi3516ev200|baseline|?                   |?           |
-                                |hi3519av100|baseline|baseline, main, high|main        |
-                                |hi3559av100|baseline|baseline, main, high|main, main10|
-                        static:
-                            type: object
+                                See Profiles support section
+                        width:
+                            type: integer
+                            minimum: 100
+                            multipleOf: 2
                             description: |
-                                This parameters can`t be changed during operation.
-                            properties:
-                                width:
-                                    type: integer
-                                    minimum: 100
-                                    multipleOf: 2
-                                    description: |
-                                        Width of picture.
-                                        Should be <= width of soure channel.
-                                height:
-                                    type: integer
-                                    minimum: 100
-                                    multipleOf: 2
-                                    description: |
-                                        Height of picture.
-                                        Should be <= height of source channel.
-                                fps:
-                                    type: integer
-                                    minimum: 1
-                                    description: |
-                                        Frames per second.
-                                        Should be <= fps of source channel.
+                                Width of picture.
+                                Should be <= width of soure channel.
+                        height:
+                            type: integer
+                            minimum: 100
+                            multipleOf: 2
+                            description: |
+                                Height of picture.
+                                Should be <= height of source channel.
+                        fps:
+                            type: integer
+                            minimum: 1
+                            description: |
+                                Frames per second.
+                                Should be <= fps of source channel.
                         gop:
                             $ref: "#/components/schemas/gop"
-                            #gopstrategy:
-                            #$ref: "#/components/schemas/gopstrategy"
-                            #fffff: 
-                            #trata: 
-                            #$ref: "#/components/schemas/EncoderDynamic"
                         mode:
                             type: string
                             enum:
@@ -282,87 +172,32 @@ components:
                                 - vbr
                                 - fixqp
                                 - avbr
-                                - qvbr
+                                  #- qvbr
                                 - qmap
                             description: |
-                                |mpp| modes                           |
-                                |---|---------------------------------|
-                                |v1 |cbr, vbr, fixqp                  |
-                                |v2 |cbr, vbr, fixqp, avbr            |
-                                |v3 |cbr, vbr, fixqp, avbr, qvbr, qmap|
-                                |v4 |cbr, vbr, fixqp, avbr, qmap      |
-
-                                |family     |modes                             |
-                                |-----------|----------------------------------|
-                                |hi3516av100|???                               |
-                                |hi3516av200|cbr, vbr, fixqp, avbr, qvbr, qmap |
-                                |hi3516cv100|cbr, vbr, fixqp                   |
-                                |hi3516cv200|???                               |
-                                |hi3516cv300|cbr, vbr, fixqp, avbr, qvbr, qmap |
-                                |hi3516cv500|???                               |
-                                |hi3516ev200|???                               |
-                                |hi3519av100|???                               |
-                                |hi3559av100|???                               |
-
+                                See Bitrate control section
                         dynamic:
-                            description: "TEasdfsd jklsklg jklsfg"
+                            description: |
+                                This parameters can be changed during operation.
+                                Parameters set depends on selected mode.
+                               
                             oneOf:
                                 - $ref: "#/components/schemas/EncoderCbrParams"
                                 - $ref: "#/components/schemas/EncoderVbrParams"
                                 - $ref: "#/components/schemas/EncoderAVbrParams"
-                                - $ref: "#/components/schemas/EncoderQVbrParams"
                                 - $ref: "#/components/schemas/EncoderFixQpParams"
-                            #type: object
-           #discriminator:
-           #             propertyName: mode
-           #             mapping:
-           #                 cbr: "#/components/schemas/EncoderCbr"
-           #                 vbr: "#/components/schemas/EncoderVbr"
-           #                 avbr: "#/components/schemas/EncoderAVbr"
-           #                 qvbr: "#/components/schemas/EncoderQVbr"
-           #                 fixqp: "#/components/schemas/EncoderFixQp"
-
-        EncoderDynamic:
+        EncoderStat:
             type: object
-            required:
-                - mode
+            description: Encoder statistics
             properties:
-                mode:
+                sps:
                     type: string
-                    enum:
-                        - cbr
-                        - vbr
-                        - fixqp
-                        - avbr
-                        - qvbr
-                        - qmap
-                    description: |
-                        |mpp| modes                           | 
-                        |---|---------------------------------|
-                        |v1 |cbr, vbr, fixqp                  |
-                        |v2 |cbr, vbr, fixqp, avbr            |
-                        |v3 |cbr, vbr, fixqp, avbr, qvbr, qmap|
-                        |v4 |cbr, vbr, fixqp, avbr, qmap      |
-            discriminator:
-                propertyName: mode
-                mapping:
-                    cbr: "#/components/schemas/EncoderCbr"
-                    vbr: "#/components/schemas/EncoderVbr"
-                        #   avbr: "#/components/schemas/EncoderAVbr"
-                        #    qvbr: "#/components/schemas/EncoderQVbr"
-                        # fixqp: "#/components/schemas/EncoderFixQp"
-                    #qmap: ....
-        EncoderCbr:
-            allOf:
-                - $ref: "#/components/schemas/Encoder"
-                - type: object
-                  properties:
-                      dynamic:
-                          $ref: "#/components/schemas/EncoderCbrParams"
+                pps:
+                    type: string
+                fps:
+                    type: integer
+
         EncoderCbrParams:
-            #type: object
-                  #properties:
-                      #      dynamic:
                             type: object
                             description: "Constant bitrate params"
                             properties:
@@ -375,18 +210,8 @@ components:
                                 fluctuate:
                                     type: integer
                                     description: "TODO"
-        EncoderVbr:
-            allOf:
-                - $ref: "#/components/schemas/Encoder"
-                - type: object
-                  properties:
-                      dynamic:
-                        $ref: "#/components/schemas/EncoderVbrParams"
 
         EncoderVbrParams:
-            #type: object
-            #properties:
-            #dynamic:
                             type: object
                             description: "Variable bitrate params"
                             properties:
@@ -402,17 +227,7 @@ components:
                                     type: integer
                                 minqp:
                                     type: integer
-        EncoderAVbr:
-            allOf:
-                - $ref: "#/components/schemas/Encoder"
-                - type: object
-                  properties:
-                      dynamic:
-                          $ref: "#/components/schemas/EncoderAVbrParams"
         EncoderAVbrParams:
-            #     type: object
-            #      properties:
-            #            dynamic:
                             type: object
                             description: "TODO"
                             properties:
@@ -422,37 +237,7 @@ components:
                                 stattime:
                                     type: integer
                                     description: "TODO"
-        EncoderQVbr:
-            allOf:
-                - $ref: "#/components/schemas/Encoder"
-                - type: object
-                  properties:
-                      dynamic:
-                          $ref: "#/components/schemas/EncoderQVbrParams"
-        EncoderQVbrParams:
-            #     type: object
-            #      properties:
-            #            dynamic:
-                            type: object
-                            description: "TODO"
-                            properties:
-                                bitrate:
-                                    type: integer
-                                    description: "Target bitrate"
-                                stattime:
-                                    type: integer
-                                    description: "TODO"
-        EncoderFixQp:
-            allOf:
-                - $ref: "#/components/schemas/Encoder"
-                - type: object
-                  properties:
-                      dynamic:
-                        $ref: "#/components/schemas/EncoderFixQpParams"
         EncoderFixQpParams:
-                  #type: object
-                  #properties:
-                  #      dynamic:
                             type: object
                             description: "Fix QP params"
                             properties:
@@ -466,47 +251,10 @@ components:
                                     type: integer
                                     description: "TODO"
 
-                        #EncoderMjpeg:
-                        #allOf:
-                        #- $ref: "#/components/schemas/Encoder"
-                        #- type: object
-                        #description: "MJPEG Encoder struct"
-                        #properties:
-                        #mjpeg:
-                        #type: string
-                        #description: "mjpeg value"
-                        #test:
-                        #type: string
-                        #enum: 
-                        #    - a
-                        #    - b
-                              #description: "test enum"
-
-                        #EncoderH264:
-                        #allOf:
-                        #- $ref: "#/components/schemas/Encoder"
-                        #- type: object
-                        #description: "H264 Encoder struct"
-                        #properties:
-                        #h264:
-                        #type: string
-                        #description: "h264 value"
         gop:
             type: object
             description: |
                 Big description for GOP
-
-                |family     |modes                             |
-                |-----------|----------------------------------|
-                |hi3516av100|???                               |
-                |hi3516av200|normalp, dualp, smartp, intrar    |
-                |hi3516cv100|???                               |
-                |hi3516cv200|???                               |
-                |hi3516cv300|???                               |
-                |hi3516cv500|???                               |
-                |hi3516ev200|???                               |
-                |hi3519av100|???                               |
-                |hi3559av100|???                               |
             properties:
                 mode:
                     type: string
@@ -570,89 +318,57 @@ components:
                     type: integer
                 ReqIQp:
                     type: integer
-        gopstrategy:
-            type: object
-            description: |
-                TODO GOP STRATEGY
-
-                > Applicable for mpp: **v3**, TODO
-            properties:
-                select:
-                    type: string
-                    enum:
-                        - gops1
-                        - gops2
-            discriminator:
-                propertyName: select
-                mapping:
-                    gops1: "#/components/schemas/gops1"
-                    gops2: "#/components/schemas/gops2"
-        gops1:
-            allOf:
-                - $ref: "#/components/schemas/gopstrategy"
-                - type: object
-                  properties:
-                      test1:
-                          type: integer
-
-        gops2:
-            allOf:
-                - $ref: "#/components/schemas/gopstrategy"
-                - type: object
-                  properties:
-                      test2:
-                          type: integer
-
-
-
-        staticParams:
-            type: object
-            description: "Static parameters, can`t be changed during operation"
-            required:
-                - typeA
-            properties:
-                typeA:
-                    type: string
-                    description: "test"
-                width:
-                    type: int
-                    description: "Width of image, pixels"
-                height:
-                    type: int
-                    description: "Height of image, pixels"
-                fps:
-                    type: int
-                    description: "Frames per second"
-
-        staticParams2:
-            type: object
-            description: "Static parameters 2, can`t be changed during operation"
-            required:
-                - typeA
-            properties:
-                typeA:
-                    type: string
-                    description: "test"
-                width2:
-                    type: int
-                    description: "Width of image, pixels"
-                height2:
-                    type: int
-                    description: "Height of image, pixels"
-                fps2:
-                    type: int
-                    description: "Frames per second"
-
 
 description: |
     Encoder can be Jpeg/Mjpeg, H264, H265.
     There are static and dynamic parameters that can and should be setuped during creation.
-    Dynamic parameters can be changed during encoder operation, static can`t be.
-   
-    ## Test 1
-
+    Dynamic parameters can be changed during encoder operation, static can`t be. 
     Amount of encoders is limited, due to hardware limitations.
 
-    ## Test 2
-
     Encoder is binded to some channel. That channel shoud be created before encoder creation.
+
+    ## Codec and profiles support
+    |family     |mjpeg   |h.264               |h.265       |
+    |-----------|--------|--------------------|------------|
+    |hi3516av100|baseline|baseline, main, high|main        |
+    |hi3516av200|baseline|baseline, main, high|main        |
+    |hi3516cv100|baseline|baseline, main      |N/A         |
+    |hi3516cv200|baseline|baseline, main, high|N/A         |
+    |hi3516cv300|baseline|baseline, main, high|main        |
+    |hi3516cv500|baseline|baseline, main, high|main        |
+    |hi3516ev200|baseline|baseline, main, high|main        |
+    |hi3519av100|baseline|baseline, main, high|main        |
+    |hi3559av100|baseline|baseline, main, high|main, main10|
+
+    ## Bitrate control strategies and GOP modes support
+    |family     |bitrate control modes      |gop  modes                    |
+    |-----------|---------------------------|------------------------------|
+    |hi3516av100|???                        |???                           |
+    |hi3516av200|cbr, vbr, fixqp, avbr, qmap|normalp, dualp, smartp, intrar|
+    |hi3516cv100|cbr, vbr, fixqp            |???                           |
+    |hi3516cv200|???                        |???                           |
+    |hi3516cv300|cbr, vbr, fixqp, avbr, qmap|???                           |
+    |hi3516cv500|???                        |???                           |
+    |hi3516ev200|???                        |???                           |
+    |hi3519av100|???                        |???                           |
+    |hi3559av100|???                        |???                           |
+
+    CBR - Constant bitrate
+    VBR - Variable bitrate
+    AVBR - TODO
+    FixQP - Fix quality
+
+deprecated: |
+    ## GOP
+    |family     |modes                             |
+    |-----------|----------------------------------|
+    |hi3516av100|???                               |
+    |hi3516av200|normalp, dualp, smartp, intrar    |
+    |hi3516cv100|???                               |
+    |hi3516cv200|???                               |
+    |hi3516cv300|???                               |
+    |hi3516cv500|???                               |
+    |hi3516ev200|???                               |
+    |hi3519av100|???                               |
+    |hi3559av100|???                               |
+
