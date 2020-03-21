@@ -19,7 +19,7 @@ rtp:
                                                 type: integer
                                                 description: "RTP streamer instance id"
                                         - $ref: "#/components/schemas/rtpInstance"
-                                        - $ref: "#/components/schemas/rtpStat"
+                                          #- $ref: "#/components/schemas/rtpStat"
     post:
         summary: 'Create RTP streamer instance'
         tags:
@@ -65,7 +65,7 @@ rtp/{id}:
                                         type: integer
                                         description: "RTP streamer instance id"
                                 - $ref: "#/components/schemas/rtpInstance"
-                                - $ref: "#/components/schemas/rtpStat"
+                                  #- $ref: "#/components/schemas/rtpStat"
             "404":
                 description: "RTP streamer instance not found"
     delete:
@@ -79,7 +79,27 @@ rtp/{id}:
             "404":
                 description: "RTP streamer instance not found"
 
-
+rtp/{id}/stat:
+    parameters:
+        - name: id
+          in: path
+          type: int
+          description: RTP streamer instance id
+          required: true
+    get:
+        summary: 'Show RTP streamer instance statistics'
+        tags:
+            - rtp
+        operationId: 'rtpIdStat'
+        responses:
+                '200':
+                    description: 'RTP streamer instance statistics'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/rtpStat"
+                '404':
+                    description: 'RTP streamer instance not found'
 components:
     schemas:
         rtpInstance:
@@ -98,17 +118,39 @@ components:
                     minimum: 1
                     maximum: 65536
                     description: "Target host UDP port"
+                tsmode:
+                    type: string
+                    enum:
+                        - ms
+                        - base
+                    description: |
+                        Timestamp mode.
+
+                        **ms** timestamp field will contains system time in milliseconds
+
+                        **base** timestamp field will contains abstract time (starting 0) and delta = tsbase / fps.
+                        *Base 90kHz is some kind of expected timestamp for common player*.
+                tsbase:
+                    type: integer
+                    minimum: 1
+                    description: |
+                        Timestamp base in Hz.
+
+                        Applicable only for tsmode **base**.
 
         rtpStat:
             type: object
             description: "TODO"
             properties:
-                frames:
+                items:
                     type: integer
-                    description: "Sent frames"
+                    description: "Sent frames for MJPEG, sent NALs for H.264, H.265"
                 packets:
                     type: integer
                     description: "Sent UDP packets"
+                bytes:
+                    type: integer
+                    description: "Sent amount of bytes"
 
 
 description: |

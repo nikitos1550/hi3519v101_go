@@ -7,11 +7,11 @@ build:
 	#speccy resolve --json-schema ./src/main.yml -v > $(SPEC)
 	#swagger-cli bundle -r ./src/main.yml > $(SPEC)
 	rm -rf ./spec
-	json-refs resolve ./src/main.yml --force > ./src/main_resolved.json
-	sed 's!ref": "~!ref": "!g' ./src/main_resolved.json > ./src/main_resolved_fixed.json
-	java -jar ./tools/swagger-codegen-cli.jar generate -l openapi -i ./src/main_resolved_fixed.json -o ./spec
-	rm ./src//main_resolved.json
-	rm ./src//main_resolved_fixed.json
+	json-refs resolve ./src/main.yaml --force > ./src/main_resolved.yaml
+	sed "s!ref: '~!ref: '!g" ./src/main_resolved.yaml > ./src/main_resolved_fixed.yaml
+	java -jar ./tools/swagger-codegen-cli.jar generate -l openapi -i ./src/main_resolved_fixed.yaml -o ./spec
+	rm ./src//main_resolved.yaml
+	rm ./src//main_resolved_fixed.yaml
 
 lint:
 	speccy lint $(SPEC) -v

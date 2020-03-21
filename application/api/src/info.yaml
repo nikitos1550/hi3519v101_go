@@ -1,5 +1,4 @@
-info:
- description: |
+description: |
     > **ATTENTION!!!** GoHisiCam is still at early development stage. Not all planned functions work. Of cource there are bugs.
     > Untill version 1.0.0 API can be changed in any way. This document contents all ideas, even far future features, 
     > for actual status see release info.
@@ -11,6 +10,8 @@ info:
     * <a target="_blank" href="https://github.com/OpenHisiIpCam/br-hisicam">BR-HisiCam sources</a>.
     * <a target="_blank" href="https://www.openhisiipcam.org/gohisicam/latest/">Latest version</a> of this documentation,
         documentation for <a target="_blank" href="https://www.openhisiipcam.org/gohisicam/">other versions</a>.
+
+    ---
 
     # General information
 
@@ -62,7 +63,7 @@ info:
     |Option|Value|Default|Description|Comments|
     |------|-----|-------|-----------|--------|
     |help|N/A|N/A|Print help inormation| Your best friend, prints help, build information and exits|
-    |openapi-port|uint|80|Http port|It is assumed that the software will be installed on a specially prepared build of the GNU/Linux operating system.|
+    |openapi-port|uint|80|Http port|
     |openapi-socket|
     |openapi-www|
     |openapi-api-prefix|

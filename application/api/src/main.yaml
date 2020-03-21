@@ -12,8 +12,7 @@ info:
         email: info@openhisiipcam.org
         url: https://www.openhisiipcam.org
     description: 
-        $ref: "info.yaml#/info/description"
-      
+        $ref: "info.yaml#/description"
 
 paths:
   /:
@@ -35,38 +34,43 @@ paths:
  
 
   /openapi.json:
-    $ref: "~misc.yml#/openapi.json"
+    $ref: "~misc.yaml#/openapi.json"
   /openapi.yml:
-      $ref: "~misc.yml#/openapi.yml"
+      $ref: "~misc.yaml#/openapi.yml"
 
 
   /api/system/date:
-      $ref: "~system.yml#/date"
+      $ref: "~system.yaml#/date"
 
   /api/debug/umap:
-    $ref: "~debug.yml#/umap"
+    $ref: "~debug.yaml#/umap"
   /api/debug/umap/{file}:
-    $ref: "~debug.yml#/umap~1{file}"
+    $ref: "~debug.yaml#/umap~1{file}"
 
   /api/mpp/cmos:
-      $ref: "~cmos.yml#/cmos"
+      $ref: "~cmos.yaml#/cmos"
 
   /api/mpp/channel:
-      $ref: "~channel.yml#/channel"
+      $ref: "~channel.yaml#/channel"
   /api/mpp/channel/{id}:
-      $ref: "~channel.yml#/channel~1{id}"
+      $ref: "~channel.yaml#/channel~1{id}"
 
   /api/mpp/venc:
-    $ref: "~venc.yml#/venc"
+    $ref: "~venc.yaml#/venc"
   /api/mpp/venc/{id}:
-    $ref: "~venc.yml#/venc~1{id}"
+    $ref: "~venc.yaml#/venc~1{id}"
+  /api/mpp/venc/{id}/stat:
+    $ref: "~venc.yaml#/venc~1{id}~1stat"
+
+  /api/streamer:
+    $ref: "~streamer.yaml#/streamer"
 
   /api/streamer/jpeg:
-    $ref: "~jpeg.yml#/jpeg"
+    $ref: "~jpeg.yaml#/jpeg"
   /api/streamer/jpeg/{id}:
-    $ref: "~jpeg.yml#/jpeg~1{id}"
+    $ref: "~jpeg.yaml#/jpeg~1{id}"
   /jpeg/{name}.jpg:
-    $ref: "~jpeg.yml#/~1{name}.jpg"
+    $ref: "~jpeg.yaml#/~1{name}.jpg"
 
     #  /jpeg/1920_1080.jpg:
     #    get:
@@ -96,11 +100,20 @@ paths:
     #              schema:
     #               type: string
     #               format: binary
-               
+
+  /api/streamer/pipe:
+    $ref: "~pipe.yaml#/pipe"
+  /api/streamer/pipe/{id}:
+    $ref: "~pipe.yaml#/pipe~1{id}"    
+  /api/streamer/pipe/{id}/stat:
+    $ref: "~pipe.yaml#/pipe~1{id}~1stat"
+
   /api/streamer/rtp:
-    $ref: "~rtp.yml#/rtp"
+    $ref: "~rtp.yaml#/rtp"
   /api/streamer/rtp/{id}:
-    $ref: "~rtp.yml#/rtp~1{id}"
+    $ref: "~rtp.yaml#/rtp~1{id}"
+  /api/streamer/rtp/{id}/stat:
+    $ref: "~rtp.yaml#/rtp~1{id}~1stat"
 
 #  /file:
 #      $ref: "_file.yml#/record"
@@ -114,7 +127,6 @@ paths:
             
 x-tagGroups:
   - name: General API
-    description: "dfs dflkdsjflk jslfdj"
     tags:
         - system
         - debug
@@ -125,10 +137,17 @@ x-tagGroups:
         - venc
   - name: Streamers API
     tags:
+      - streamer
       - jpeg
-      - file
       - pipe
       - rtp
+      - rtsp
+      - ws
+      - webrtc
+      - hls
+      - rtmp
+      - file
+      - archive
   - name: Unsorted API
     tags:
         - other
@@ -137,57 +156,93 @@ x-tagGroups:
 tags:
   - name: system
     description: 
-        $ref: "system.yml#/description"
+        $ref: "system.yaml#/description"
     x-displayName: System
 
   - name: debug
     description: 
-        $ref: "debug.yml#/description"
+        $ref: "debug.yaml#/description"
     x-displayName: Debug 
     #x-traitTag: true
 
   - name: cmos
     description:
-        $ref: "cmos.yml#/description"
+        $ref: "cmos.yaml#/description"
     x-displayName: CMOS
 
   - name: channel
     description: 
-        $ref: "channel.yml#/description"
+        $ref: "channel.yaml#/description"
     x-displayName: Channels
 
   - name: venc
     description: 
-        $ref: "venc.yml#/description"
+        $ref: "venc.yaml#/description"
     x-displayName: Encoders
 
-  - name: jpeg
-    description: "jpeg.yml#/description"
-    x-displayName: Jpeg
+  - name: streamer
+    description:
+        $ref: "streamer.yaml#/description"
+    x-displayName: Streamer
 
-  - name: file
+  - name: jpeg
     description: 
-        $ref: "file.yml#/description"
-    x-displayName: Files
+        $ref: "jpeg.yaml#/description"
+    x-displayName: Jpeg
 
   - name: pipe
     description:
-        $ref: "pipe.yml#/description"
+        $ref: "pipe.yaml#/description"
     x-displayName: Pipe
 
   - name: rtp
     description:
-        $ref: "rtp.yml#/description"
+        $ref: "rtp.yaml#/description"
     x-displayName: RTP
 
+  - name: rtsp
+    description:
+        $ref: "rtsp.yaml#/description"
+    x-displayName: RTSP
+
+  - name: ws
+    description:
+        $ref: "ws.yaml#/description"
+    x-displayName: Websockets
+
+  - name: webrtc
+    description:
+        $ref: "webrtc.yaml#/description"
+    x-displayName: WebRTC
+
+  - name: hls
+    description:
+        $ref: "hls.yaml#/description"
+    x-displayName: HLS
+
+  - name: rtmp
+    description:
+        $ref: "rtmp.yaml#/description"
+    x-displayName: RTMP push
 
   - name: other
     description: |
         Other API methods
     x-displayName: Other
 
+  - name: archive
+    description:
+        $ref: "archive.yaml#/description"
+    x-displayName: Archive
+
+  - name: file
+    description:
+        $ref: "file.yaml#/description"
+    x-displayName: File
+
+
   - name: misc
     description: 
-        $ref: "misc.yml#/description"
+        $ref: "misc.yaml#/description"
     x-displayName: Misc
 
