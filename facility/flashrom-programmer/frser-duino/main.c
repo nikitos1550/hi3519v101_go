@@ -31,8 +31,8 @@ int main(void) {
 	DDRB |= _BV(7);
 #endif
 	//SPI_PORT &= ~_BV(RELAY);//relay off
-	SPI_PORT |= _BV(RELAY); //relay on
-	DDR_SPI |= _BV(RELAY); //relay pin output
+	//SPI_PORT |= _BV(RELAY); //relay on
+	//DDR_SPI |= _BV(RELAY); //relay pin output
 
 	uart_init();
 	frser_main();

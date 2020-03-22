@@ -1,0 +1,13 @@
+Output: NC Drill Files
+Type  : NC Drill
+From  : Project [splitter.PrjPcb]
+   Generated File[splitter-Plated.TXT]
+   Generated File[splitter-RectHoles-NonPlated.TXT]
+   Generated File[splitter.LDP]
+   Generated File[splitter.DRR]
+
+
+Files Generated   : 4
+Documents Printed : 0
+
+Finished Output Generation At 10:47:37 On 25.02.2020
