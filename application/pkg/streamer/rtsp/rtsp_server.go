@@ -1,5 +1,7 @@
 //+build streamerRtsp
 
+package rtsp
+
 import (
 	"fmt"
 	"log"
@@ -11,7 +13,6 @@ import (
 	"time"
 
 	"github.com/aler9/gortsplib"
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var Version string = "v0.0.0"
@@ -65,30 +66,15 @@ type program struct {
 }
 
 func newProgram() (*program, error) {
-	kingpin.CommandLine.Help = "rtsp-simple-server " + Version + "\n\n" +
-		"RTSP server."
-
-	argVersion := kingpin.Flag("version", "print rtsp-simple-server version").Bool()
-	argProtocolsStr := kingpin.Flag("protocols", "supported protocols").Default("udp,tcp").String()
-	argRtspPort := kingpin.Flag("rtsp-port", "port of the RTSP TCP listener").Default("8554").Int()
-	argRtpPort := kingpin.Flag("rtp-port", "port of the RTP UDP listener").Default("8000").Int()
-	argRtcpPort := kingpin.Flag("rtcp-port", "port of the RTCP UDP listener").Default("8001").Int()
-	argPublishUser := kingpin.Flag("publish-user", "optional username required to publish").Default("").String()
-	argPublishPass := kingpin.Flag("publish-pass", "optional password required to publish").Default("").String()
-	argPreScript := kingpin.Flag("pre-script", "optional script to run on client connect").Default("").String()
-	argPostScript := kingpin.Flag("post-script", "optional script to run on client disconnect").Default("").String()
-
-	kingpin.Parse()
-
-	version := *argVersion
-	protocolsStr := *argProtocolsStr
-	rtspPort := *argRtspPort
-	rtpPort := *argRtpPort
-	rtcpPort := *argRtcpPort
-	publishUser := *argPublishUser
-	publishPass := *argPublishPass
-	preScript := *argPreScript
-	postScript := *argPostScript
+	version := false
+	protocolsStr := "udp,tcp"
+	rtspPort := 8554
+	rtpPort := 8000
+	rtcpPort := 8001
+	publishUser := ""
+	publishPass := ""
+	preScript := ""
+	postScript := ""
 
 	if version == true {
 		fmt.Println("rtsp-simple-server " + Version)
@@ -190,8 +176,6 @@ func (p *program) run() {
 }
 
 func (p *program) forwardTrack(path string, id int, flow trackFlow, frame []byte) {
-	Data = append(Data, frame)
-
 	for c := range p.clients {
 		if c.path == path && c.state == _CLIENT_STATE_PLAY {
 			if c.streamProtocol == _STREAM_PROTOCOL_UDP {

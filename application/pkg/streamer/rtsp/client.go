@@ -1,5 +1,7 @@
 //+build streamerRtsp
 
+package rtsp
+
 import (
 	"fmt"
 	"io"
