@@ -183,8 +183,10 @@ class LoadAction:
         bootargs = ""
         bootargs += "mem={} ".format(utils.to_hsize(args.memory_size))
         bootargs += "console={} ".format(args.lconsole)
-        bootargs += "ip={}:{}:{}:{}:camera1::off; ".format(
-            network.target_ip, network.host_ip, network.host_ip, network.mask)
+        #bootargs += "ip={}:{}:{}:{}:camera1::off; ".format(
+        #    network.target_ip, network.host_ip, network.host_ip, network.mask)
+        bootargs += "ip={}:{}:{}:{}:camera1::off:{}:{}; ".format(
+            network.target_ip, network.host_ip, "192.168.10.1", network.mask, "192.168.10.1", "8.8.8.8")
         bootargs += "mtdparts=hi_sfc:512k(boot) root=/dev/ram0 ro initrd=" \
             + hex(rootfs_addr)+"," + utils.to_hsize(args.initrd_size)
         
