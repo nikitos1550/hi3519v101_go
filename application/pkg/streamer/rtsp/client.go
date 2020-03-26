@@ -118,6 +118,7 @@ type client struct {
 	streamTracks    []*track
 	chanWrite       chan *gortsplib.InterleavedFrame
 	cameraPackets   chan gortsplib.InterleavedFrame
+	Started         bool
 }
 
 func newClient(p *program, nconn net.Conn) *client {
@@ -127,6 +128,7 @@ func newClient(p *program, nconn net.Conn) *client {
 		state:     _CLIENT_STATE_STARTING,
 		chanWrite: make(chan *gortsplib.InterleavedFrame),
 		cameraPackets: make(chan gortsplib.InterleavedFrame),
+		Started: true,
 	}
 
 	c.p.mutex.Lock()
@@ -797,6 +799,11 @@ func (c *client) handleRequest(req *gortsplib.Request) bool {
 
 		go func() {
 			for {
+				if (!pub.Started){
+					log.Println("//////////////rtsp Stopped stream")
+
+					break
+				}
 				packet := <- pub.cameraPackets
 				c.writePacket(&packet)
 			}

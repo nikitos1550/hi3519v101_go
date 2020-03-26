@@ -7,7 +7,7 @@ package venc
 import "C"
 
 import (
-	//"log"
+	"log"
 	"unsafe"
 )
 
@@ -39,7 +39,7 @@ func go_callback_receive_data(venc_channel C.int, seq C.uint, data_pointer *C.da
 	for ch,enabled := range channels {
 		if (enabled){
 			if (cap(ch) <= len(ch)) {
-				//log.Println("Channel is full. Capacity ", cap(ch), " Length ", len(ch), "Skip element")
+				log.Println("Channel is full. Capacity ", cap(ch), " Length ", len(ch), "Skip element")
 				<-ch
 			}
 
