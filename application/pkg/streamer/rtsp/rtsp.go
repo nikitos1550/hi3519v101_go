@@ -5,6 +5,7 @@ package rtsp
 import (
 	"application/pkg/mpp/venc"
 	"application/pkg/openapi"
+	"log"
 	"net/http"
 
 	"github.com/aler9/gortsplib"
@@ -25,6 +26,11 @@ type rtspStream struct {
 	Pps []byte
 	CameraIn chan []byte
 	RtspOut chan gortsplib.InterleavedFrame
+}
+
+type rtspInfo struct {
+	Name string
+	EncoderId string
 }
 
 var (
@@ -94,37 +100,62 @@ func startRtspStream(w http.ResponseWriter, r *http.Request)  {
 }
 
 func stopRtspStream(w http.ResponseWriter, r *http.Request)  {
+	ok, streamName := openapi.GetStringParameter(w, r, "streamName")
+	if !ok {
+		return
+	}
+
+	stream, exists := rtspStreams[streamName]
+	if (!exists) {
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: "Stream not found"})
+		return
+	}
+
+	stream.Started = false
+	rtspStreams[streamName] = stream
+	openapi.ResponseSuccessWithDetails(w, responseRecord{Message: "Stream was stopped"})
 }
 
 func listRtspStreams(w http.ResponseWriter, r *http.Request)  {
+	var infos []rtspInfo
+	for name, stream := range rtspStreams {
+		info := rtspInfo{
+			Name: name,
+			EncoderId: stream.EncoderId,
+		}
+
+		infos = append(infos, info)
+	}
+	openapi.ResponseSuccessWithDetails(w, infos)
 }
 
 func writeVideoData(streamName string) {
 	stream := rtspStreams[streamName]
 	packetizer := CreatePacketizer()
 	for {
-		data := <- stream.CameraIn
+		data := <-stream.CameraIn
 
-		if (len(stream.Sps) == 0){
+		if (len(stream.Sps) == 0) {
 			stream.Sps = ExtractSps(stream.EncoderType, data)
 		}
 
-		if (len(stream.Pps) == 0){
+		if (len(stream.Pps) == 0) {
 			stream.Pps = ExtractPps(stream.EncoderType, data)
 		}
 
-		if (!stream.Published && len(stream.Sps) > 0 && len(stream.Pps) > 0){
+		if (!stream.Published && len(stream.Sps) > 0 && len(stream.Pps) > 0) {
 			sdp := CreateSdp(stream.EncoderType, stream.Name, stream.Sps, stream.Pps)
 			server.AddPublisher(sdp, stream.Name, stream.RtspOut)
 			stream.Published = true
 		}
 
-		if (!stream.Started){
+		if (!stream.Started) {
+			log.Println("//////////////Stopped stream")
 			break
 		}
 
 		if (!stream.SendDataStarted) {
-			if (len(ExtractSps(stream.EncoderType, data))) <= 0{
+			if (len(ExtractSps(stream.EncoderType, data))) <= 0 {
 				continue
 			}
 		}
@@ -139,4 +170,8 @@ func writeVideoData(streamName string) {
 			}
 		}
 	}
+
+	server.DeletePublisher(stream.Name)
+	venc.RemoveSubscription(stream.EncoderId, stream.CameraIn)
+	delete(rtspStreams, streamName)
 }
