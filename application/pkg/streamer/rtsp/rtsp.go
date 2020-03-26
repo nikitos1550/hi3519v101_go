@@ -3,11 +3,11 @@
 package rtsp
 
 import (
-	"net/http"
 	"application/pkg/mpp/venc"
 	"application/pkg/openapi"
-	
-	"github.com/aler9/gortsplib" 
+	"net/http"
+
+	"github.com/aler9/gortsplib"
 )
 
 type responseRecord struct {
@@ -17,14 +17,18 @@ type responseRecord struct {
 type rtspStream struct {
 	Name string
 	EncoderId string
+	EncoderType string
 	Started bool
+	SendDataStarted bool
+	Published bool
+	Sps []byte
+	Pps []byte
 	CameraIn chan []byte
 	RtspOut chan gortsplib.InterleavedFrame
 }
 
 var (
 	server *program
-	sdpPattern string
 	rtspStreams map[string] rtspStream
 )
 
@@ -37,26 +41,6 @@ func init() {
     openapi.AddApiRoute("startRtspStream", "/rtsp/start", "GET", startRtspStream)
     openapi.AddApiRoute("stopRtspStream", "/rtsp/stop", "GET", stopRtspStream)
     openapi.AddApiRoute("listRtspStreams", "/rtsp/list", "GET", listRtspStreams)
-
-	sdpPattern =
-`v=0
-o=- 123 1 IN IP4 10.104.44.103
-s=Session streamed by "testOnDemandRTSPServer"
-i=stream
-t=0 0
-a=tool:LIVE555 Streaming Media v2020.03.06
-a=type:broadcast
-a=control:*
-a=range:npt=0-
-a=x-qt-text-nam:Session streamed by "testOnDemandRTSPServer"
-a=x-qt-text-inf:stream
-m=video 0 RTP/AVP 96
-c=IN IP4 0.0.0.0
-b=AS:500
-a=rtpmap:96 H264/90000
-a=fmtp:96 packetization-mode=1;profile-level-id=64001F;sprop-parameter-sets=Z2QAH6wsaoFAFum4CAgIEA==,aO48sA==
-a=control:track1`
-
 }
 
 func Init() {
@@ -77,7 +61,7 @@ func startRtspStream(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
-	_, encoderExists := venc.Encoders[encoderId]
+	encoder, encoderExists := venc.Encoders[encoderId]
 	if (!encoderExists) {
 		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: "Failed to find encoder  " + encoderId})
 		return
@@ -89,34 +73,22 @@ func startRtspStream(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
-	stream := rtspStream{
+	rtspStreams[streamName] = rtspStream{
 		Name: streamName,
 		EncoderId: encoderId,
+		EncoderType: encoder.Format,
 		Started: true,
+		SendDataStarted: false,
+		Published: false,
+		Sps: []byte{},
+		Pps: []byte{},
 		CameraIn: make(chan []byte, 100),
 		RtspOut: make(chan gortsplib.InterleavedFrame, 10),
 	}
 
-	server.AddPublisher(sdpPattern, stream.Name, stream.RtspOut)
+	venc.SubsribeEncoder(encoderId, rtspStreams[streamName].CameraIn)
 
-	venc.SubsribeEncoder(encoderId, stream.CameraIn)
-	
-    go func() {
-		packetizer := CreatePacketizer()
-		for {
-			if (!stream.Started){
-				break
-			}
-			data := <- stream.CameraIn
-			packets := packetizer.NalH264ToRtp(data)
-			for _, p := range packets {
-				stream.RtspOut <- gortsplib.InterleavedFrame{
-					Channel: 0,
-					Content: p,
-				}
-			}
-		}
-    }()
+    go writeVideoData(streamName)
 
 	openapi.ResponseSuccessWithDetails(w, responseRecord{Message: "Rtsp was started"})
 }
@@ -127,3 +99,44 @@ func stopRtspStream(w http.ResponseWriter, r *http.Request)  {
 func listRtspStreams(w http.ResponseWriter, r *http.Request)  {
 }
 
+func writeVideoData(streamName string) {
+	stream := rtspStreams[streamName]
+	packetizer := CreatePacketizer()
+	for {
+		data := <- stream.CameraIn
+
+		if (len(stream.Sps) == 0){
+			stream.Sps = ExtractSps(stream.EncoderType, data)
+		}
+
+		if (len(stream.Pps) == 0){
+			stream.Pps = ExtractPps(stream.EncoderType, data)
+		}
+
+		if (!stream.Published && len(stream.Sps) > 0 && len(stream.Pps) > 0){
+			sdp := CreateSdp(stream.EncoderType, stream.Name, stream.Sps, stream.Pps)
+			server.AddPublisher(sdp, stream.Name, stream.RtspOut)
+			stream.Published = true
+		}
+
+		if (!stream.Started){
+			break
+		}
+
+		if (!stream.SendDataStarted) {
+			if (len(ExtractSps(stream.EncoderType, data))) <= 0{
+				continue
+			}
+		}
+
+		stream.SendDataStarted = true
+
+		packets := packetizer.NalH264ToRtp(data)
+		for _, p := range packets {
+			stream.RtspOut <- gortsplib.InterleavedFrame{
+				Channel: 0,
+				Content: p,
+			}
+		}
+	}
+}
