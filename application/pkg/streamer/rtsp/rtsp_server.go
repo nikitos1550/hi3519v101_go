@@ -223,7 +223,7 @@ func (p *program) AddPublisher(sdp string, streamPath string, ch chan gortsplib.
 		streamSdpParsed: sdpParsed,
 		chanWrite: make(chan *gortsplib.InterleavedFrame),
 		cameraPackets: ch,
-		Started: true,
+		started: true,
 	}
 
 	p.publishers[streamPath] = c
@@ -236,7 +236,7 @@ func (p *program) DeletePublisher(streamPath string) bool {
 		return false
 	}
 
-	stream.Started = false
+	stream.started = false
 	delete(p.publishers, streamPath)
 	return true
 }

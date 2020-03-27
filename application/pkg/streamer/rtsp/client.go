@@ -118,7 +118,8 @@ type client struct {
 	streamTracks    []*track
 	chanWrite       chan *gortsplib.InterleavedFrame
 	cameraPackets   chan gortsplib.InterleavedFrame
-	Started         bool
+	clientsCount    int
+	started         bool
 }
 
 func newClient(p *program, nconn net.Conn) *client {
@@ -128,7 +129,7 @@ func newClient(p *program, nconn net.Conn) *client {
 		state:     _CLIENT_STATE_STARTING,
 		chanWrite: make(chan *gortsplib.InterleavedFrame),
 		cameraPackets: make(chan gortsplib.InterleavedFrame),
-		Started: true,
+		started: true,
 	}
 
 	c.p.mutex.Lock()
@@ -797,17 +798,25 @@ func (c *client) handleRequest(req *gortsplib.Request) bool {
 		c.state = _CLIENT_STATE_PLAY
 		c.p.mutex.Unlock()
 
-		go func() {
-			for {
-				if (!pub.Started){
-					log.Println("//////////////rtsp Stopped stream")
+		c.p.mutex.Lock()
+		pub.clientsCount++
+		log.Println("//////////////client count", pub.clientsCount)
+		if (pub.clientsCount == 1) {
+			log.Println("//////////////run stream ")
+			go func () {
+				log.Println("//////////////stream started")
+				for {
+					if (!pub.started){
+						log.Println("//////////////rtsp Stopped stream")
+						break
+					}
 
-					break
+					packet := <- pub.cameraPackets
+					c.writePacket(&packet)
 				}
-				packet := <- pub.cameraPackets
-				c.writePacket(&packet)
-			}
-		}()
+			}()
+		}
+		c.p.mutex.Unlock()
 
 		return true
 
@@ -911,6 +920,14 @@ func (c *client) handleRequest(req *gortsplib.Request) bool {
 		return true
 
 	case "TEARDOWN":
+		c.p.mutex.RLock()
+		pub, ok := c.p.publishers[c.path]
+		if !ok {
+			c.writeResError(req, fmt.Errorf("no one is streaming on path '%s'", c.path))
+			return false
+		}
+		pub.clientsCount--
+		c.p.mutex.RUnlock()
 		// close connection silently
 		return false
 
@@ -919,6 +936,7 @@ func (c *client) handleRequest(req *gortsplib.Request) bool {
 		return false
 	}
 }
+
 
 func (c *client) writePacket(packet *gortsplib.InterleavedFrame){
 	// when protocol is TCP, the RTSP connection becomes a RTP connection
@@ -940,6 +958,10 @@ func (c *client) writePacket(packet *gortsplib.InterleavedFrame){
 		}
 	} else {
 		trackId, trackFlow := interleavedChannelToTrack(packet.Channel)
+		if len(c.streamTracks) <= trackId{
+			return
+		}
+		
 		if trackFlow == _TRACK_FLOW_RTP {
 			c.p.rtpl.chanWrite <- &udpWrite{
 				addr: &net.UDPAddr{
