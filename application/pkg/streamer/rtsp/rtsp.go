@@ -20,7 +20,6 @@ type rtspStream struct {
 	EncoderId string
 	EncoderType string
 	Started bool
-	SendDataStarted bool
 	Published bool
 	Sps []byte
 	Pps []byte
@@ -84,12 +83,11 @@ func startRtspStream(w http.ResponseWriter, r *http.Request)  {
 		EncoderId: encoderId,
 		EncoderType: encoder.Format,
 		Started: true,
-		SendDataStarted: false,
 		Published: false,
 		Sps: []byte{},
 		Pps: []byte{},
 		CameraIn: make(chan []byte, 100),
-		RtspOut: make(chan gortsplib.InterleavedFrame, 10),
+		RtspOut: make(chan gortsplib.InterleavedFrame, 1000),
 	}
 
 	venc.SubsribeEncoder(encoderId, rtspStreams[streamName].CameraIn)
@@ -154,16 +152,16 @@ func writeVideoData(streamName string) {
 			break
 		}
 
-		if (!stream.SendDataStarted) {
-			if (len(ExtractSps(stream.EncoderType, data))) <= 0 {
-				continue
-			}
+		if (!server.HasClients(streamName)) {
+			continue
 		}
-
-		stream.SendDataStarted = true
 
 		packets := packetizer.NalH264ToRtp(data)
 		for _, p := range packets {
+			if (cap(stream.RtspOut) <= len(stream.RtspOut)) {
+				log.Println("Rtsp channel is full. Capacity ", cap(stream.RtspOut), " Length ", len(stream.RtspOut), "Skip element")
+				<-stream.RtspOut
+			}
 			stream.RtspOut <- gortsplib.InterleavedFrame{
 				Channel: 0,
 				Content: p,

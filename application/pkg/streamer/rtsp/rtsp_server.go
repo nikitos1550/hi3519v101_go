@@ -223,6 +223,7 @@ func (p *program) AddPublisher(sdp string, streamPath string, ch chan gortsplib.
 		streamSdpParsed: sdpParsed,
 		chanWrite: make(chan *gortsplib.InterleavedFrame),
 		cameraPackets: ch,
+		clientsCount: 0,
 		started: true,
 	}
 
@@ -239,6 +240,15 @@ func (p *program) DeletePublisher(streamPath string) bool {
 	stream.started = false
 	delete(p.publishers, streamPath)
 	return true
+}
+
+func (p *program) HasClients(streamPath string) bool {
+	stream, streamExists := p.publishers[streamPath]
+	if (!streamExists) {
+		return false
+	}
+
+	return stream.clientsCount > 0
 }
 
 func CreateRtspServer() *program {
