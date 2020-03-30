@@ -3,18 +3,20 @@
 package rtsp
 
 import (
+	"bytes"
 	_ "math"
 	"math/rand"
 	"time"
 )
 
 const (
-	rtpHeaderSize = 12 + 2 //4 bytes interleaved prefix + 12 bytes RTP header + 2 bytes FUA header
-	fuASize       = 1387   //ipPacketSize - rtpHeaderSize
+	RtpHeaderSize = 12 + 2 //4 bytes interleaved prefix + 12 bytes RTP header + 2 bytes FUA header
+	fuASize       = 1387   //ipPacketSize - RtpHeaderSize
 )
 
 type Packetizer interface {
 	NalH264ToRtp(nal []byte) [][]byte
+	H264ToRtp(nal []byte) [][]byte
 }
 
 type packetizer struct {
@@ -56,7 +58,7 @@ func (p *packetizer) NalH264ToRtp(nal []byte) [][]byte {
 			packetSize = uint(len(nal2)) - (i)*uint(fuASize)
 		}
 
-		out[i] = make([]byte, rtpHeaderSize+packetSize)
+		out[i] = make([]byte, RtpHeaderSize+packetSize)
 
 		out[i][0] = 2 << 6                         //WTF? r[0] = 2 << 6;
 		out[i][1] = (FuAEnd << 7) | 96             //r[1] = (fua_end ? 1 : 0) << 7 | 96; // 96 is our hardcoded h264 payload type
@@ -75,7 +77,7 @@ func (p *packetizer) NalH264ToRtp(nal []byte) [][]byte {
 		out[i][12] = nri<<5 | 28                       //r[0] = nri << 5 | 28; // 28 = H264 FUA
 		out[i][13] = FuAStart<<7 | FuAEnd<<6 | nalType //r[1] = fua_start << 7 | fua_end << 6 | nal_type;
 
-		copy(out[i][rtpHeaderSize:rtpHeaderSize+packetSize], nal2[(i*fuASize):(i*fuASize)+packetSize])
+		copy(out[i][RtpHeaderSize:RtpHeaderSize+packetSize], nal2[(i*fuASize):(i*fuASize)+packetSize])
 		FuAStart = 0 //after first iter it will be 0 forever
 		p.sequence = p.sequence + 1
 	}
@@ -83,3 +85,20 @@ func (p *packetizer) NalH264ToRtp(nal []byte) [][]byte {
 	p.timestamp = p.timestamp + (90000 / 25)
 	return out
 }
+
+func (p *packetizer) H264ToRtp(nal []byte) [][]byte {
+	var out [][]byte
+	payloads := bytes.Split(nal, KeyData)
+	for _, payload := range payloads {
+		if (len(payload) <= 0){
+			continue
+		}
+
+		packets := p.NalH264ToRtp(payload)
+		for _, p := range packets {
+			out = append(out, p)
+		}
+	}
+	return out
+}
+

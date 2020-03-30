@@ -6,7 +6,7 @@ import (
     "bytes"
 )
 
-var keyData = []byte{0x00, 0x00, 0x00, 0x01}
+var KeyData = []byte{0x00, 0x00, 0x00, 0x01}
 
 func GetNal(encoder string, data []byte) byte {
     if (encoder == "h265"){
@@ -16,9 +16,17 @@ func GetNal(encoder string, data []byte) byte {
     return data[0]&0x1F;
 }
 
+func IsSpsPacket(encoder string, data []byte) bool {
+    nal := data[RtpHeaderSize - 1]&0x1F
+    if (encoder == "h265"){
+        return nal == 33
+    }
+
+    return nal == 7
+}
+
 func IsSps(encoder string, data []byte) bool {
     nal := GetNal(encoder, data)
-
     if (encoder == "h265"){
         return nal == 33
     }
@@ -37,7 +45,7 @@ func IsPps(encoder string, data []byte) bool {
 }
 
 func ExtractSps(encoder string, data []byte) []byte{
-    payloads := bytes.Split(data, keyData)
+    payloads := bytes.Split(data, KeyData)
     for _, payload := range payloads {
         if (len(payload) <= 0){
             continue
@@ -52,7 +60,7 @@ func ExtractSps(encoder string, data []byte) []byte{
 }
 
 func ExtractPps(encoder string, data []byte) []byte{
-    payloads := bytes.Split(data, keyData)
+    payloads := bytes.Split(data, KeyData)
     for _, payload := range payloads {
         if (len(payload) <= 0){
             continue

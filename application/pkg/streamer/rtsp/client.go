@@ -804,14 +804,21 @@ func (c *client) handleRequest(req *gortsplib.Request) bool {
 		if (pub.clientsCount == 1) {
 			log.Println("//////////////run stream ")
 			go func () {
-				log.Println("//////////////stream started")
+				spsSended := false
 				for {
-					if (!pub.started){
-						log.Println("//////////////rtsp Stopped stream")
+					if (!pub.started || pub.clientsCount == 0){
 						break
 					}
 
 					packet := <- pub.cameraPackets
+
+					if (!spsSended) {
+						if (!IsSpsPacket("h264", packet.Content)) {
+							continue
+						}
+					}
+					spsSended = true
+
 					c.writePacket(&packet)
 				}
 			}()

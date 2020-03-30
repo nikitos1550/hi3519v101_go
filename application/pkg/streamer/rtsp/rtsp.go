@@ -153,10 +153,14 @@ func writeVideoData(streamName string) {
 		}
 
 		if (!server.HasClients(streamName)) {
+			for len(stream.RtspOut) > 0 {
+				<-stream.RtspOut
+			}
+
 			continue
 		}
 
-		packets := packetizer.NalH264ToRtp(data)
+		packets := packetizer.H264ToRtp(data)
 		for _, p := range packets {
 			if (cap(stream.RtspOut) <= len(stream.RtspOut)) {
 				log.Println("Rtsp channel is full. Capacity ", cap(stream.RtspOut), " Length ", len(stream.RtspOut), "Skip element")
