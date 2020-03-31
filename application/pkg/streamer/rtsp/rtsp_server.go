@@ -223,7 +223,7 @@ func (p *program) AddPublisher(sdp string, streamPath string, ch chan gortsplib.
 		streamSdpParsed: sdpParsed,
 		chanWrite: make(chan *gortsplib.InterleavedFrame),
 		cameraPackets: ch,
-		clientsCount: 0,
+		clients: make(map[*client]bool),
 		started: true,
 	}
 
@@ -248,7 +248,7 @@ func (p *program) HasClients(streamPath string) bool {
 		return false
 	}
 
-	return stream.clientsCount > 0
+	return len(stream.clients) > 0
 }
 
 func CreateRtspServer() *program {

@@ -148,7 +148,6 @@ func writeVideoData(streamName string) {
 		}
 
 		if (!stream.Started) {
-			log.Println("//////////////Stopped stream")
 			break
 		}
 

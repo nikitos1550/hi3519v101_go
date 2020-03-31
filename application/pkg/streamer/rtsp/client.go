@@ -118,7 +118,7 @@ type client struct {
 	streamTracks    []*track
 	chanWrite       chan *gortsplib.InterleavedFrame
 	cameraPackets   chan gortsplib.InterleavedFrame
-	clientsCount    int
+	clients         map[*client]bool
 	started         bool
 }
 
@@ -129,6 +129,7 @@ func newClient(p *program, nconn net.Conn) *client {
 		state:     _CLIENT_STATE_STARTING,
 		chanWrite: make(chan *gortsplib.InterleavedFrame),
 		cameraPackets: make(chan gortsplib.InterleavedFrame),
+		clients: make(map[*client]bool),
 		started: true,
 	}
 
@@ -799,15 +800,21 @@ func (c *client) handleRequest(req *gortsplib.Request) bool {
 		c.p.mutex.Unlock()
 
 		c.p.mutex.Lock()
-		pub.clientsCount++
-		log.Println("//////////////client count", pub.clientsCount)
-		if (pub.clientsCount == 1) {
-			log.Println("//////////////run stream ")
+
+		pub.clients[c] = true
+		c.p.publishers[c.path] = pub
+
+		if (len(pub.clients) == 1) {
 			go func () {
 				spsSended := false
 				for {
-					if (!pub.started || pub.clientsCount == 0){
+					if (!pub.started || len(pub.clients) == 0){
 						break
+					}
+
+					if (len(pub.cameraPackets) == 0) {
+						time.Sleep(time.Millisecond)
+						continue
 					}
 
 					packet := <- pub.cameraPackets
@@ -819,7 +826,9 @@ func (c *client) handleRequest(req *gortsplib.Request) bool {
 					}
 					spsSended = true
 
-					c.writePacket(&packet)
+					for client, _ := range pub.clients {
+						client.writePacket(&packet)
+					}
 				}
 			}()
 		}
@@ -933,7 +942,7 @@ func (c *client) handleRequest(req *gortsplib.Request) bool {
 			c.writeResError(req, fmt.Errorf("no one is streaming on path '%s'", c.path))
 			return false
 		}
-		pub.clientsCount--
+		delete(pub.clients, c)
 		c.p.mutex.RUnlock()
 		// close connection silently
 		return false
