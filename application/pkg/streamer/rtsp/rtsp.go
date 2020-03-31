@@ -147,7 +147,7 @@ func writeVideoData(streamName string) {
 			stream.Published = true
 		}
 
-		if (!stream.Started) {
+		if (!rtspStreams[streamName].Started) {
 			break
 		}
 
