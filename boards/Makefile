@@ -8,7 +8,7 @@ endif
 -include ./$(BOARD)/config
 
 # source directories
-BUILDROOT_DIR  ?= $(abspath ../buildroot-2019.08)
+BUILDROOT_DIR  ?= $(abspath ../buildroot-2020.02)
 BOARD_DIR      := $(abspath ./$(BOARD))
 FAMILY_ROOT    := $(abspath ../hisilicon)
 FAMILY_DIR     := $(FAMILY_ROOT)/$(FAMILY)

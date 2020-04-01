@@ -6,8 +6,8 @@ endif
 
 include $(THIS_DIR)Makefile.user.params
 
-BR             := buildroot-2019.11.1
-BUILDROOT_DIR  := $(abspath ./buildroot-2019.11.1)
+BR             := buildroot-2020.02
+BUILDROOT_DIR  := $(abspath ./$(BR))
 BOARD_OUTDIR   := $(abspath ./output/boards/$(BOARD))
 CAMERA_TTY     := /dev/ttyCAM$(CAMERA)
 CAMERA_IP      := 192.168.10.1$(shell printf '%02d' $(CAMERA))
@@ -146,7 +146,7 @@ deploy-app-control-telnet: deploy-app
 	@echo "be patient, 2s more"
 	telnet $(CAMERA_IP)
 
-deploy-app-control-telnet: deploy
+deploy-control-telnet: deploy
 	@echo "waiting for 10s"
 	@sleep 3
 	@echo "7s more..."

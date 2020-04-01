@@ -1,3 +1,4 @@
+B
 THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 #THIS IS YOUR CUSTOM SETTINGS
@@ -6,64 +7,62 @@ THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 #1.  hi3519v101+imx274 jvt OK
 CAMERA  ?= 1
-BOARD   ?=jvt_hi3519v101_imx274
+BOARD   ?= jvt_s274h19v-l29_hi3519v101_imx274
 
-#2.  hi3519v101+imx274 jvt OK
 #CAMERA  ?= 2
-#BOARD   ?= jvt_hi3519v101_imx274
+#BOARD   ?= xm_ivg-85hf20pya-s_hi3516ev200_imx307
 
-#3.  hi3516ev100 KERNEL NO OUTPUT, MAYBE SOME CHINESE UBOOT LOCK
 #CAMERA  ?= 3
-#BOARD   ?= generic_hi3516cv300_unknown
+#BOARD   ?= xm_53h20-s_hi3516cv100_imx122
 
-#4.  hi3516cv200 OK
 #CAMERA  ?= 4
-#BOARD   ?= generic_hi3516cv200_unknown
+#BOARD   ?= xm_ivg-hp203y-se_hi3516cv300_imx291
 
-#5.  hi3518ev201 NOT WORKING, RESETTING KERNEL
 #CAMERA  ?= 5
-#BOARD   ?= generic_hi3518ev200_unknown
+#BOARD   ?= xm_ivg-hp201y-se_hi3516cv300_imx323
 
-#6.  hi3516cv300+imx290 OK
 #CAMERA  ?= 6
-#BOARD   ?= generic_hi3516cv300_unknown
+#BOARD   ?= jvt_s323h16xf_hi3516cv300_imx323
 
-#7.  hi3518ev100 OK
 #CAMERA  ?= 7
-#BOARD   ?= generic_hi3518ev100_unknown
+#BOARD   ?= ruision_rs-h622qm-b0_hi3516cv300_imx323
 
-#8.  hi3516av100+imx178 OK
 #CAMERA  ?= 8
-#BOARD   ?= xm_hi3516av100_imx178
+#BOARD   ?= xm_ivg-85hg50pya-s_hi3516ev300_imx335
 
-#9.  hi3518ev200 NO BOOT LOG
 #CAMERA  ?= 9
-#BOARD   ?= generic_hi3516cv200_unknown
+#BOARD   ?= xm_ipg-83h50p-b_hi3516av100_imx178
 
-#10. hi3518ev200 OK
 #CAMERA  ?= 10
-#BOARD   ?= generic_hi3518ev200_unknown
+#BOARD   ?= xm_ipg-83he20py-s_hi3516ev100_imx323
 
-#11. hi3516ev100 PROBLEM WITH UBOOT
 #CAMERA  ?= 11
-#BOARD   ?= generic_hi3516cv300_unknown
+#BOARD   ?= TODO
 
-#12. hi3516cv100+imx122 OK
 #CAMERA  ?= 12
-#BOARD   ?= generic_hi3516cv100_unknown
+#BOARD   ?= TODO
 
-#13. XM hi3516ev100 OK
 #CAMERA  ?= 13
-#BOARD   ?= generic_hi3516ev100_unknown
+#BOARD   ?= ssqvision_on335h16d_hi3516dv300_imx335
 
-#14. hi35109v101+imx226 OK
 #CAMERA  ?= 14
-#BOARD   ?= jvt_hi3519v101_imx226
+#BOARD   ?= jvt_s226h19v-l29_hi3519v101_imx226
 
-#15. hi3516dv300+imx290 hisilicon evb OK
 #CAMERA  ?= 15
-#BOARD   ?= hisi_hi3516dv300_imx290
+#BOARD   ?= xm_53h20-ae_hi3516cv100_imx222
 
-#16. hi3559av100 hisilicon evb
-# NOT IMPLEMENTED
+#CAMERA	 ?= 16
+#BOARD   ?= TODO 
+
+#CAMERA  ?= 17
+#BOARD   ?= TODO 
+
+#CAMERA  ?= 18
+#BOARD   ?= ssqvision_on290h16d_hi3516dv100_imx290
+
+#CAMERA  ?= 31
+#BOARD   ?= TODO 
+
+#CAMERA  ?= 32
+#BOARD   ?= TODO
 
