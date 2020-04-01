@@ -10,7 +10,7 @@ package venc
 #define ERR_NONE                0
 #define ERR_MPP                 2
 
-int mpp3_venc_create_mjpeg(unsigned int *error_code, int width, int height, int bitrate, int channelId) {
+int mpp3_venc_sample_mjpeg(unsigned int *error_code, int width, int height, int bitrate, int channelId) {
     *error_code = 0;
 
     VENC_CHN_ATTR_S stVencChnAttr;
@@ -61,7 +61,7 @@ int mpp3_venc_create_mjpeg(unsigned int *error_code, int width, int height, int 
     return ERR_NONE;
 }
 
-int mpp3_venc_create_h264(unsigned int *error_code, int width, int height, int bitrate, int channelId) {
+int mpp3_venc_sample_h264(unsigned int *error_code, int width, int height, int bitrate, int channelId) {
     *error_code = 0;
 
     VENC_CHN_ATTR_S stVencChnAttr;
@@ -92,6 +92,61 @@ int mpp3_venc_create_h264(unsigned int *error_code, int width, int height, int b
     stH264Cbr.u32FluctuateLevel = 1;        //average bit rate
 
     memcpy(&stVencChnAttr.stRcAttr.stAttrH264Cbr, &stH264Cbr, sizeof(VENC_ATTR_H264_CBR_S));
+
+    stVencChnAttr.stGopAttr.enGopMode               = VENC_GOPMODE_NORMALP;
+    stVencChnAttr.stGopAttr.stNormalP.s32IPQpDelta  = 2;
+
+    *error_code = HI_MPI_VENC_CreateChn(channelId, &stVencChnAttr);
+    if (*error_code != HI_SUCCESS) return ERR_MPP;
+
+    *error_code = HI_MPI_VENC_StartRecvPic(channelId);
+    if (*error_code != HI_SUCCESS) return ERR_MPP;
+
+    MPP_CHN_S stSrcChn;
+    MPP_CHN_S stDestChn;
+
+    stSrcChn.enModId    = HI_ID_VPSS;
+    stSrcChn.s32DevId   = 0;
+    stSrcChn.s32ChnId   = 0;
+    stDestChn.enModId   = HI_ID_VENC;
+    stDestChn.s32DevId  = 0;
+    stDestChn.s32ChnId  = channelId;
+
+    *error_code = HI_MPI_SYS_Bind(&stSrcChn, &stDestChn);
+    if (*error_code != HI_SUCCESS) return ERR_MPP;
+
+    return ERR_NONE;
+}
+
+int mpp3_venc_sample_h265(unsigned int *error_code, int width, int height, int bitrate, int channelId) {
+    *error_code = 0;
+
+    VENC_CHN_ATTR_S stVencChnAttr;
+    VENC_ATTR_H265_S stH265Attr;
+    VENC_ATTR_H265_CBR_S    stH265Cbr;
+
+    stVencChnAttr.stVeAttr.enType = PT_H265;
+
+    stH265Attr.u32MaxPicWidth   = 3840;
+    stH265Attr.u32MaxPicHeight  = 2160;
+    stH265Attr.u32PicWidth      = width;         //the picture width
+    stH265Attr.u32PicHeight     = height;         //the picture height
+    stH265Attr.u32BufSize       = 3840*2160*1.5;  //stream buffer size
+    stH265Attr.u32Profile       = 0;            //0: MP
+    stH265Attr.bByFrame         = HI_TRUE;      //get stream mode is slice mode or frame mode?
+
+    memcpy(&stVencChnAttr.stVeAttr.stAttrH265e, &stH265Attr, sizeof(VENC_ATTR_H265_S));
+
+    stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_H265CBR;
+
+    stH265Cbr.u32Gop            = 25;
+    stH265Cbr.u32StatTime       = 1;
+    stH265Cbr.u32SrcFrmRate     = 30;       //input (vi) frame rate
+    stH265Cbr.fr32DstFrmRate    = 25;//30;       //target frame rate
+    stH265Cbr.u32BitRate        = bitrate;
+    stH265Cbr.u32FluctuateLevel = 1;        //average bit rate
+
+    memcpy(&stVencChnAttr.stRcAttr.stAttrH265Cbr, &stH265Cbr, sizeof(VENC_ATTR_H265_CBR_S));
 
     stVencChnAttr.stGopAttr.enGopMode               = VENC_GOPMODE_NORMALP;
     stVencChnAttr.stGopAttr.stNormalP.s32IPQpDelta  = 2;
@@ -174,6 +229,8 @@ func createEncoder(encoder Encoder) {
 	switch encoder.Format {
 	case "h264":
 		err = C.mpp3_venc_sample_h264(&errorCode, C.int(encoder.Width), C.int(encoder.Height), C.int(encoder.Bitrate), C.int(encoder.VencId))
+	case "h265":
+		err = C.mpp3_venc_sample_h265(&errorCode, C.int(encoder.Width), C.int(encoder.Height), C.int(encoder.Bitrate), C.int(encoder.VencId))
 	case "mjpeg":
 		err = C.mpp3_venc_sample_mjpeg(&errorCode, C.int(encoder.Width), C.int(encoder.Height), C.int(encoder.Bitrate), C.int(encoder.VencId))
 	default:

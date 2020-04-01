@@ -3,7 +3,6 @@
 package file
 
 import (
-	"bytes"
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
@@ -18,8 +17,9 @@ import (
 	"strings"
 	"time"
 
-	"application/pkg/openapi"
 	"application/pkg/mpp/venc"
+	"application/pkg/openapi"
+	"application/pkg/streamer/rtsp"
 	 
 	"github.com/google/uuid"
 )
@@ -44,6 +44,7 @@ type activeRecord struct {
 	Size int
 	StartTime time.Time 
 	Chunks []chunk
+	Extention string
 }
 
 type storedRecord struct {
@@ -53,6 +54,7 @@ type storedRecord struct {
 	StartTime time.Time 
 	EndTime time.Time 
 	Chunks []chunk
+	Extention string
 }
 
 type chunkInfo struct {
@@ -139,9 +141,9 @@ func readStoredRecords() {
     }
 }
 
-func keyFrame(data []byte) bool {
-	keyData := []byte{0x00, 0x00, 0x00, 0x01, 0x67}
-	return bytes.HasPrefix(data, keyData)
+func keyFrame(encoder string, data []byte) bool {
+	sps := rtsp.ExtractSps(encoder, data);
+	return len(sps) > 0
 }
 
 func saveRecord(uuid string, record activeRecord, md5Hash string) {
@@ -149,9 +151,9 @@ func saveRecord(uuid string, record activeRecord, md5Hash string) {
 	record.CurrentFile.Close()
 
 	finalFilePath := record.CurrentFilePath
-	if (strings.HasSuffix(finalFilePath, ".h264.tmp")){
-		finalFilePath = finalFilePath[0:len(finalFilePath)-len(".h264.tmp")]
-		finalFilePath += strconv.Itoa(len(record.Chunks) - 1) + ".h264"
+	if (strings.HasSuffix(finalFilePath, "." + record.Extention + ".tmp")){
+		finalFilePath = finalFilePath[0:len(finalFilePath)-len("." + record.Extention + ".tmp")]
+		finalFilePath += strconv.Itoa(len(record.Chunks) - 1) + "." + record.Extention
 		err := os.Rename(record.CurrentFilePath, finalFilePath)
 		if err != nil {
 			log.Println("Failed to move file " + record.CurrentFilePath + " to " + finalFilePath)
@@ -168,6 +170,7 @@ func saveRecord(uuid string, record activeRecord, md5Hash string) {
 		StartTime: record.StartTime,
 		EndTime: record.Chunks[len(record.Chunks) - 1].EndTime,
 		Chunks: record.Chunks,
+		Extention: record.Extention,
 	}
 
 	delete(ActiveRecords, uuid)
@@ -190,7 +193,7 @@ func writeVideoData(uuid string, chunks int, duration int){
 
 		data := <- ActiveRecords[uuid].Payload
 		if (ActiveRecords[uuid].Size == 0){
-			if (!keyFrame(data)){
+			if (!keyFrame(ActiveRecords[uuid].Extention, data)){
 				continue
 			}
 
@@ -213,12 +216,12 @@ func writeVideoData(uuid string, chunks int, duration int){
 			record := ActiveRecords[uuid]
 
 			chunkDuration := time.Now().Sub(record.Chunks[len(record.Chunks) - 1].StartTime)
-			if (chunkDuration.Seconds() >= float64(duration) && keyFrame(data)){
+			if (chunkDuration.Seconds() >= float64(duration) && keyFrame(record.Extention, data)){
 				record.CurrentFile.Close()
 				finalFilePath := record.CurrentFilePath
 				if (strings.HasSuffix(finalFilePath, ".tmp")){
-					finalFilePath = finalFilePath[0:len(finalFilePath)-len(".h264.tmp")]
-					finalFilePath += strconv.Itoa(len(record.Chunks) - 1) + ".h264"
+					finalFilePath = finalFilePath[0:len(finalFilePath)-len("." + record.Extention + ".tmp")]
+					finalFilePath += strconv.Itoa(len(record.Chunks) - 1) + "." + record.Extention
 					err := os.Rename(record.CurrentFilePath, finalFilePath)
 					if err != nil {
 						log.Println("Failed to move file " + record.CurrentFilePath + " to " + finalFilePath)
@@ -266,7 +269,7 @@ func startNewRecord(w http.ResponseWriter, r *http.Request)  {
 	if !ok {
 		return
 	}
-	_, encoderExists := venc.Encoders[encoderId]
+	encoder, encoderExists := venc.Encoders[encoderId]
 	if (!encoderExists) {
 		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{RecordId: "", Message: "Failed to find encoder  " + encoderId})
 		return
@@ -282,7 +285,7 @@ func startNewRecord(w http.ResponseWriter, r *http.Request)  {
 		return
     }
 	
-	file := path.Join(recordFolder, "out.h264.tmp")
+	file := path.Join(recordFolder, "out." + encoder.Format + ".tmp")
 	f,err := os.Create(file)
 	if err != nil {
 		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{RecordId: "", Message: "Failed to create file " + file})
@@ -298,6 +301,7 @@ func startNewRecord(w http.ResponseWriter, r *http.Request)  {
 		Size: 0,
 		StartTime: time.Now(),
 		Chunks: []chunk{},
+		Extention: encoder.Format,
 	}
 
 	venc.SubsribeEncoder(encoderId, ActiveRecords[uuid].Payload)
@@ -337,7 +341,7 @@ func downloadRecord(w http.ResponseWriter, r *http.Request)  {
 	activeRecord, activeExists := ActiveRecords[recordId]
 	if (activeExists) {
 		if (chunk < len(activeRecord.Chunks) - 1){
-			w.Header().Set("Content-Disposition", "attachment; filename=" + recordId + "_chunk_" + strconv.Itoa(chunk) + ".h264")
+			w.Header().Set("Content-Disposition", "attachment; filename=" + recordId + "_chunk_" + strconv.Itoa(chunk) + "." + activeRecord.Extention)
 			w.Header().Set("Md5", activeRecord.Chunks[chunk].Md5)
 			http.ServeFile(w, r, activeRecord.Chunks[chunk].FilePath)
 			return
@@ -346,7 +350,7 @@ func downloadRecord(w http.ResponseWriter, r *http.Request)  {
 
 	storedRecord, storedExists := StoredRecords.Records[recordId]
 	if (storedExists) {
-		w.Header().Set("Content-Disposition", "attachment; filename=" + recordId + "_chunk_" + strconv.Itoa(chunk) + ".h264")
+		w.Header().Set("Content-Disposition", "attachment; filename=" + recordId + "_chunk_" + strconv.Itoa(chunk) + "." + storedRecord.Extention)
 		w.Header().Set("Md5", storedRecord.Chunks[chunk].Md5)
 		http.ServeFile(w, r, storedRecord.Chunks[chunk].FilePath)
 		return

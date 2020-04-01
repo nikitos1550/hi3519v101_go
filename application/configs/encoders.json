@@ -26,5 +26,19 @@
     "Width": 1920,
     "Height": 1080,
     "Bitrate": 1024
+  },
+  "H265_1280_720_1M": {
+    "VencId": 4,
+    "Format": "h265",
+    "Width": 1280,
+    "Height": 720,
+    "Bitrate": 1024
+  },
+  "H265_1920_1080_1M": {
+    "VencId": 5,
+    "Format": "h265",
+    "Width": 1920,
+    "Height": 1080,
+    "Bitrate": 1024
   }
 }

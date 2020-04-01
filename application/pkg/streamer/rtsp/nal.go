@@ -9,11 +9,18 @@ import (
 var KeyData = []byte{0x00, 0x00, 0x00, 0x01}
 
 func GetNal(encoder string, data []byte) byte {
+	offset := 0
+	
+	if bytes.HasPrefix(data, KeyData){
+		offset = len(KeyData)
+	}
+
     if (encoder == "h265"){
-        return (data[0]&0x7E)>>1;
+		nal := (data[offset]&0x7E)>>1
+        return nal;
     }
 
-    return data[0]&0x1F;
+    return data[offset]&0x1F;
 }
 
 func IsSpsPacket(encoder string, data []byte) bool {
