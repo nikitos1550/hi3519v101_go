@@ -36,6 +36,12 @@ func CreatePacketizer() Packetizer {
 	}
 }
 
+func (p *packetizer) FrameMJPEGToRtp(nal []byte) [][]byte {
+}
+
+func (p *packetizer) NalH265ToRtp(nal []byte) [][]byte {
+}
+
 func (p *packetizer) NalH264ToRtp(nal []byte) [][]byte {
 	//var count uint = uint(len(nal) / fuASize) + 1
 
