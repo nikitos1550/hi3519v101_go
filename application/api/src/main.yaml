@@ -1,0 +1,248 @@
+openapi: 3.0.1
+info:
+    #$ref: "info.yaml#/info"
+    title: GoHisiCam
+    version: VERSION
+    x-logo:
+        url: "GOPHER200"
+        backgroundColor: "#FFFFFF"
+        altText: "GoHisiCam"
+        href: "#"
+    contact:
+        email: info@openhisiipcam.org
+        url: https://www.openhisiipcam.org
+    description: 
+        $ref: "info.yaml#/description"
+
+paths:
+  /:
+      get:
+        tags:
+              - other
+        summary: "Get API information"
+        operationId: 'api123'
+        responses:
+            '200':
+                description: 'Success'
+                content: 
+                    application/json:
+                        schema:
+                            type: object
+            #            properties:
+            #                formatted:
+            #                type: string
+ 
+
+  /openapi.json:
+    $ref: "~misc.yaml#/openapi.json"
+  /openapi.yml:
+      $ref: "~misc.yaml#/openapi.yml"
+
+
+  /api/system/date:
+      $ref: "~system.yaml#/date"
+
+  /api/debug/umap:
+    $ref: "~debug.yaml#/umap"
+  /api/debug/umap/{file}:
+    $ref: "~debug.yaml#/umap~1{file}"
+
+  /api/mpp/cmos:
+      $ref: "~cmos.yaml#/cmos"
+
+  /api/mpp/channel:
+      $ref: "~channel.yaml#/channel"
+  /api/mpp/channel/{id}:
+      $ref: "~channel.yaml#/channel~1{id}"
+
+  /api/mpp/venc:
+    $ref: "~venc.yaml#/venc"
+  /api/mpp/venc/{id}:
+    $ref: "~venc.yaml#/venc~1{id}"
+  /api/mpp/venc/{id}/stat:
+    $ref: "~venc.yaml#/venc~1{id}~1stat"
+
+  /api/streamer:
+    $ref: "~streamer.yaml#/streamer"
+
+  /api/streamer/jpeg:
+    $ref: "~jpeg.yaml#/jpeg"
+  /api/streamer/jpeg/{id}:
+    $ref: "~jpeg.yaml#/jpeg~1{id}"
+  /jpeg/{name}.jpg:
+    $ref: "~jpeg.yaml#/~1{name}.jpg"
+
+    #  /jpeg/1920_1080.jpg:
+    #    get:
+    #      tags:
+    #        - jpeg
+    #      summary: 'Get jpeg image 1920x1080 resolution'
+    #      operationId: 'serveJpeg1920x1080'
+    #      responses:
+    #        '200':
+    #          description: 'Success'
+    #          content:
+    #            image/jpeg:
+    #              schema:
+    #               type: string
+    #               format: binary
+    #  /jpeg/3840_2160.jpg:
+    #    get:
+    #      tags:
+    #        - jpeg
+    #      summary: 'Get jpeg image 3840x2160 resolution'
+    #      operationId: 'serveJpeg3840x2160'
+    #      responses:
+    #        '200':
+    #          description: 'Success'
+    #          content:
+    #            image/jpeg:
+    #              schema:
+    #               type: string
+    #               format: binary
+
+  /api/streamer/pipe:
+    $ref: "~pipe.yaml#/pipe"
+  /api/streamer/pipe/{id}:
+    $ref: "~pipe.yaml#/pipe~1{id}"    
+  /api/streamer/pipe/{id}/stat:
+    $ref: "~pipe.yaml#/pipe~1{id}~1stat"
+
+  /api/streamer/rtp:
+    $ref: "~rtp.yaml#/rtp"
+  /api/streamer/rtp/{id}:
+    $ref: "~rtp.yaml#/rtp~1{id}"
+  /api/streamer/rtp/{id}/stat:
+    $ref: "~rtp.yaml#/rtp~1{id}~1stat"
+
+#  /file:
+#      $ref: "_file.yml#/record"
+
+               #components:
+               #venc:
+               #schemas:
+               #$ref: "venc.yml#/components/schemas"
+        #    - $ref: "venc.yml#/components/schemas"
+        #    - $ref: "system.yml#/components/schemas"
+            
+x-tagGroups:
+  - name: General API
+    tags:
+        - system
+        - debug
+  - name: Audio/video pipeline API
+    tags:
+        - cmos
+        - channel
+        - venc
+  - name: Streamers API
+    tags:
+      - streamer
+      - jpeg
+      - pipe
+      - rtp
+      - rtsp
+      - ws
+      - webrtc
+      - hls
+      - rtmp
+      - file
+      - archive
+  - name: Unsorted API
+    tags:
+        - other
+        - misc
+
+tags:
+  - name: system
+    description: 
+        $ref: "system.yaml#/description"
+    x-displayName: System
+
+  - name: debug
+    description: 
+        $ref: "debug.yaml#/description"
+    x-displayName: Debug 
+    #x-traitTag: true
+
+  - name: cmos
+    description:
+        $ref: "cmos.yaml#/description"
+    x-displayName: CMOS
+
+  - name: channel
+    description: 
+        $ref: "channel.yaml#/description"
+    x-displayName: Channels
+
+  - name: venc
+    description: 
+        $ref: "venc.yaml#/description"
+    x-displayName: Encoders
+
+  - name: streamer
+    description:
+        $ref: "streamer.yaml#/description"
+    x-displayName: Streamer
+
+  - name: jpeg
+    description: 
+        $ref: "jpeg.yaml#/description"
+    x-displayName: Jpeg
+
+  - name: pipe
+    description:
+        $ref: "pipe.yaml#/description"
+    x-displayName: Pipe
+
+  - name: rtp
+    description:
+        $ref: "rtp.yaml#/description"
+    x-displayName: RTP
+
+  - name: rtsp
+    description:
+        $ref: "rtsp.yaml#/description"
+    x-displayName: RTSP
+
+  - name: ws
+    description:
+        $ref: "ws.yaml#/description"
+    x-displayName: Websockets
+
+  - name: webrtc
+    description:
+        $ref: "webrtc.yaml#/description"
+    x-displayName: WebRTC
+
+  - name: hls
+    description:
+        $ref: "hls.yaml#/description"
+    x-displayName: HLS
+
+  - name: rtmp
+    description:
+        $ref: "rtmp.yaml#/description"
+    x-displayName: RTMP push
+
+  - name: other
+    description: |
+        Other API methods
+    x-displayName: Other
+
+  - name: archive
+    description:
+        $ref: "archive.yaml#/description"
+    x-displayName: Archive
+
+  - name: file
+    description:
+        $ref: "file.yaml#/description"
+    x-displayName: File
+
+
+  - name: misc
+    description: 
+        $ref: "misc.yaml#/description"
+    x-displayName: Misc
+

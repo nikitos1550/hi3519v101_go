@@ -1,0 +1,406 @@
+venc:
+    get:
+        summary: 'Show all encoders'
+        tags:
+            - venc
+        operationId: 'vencShow'
+        responses:
+                '200':
+                    description: 'Success'
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/EncoderItem"
+    post:
+        summary: 'Create encoder'
+        tags:
+            - venc
+        operationId: 'vencCreate'
+        description: |
+            This API method is overloaded. 
+            As we want this method to work for all combinations of encoder type + encoder mode + MPP version,
+            we described request parameters as composition of all avalible params. But not all params are taked 
+            into account in each particular case.
+
+            tes test
+        requestBody:
+            required: true
+            content:
+                application/json:
+                    schema:
+                        allOf:
+                            - $ref: "#/components/schemas/Encoder"
+                        required:
+                            - channel
+                            - codec
+        responses:
+            "200":
+                description: "Encoder created"
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/EncoderItem"
+            "401":
+                description: "Params error"
+            "402":
+                description: "No more encoders can be created"
+
+venc/{id}:    
+    parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+            minimum: 0
+          description: Encoder id
+          required: true
+
+    get:
+        summary: 'Show ecnoder information'
+        tags:
+            - venc
+        operationId: 'vencIdShow'
+        responses:
+            "200":
+                description: "Encoder information"
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/Encoder"
+            "404":
+                description: "Encoder not found"
+    put:
+        summary: 'Change encoder runtime settings'
+        tags:
+            - venc
+        operationId: 'vencIdChange'
+        requestBody:
+            required: true
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        oneOf:
+                            - $ref: "#/components/schemas/EncoderCbrParams"
+                            - $ref: "#/components/schemas/EncoderVbrParams"
+                            - $ref: "#/components/schemas/EncoderAVbrParams"
+                            - $ref: "#/components/schemas/EncoderFixQpParams"
+        responses:
+            "200":
+                description: "Settings changed"
+            "404":
+                description: "Encoder not found"
+    delete:
+        summary: 'Destroy encoder'
+        tags:
+            - venc
+        operationId: 'vencIdDelete'
+        responses:
+            "200":
+                description: "Encoder destroyed"
+            "404":
+                description: "Encoder not found"
+
+venc/{id}/stat:
+    parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+            minimum: 0
+          description: Encoder id
+          required: true
+    get:
+        summary: 'Show ecnoder statistics'
+        tags:
+            - venc
+        operationId: 'vencIdStat'
+        responses:
+            "200":
+                description: "Encoder statistics"
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/EncoderStat"
+            "404":
+                description: "Encoder not found"
+
+
+components:
+    schemas:
+        EncoderItem:
+            allOf:
+                - type: object
+                  properties:
+                    id:
+                        type: integer
+                        description: "Encoder id"
+                    stat:
+                        $ref: "#/components/schemas/EncoderStat"
+                - $ref: "#/components/schemas/Encoder"
+
+        Encoder:
+                  type: object
+                  description: "General Encoder struct"
+                  properties:
+                        channel:
+                            type: integer
+                            description: Source channel id. See <a href="#tag/channel">channels</a> section for more info.
+                        codec:
+                            type: string
+                            enum: 
+                                - mjpeg
+                                - h264
+                                - h265
+                            description: Codec type. See <a href="#section/Codec-and-profiles-support">Codec and profiles support</a> section.
+                        profile:
+                            type: string
+                            enum:
+                                - baseline
+                                - main
+                                - main10
+                                - high
+                            description: Codec encoding profile. See <a href="#section/Codec-and-profiles-support">Codec and profiles support</a> section.
+                        width:
+                            type: integer
+                            minimum: 100
+                            multipleOf: 2
+                            description: |
+                                Width of picture.
+                                Should be <= width of soure channel.
+                        height:
+                            type: integer
+                            minimum: 100
+                            multipleOf: 2
+                            description: |
+                                Height of picture.
+                                Should be <= height of source channel.
+                        fps:
+                            type: integer
+                            minimum: 1
+                            description: |
+                                Frames per second.
+                                Should be <= fps of source channel.
+                        gop:
+                            $ref: "#/components/schemas/gop"
+                        bitcontrol:
+                            type: string
+                            enum:
+                                - cbr
+                                - vbr
+                                - fixqp
+                                - avbr
+                                - qmap
+                            description: See <a href="#section/Bitrate-control-strategies-and-GOP-modes-support">Bitrate control strategies and GOP modes support</a> section.
+                        dynamic:
+                            description: |
+                                This parameters can be changed during operation.
+                                Parameters set depends on selected mode.
+                               
+                            oneOf:
+                                - $ref: "#/components/schemas/EncoderCbrParams"
+                                - $ref: "#/components/schemas/EncoderVbrParams"
+                                - $ref: "#/components/schemas/EncoderAVbrParams"
+                                - $ref: "#/components/schemas/EncoderFixQpParams"
+        EncoderStat:
+            type: object
+            description: Encoder statistics
+            properties:
+                sps:
+                    type: string
+                pps:
+                    type: string
+                fps:
+                    type: integer
+
+        EncoderCbrParams:
+                            type: object
+                            description: "Constant bitrate control params"
+                            properties:
+                                bitrate:
+                                    type: integer
+                                    description: "Target bitrate"
+                                stattime:
+                                    type: integer
+                                    description: "TODO"
+                                fluctuate:
+                                    type: integer
+                                    description: "TODO"
+
+        EncoderVbrParams:
+                            type: object
+                            description: "Variable bitrate control params"
+                            properties:
+                                maxbitrate:
+                                    type: integer
+                                    description: "Maximum target bitrate"
+                                stattime:
+                                    type: integer
+                                    description: "TODO"
+                                minIqp:
+                                    type: integer
+                                    description: "TODO"
+                                maxqp:
+                                    type: integer
+                                    description: "TODO"
+                                minqp:
+                                    type: integer
+                                    description: "TODO"
+        EncoderAVbrParams:
+                            type: object
+                            description: "Advanced variable bitrate control params"
+                            properties:
+                                maxbitrate:
+                                    type: integer
+                                    description: "Maximum target bitrate"
+                                stattime:
+                                    type: integer
+                                    description: "TODO"
+        EncoderFixQpParams:
+                            type: object
+                            description: "Fix QP params"
+                            properties:
+                                iqp:
+                                    type: integer
+                                    description: "TODO"
+                                pqp:
+                                    type: integer
+                                    description: "TODO"
+                                bqp:
+                                    type: integer
+                                    description: "TODO"
+
+        gop:
+            type: object
+            description: |
+                Big description for GOP
+            properties:
+                mode:
+                    type: string
+                    description: "Type of GOP stategy"
+                    enum:
+                        - normalp
+                        - dualp
+                        - smartp
+                        - bipredb
+                        - intrar
+                    default: normalp
+                period:
+                    type: integer
+                    description: |
+                        Insert key frame each GOP frames
+                        > Applicable only for **h.264, h.265** encoders.
+                params:
+                    description: |
+                        Overall description of params for exact encoding strategies
+                    oneOf:
+                        - $ref: "#/components/schemas/gopNormalP"
+                        - $ref: "#/components/schemas/gopDualP"
+                        - $ref: "#/components/schemas/gopSmartP"
+                        - $ref: "#/components/schemas/gopIntraR"
+
+        gopNormalP:
+            type: object
+            description: |
+                Describe here normalP strategy
+            properties:
+                ipqdelta:
+                    type: integer
+                    description: "TODO"
+        gopDualP:
+            type: object
+            description: |
+                Describe here dualP strategy
+            properties:
+                PInterval:
+                    type: integer
+                    description: "TODO"
+                PQpDelta:
+                    type: integer
+                    description: "TODO"
+                IPQpDelta:
+                    type: integer
+                    description: "TODO"
+        gopSmartP:
+            type: object
+            description: |
+                Describe here SmartP strategy
+            properties:
+                BgInterval:
+                    type: integer
+                    description: "TODO"
+                BgQpDelta:
+                    type: integer
+                    description: "TODO"
+                ViQpDelta:
+                    type: integer
+                    description: "TODO"
+        gopIntraR:
+            type: object
+            description: |
+                Describe here Intra Refresh strategy
+            properties:
+                RefreshLineNum:
+                    type: integer
+                    description: "TODO"
+                ReqIQp:
+                    type: integer
+                    description: "TODO"
+
+description: |
+    Encoder can be MJPEG, H.264, H.265.
+    There are static and dynamic parameters that can and should be setuped during creation.
+    Dynamic parameters can be changed during encoder operation, static can`t be. 
+    Amount of encoders is limited, due to hardware limitations.
+
+    Encoder is binded to some channel. That channel shoud be created before encoder creation.
+
+    **TODO:** There should be special encoder type that will input frames from user space ( mainly for processed images).
+
+    ## Codec and profiles support
+    |family     |mjpeg   |h.264               |h.265       |
+    |-----------|--------|--------------------|------------|
+    |hi3516av100|baseline|baseline, main, high|main        |
+    |hi3516av200|baseline|baseline, main, high|main        |
+    |hi3516cv100|baseline|baseline, main      |N/A         |
+    |hi3516cv200|baseline|baseline, main, high|N/A         |
+    |hi3516cv300|baseline|baseline, main, high|main        |
+    |hi3516cv500|baseline|baseline, main, high|main        |
+    |hi3516ev200|baseline|baseline, main, high|main        |
+    |hi3519av100|baseline|baseline, main, high|main        |
+    |hi3559av100|baseline|baseline, main, high|main, main10|
+
+    ## Bitrate control strategies and GOP modes support
+    |family     |bitrate control modes      |gop  modes                    |
+    |-----------|---------------------------|------------------------------|
+    |hi3516av100|???                        |???                           |
+    |hi3516av200|cbr, vbr, fixqp, avbr, qmap|normalp, dualp, smartp, intrar|
+    |hi3516cv100|cbr, vbr, fixqp            |???                           |
+    |hi3516cv200|???                        |???                           |
+    |hi3516cv300|cbr, vbr, fixqp, avbr, qmap|???                           |
+    |hi3516cv500|???                        |???                           |
+    |hi3516ev200|???                        |???                           |
+    |hi3519av100|???                        |???                           |
+    |hi3559av100|???                        |???                           |
+
+    CBR - Constant bitrate
+    VBR - Variable bitrate
+    AVBR - TODO
+    FixQP - Fix quality
+
+deprecated: |
+    ## GOP
+    |family     |modes                             |
+    |-----------|----------------------------------|
+    |hi3516av100|???                               |
+    |hi3516av200|normalp, dualp, smartp, intrar    |
+    |hi3516cv100|???                               |
+    |hi3516cv200|???                               |
+    |hi3516cv300|???                               |
+    |hi3516cv500|???                               |
+    |hi3516ev200|???                               |
+    |hi3519av100|???                               |
+    |hi3559av100|???                               |
+

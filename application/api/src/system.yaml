@@ -1,0 +1,31 @@
+date:
+    get:
+      tags:
+        - system
+      summary: 'Get system date and time'
+      operationId: 'systemDate'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemDateTime'
+
+components:
+  schemas:
+    SystemDateTime:
+      type: object
+      properties:
+        formatted:
+          type: string
+          format: date-time
+        secs:
+          type: integer
+          format: uint64
+        nanosecs:
+          type: integer
+          format: uint64
+
+description: |
+    This is system API description

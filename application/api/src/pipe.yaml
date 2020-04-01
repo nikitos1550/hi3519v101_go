@@ -1,0 +1,149 @@
+pipe:
+    get:
+        summary: 'Show all Pipe streamer instances'
+        tags:
+            - pipe
+        operationId: 'pipeShow'
+        responses:
+                '200':
+                    description: 'Success'
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    allOf:
+                                        - type: object
+                                          properties:
+                                            id:
+                                                type: integer
+                                                description: "Pipe streamer instance id"
+                                        - $ref: "#/components/schemas/pipeInstance"
+                                          #- $ref: "#/components/schemas/rtpStat"
+    post:
+        summary: 'Create Pipe streamer instance'
+        tags:
+            - pipe
+        operationId: 'pipeCreate'
+        description: |
+            TODO.
+        requestBody:
+            required: true
+            content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/pipeInstance"
+        responses:
+            "200":
+                description: "Instances created"
+            "501":
+                description: "TODO Some ERROR"
+
+pipe/{id}:
+    parameters:
+        - name: id
+          in: path
+          type: int
+          description: Pipe streamer instance id
+          required: true
+
+    get:
+        summary: 'Show Pipe streamer instance information'
+        tags:
+            - pipe
+        operationId: 'pipeIdShow'
+        responses:
+            "200":
+                description: "Pipe streamer instance information"
+                content:
+                    application/json:
+                        schema:
+                            allOf:
+                                - type: object
+                                  properties:
+                                    id:
+                                        type: integer
+                                        description: "Pipe streamer instance id"
+                                - $ref: "#/components/schemas/pipeInstance"
+                                  #- $ref: "#/components/schemas/rtpStat"
+            "404":
+                description: "RTP streamer instance not found"
+    delete:
+        summary: "Destroy RTP sreamer instance"
+        tags:
+            - pipe
+        operationId: "pipeIdDelete"
+        responces:
+            "200":
+                description: "Pipe streamer instance destroyed"
+            "404":
+                description: "Pipe streamer instance not found"
+
+pipe/{id}/stat:
+    parameters:
+        - name: id
+          in: path
+          type: int
+          description: Pipe streamer instance id
+          required: true
+    get:
+        summary: 'Show Pipe streamer instance statistics'
+        tags:
+            - pipe
+        operationId: 'pipeIdStat'
+        responses:
+                '200':
+                    description: 'Pipe streamer instance statistics'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/pipeStat"
+                '404':
+                    description: 'Pipe streamer instance not found'
+
+
+components:
+    schemas:
+        pipeInstance:
+            type: object
+            description: "TODO"
+            properties:
+                encoder:
+                    type: integer
+                    description: "Source encoder id"
+                file:
+                    type: string
+                    description: |
+                        Name of file on fs.
+
+                        Full name will be `/tmp/{file}`. Where `/tmp/` can be changed via cmd param during startup.
+                #format:
+                #    type: string
+                #    enum:
+                #        - raw0001
+                #    description: |
+                #        Format of streamed data.                
+                #        **TODO**
+        pipeStat:
+            type: object
+            description: "TODO"
+            properties:
+                items:
+                    type: integer
+                    description: "sent NALs for H.264, H.265"
+                bytes:
+                    type: integer
+                    description: "Sent bytes"
+
+
+description: |
+    Special streaming via pipes/fifo for integration with local software running same Linux context.
+
+    In cases when there is some application that consumes streamed data localy, 
+    to avoid network overhead it should capture stream this way.
+
+    **TODO**: Streamer can be binded to <a href="#tag/channel">Channel</a> in this case raw data will be streamed (feature should be turned on for corresponding channel). 
+   
+    Streamer can be binded to <a href="#tag/encoder">Encoder</a> in this case encoded data will be streamed.
+
+    Now only streams H.264/H.265 in raw0001 format.    

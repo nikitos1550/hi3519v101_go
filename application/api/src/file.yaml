@@ -1,0 +1,11 @@
+description: |
+    This is file streamer API. 
+    File streamer is different compared to other streamers.
+    It allow you to store recordings on local FS (supposed that it is placed on USB/SD).
+
+    Besides recording functionality, it allows you not only download captured data, but also
+    perform realtime packaging to various formats (mp4, HLS, etc) and provide acces to 
+    same recorded data in such formats. 
+    For detailed description see <a href="#tag/archive">archive</a> section.
+
+     **TODO** 

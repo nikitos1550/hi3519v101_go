@@ -10,7 +10,7 @@ package venc
 #define ERR_NONE                0
 #define ERR_MPP                 2
 
-int mpp3_venc_sample_mjpeg(unsigned int *error_code, int width, int height, int bitrate, int channelId) {
+int mpp3_venc_create_mjpeg(unsigned int *error_code, int width, int height, int bitrate, int channelId) {
     *error_code = 0;
 
     VENC_CHN_ATTR_S stVencChnAttr;
@@ -61,7 +61,7 @@ int mpp3_venc_sample_mjpeg(unsigned int *error_code, int width, int height, int 
     return ERR_NONE;
 }
 
-int mpp3_venc_sample_h264(unsigned int *error_code, int width, int height, int bitrate, int channelId) {
+int mpp3_venc_create_h264(unsigned int *error_code, int width, int height, int bitrate, int channelId) {
     *error_code = 0;
 
     VENC_CHN_ATTR_S stVencChnAttr;

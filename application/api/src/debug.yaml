@@ -1,0 +1,56 @@
+umap:
+        get:
+            tags:
+                - debug
+            summary: 'MPP debug avalible information overview'
+            operationId: 'debugUmap'
+            responses:
+                '200':
+                    description: 'Success'
+                    content:
+                        text/plain:
+                            schema:
+                                type: string
+umap/{file}:
+        parameters:
+            -   name: file
+                in: path
+                schema:
+                    type: string
+                description: File name
+                required: true
+        get:
+            tags:
+                - debug
+            summary: 'Show debug information'
+            operationId: 'debugUmapFile'
+            responses:
+                '200':
+                    description: 'Success'
+                    content:
+                        text/plain:
+                            schema:
+                                type: string
+                            example: |
+                                [H264E] Version: [Hi3516CV300_MPP_V1.0.0.0 B010 Release], Build Time[Apr 5 2017, 14:49:42]
+                                -----MODULE PARAM--------------------------------------------------------
+                                H264eOneStreamBuffer H264eVBSource H264ePowerSaveEn H264eMiniBufMode 264eRcnEqualRef QpHstgrmEn
+                                0 0 1 1 0 1
+                                -----CHN ATTR----------------------------------------------------------
+                                ID MaxWidth MaxHeight ByFrame GopMode  Width Height profile C2GEn BufSize MaxStrCnt
+                                1 1920 1080  1920 1080 hp N 3110400 Y NormalP 200
+                                -----PICTURE INFO--------------------------------------------------------
+                                ID EncdStart EncdSucceed   Lost Disc Pskip Recode RlsStr UnrdStr
+                                1 9 10 9 0 0 0 1 0
+                                -----STREAM BUFFER-------------------------------------------------------
+                                            ...
+                '404':
+                    description: 'File not found'
+
+description: |
+    If application was built with debug enabled, than this API subset will be exposed.
+
+    This debug has nothing to do with debug build in compilation terms. 
+    This means compiled in debug package, that allow you low level monitoring 
+    of audio/video pipeline and golnag expvars.
+

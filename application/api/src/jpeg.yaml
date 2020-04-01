@@ -1,0 +1,86 @@
+jpeg:
+    get:
+      tags:
+        - jpeg
+      summary: 'Show all JPEG streamer instances'
+      description: |
+        TODO
+      operationId: 'showJpeg'
+      responses:
+        '200':
+          description: 'Success'
+    post:
+      tags:
+        - jpeg
+      summary: 'Create JPEG streamer instance'
+      description: |
+        TODO
+      operationId: 'createJpeg'
+      responses:
+        '200':
+          description: 'Success'
+
+jpeg/{id}:
+    parameters:
+        - name: id
+          in: path
+          type: int
+          description: RTP streamer instance id
+          required: true
+
+    get:
+      tags:
+        - jpeg
+      summary: 'Show JPEG streamer instance information'
+      description: |
+        TODO
+      operationId: 'showIdJpeg'
+      responses:
+        '200':
+          description: 'Success'
+        '404':
+            description: "Not found"
+
+    delete:
+      tags:
+        - jpeg
+      summary: 'Destroy JPEG streamer instance'
+      description: |
+        TODO
+      operationId: 'deleteJpeg'
+      responses:
+        '200':
+          description: 'Success'
+        '404':
+            description: "Not found"
+
+            #{name}.jpg
+            #:
+/{name}.jpg:            
+    parameters:
+        - name: name
+          in: path
+          type: string
+          description: File name
+          required: true
+    get:
+      tags:
+        - jpeg
+      summary: 'Serve jpeg image'
+      description: |
+        Get JPEG image from corresponding JPEG streamer instance
+      operationId: 'serveJpeg'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+                image/jpeg:
+                    schema:
+                        type: string
+                        format: binary
+        '404':
+            description: "Not found"
+
+
+description: |
+    Simple hardcoded serving jpeg image over http.
