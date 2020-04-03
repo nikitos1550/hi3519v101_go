@@ -19,7 +19,7 @@
 |14|JVT|S226H19V-L29|hi3519v101|imx226|-|
 |15|XM|53H20-AE|hi3516cv100|imx222|-|
 |16|XM|83H40PL-B|hi3516av100|OV4689|-|
-|17|SSQVISION|unknown|unknown(av200 family)|imx326|-|
+|17|SSQVISION|unknown|hi3519v101|imx326|-|
 |18|SSQVISION|ON290H16D|hi3516dv100|imx290|rev.2|
 |...|...|...|...|...|...|
 |31|HISILICON|DEMB|hi3516dv300|imx290|official dev board|

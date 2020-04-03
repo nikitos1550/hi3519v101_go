@@ -37,10 +37,10 @@ BOARD   ?= jvt_s274h19v-l29_hi3519v101_imx274
 #BOARD   ?= xm_ipg-83he20py-s_hi3516ev100_imx323
 
 #CAMERA  ?= 11
-#BOARD   ?= TODO
+#BOARD   ?= xm_ivg-83h80nv-be_hi3516av200_os08a10
 
 #CAMERA  ?= 12
-#BOARD   ?= TODO
+#BOARD   ?= ssqvision_unknown_hi3516av300_imx334
 
 #CAMERA  ?= 13
 #BOARD   ?= ssqvision_on335h16d_hi3516dv300_imx335
@@ -52,10 +52,10 @@ BOARD   ?= jvt_s274h19v-l29_hi3519v101_imx274
 #BOARD   ?= xm_53h20-ae_hi3516cv100_imx222
 
 #CAMERA	 ?= 16
-#BOARD   ?= TODO 
+#BOARD   ?= xm_83h40pl-b_hi3516av100_ov4689 
 
 #CAMERA  ?= 17
-#BOARD   ?= TODO 
+#BOARD   ?= ssqvision_unknown_hi3519v101_imx326 
 
 #CAMERA  ?= 18
 #BOARD   ?= ssqvision_on290h16d_hi3516dv100_imx290
