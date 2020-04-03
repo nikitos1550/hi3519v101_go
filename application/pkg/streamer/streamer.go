@@ -3,6 +3,7 @@ package streamer
 import (
 	"application/pkg/streamer/file"
     "application/pkg/streamer/jpeg"
+	"application/pkg/streamer/pipe"
     "application/pkg/streamer/raw"
     "application/pkg/streamer/rtsp"
     "application/pkg/streamer/webrtc"
@@ -12,6 +13,7 @@ import (
 func Init() {
     file.Init()
     jpeg.Init()
+    pipe.Init()
     raw.Init()
     rtsp.Init()
     webrtc.Init()
