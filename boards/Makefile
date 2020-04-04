@@ -129,6 +129,7 @@ $(FAMILY_OUTDIR)/rootfs:
 $(FAMILY_OUTDIR)/kernel:
 	make -C $(FAMILY_ROOT) FAMILY=$(FAMILY) kernel
 
+# Example: make CAMERA=1 BOARD=jvt_s274h19v-l29_hi3519v101_imx274 PROG=1 test_dump_tmp
 test_dump_tmp:
 	../burner/power2.py --num $(CAMERA) off
 	rm -f $(BOARD)/dumps/orig.bin
