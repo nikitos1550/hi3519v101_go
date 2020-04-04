@@ -67,7 +67,7 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	log.Println("tester")
+	log.Println("GoHisiProbe")
 
 	flag.UintVar(&memTotal, "memtotal", 512, "Total RAM size, MB")
 	flag.UintVar(&memLinux, "memlinux", 256, "RAM size passed to Linux kernel, rest will be used for MPP, MB")
