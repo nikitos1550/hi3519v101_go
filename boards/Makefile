@@ -109,8 +109,8 @@ $(KERNEL_UIMAGE): $(KERNEL_DIR) $(MAKEFILE_PARAMS) $(TOOLCHAIN_DIR)
 
 $(KERNEL_DIR): $(FAMILY_OUTDIR)/kernel
 	rm -rf $@; mkdir -p $@; cp -r $</* $@/
-	if [ -e $(BOARD_DIR)/kernel/patch ]; then \
-		cp -r $(BOARD_DIR)/kernel/patch/* $@/linux; \
+	if [ -e $(BOARD_DIR)/kernel/overlay ]; then \
+		cp -r $(BOARD_DIR)/kernel/overlay/* $@/linux; \
 	fi
 	if [ -e $(BOARD_DIR)/kernel/kernel.config ]; then \
 		cp $(BOARD_DIR)/kernel/kernel.config $@/linux/.config; \
