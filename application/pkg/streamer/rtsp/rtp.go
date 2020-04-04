@@ -37,9 +37,11 @@ func CreatePacketizer() Packetizer {
 }
 
 func (p *packetizer) FrameMJPEGToRtp(nal []byte) [][]byte {
+	return nil
 }
 
 func (p *packetizer) NalH265ToRtp(nal []byte) [][]byte {
+	return nil
 }
 
 func (p *packetizer) NalH264ToRtp(nal []byte) [][]byte {
