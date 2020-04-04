@@ -128,3 +128,10 @@ $(FAMILY_OUTDIR)/rootfs:
 
 $(FAMILY_OUTDIR)/kernel:
 	make -C $(FAMILY_ROOT) FAMILY=$(FAMILY) kernel
+
+test_dump_tmp:
+	../burner/power2.py --num $(CAMERA) off
+	rm -f $(BOARD)/dumps/orig.bin
+	flashrom -p serprog:dev=/dev/ttyPROG$(PROG):2000000 -c $(shell cat $(BOARD)/dumps/orig.ic) -r $(BOARD)/dumps/orig.bin
+	flashrom -p serprog:dev=/dev/ttyPROG$(PROG):2000000 -c $(shell cat $(BOARD)/dumps/orig.ic) -v $(BOARD)/dumps/orig.bin
+	../burner/power2.py --num $(CAMERA) on
