@@ -136,6 +136,7 @@ deploy-dir-daemon:
 	cp ../boards/$(BOARD)/config ./distrib/$(FAMILY)/opt/board.config
 	mkdir ./distrib/$(FAMILY)/opt/configs
 	cp ../application/configs/* ./distrib/$(FAMILY)/opt/configs/
+	cp -r ./init/tools ././distrib/$(FAMILY)/opt/ 
 
 deploy-dir-probe:
 	rm -rf ./distrib
