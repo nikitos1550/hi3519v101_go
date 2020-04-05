@@ -18,7 +18,7 @@ REDOC           := ../tools/redoc/cli/redoc-cli
 FAMILY_UPPERCASE    := $(shell echo '$(FAMILY)' | tr '[:lower:]' '[:upper:]')
 CHIP_UPPERCASE      := $(shell echo '$(CHIP)' | tr '[:lower:]' '[:upper:]')
 
-GOTAGS_TESTER  := $(FAMILY) $(CHIP) tester netgo nethttpomithttp2
+GOTAGS_PROBE   := $(FAMILY) $(CHIP) gohisiprobe netgo nethttpomithttp2
 GOTAGS_DAEMON  := $(FAMILY) $(CHIP) netgo nethttpomithttp2 imx274 openapi scripts debug streamerJpeg streamerFile streamerWebrtc streamerRtsp
 #GOTAGS_DAEMON  := $(FAMILY) $(CHIP) netgo nethttpomithttp2 imx274 openapi debug streamerJpeg 
 #GOTAGS_DAEMON  := $(FAMILY) $(CHIP) imx274 openapi debug netgo streamerJpeg
@@ -38,7 +38,7 @@ CGO_LDFLAGS_TESTER :=   $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a)
 
 #CGO_LDFLAGS := $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a) $(abspath ../output/boards/$(BOARD)/cmos/lib$(CMOS).a) -ldl -lm
 
-CGOPARAMS_TESTER := CGO_CFLAGS='$(CFLAGS) $(CGO_CFLAGS)' CGO_CFLAGS_ALLOW='.*' CGO_ENABLED=1 CGO_LDFLAGS='$(CGO_LDFLAGS_TESTER)'
+CGOPARAMS_PROBE  := CGO_CFLAGS='$(CFLAGS) $(CGO_CFLAGS)' CGO_CFLAGS_ALLOW='.*' CGO_ENABLED=1 CGO_LDFLAGS='$(CGO_LDFLAGS_TESTER)'
 CGOPARAMS_DAEMON := CGO_CFLAGS='$(CFLAGS) $(CGO_CFLAGS)' CGO_CFLAGS_ALLOW='.*' CGO_ENABLED=1 CGO_LDFLAGS='$(CGO_LDFLAGS_DAEMON)'
 
 EMBEDDVARS :=   -X 'application/pkg/buildinfo.BuildDateTime=$(shell date +%Y-%m-%d\ %H:%M)' \
@@ -136,14 +136,14 @@ deploy-dir-daemon:
 	mkdir ./distrib/$(FAMILY)/opt/configs
 	cp ../application/configs/* ./distrib/$(FAMILY)/opt/configs/
 
-deploy-dir-tester:
+deploy-dir-probe:
 	rm -rf ./distrib
 	mkdir ./distrib/
 	mkdir ./distrib/$(FAMILY)
 	mkdir ./distrib/$(FAMILY)/opt
 	mkdir ./distrib/$(FAMILY)/etc
 	mkdir ./distrib/$(FAMILY)/etc/init.d
-	cp ./init/S99tester ./distrib/$(FAMILY)/etc/init.d/
+	cp ./init/S99gohisiprobe ./distrib/$(FAMILY)/etc/init.d/
 	cp ../boards/$(BOARD)/config ./distrib/$(FAMILY)/opt/board.config
 	mkdir ./distrib/$(FAMILY)/opt/configs
 	cp ../application/configs/* ./distrib/$(FAMILY)/opt/configs/
@@ -156,11 +156,11 @@ build-daemon: generate libsdk ../output/boards/$(BOARD)/cmos/lib_cmoses.a testvi
 	$(GOENV) $(CGOPARAMS_DAEMON) $(GO) build -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/application application/cmd/daemon
 	#$(GOENV) $(CGOPARAMS_DAEMON) $(GO) tool nm -size ./distrib/$(FAMILY)/opt/application | grep runtime.pclntab
 
-build-tester: generate libsdk deploy-dir-tester
-	$(eval GOTAGS := $(GOTAGS_TESTER))
+build-probe: generate libsdk deploy-dir-probe
+	$(eval GOTAGS := $(GOTAGS_PROBE))
 	#$(GOENV) $(CGOPARAMS) $(GO) build -tags "$(GOTAGS_TESTER)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/tester application/cmd/tester
 	#$(GOENV) $(CGOPARAMS_TESTER) $(GO) build -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/application application/cmd/tester
-	$(GOENV) $(CGOPARAMS_TESTER) $(GO) build -compiler=gccgo -a -tags "$(GOTAGS)" -o ./distrib/$(FAMILY)/opt/application application/cmd/tester
+	$(GOENV) $(CGOPARAMS_PROBE) $(GO) build -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -o ./distrib/$(FAMILY)/opt/gohisiprobe application/cmd/gohisiprobe
 
 build-object:
 	#$(eval GOTAGS := $(GOTAGS_DAEMON))
@@ -174,6 +174,9 @@ build-object:
 
 testvideo.h264:
 	ffmpeg -f lavfi -i testsrc=size=320x340 -t 30 -pix_fmt yuv420p -c:v libx264 -tune zerolatency -profile:v main -g 25 -vbsf h264_mp4toannexb -f h264 testvideo.h264
+
+testvideo.h265:
+	ffmpeg -f lavfi -i testsrc=size=320x340 -t 30 -pix_fmt yuv420p -c:v libx265 -tune zerolatency -g 25 -f hevc testvideo.h265
 
 testvideo.mp4: testvideo.h264
 	MP4Box -add testvideo.h264 -fps 25 testvideo.mp4

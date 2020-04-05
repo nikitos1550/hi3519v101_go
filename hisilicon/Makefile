@@ -3,9 +3,10 @@ ifndef FAMILY
     $(error 'FAMILY' variable must be defined)
 endif
 
-BUILDROOT_DIR  ?= $(abspath ../buildroot-2020.02)
-FAMILY_DIR     := $(abspath $(FAMILY))
-OUTDIR         ?= $(abspath ../output/hisilicon/$(FAMILY))
+ROOTFS_CONFIG_DIR := $(abspath ../rootfs)
+BUILDROOT_DIR  	  ?= $(abspath ../buildroot-2020.02)
+FAMILY_DIR        := $(abspath $(FAMILY))
+OUTDIR            ?= $(abspath ../output/hisilicon/$(FAMILY))
 
 TOOLCHAIN_DIR       := $(OUTDIR)/toolchain
 MAKEFILE_PARAMS     := $(OUTDIR)/Makefile.params
@@ -75,6 +76,7 @@ ROOTFS_BR_CONFIG := $(OUTDIR)/.br-rootfs.config
 $(ROOTFS_BR_CONFIG): $(FAMILY_DIR)/rootfs-toolchain.buildroot
 	mkdir -p $(OUTDIR)
 	sed 's|BR2_TOOLCHAIN_EXTERNAL_PATH=.*|BR2_TOOLCHAIN_EXTERNAL_PATH="$(TOOLCHAIN_DIR)"|' $< > $@
+	cat $(ROOTFS_CONFIG_DIR)/rootfs-common.buildroot >> $@
 
 $(ROOTFS_DIR): $(BUILDROOT_DIR) $(ROOTFS_BR_CONFIG) $(TOOLCHAIN_DIR)
 	rm -rf $@; mkdir -p $(OUTDIR)

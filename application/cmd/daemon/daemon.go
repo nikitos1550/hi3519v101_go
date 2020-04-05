@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"strings"
 	"strconv"
 
 	"application/pkg/buildinfo"
@@ -30,12 +31,26 @@ func main() {
 	//log.SetOutput(ioutil.Discard)
 	flag.Usage = usage
 	//flagVersion := flag.Bool("version", false, "Prints application version information")
-	flag.UintVar(&ko.MemTotal, "mem-total", 32, "Total RAM size, MB")
-	flag.UintVar(&ko.MemLinux, "mem-linux", 20, "RAM size passed to Linux kernel, rest will be used for MPP, MB")
-	flag.UintVar(&ko.MemMpp, "mem-mpp", 12, "RAM size passed to MPP, MB")
+	memTotal := flag.String("mem-total", "32M", "Total RAM size") //&ko.MemTotal
+	memLinux := flag.String("mem-linux", "20M", "RAM size passed to Linux kernel, rest will be used for MPP") //ko.MemLinux
+	memMpp	 := flag.String("mem-mpp", "12M", "RAM size passed to MPP") //ko.MemMpp
 
 	//log.Println("application daemon")
 	flag.Parse()
+
+	//TODO make correct memory size siffix handle
+	*memTotal = strings.Trim(*memTotal, "M")
+        ko.MemTotal, _ = strconv.ParseUint(*memTotal, 10, 64)
+	
+	*memLinux = strings.Trim(*memLinux, "M")
+        ko.MemLinux, _  = strconv.ParseUint(*memLinux, 10, 64)
+
+	*memMpp = strings.Trim(*memMpp, "M")
+        ko.MemMpp, _     = strconv.ParseUint(*memMpp, 10, 64)
+
+	log.Println("mem-total", ko.MemTotal)
+	log.Println("mem-linux", ko.MemLinux)
+	log.Println("mem-mpp", ko.MemMpp)
 
 	cmdline, err := ioutil.ReadFile("/proc/cmdline")
 	if err != nil {

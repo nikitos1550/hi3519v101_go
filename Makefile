@@ -20,7 +20,7 @@ CAMSTORE       := $(THIS_DIR)/facility/camstore/control.sh client
 ########################################################################
 
 APP             := application
-APP_TARGET      ?= tester   #default target will be tester, daemon build on request durin it`s early dev stage
+APP_TARGET      ?= probe   #default target will be tester, daemon build on request durin it`s early dev stage
 
 include ./boards/$(strip $(BOARD))/config
 

@@ -7,7 +7,7 @@ start() {
 	echo "S99 TESTER"
     	. /opt/board.config
 	#dmesg -n 1
-	/opt/application -mem-total=$RAM_SIZE -mem-linux=$RAM_LINUX -mem-mpp=$RAM_MPP &
+	/opt/gohisiprobe -mem-total=$RAM_SIZE -mem-linux=$RAM_LINUX_SIZE -mem-mpp=$RAM_MPP_SIZE &
 }
 
 stop() {

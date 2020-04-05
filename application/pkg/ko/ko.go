@@ -11,9 +11,9 @@ import (
 )
 
 var (
-	MemMpp   uint   = 12
-	MemLinux uint   = 20
-	MemTotal uint   = 32
+	MemMpp   uint64   = 12
+	MemLinux uint64   = 20
+	MemTotal uint64   = 32
 	chip     string = "hi3516av100"
 )
 
@@ -102,7 +102,7 @@ func load(modules [][2]string) {
 
 func setupParams(modules [][2]string) {
 	var memStartAddr uint64 = 0x80000000 + (uint64(MemLinux) * 1024 * 1024)
-	var memMpp2 uint = MemTotal - MemLinux
+	var memMpp2 uint64 = MemTotal - MemLinux
 
 	if memMpp2 != MemMpp {
 		panic("Incorrect mpp memory size")
@@ -110,8 +110,8 @@ func setupParams(modules [][2]string) {
 
 	for i := 0; i < len(modules); i++ {
 		modules[i][1] = strings.Replace(modules[i][1], "{memStartAddr}", strconv.FormatUint(memStartAddr, 16), -1)
-		modules[i][1] = strings.Replace(modules[i][1], "{memMppSize}", strconv.FormatUint(uint64(MemMpp), 10), -1)
-		modules[i][1] = strings.Replace(modules[i][1], "{memTotalSize}", strconv.FormatUint(uint64(MemTotal), 10), -1)
+		modules[i][1] = strings.Replace(modules[i][1], "{memMppSize}", strconv.FormatUint(MemMpp, 10), -1)
+		modules[i][1] = strings.Replace(modules[i][1], "{memTotalSize}", strconv.FormatUint(MemTotal, 10), -1)
 		modules[i][1] = strings.Replace(modules[i][1], "{chipName}", chip, -1)
 
 		log.Println(modules[i][0], " prepared options ", modules[i][1])
