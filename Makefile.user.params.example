@@ -49,10 +49,6 @@ PROG	?= 1
 #BOARD   ?= xm_ivg-83h80nv-be_hi3516av200_os08a10
 #PROG    ?= no
 
-#CAMERA  ?= 12
-#BOARD   ?= ssqvision_unknown_hi3516av300_imx334
-#PROG    ?= 12
-
 #CAMERA  ?= 13
 #BOARD   ?= ssqvision_on335h16d_hi3516dv300_imx335
 #PROG    ?= 13

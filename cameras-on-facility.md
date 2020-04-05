@@ -1,7 +1,7 @@
 
 # Facility cameras
 
-## 03.04.2020
+## 05.04.2020
 
 |FSlot|Vendor|Model|SoC|CMOS|Comment|
 |-----|------|-----|---|----|-------|
@@ -16,7 +16,7 @@
 |9|XM|IPG-83H50P-B|hi3516av100|imx178|-|
 |10|XM|IPG-83HE20PY-S|hi3516ev100|imx323|-|
 |11|XM|IVG-83H80NV-BE|hi3516av200|OS08A10|-|
-|12|SSQVISION|unknown|hi3516av300|imx334|-|
+|12|...|...|...|...|-|
 |13|SSQVISION|ON335H16D|hi3516dv300|imx335|-|
 |14|JVT|S226H19V-L29|hi3519v101|imx226|-|
 |15|XM|53H20-AE|hi3516cv100|imx222|-|
@@ -49,7 +49,7 @@
 - hi3516cv500 family
 	- [ ] hi3516cv500 **N/A**
 	- [X] hi3516dv300
-	- [X] hi3516av300
+	- [ ] hi3516av300 **Not working UART/uboot** SSQVISION_unknown_hi3516av300_imx334
 - hi3516ev200 family
 	- [X] hi3516ev300
 	- [X] hi3516ev200
