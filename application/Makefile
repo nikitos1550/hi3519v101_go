@@ -19,7 +19,8 @@ FAMILY_UPPERCASE    := $(shell echo '$(FAMILY)' | tr '[:lower:]' '[:upper:]')
 CHIP_UPPERCASE      := $(shell echo '$(CHIP)' | tr '[:lower:]' '[:upper:]')
 
 GOTAGS_PROBE   := $(FAMILY) $(CHIP) gohisiprobe netgo nethttpomithttp2
-GOTAGS_DAEMON  := $(FAMILY) $(CHIP) netgo nethttpomithttp2 imx274 openapi scripts debug streamerJpeg streamerFile streamerWebrtc streamerRtsp
+GOTAGS_DAEMON  := $(FAMILY) $(CHIP) netgo nethttpomithttp2 imx274 openapi scripts debug streamerJpeg streamerFile streamerWebrtc streamerRtsp streamerPipe
+
 #GOTAGS_DAEMON  := $(FAMILY) $(CHIP) netgo nethttpomithttp2 imx274 openapi debug streamerJpeg 
 #GOTAGS_DAEMON  := $(FAMILY) $(CHIP) imx274 openapi debug netgo streamerJpeg
 #GOTAGS_DAEMON  := $(FAMILY) imx274 debug
