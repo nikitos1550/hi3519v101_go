@@ -1,0 +1,34 @@
+#!/bin/sh
+#
+# Start tester
+#
+
+start() {
+	echo "S99 TESTER"
+    	. /opt/board.config
+	#dmesg -n 1
+	/opt/gohisiprobe -mem-total=$RAM_SIZE -mem-linux=$RAM_LINUX_SIZE -mem-mpp=$RAM_MPP_SIZE &
+}
+
+stop() {
+	echo -n "Stopping debug"
+	echo "OK"
+}
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+#  restart|reload)
+#	stop
+#	start
+#	;;
+  *)
+	echo "Usage: $0 {start|stop}"
+	exit 1
+esac
+
+exit $?

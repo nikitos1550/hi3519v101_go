@@ -109,8 +109,8 @@ $(KERNEL_UIMAGE): $(KERNEL_DIR) $(MAKEFILE_PARAMS) $(TOOLCHAIN_DIR)
 
 $(KERNEL_DIR): $(FAMILY_OUTDIR)/kernel
 	rm -rf $@; mkdir -p $@; cp -r $</* $@/
-	if [ -e $(BOARD_DIR)/kernel/patch ]; then \
-		cp -r $(BOARD_DIR)/kernel/patch/* $@/linux; \
+	if [ -e $(BOARD_DIR)/kernel/overlay ]; then \
+		cp -r $(BOARD_DIR)/kernel/overlay/* $@/linux; \
 	fi
 	if [ -e $(BOARD_DIR)/kernel/kernel.config ]; then \
 		cp $(BOARD_DIR)/kernel/kernel.config $@/linux/.config; \
@@ -128,3 +128,11 @@ $(FAMILY_OUTDIR)/rootfs:
 
 $(FAMILY_OUTDIR)/kernel:
 	make -C $(FAMILY_ROOT) FAMILY=$(FAMILY) kernel
+
+# Example: make CAMERA=1 BOARD=jvt_s274h19v-l29_hi3519v101_imx274 PROG=1 test_dump_tmp
+test_dump_tmp:
+	../burner/power2.py --num $(CAMERA) off
+	rm -f $(BOARD)/dumps/orig.bin
+	flashrom -p serprog:dev=/dev/ttyPROG$(PROG):2000000 -c $(shell cat $(BOARD)/dumps/orig.ic) -r $(BOARD)/dumps/orig.bin
+	flashrom -p serprog:dev=/dev/ttyPROG$(PROG):2000000 -c $(shell cat $(BOARD)/dumps/orig.ic) -v $(BOARD)/dumps/orig.bin
+	../burner/power2.py --num $(CAMERA) on

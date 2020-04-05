@@ -20,7 +20,7 @@ CAMSTORE       := $(THIS_DIR)/facility/camstore/control.sh client
 ########################################################################
 
 APP             := application
-APP_TARGET      ?= tester   #default target will be tester, daemon build on request durin it`s early dev stage
+APP_TARGET      ?= probe   #default target will be tester, daemon build on request durin it`s early dev stage
 
 include ./boards/$(strip $(BOARD))/config
 
@@ -117,7 +117,7 @@ deploy: pack
                 --target-ip $(CAMERA_IP) --iface enp3s0 \
                 --uimage $(BOARD_OUTDIR)/kernel/uImage \
                 --rootfs $(BOARD_OUTDIR)/rootfs.squashfs \
-                --initrd-size $(shell ls -s --block-size=1048576 $(BOARD_OUTDIR)/rootfs.squashfs | cut -d' ' -f1)M --memory-size $(RAM_LINUX)M \
+                --initrd-size $(shell ls -s --block-size=1048576 $(BOARD_OUTDIR)/rootfs.squashfs | cut -d' ' -f1)M --memory-size $(RAM_LINUX_SIZE) \
                 --lconsole "ttyAMA0,115200"
 
 deploy-app: pack-app
@@ -130,7 +130,7 @@ deploy-app: pack-app
 		--target-ip $(CAMERA_IP) --iface enp3s0 \
 		--uimage $(BOARD_OUTDIR)/kernel/uImage \
 		--rootfs $(BOARD_OUTDIR)/rootfs+app.squashfs \
-		--initrd-size $(shell ls -s --block-size=1048576 $(BOARD_OUTDIR)/rootfs+app.squashfs | cut -d' ' -f1)M --memory-size $(RAM_LINUX)M \
+		--initrd-size $(shell ls -s --block-size=1048576 $(BOARD_OUTDIR)/rootfs+app.squashfs | cut -d' ' -f1)M --memory-size $(RAM_LINUX_SIZE) \
 		--lconsole "ttyAMA0,115200"
 
 
