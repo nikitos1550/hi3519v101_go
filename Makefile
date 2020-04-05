@@ -67,14 +67,14 @@ kernel: $(BOARD_OUTDIR)/kernel/uImage
 $(BOARD_OUTDIR)/rootfs+app.squashfs: $(BOARD_OUTDIR)/rootfs+app
 	rm -f $@
 	mksquashfs $< $@ -all-root -comp xz -b 64K -Xdict-size 100%
-	rm -f $(BOARD_OUTDIR)/rootfs+app.squashfs.xz
-	mksquashfs $< $(BOARD_OUTDIR)/rootfs+app.squashfs.xz -all-root -comp xz -b 64K -Xdict-size 100%
-	rm -f $(BOARD_OUTDIR)/rootfs+app.squashfs.lz4
-	mksquashfs $< $(BOARD_OUTDIR)/rootfs+app.squashfs.lz4 -all-root -comp lz4 -b 64K -Xhc
-	rm -f $(BOARD_OUTDIR)/rootfs+app.squashfs.lzo
-	mksquashfs $< $(BOARD_OUTDIR)/rootfs+app.squashfs.lzo -all-root -comp lzo -b 64K -Xcompression-level 9
-	rm -f $(BOARD_OUTDIR)/rootfs+app.squashfs.gzip
-	mksquashfs $< $(BOARD_OUTDIR)/rootfs+app.squashfs.gzip -all-root -comp gzip -b 64K -Xcompression-level 9
+	#rm -f $(BOARD_OUTDIR)/rootfs+app.squashfs.xz
+	#mksquashfs $< $(BOARD_OUTDIR)/rootfs+app.squashfs.xz -all-root -comp xz -b 64K -Xdict-size 100%
+	#rm -f $(BOARD_OUTDIR)/rootfs+app.squashfs.lz4
+	#mksquashfs $< $(BOARD_OUTDIR)/rootfs+app.squashfs.lz4 -all-root -comp lz4 -b 64K -Xhc
+	#rm -f $(BOARD_OUTDIR)/rootfs+app.squashfs.lzo
+	#mksquashfs $< $(BOARD_OUTDIR)/rootfs+app.squashfs.lzo -all-root -comp lzo -b 64K -Xcompression-level 9
+	#rm -f $(BOARD_OUTDIR)/rootfs+app.squashfs.gzip
+	#mksquashfs $< $(BOARD_OUTDIR)/rootfs+app.squashfs.gzip -all-root -comp gzip -b 64K -Xcompression-level 9
 
 $(BOARD_OUTDIR)/rootfs+app: $(BOARD_OUTDIR)/rootfs $(APP)/distrib/$(FAMILY)
 	rm -rf $@; mkdir -p $@
