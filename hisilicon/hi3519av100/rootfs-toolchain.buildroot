@@ -11,5 +11,5 @@ BR2_TOOLCHAIN_EXTERNAL_GCC_7=y
 BR2_TOOLCHAIN_EXTERNAL_HEADERS_4_9=y
 BR2_TOOLCHAIN_EXTERNAL_CUSTOM_GLIBC=y
 BR2_TARGET_OPTIMIZATION="-mcpu=cortex-a53 -mfloat-abi=softfp -mfpu=neon-vfpv4 -fno-aggressive-loop-optimizations"
-BR2_PACKAGE_BUSYBOX_CONFIG="$(TOPDIR)/../rootfs/busybox.config"
+# All above is toolchain related settings
 

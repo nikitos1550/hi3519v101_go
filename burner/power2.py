@@ -201,9 +201,9 @@ if args.mode == "reset":
     exit(0)
 
 if args.mode == "on":
-    relaystate(); relayon(DEVICE); relaystate()
+    relaystate(); relayoff(DEVICE); relaystate()
     exit(0)
 
 if args.mode == "off":
-    relaystate(); relayoff(DEVICE); relaystate()
+    relaystate(); relayon(DEVICE); relaystate()
     exit(0)
