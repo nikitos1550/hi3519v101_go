@@ -75,7 +75,7 @@ int mpp3_venc_sample_h264(unsigned int *error_code, int width, int height, int b
     stH264Attr.u32PicWidth      = width;         //the picture width
     stH264Attr.u32PicHeight     = height;         //the picture height
     stH264Attr.u32BufSize       = 3840*2160*1.5;  //stream buffer size
-    stH264Attr.u32Profile       = 2;            //0: baseline; 1:MP; 2:HP;  3:svc_t
+    stH264Attr.u32Profile       = 1;            //0: baseline; 1:MP; 2:HP;  3:svc_t
     stH264Attr.bByFrame         = HI_TRUE;      //get stream mode is slice mode or frame mode?
     //stH264Attr.u32BFrameNum   = 0;            //0: not support B frame; >=1: number of B frames
     //stH264Attr.u32RefNum      = 1;            //0: default; number of refrence frame
