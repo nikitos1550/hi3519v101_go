@@ -11,9 +11,9 @@ GOARM   := $(ARMV) #FROM Makefile.params
 GOENV   := GOPATH=$(GOPATH) GOOS=$(GOOS) GOARCH=$(GOARCH) GOARM=$(GOARM) 
 #GOROOT_FINAL="/test/"
 
-APIDOC          := tools/apidoc/bin/apidoc
-APIDOCOPENAPI   := tools/apidoc-openapi/bin/apidoc-openapi
-REDOC           := ../tools/redoc/cli/redoc-cli
+#APIDOC          := tools/apidoc/bin/apidoc
+#APIDOCOPENAPI   := tools/apidoc-openapi/bin/apidoc-openapi
+#REDOC           := ../tools/redoc/cli/redoc-cli
 
 FAMILY_UPPERCASE    := $(shell echo '$(FAMILY)' | tr '[:lower:]' '[:upper:]')
 CHIP_UPPERCASE      := $(shell echo '$(CHIP)' | tr '[:lower:]' '[:upper:]')
@@ -195,14 +195,14 @@ install-deps:
 	GOPATH=$(GOPATH) $(GO) get -u github.com/shuLhan/go-bindata
 	go get -u github.com/shuLhan/go-bindata
 
-apidoc:
-	$(APIDOCOPENAPI) -p ./api/apidoc.json -s ./pkg -o ./api/openapi_extracted.json -v
-	cd api; ./openapi.sh
-	$(APIDOC) -c ./api/apidoc.json -i ./pkg -o ./api/docs-openapi
-	$(REDOC) bundle ./api/openapi.json --options ./api/redoc.conf
-	mv redoc-static.html ./api/
-	$(REDOC) bundle ./api/openhisiipcam.yaml --options ./api/redoc.conf
-	mv redoc-static.html ./api/redoc-static2.html
+#apidoc:
+#	$(APIDOCOPENAPI) -p ./api/apidoc.json -s ./pkg -o ./api/openapi_extracted.json -v
+#	cd api; ./openapi.sh
+#	$(APIDOC) -c ./api/apidoc.json -i ./pkg -o ./api/docs-openapi
+#	$(REDOC) bundle ./api/openapi.json --options ./api/redoc.conf
+#	mv redoc-static.html ./api/
+#	$(REDOC) bundle ./api/openhisiipcam.yaml --options ./api/redoc.conf
+#	mv redoc-static.html ./api/redoc-static2.html
 
-tinygo:
-	GOPATH=$(GOPATH) $(GO) get -d -u github.com/tinygo-org/tinygo
+#tinygo:
+#	GOPATH=$(GOPATH) $(GO) get -d -u github.com/tinygo-org/tinygo
