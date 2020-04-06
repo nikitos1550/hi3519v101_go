@@ -1,4 +1,5 @@
-// +build hi3516cv100
+//+build arm
+//+build hi3516cv100
 
 package chip
 

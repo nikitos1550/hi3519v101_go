@@ -1,7 +1,7 @@
 // +build hi3516cv500
 
-//go:generate rm -f hi3516cv500_kobin.go
-//go:generate go run -tags "generate hi3516cv500" ./generate.go --output hi3516cv500_kobin.go --tag hi3516cv500 --dir ../../sdk/hi3516cv500/ko/ --pkg ko --source ./hi3516cv500.go
+//go:generate rm -f kobin_hi3516cv500.go
+//go:generate go run -tags "generate hi3516cv500" ./generate.go --output kobin_hi3516cv500.go --tag hi3516cv500 --dir ../../sdk/hi3516cv500/ko/ --pkg ko --source ./hi3516cv500.go
 
 package ko
 

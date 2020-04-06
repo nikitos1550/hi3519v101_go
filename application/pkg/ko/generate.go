@@ -2,7 +2,7 @@
 
 //+build ignore
 
-//This program generates hi35*******_kodata.go. It can be invoked by running
+//This program generates kobin_hi35****.go. It can be invoked by running
 //make generate
 
 package main

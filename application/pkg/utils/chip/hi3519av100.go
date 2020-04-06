@@ -1,4 +1,5 @@
-// +build hi3519av100
+//+build arm
+//+build hi3519av100
 
 package chip
 

@@ -153,10 +153,9 @@ deploy-dir-probe:
 TRIMPATH :=/home/nikitos1550/work/hi3519v101_go/application
 
 build-daemon: generate libsdk ../output/boards/$(BOARD)/cmos/lib_cmoses.a testvideo.mp4 testvideo.h264 deploy-dir-daemon
-	$(eval GOTAGS := $(GOTAGS_DAEMON))
-	#$(GOENV) $(CGOPARAMS) $(GO) build -a -tags "$(GOTAGS_DAEMON)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/daemon application/cmd/daemon
-	$(GOENV) $(CGOPARAMS_DAEMON) $(GO) build -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/application application/cmd/daemon
-	#$(GOENV) $(CGOPARAMS_DAEMON) $(GO) tool nm -size ./distrib/$(FAMILY)/opt/application | grep runtime.pclntab
+	go list -f={{.GoFiles}} -a -tags "$(GOTAGS_DAEMON)" application/pkg/utils/temperature
+	$(GOENV) $(CGOPARAMS_DAEMON) $(GO) list -f={{.GoFiles}} -a -tags "$(GOTAGS_DAEMON)" application/pkg/utils/temperature
+	$(GOENV) $(CGOPARAMS_DAEMON) $(GO) build -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS_DAEMON)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/application application/cmd/gohisicam
 
 build-probe: generate libsdk deploy-dir-probe
 	$(eval GOTAGS := $(GOTAGS_PROBE))

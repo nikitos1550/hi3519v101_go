@@ -1,4 +1,5 @@
-// +build hi3516ev200
+//+build arm
+//+build hi3516ev200
 
 package chip
 
