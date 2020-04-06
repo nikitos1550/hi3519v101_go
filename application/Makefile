@@ -21,10 +21,6 @@ CHIP_UPPERCASE      := $(shell echo '$(CHIP)' | tr '[:lower:]' '[:upper:]')
 GOTAGS_PROBE   := $(FAMILY) $(CHIP) gohisiprobe netgo nethttpomithttp2
 GOTAGS_DAEMON  := $(FAMILY) $(CHIP) netgo nethttpomithttp2 imx274 openapi scripts debug streamerJpeg streamerFile streamerWebrtc streamerRtsp streamerPipe
 
-#GOTAGS_DAEMON  := $(FAMILY) $(CHIP) netgo nethttpomithttp2 imx274 openapi debug streamerJpeg 
-#GOTAGS_DAEMON  := $(FAMILY) $(CHIP) imx274 openapi debug netgo streamerJpeg
-#GOTAGS_DAEMON  := $(FAMILY) imx274 debug
-#GOTAGS  := $(FAMILY) netgo openapi debug lua onvif
 
 PATH    := $(PATH):$(GOPATH)/bin
 
@@ -132,7 +128,7 @@ deploy-dir-daemon:
 	cp ./testvideo.h264 ././distrib/$(FAMILY)/opt
 	cp ./testvideo.mp4 ././distrib/$(FAMILY)/opt
 	mkdir ./distrib/$(FAMILY)/etc/init.d
-	cp ./init/S99daemon ./distrib/$(FAMILY)/etc/init.d/
+	cp ./init/S99gohisicam ./distrib/$(FAMILY)/etc/init.d/
 	cp ../boards/$(BOARD)/config ./distrib/$(FAMILY)/opt/board.config
 	mkdir ./distrib/$(FAMILY)/opt/configs
 	cp ../application/configs/* ./distrib/$(FAMILY)/opt/configs/
@@ -150,18 +146,16 @@ deploy-dir-probe:
 	mkdir ./distrib/$(FAMILY)/opt/configs
 	cp ../application/configs/* ./distrib/$(FAMILY)/opt/configs/
 
-TRIMPATH :=/home/nikitos1550/work/hi3519v101_go/application
+TRIMPATH := $(abspath .) 
+#/home/nikitos1550/work/hi3519v101_go/application
 
 build-daemon: generate libsdk ../output/boards/$(BOARD)/cmos/lib_cmoses.a testvideo.mp4 testvideo.h264 deploy-dir-daemon
 	go list -f={{.GoFiles}} -a -tags "$(GOTAGS_DAEMON)" application/pkg/utils/temperature
 	$(GOENV) $(CGOPARAMS_DAEMON) $(GO) list -f={{.GoFiles}} -a -tags "$(GOTAGS_DAEMON)" application/pkg/utils/temperature
-	$(GOENV) $(CGOPARAMS_DAEMON) $(GO) build -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS_DAEMON)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/application application/cmd/gohisicam
+	$(GOENV) $(CGOPARAMS_DAEMON) $(GO) build -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS_DAEMON)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/gohisicam application/cmd/gohisicam
 
 build-probe: generate libsdk deploy-dir-probe
-	$(eval GOTAGS := $(GOTAGS_PROBE))
-	#$(GOENV) $(CGOPARAMS) $(GO) build -tags "$(GOTAGS_TESTER)" -ldflags $(EMBEDDVARS) -o $(APPOUT)/tester application/cmd/tester
-	#$(GOENV) $(CGOPARAMS_TESTER) $(GO) build -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/application application/cmd/tester
-	$(GOENV) $(CGOPARAMS_PROBE) $(GO) build -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -o ./distrib/$(FAMILY)/opt/gohisiprobe application/cmd/gohisiprobe
+	$(GOENV) $(CGOPARAMS_PROBE) $(GO) build -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS_PROBE)" -o ./distrib/$(FAMILY)/opt/gohisiprobe application/cmd/gohisiprobe
 
 build-object:
 	#$(eval GOTAGS := $(GOTAGS_DAEMON))
