@@ -10,6 +10,6 @@ BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX="arm-buildroot-linux-gnueabi"
 BR2_TOOLCHAIN_EXTERNAL_GCC_7=y
 BR2_TOOLCHAIN_EXTERNAL_HEADERS_4_9=y
 BR2_TOOLCHAIN_EXTERNAL_CUSTOM_GLIBC=y
-BR2_TARGET_OPTIMIZATION="-mcpu=cortex-a73.cortex-a53 -mfloat-abi=softfp -mfpu=neon-vfpv4 -fno-aggressive-loop-optimizations"
+BR2_TARGET_OPTIMIZATION="-mcpu=cortex-a73.cortex-a53"
 # All above is toolchain related settings
 
