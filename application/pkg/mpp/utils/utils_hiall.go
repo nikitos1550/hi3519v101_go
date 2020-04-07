@@ -1,4 +1,4 @@
-//+build arm
+//+build arm arm64
 //+build hi3516av100 hi3516av200 hi3516cv100 hi3516cv200 hi3516cv300 hi3516cv500 hi3516ev200 hi3519av100 hi3559av100
 
 package utils
