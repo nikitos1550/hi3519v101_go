@@ -1,4 +1,5 @@
-// +build hi3516ev200
+//+build arm
+//+build hi3519av100
 
 package temperature
 
@@ -16,4 +17,5 @@ func Get() (float32, error) {
     return 0, errors.New("TODO, not implemented yet")
 
 }
+
 
