@@ -21,5 +21,8 @@ CFLAGS  :=  -std=gnu11 \
             -O2 \
             -fno-common -ffunction-sections
 
-ARMV    := 5
+GOARCH    := arm
+GOARM     := 7
+
+GOPATH    := $(abspath ../output/go_workspace)
 
