@@ -99,6 +99,50 @@ int mpp3_vpss_sample_channel0(unsigned int *error_code) {
 
     return ERR_NONE;
 }
+
+int mpp3_vpss_sample_channel(
+        unsigned int channelId,
+        unsigned int width,
+        unsigned int height,
+        unsigned int fps,
+        unsigned int *error_code) {
+    *error_code = 0;
+
+    VPSS_CHN_ATTR_S stVpssChnAttr;
+    VPSS_CHN_MODE_S stVpssChnMode;
+
+    stVpssChnMode.enChnMode      = VPSS_CHN_MODE_USER;
+    stVpssChnMode.bDouble        = HI_FALSE;
+    stVpssChnMode.enPixelFormat  = PIXEL_FORMAT_YUV_SEMIPLANAR_420;
+    stVpssChnMode.u32Width       = width;
+    stVpssChnMode.u32Height      = height;
+    stVpssChnMode.enCompressMode = COMPRESS_MODE_NONE; //COMPRESS_MODE_SEG;
+
+    memset(&stVpssChnAttr, 0, sizeof(stVpssChnAttr));
+
+    stVpssChnAttr.s32SrcFrameRate = 30;
+    stVpssChnAttr.s32DstFrameRate = fps;
+
+    *error_code = HI_MPI_VPSS_SetChnAttr(0, channelId, &stVpssChnAttr);
+    if (*error_code != HI_SUCCESS) return ERR_MPP;
+
+    *error_code = HI_MPI_VPSS_SetChnMode(0, channelId, &stVpssChnMode);
+    if (*error_code != HI_SUCCESS) return ERR_MPP;
+
+    *error_code = HI_MPI_VPSS_EnableChn(0, channelId);
+    if (*error_code != HI_SUCCESS) return ERR_MPP;
+
+    return ERR_NONE;
+}
+
+int mpp3_destroy_vpss_sample_channel(unsigned int channelId, unsigned int *error_code) {
+    *error_code = 0;
+    *error_code = HI_MPI_VPSS_DisableChn(0, channelId);
+    if (*error_code != HI_SUCCESS) return ERR_MPP;
+
+    return ERR_NONE;
+}
+
 */
 import "C"
 
@@ -135,5 +179,30 @@ func SampleChannel0() {
     default:
         log.Fatal("Unexpected return ", err , " of C.mpp3_vpss_sample_channel0()")
     }
+}
 
+func CreateChannel(channel Channel) {
+    var errorCode C.uint
+
+    switch err := C.mpp3_vpss_sample_channel(C.uint(channel.ChannelId), C.uint(channel.Width), C.uint(channel.Height), C.uint(channel.Fps), &errorCode); err {
+    case C.ERR_NONE:
+        log.Println("C.mpp3_vpss_sample_channel() ok")
+    case C.ERR_MPP:
+        log.Fatal("C.mpp3_vpss_sample_channel() MPP error ", error.Resolve(int64(errorCode)))
+    default:
+        log.Fatal("Unexpected return ", err , " of C.mpp3_vpss_sample_channel()")
+    }
+}
+
+func DestroyChannel(channel Channel) {
+    var errorCode C.uint
+
+    switch err := C.mpp3_destroy_vpss_sample_channel(C.uint(channel.ChannelId), &errorCode); err {
+    case C.ERR_NONE:
+        log.Println("C.mpp3_destroy_vpss_sample_channel() ok")
+    case C.ERR_MPP:
+        log.Fatal("C.mpp3_destroy_vpss_sample_channel() MPP error ", error.Resolve(int64(errorCode)))
+    default:
+        log.Fatal("Unexpected return ", err , " of C.mpp3_destroy_vpss_sample_channel()")
+    }
 }
