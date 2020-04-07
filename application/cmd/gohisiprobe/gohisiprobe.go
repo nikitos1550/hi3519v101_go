@@ -36,6 +36,8 @@ var (
 )
 
 func apiHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("ytytyt")
+
 	var schema answerSchema
 
 	schema.App = "tester"
@@ -102,6 +104,9 @@ func main() {
 	log.Println("Loading modules done")
 
 	log.Println("Starting http server :80")
-	http.HandleFunc("/", apiHandler)
-	http.ListenAndServe(":80", nil)
+	//http.HandleFunc("/", apiHandler)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "Hello World!")
+	})
+	http.ListenAndServe(":8888", nil)
 }

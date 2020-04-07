@@ -7,19 +7,21 @@ GOARCH  ?= amd64
 GOENV   := GOPATH=$(GOPATH) GOOS=$(GOOS) GOARCH=$(GOARCH) GOARM=$(GOARM) 
 
 FAMILY	?= host
+CMOS	?= unknown
 
 FAMILY_UPPERCASE    := $(shell echo '$(FAMILY)' | tr '[:lower:]' '[:upper:]')
 CHIP_UPPERCASE      := $(shell echo '$(CHIP)' | tr '[:lower:]' '[:upper:]')
 
-GOTAGS_PROBE   	:= $(FAMILY) $(CHIP) netgo nethttpomithttp2
+#GOTAGS_PROBE   	:= $(FAMILY) $(CHIP) netgo nethttpomithttp2
+GOTAGS_PROBE    := $(FAMILY) netgo nethttpomithttp2
 GOTAGS_CAM 	:= $(FAMILY) $(CHIP) $(CMOS) netgo nethttpomithttp2 openapi scripts debug streamerJpeg streamerFile streamerRtsp streamerPipe
 
 CGO_CFLAGS  := -I$(abspath sdk/$(FAMILY)/include) -D$(FAMILY_UPPERCASE)
 #-D$(CHIP_UPPERCASE)
 
 #TODO rework this
-ifneq ($(wildcard ../output/boards/$(BOARD)/Makefile.params),)
-	CMOS_TARGET := ../output/boards/$(BOARD)/cmos/lib_cmoses.a
+ifneq ($(CMOS),unknown)
+       CMOS_TARGET := ../output/boards/$(BOARD)/cmos/lib_cmoses.a
 endif
 
 ifneq ($(wildcard ../output/hisilicon/$(FAMILY)/Makefile.params),) 
@@ -27,7 +29,7 @@ ifneq ($(wildcard ../output/hisilicon/$(FAMILY)/Makefile.params),)
        CGO_LDFLAGS := $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a) $(abspath $(CMOS_TARGET))
 endif 
 
-CGOPARAMS := CGO_CFLAGS='$(CFLAGS) $(CGO_CFLAGS)' CGO_CFLAGS_ALLOW='.*' CGO_ENABLED=1 CGO_LDFLAGS='$(CGO_LDFLAGS)'
+CGOPARAMS := CGO_CFLAGS='$(CFLAGS) $(CGO_CFLAGS)' CGO_CFLAGS_ALLOW='.*' CGO_ENABLED=1 CGO_LDFLAGS='$(CGO_LDFLAGS) $(FAMILY_LDFLAGS)'
 
 EMBEDDVARS :=   -X 'application/pkg/buildinfo.BuildDateTime=$(shell date +%Y-%m-%d\ %H:%M)' \
                 -X 'application/pkg/buildinfo.GoVersion=$(shell $(GO) version)' \

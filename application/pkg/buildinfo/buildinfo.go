@@ -17,6 +17,7 @@ var (
 	BoardVendor  string
 	BoardModel   string
 
+	Family string
 	Chip string
 
 	CmosProfile string

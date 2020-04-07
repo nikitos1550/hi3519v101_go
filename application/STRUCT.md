@@ -1,3 +1,13 @@
+# Refactoring
+
+## Targets
+
+* ability to build and run application on host machine (x86)
+* integrated unit tests using golang ecosystem
+* strict ideology of code base structure
+* internal documentation (golang api level)
+
+
 ## Idea
 
 * family related code separated on files level
@@ -7,6 +17,11 @@
   * *.go file will be compiled in all cases
   * *_hi35****.go is just mark, it should contains //+build arm,hi35****
   * *_host.go should contains //+build 386 amd64
+
+## Go tags
+* 
+*
+* streamer* (streamerJpeg, streamerRtsp, etc)
 
 ## ...
 

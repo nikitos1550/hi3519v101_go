@@ -4,7 +4,13 @@ THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 #APP_TARGET := cam
 
+BOARD ?= unknown_unknown_hi3516av100_unknown
 #BOARD ?= unknown_unknown_hi3516av200_unknown
+#BOARD ?= unknown_unknown_hi3516cv100_unknown
+#BOARD ?= unknown_unknown_hi3516cv200_unknown
+#BOARD ?= unknown_unknown_hi3516cv300_unknown
+#BOARD ?= unknown_unknown_hi3516cv500_unknown 
+#BOARD ?= unknown_unknown_hi3516ev200_unknown 
 
 #CAMERA  ?= 1
 #BOARD   ?= jvt_s274h19v-l29_hi3519v101_imx274
