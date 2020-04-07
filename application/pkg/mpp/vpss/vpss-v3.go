@@ -192,6 +192,10 @@ func CreateChannel(channel Channel) {
     default:
         log.Fatal("Unexpected return ", err , " of C.mpp3_vpss_sample_channel()")
     }
+
+    go func() {
+		sendDataToClients(channel)
+    }()
 }
 
 func DestroyChannel(channel Channel) {
@@ -205,4 +209,16 @@ func DestroyChannel(channel Channel) {
     default:
         log.Fatal("Unexpected return ", err , " of C.mpp3_destroy_vpss_sample_channel()")
     }
+}
+
+func sendDataToClients(channel Channel) {
+	channel.Started = true
+	for{
+		channel.Mutex.RLock()
+		if (!channel.Started){
+			break
+		}
+
+		channel.Mutex.RUnlock()
+	}
 }

@@ -5,6 +5,7 @@ package vpss
 import (
 	"application/pkg/openapi"
 	"net/http"
+    "sync"
 )
 
 type responseRecord struct {
@@ -20,6 +21,8 @@ type Channel struct {
 	CropY int
 	CropWidth int
 	CropHeight int
+    Mutex sync.RWMutex
+	Started bool
 }
 
 var (
