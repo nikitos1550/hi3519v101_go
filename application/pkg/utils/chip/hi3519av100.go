@@ -5,8 +5,11 @@ package chip
 
 var (
     chips = [...]string {
-        "hi3559av100"
+        "hi3559av100",
     }
 )
 
-//TODO
+func RegId() uint32 {
+    return 0
+}
+

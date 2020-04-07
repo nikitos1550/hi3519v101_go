@@ -1,12 +1,15 @@
-//+build arm
-//+build hi3519av100
+//+build arm64
+//+build hi3559av100
 
 package chip
 
 var (
     chips = [...]string {
-        "hi3559av100"
+        "hi3559av100",
     }
 )
 
-//TODO
+func RegId() uint32 {
+    return 0
+}
+
