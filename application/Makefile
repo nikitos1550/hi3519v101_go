@@ -132,8 +132,16 @@ build-probe: generate $(LIB_TARGET) deploy-dir-probe
 
 build: build-$(APP)
 
-test: generate
-	GOPATH=$(GOPATH)  $(GO) test -tags "$(GOTAGS)" ./... -v
+test-host: generate
+	GOPATH=$(GOPATH) $(GO) test -tags "$(GOTAGS)" ./... -v
+
+test-target: generate
+	rm -rf ./tests
+	mkdir tests
+	@for i in `GOPATH=$(GOPATH) $(GO) list -tags "$(GOTAGS)" ./...`; do \
+		echo $$i; \
+		$(GOENV) $(CGOPARAMS) $(GO) test -tags "$(GOTAGS)" -c $$i -o tests/`echo $$i | cut -d '/' -f 3`.test; \
+	done
 
 
 #build-object:

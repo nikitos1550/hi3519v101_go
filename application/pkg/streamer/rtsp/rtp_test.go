@@ -3,7 +3,7 @@
 package rtsp
 
 import "testing"
-//import "log"
+import "log"
 
 func TestOne(t *testing.T) {
         //var testp packetizer
@@ -15,9 +15,9 @@ func TestOne(t *testing.T) {
 
 
 func TestTwo(t *testing.T) {
-	//var testp packetizer
-	//var nal [100]byte
+	var testp packetizer
+	var nal [100]byte
 
-	//log.Println(testp.NalH264ToRtp(nal[1:100]))
+	log.Println(testp.NalH264ToRtp(nal[1:100]))
 	t.Errorf("Test error")
 }

@@ -6,8 +6,9 @@ package ai
 /*
 #include "../include/mpp_v3.h"
 
+;;;
 
 */
-import C
+import "C"
 
 func Init() {}
