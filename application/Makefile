@@ -1,4 +1,6 @@
-include $(PARAMS_FILE)
+-include $(PARAMS_FILE)
+
+APP	?= probe
 
 GO	?= go
 
@@ -9,12 +11,14 @@ GOENV   := GOPATH=$(GOPATH) GOOS=$(GOOS) GOARCH=$(GOARCH) GOARM=$(GOARM)
 FAMILY	?= host
 CMOS	?= unknown
 
+-include sdk/$(FAMILY)/Makefile.params
+
 FAMILY_UPPERCASE    := $(shell echo '$(FAMILY)' | tr '[:lower:]' '[:upper:]')
 CHIP_UPPERCASE      := $(shell echo '$(CHIP)' | tr '[:lower:]' '[:upper:]')
 
-#GOTAGS_PROBE   	:= $(FAMILY) $(CHIP) netgo nethttpomithttp2
 GOTAGS_PROBE    := $(FAMILY) netgo nethttpomithttp2
 GOTAGS_CAM 	:= $(FAMILY) $(CHIP) $(CMOS) netgo nethttpomithttp2 openapi scripts debug streamerJpeg streamerFile streamerRtsp streamerPipe
+GOTAGS := $(GOTAGS_$(shell echo '$(APP)' | tr '[:lower:]' '[:upper:]'))
 
 CGO_CFLAGS  := -I$(abspath sdk/$(FAMILY)/include) -D$(FAMILY_UPPERCASE)
 #-D$(CHIP_UPPERCASE)
@@ -32,14 +36,20 @@ endif
 
 CGOPARAMS := CGO_CFLAGS='$(CFLAGS) $(CGO_CFLAGS)' CGO_CFLAGS_ALLOW='.*' CGO_ENABLED=1 CGO_LDFLAGS='$(CGO_LDFLAGS) $(FAMILY_LDFLAGS)'
 
-EMBEDDVARS :=   -X 'application/pkg/buildinfo.BuildDateTime=$(shell date +%Y-%m-%d\ %H:%M)' \
-                -X 'application/pkg/buildinfo.GoVersion=$(shell $(GO) version)' \
-                -X 'application/pkg/buildinfo.GccVersion=$(shell $(CC) --version)' \
+ifneq ($(strip $(shell git status --porcelain 2>/dev/null)),)
+	GIT_TREE_STATE=(dirty)
+endif
+GIT	:= $(shell git branch | grep \* | cut -d " " -f2) $(GIT_TREE_STATE)
+
+SDKV 	:= $(HISDK_ARCHIVE) $(HISDK)
+
+EMBEDDVARS :=   -X 'application/pkg/buildinfo.BuildDateTime=$(shell date --utc "+%Y-%m-%d %H:%M (UTC)")' \
+                -X 'application/pkg/buildinfo.GoVersion=$(shell $(GOENV) $(GO) version)' \
+                -X 'application/pkg/buildinfo.GccVersion=$(shell $(CC) --version | head -n 1)' \
                 -X 'application/pkg/buildinfo.BuildTags=$(GOTAGS)' \
-                -X 'application/pkg/buildinfo.BuildUser=$(USER)' \
-                -X 'application/pkg/buildinfo.BuildCommit=$(shell git log --pretty=format:"%h" -n 1)' \
-                -X 'application/pkg/buildinfo.BuildBranch=$(shell git branch | grep \* | cut -d " " -f2)' \
+                -X 'application/pkg/buildinfo.BuildBranch=$(GIT)' \
                 -X 'application/pkg/buildinfo.Family=$(FAMILY)' \
+		-X 'application/pkg/buildinfo.SDK=$(SDKV)' \
                 -X 'application/pkg/buildinfo.CmosProfile=$(CMOS)'  
 
 #NO DEBUG SYMBOLS, COMMENT IF WANT TO TURN ON DEBUG
@@ -110,10 +120,12 @@ deploy-dir-probe: distrib
 TRIMPATH := $(abspath .) 
 
 build-cam: generate $(LIB_TARGET) $(CMOS_TARGET) deploy-dir-cam
-	$(GOENV) $(CGOPARAMS) $(GO) build -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS_CAM)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/gohisicam application/cmd/gohisicam
+	$(GOENV) $(CGOPARAMS) $(GO) build -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/gohisicam application/cmd/gohisicam
 
 build-probe: generate $(LIB_TARGET) deploy-dir-probe
-	$(GOENV) $(CGOPARAMS) $(GO) build -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS_PROBE)" -o ./distrib/$(FAMILY)/opt/gohisiprobe application/cmd/gohisiprobe
+	$(GOENV) $(CGOPARAMS) $(GO) build -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/gohisiprobe application/cmd/gohisiprobe
+
+build: build-$(APP)
 
 #build-object:
 #	$(GOENV) $(CGOPARAMS) $(GO) tool nm ./distrib/$(FAMILY)/opt/application

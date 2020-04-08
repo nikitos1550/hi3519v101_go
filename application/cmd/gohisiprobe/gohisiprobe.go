@@ -19,12 +19,12 @@ type answerSchema struct {
 	App string `json:"appName"`
 
 	ChipDetectedReg string `json:"chipDetectedReg"`
-	//ChipDetectedMpp string          `json:"chipDetectedMpp"`
+	ChipDetectedMpp string          `json:"chipDetectedMpp"`
 
 	Mpp string `json:"mppVersion"`
 
 	SysIdReg uint32 `json:"chipIdReg"`
-	//SysIdMpp        uint32          `json:"chipIdMpp"`
+	SysIdMpp        uint32          `json:"chipIdMpp"`
 
 	TempVal float32 `json:"temperature"`
 	TempHW  string  `json:"temperatureHW"`
@@ -38,19 +38,19 @@ var (
 )
 
 func apiHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("ytytyt")
+	//log.Println("ytytyt")
 
 	var schema answerSchema
 
-	schema.App = "tester"
+	schema.App = "GoHisiProbe"
 
 	schema.ChipDetectedReg = chip.Detect(chip.RegId())
-	//schema.ChipDetectedMpp  = chip.Detect(chip.MppId())
+	schema.ChipDetectedMpp  = chip.Detect(utils.MppId())
 
 	schema.Mpp = utils.Version()
 
 	schema.SysIdReg = chip.RegId()
-	//schema.SysIdMpp         = chip.MppId()
+	schema.SysIdMpp = utils.MppId()
 
 	var err error
 	schema.TempVal, err = temperature.Get()
@@ -73,17 +73,10 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	log.Println("GoHisiProbe")
 
-	/*
-	flag.UintVar(&memTotal, "mem-total", 32, "Total RAM size, MB")
-	flag.UintVar(&memLinux, "mem-linux", 24, "RAM size passed to Linux kernel, rest will be used for MPP, MB")
-
-	flag.Parse()
-	*/
         memTotal := flag.String("mem-total", "32M", "Total RAM size") //&ko.MemTotal
         memLinux := flag.String("mem-linux", "20M", "RAM size passed to Linux kernel, rest will be used for MPP") //ko.MemLinux
         memMpp   := flag.String("mem-mpp", "12M", "RAM size passed to MPP") //ko.MemMpp
 
-        //log.Println("application daemon")
         flag.Parse()
 
         //TODO make correct memory size siffix handle
@@ -102,8 +95,8 @@ func main() {
 
 
 	log.Println("CMD parsed params:")
-	log.Println("Total board RAM ", memTotal, "MB")
-	log.Println("Linux RAM ", memLinux, "MB")
+	log.Println("Total board RAM ", ko.MemTotal, "MB")
+	log.Println("Linux RAM ", ko.MemLinux, "MB")
 	log.Println("")
 
 	log.Println("Build time info:")
@@ -111,16 +104,16 @@ func main() {
 	log.Println("Gcc: ", buildinfo.GccVersion)
 	log.Println("Date: ", buildinfo.BuildDateTime)
 	log.Println("Tags: ", buildinfo.BuildTags)
-	log.Println("User: ", buildinfo.BuildUser)
-	log.Println("Commit: ", buildinfo.BuildCommit)
+	//log.Println("User: ", buildinfo.BuildUser)
+	//log.Println("Commit: ", buildinfo.BuildCommit)
 	log.Println("Branch: ", buildinfo.BuildBranch)
-	log.Println("Vendor: ", buildinfo.BoardVendor)
-	log.Println("Model: ", buildinfo.BoardModel)
-	log.Println("Chip: ", buildinfo.Chip)
+	//log.Println("Vendor: ", buildinfo.BoardVendor)
+	//log.Println("Model: ", buildinfo.BoardModel)
+	//log.Println("Chip: ", buildinfo.Chip)
 	log.Println("Cmos: ", buildinfo.CmosProfile)
-	log.Println("Total ram: ", buildinfo.TotalRam)
-	log.Println("Linux ram: ", buildinfo.LinuxRam)
-	log.Println("Mpp ram: ", buildinfo.MppRam)
+	//log.Println("Total ram: ", buildinfo.TotalRam)
+	//log.Println("Linux ram: ", buildinfo.LinuxRam)
+	//log.Println("Mpp ram: ", buildinfo.MppRam)
 	log.Println("")
 
 	log.Println("Loading modules...")
@@ -130,10 +123,7 @@ func main() {
 
 	log.Println("Starting http server :80")
 	http.HandleFunc("/", apiHandler)
-	/*
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello World!")
-	})
-	*/
+	
+	//TODO check errors
 	http.ListenAndServe(":80", nil)
 }
