@@ -140,7 +140,7 @@ test-target: generate
 	mkdir tests
 	@for i in `GOPATH=$(GOPATH) $(GO) list -tags "$(GOTAGS)" ./...`; do \
 		echo $$i; \
-		$(GOENV) $(CGOPARAMS) $(GO) test -tags "$(GOTAGS)" -c $$i -o tests/`echo $$i | cut -d '/' -f 3`.test; \
+		$(GOENV) $(CGOPARAMS) $(GO) test -tags "$(GOTAGS)" -c $$i -o tests/`echo $$i | rev | cut -d '/' -f 1 | rev`.test; \
 	done
 
 
