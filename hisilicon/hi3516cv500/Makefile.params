@@ -1,4 +1,4 @@
-TOOLCHAIN_NAME   := arm-buildroot-linux-uclibcgnueabi
+TOOLCHAIN_NAME   := arm-buildroot-linux-gnueabi
 TOOLCHAIN        := $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_NAME)-
 
 CC      := $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_NAME)-gcc
@@ -23,5 +23,10 @@ CFLAGS  :=  -std=gnu11 \
             -O2 \
             -fno-common -ffunction-sections
 
-ARMV    := 7
+FAMILY_LDFLAGS := -lm -ldl
+
+GOARCH    := arm
+GOARM     := 7
+
+GOPATH    := $(abspath ../output/go_workspace)
 

@@ -1,7 +1,7 @@
-// +build hi3516av100
+//+build hi3516av100
 
-//go:generate rm -f hi3516av100_kobin.go
-//go:generate go run -tags "generate hi3516av100" ./generate.go --output hi3516av100_kobin.go --tag hi3516av100 --dir ../../sdk/hi3516av100/ko/ --pkg ko --source ./hi3516av100.go
+//g-o:generate rm -f kobin_hi3516av100.go
+//g-o:generate go run -tags "generate hi3516av100" ./generate.go --output kobin_hi3516av100.go --tag hi3516av100 --dir ../../sdk/hi3516av100/ko/ --pkg ko --source ./hi3516av100.go
 
 package ko
 
@@ -53,7 +53,7 @@ var (
 		[2]string{"hi_mipi.ko", ""},
 	}
 
-	minimalModulesList = [...]string{
+	MinimalModulesList = [...]string{
 		"mmz.ko",
 		"hi_media.ko",
 		"hi3516a_base.ko",

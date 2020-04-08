@@ -1,7 +1,7 @@
 // +build hi3516cv500
 
-//go:generate rm -f hi3516cv500_kobin.go
-//go:generate go run -tags "generate hi3516cv500" ./generate.go --output hi3516cv500_kobin.go --tag hi3516cv500 --dir ../../sdk/hi3516cv500/ko/ --pkg ko --source ./hi3516cv500.go
+//g-o:generate rm -f kobin_hi3516cv500.go
+//g-o:generate go run -tags "generate hi3516cv500" ./generate.go --output kobin_hi3516cv500.go --tag hi3516cv500 --dir ../../sdk/hi3516cv500/ko/ --pkg ko --source ./hi3516cv500.go
 
 package ko
 
@@ -13,7 +13,7 @@ var (
 		[2]string{"hi3516cv500_sys.ko", ""},
 	}
 
-	minimalModulesList = [...]string{
+	MinimalModulesList = [...]string{
 		"sys_config.ko",
 		"hi_osal.ko",
 		"hi3516cv500_base.ko",

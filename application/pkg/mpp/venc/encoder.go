@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
-	"net/http"
+//	"net/http"
 
-	"application/pkg/openapi"
+//	"application/pkg/openapi"
 )
 
 type Encoder struct {
@@ -28,7 +28,7 @@ type encoderInfo struct {
 var Encoders map[string] Encoder
 
 func init() {
-    openapi.AddApiRoute("listEncoders", "/encoders", "GET", listEncoders)
+    //openapi.AddApiRoute("listEncoders", "/encoders", "GET", listEncoders)
 	Encoders = make(map[string] Encoder)
 	readEncoders()
 }
@@ -47,6 +47,7 @@ func readEncoders() {
     }
 }
 
+/*
 func listEncoders(w http.ResponseWriter, r *http.Request)  {
 	var encodersInfo []encoderInfo
 	for name, encoder := range Encoders {
@@ -62,3 +63,4 @@ func listEncoders(w http.ResponseWriter, r *http.Request)  {
 	}
 	openapi.ResponseSuccessWithDetails(w, encodersInfo)
 }
+*/

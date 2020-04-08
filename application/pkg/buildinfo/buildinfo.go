@@ -9,21 +9,23 @@ var (
 	BuildDateTime string
 	BuildTags     string
 
-	BuildUser   string
-	BuildCommit string
+	//BuildUser   string
+	//BuildCommit string
 	BuildBranch string
 
-	BoardProfile string
-	BoardVendor  string
-	BoardModel   string
+	//BoardProfile string
+	//BoardVendor  string
+	//BoardModel   string
 
-	Chip string
+	Family string
+	SDK	string
+	//Chip string
 
 	CmosProfile string
 
-	TotalRam string
-	LinuxRam string
-	MppRam   string
+	//TotalRam string
+	//LinuxRam string
+	//MppRam   string
 )
 
 //TODO make insternal structs by goups (build group, toolchain group, board group, etc)
@@ -32,17 +34,19 @@ type Info struct {
 	GccVersion 		string	`json:"gccversion"`
 	BuildDateTime 	string	`json:"builddatetime"`
 	BuildTags     	string	`json:"buildtags"`
-	BuildUser   	string	`json:"builduser"`
-	BuildCommit 	string	`json:"buildcommit"`
+	//BuildUser   	string	`json:"builduser"`
+	//BuildCommit 	string	`json:"buildcommit"`
 	BuildBranch 	string	`json:"buildbranch"`
-	BoardProfile 	string	`json:"boardprofile"`
-	BoardVendor  	string	`json:"boardvendor"`
-	BoardModel   	string	`json:"boardmodel"`
-	Chip 			string	`json:"chip"`
-	CmosProfile 	string	`json:"cmos"`
-	TotalRam 		string	`json:"totalram"`
-	LinuxRam 		string	`json:"linuxram"`
-	MppRam   		string	`json:"mppram"`
+	//BoardProfile 	string	`json:"boardprofile"`
+	//BoardVendor  	string	`json:"boardvendor"`
+	//BoardModel   	string	`json:"boardmodel"`
+	Family		string  `json:"family"`
+	SDK		string  `json:"SDK"`
+	//Chip 			string	`json:"chip"`
+	CmosProfile 	string	`json:"cmos,omitempty"`
+	//TotalRam 		string	`json:"totalram"`
+	//LinuxRam 		string	`json:"linuxram"`
+	//MppRam   		string	`json:"mppram"`
 }
 
 func CopyAll(out *Info) {
@@ -52,19 +56,21 @@ func CopyAll(out *Info) {
 	out.BuildDateTime = BuildDateTime
 	out.BuildTags = BuildTags
 
-	out.BuildUser = BuildUser
-	out.BuildCommit = BuildCommit
+	//out.BuildUser = BuildUser
+	//out.BuildCommit = BuildCommit
 	out.BuildBranch = BuildBranch
 
-	out.BoardProfile = BoardProfile
-	out.BoardVendor = BoardVendor
-	out.BoardModel = BoardModel
+	//out.BoardProfile = BoardProfile
+	//out.BoardVendor = BoardVendor
+	//out.BoardModel = BoardModel
 
-	out.Chip = Chip
+	out.Family = Family
+	out.SDK = SDK
+	//out.Chip = Chip
 
 	out.CmosProfile = CmosProfile
 
-	out.TotalRam = TotalRam
-	out.LinuxRam = LinuxRam
-	out.MppRam = MppRam
+	//out.TotalRam = TotalRam
+	//out.LinuxRam = LinuxRam
+	//out.MppRam = MppRam
 }
