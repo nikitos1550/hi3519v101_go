@@ -13,8 +13,8 @@ import (
 
 func init() {
     openapi.AddApiRoute("listEncoders", "/encoders", "GET", listEncoders)
-        Encoders = make(map[string] Encoder)
-        readEncoders()
+        //Encoders = make(map[string] Encoder) //dup init, first in encoder.go
+       // readEncoders() //dup invoke, first in encoder.go
 }
 
 func listEncoders(w http.ResponseWriter, r *http.Request)  {

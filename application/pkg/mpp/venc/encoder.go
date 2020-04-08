@@ -30,7 +30,7 @@ var Encoders map[string] Encoder
 func init() {
     //openapi.AddApiRoute("listEncoders", "/encoders", "GET", listEncoders)
 	Encoders = make(map[string] Encoder)
-	readEncoders()
+//	readEncoders() //moved to venc.go Init()
 }
 
 func readEncoders() {

@@ -6,6 +6,8 @@ import (
 
 func Init() {
     loopInit()
+	readEncoders()
+
 }
 
 var (

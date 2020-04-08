@@ -39,7 +39,7 @@ func CreatePacketizer() Packetizer {
 func (p *packetizer) FrameMJPEGToRtp(nal []byte) [][]byte {
 	return nil
 }
-
+/*
 func (p *packetizer) NalH265ToRtp(nal []byte) [][]byte {
 	var nalType byte = (nal[0] & 126) >> 1
 	var payloadH1 byte = nal[0];
@@ -118,7 +118,7 @@ func (p *packetizer) NalH265ToRtp(nal []byte) [][]byte {
 
 	return out
 }
-
+*/
 // This is always FuA packatizer, even if NAL length is less than
 // one packet size we will pack it as FuA with corresponding start and end marks
 func (p *packetizer) NalH264ToRtp(nal []byte) [][]byte {

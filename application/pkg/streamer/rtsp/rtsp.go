@@ -38,9 +38,9 @@ var (
 )
 
 func init() {
-	rtspStreams = make(map[string] rtspStream)
+//	rtspStreams = make(map[string] rtspStream)
 
-	server = CreateRtspServer()
+	//server = CreateRtspServer()
 
     openapi.AddApiRoute("rtspApiDescription", "/rtsp", "GET", rtspApiDescription)
     openapi.AddApiRoute("startRtspStream", "/rtsp/start", "GET", startRtspStream)
@@ -49,6 +49,10 @@ func init() {
 }
 
 func Init() {
+        rtspStreams = make(map[string] rtspStream)
+
+        server = CreateRtspServer()
+
 }
 
 func rtspApiDescription(w http.ResponseWriter, r *http.Request)  {
