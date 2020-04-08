@@ -98,7 +98,7 @@ THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 #PROMPT   ?= hisilicon
 
 #CAMERA	 ?= 16
-#BOARD    ?= xm_83h40pl-b_hi3516av100_ov4689 
+#BOARD    ?= xm_83h40pl-b_hi3516dv100_ov4689 
 #PROG     ?= no
 #GREETING ?= Uncompress
 #PROMPT   ?= xmtech
