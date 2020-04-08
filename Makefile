@@ -19,6 +19,11 @@ CAMSTORE       := $(THIS_DIR)/facility/camstore/control.sh client
 
 ########################################################################
 
+GREETING	?= System startup
+PROMPT		?= hisilicon
+
+########################################################################
+
 APP             := application
 APP_TARGET      ?= probe   #default target will be tester, daemon build on request durin it`s early dev stage
 
@@ -125,7 +130,8 @@ deploy-app: pack-app
         --log-level DEBUG \
 		--mode camstore \
 		--port /dev/ttyCAM$(CAMERA) \
-		--reset-power "./power2.py --num $(CAMERA) reset" \
+                --uboot-params 'GREETING="$(GREETING)" PROMPT="$(PROMPT) #"' \
+	        --reset-power "./power2.py --num $(CAMERA) reset" \
 		load \
 		--target-ip $(CAMERA_IP) --iface enp3s0 \
 		--uimage $(BOARD_OUTDIR)/kernel/uImage \
@@ -183,4 +189,3 @@ control-telnet:
 
 control-telnet-%:
 	telnet 192.168.10.1$(shell printf '%02d' $(subst control-telnet-,,$@))
-
