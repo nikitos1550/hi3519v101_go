@@ -13,6 +13,11 @@ package vpss
 #define ERR_HI_MPI_VPSS_StartGrp    4
 #define ERR_HI_MPI_SYS_Bind         5
 
+#define MAX_CHANNELS 10
+VIDEO_FRAME_INFO_S channelFrames[MAX_CHANNELS];
+
+typedef void (*callbackFunc) (VIDEO_FRAME_INFO_S*);
+
 int mpp3_vpss_init(unsigned int *error_code) {
     *error_code = 0;
 
@@ -129,6 +134,10 @@ int mpp3_vpss_sample_channel(
     *error_code = HI_MPI_VPSS_SetChnMode(0, channelId, &stVpssChnMode);
     if (*error_code != HI_SUCCESS) return ERR_MPP;
 
+ 	HI_U32 u32Depth = 1;
+ 	*error_code = HI_MPI_VPSS_SetDepth(0, channelId, u32Depth);
+    if (*error_code != HI_SUCCESS) return ERR_MPP;
+
     *error_code = HI_MPI_VPSS_EnableChn(0, channelId);
     if (*error_code != HI_SUCCESS) return ERR_MPP;
 
@@ -141,6 +150,31 @@ int mpp3_destroy_vpss_sample_channel(unsigned int channelId, unsigned int *error
     if (*error_code != HI_SUCCESS) return ERR_MPP;
 
     return ERR_NONE;
+}
+
+int mpp3_receive_frame(unsigned int channelId) {
+ 	int s32Ret = HI_MPI_VPSS_GetChnFrame(0, channelId, &channelFrames[channelId], -1);
+
+ 	if (HI_SUCCESS != s32Ret) {
+ 		printf("HI_MPI_VPSS_GetChnFrame failed with %#x!\n", s32Ret);
+ 	}
+
+ 	return s32Ret;
+}
+
+int mpp3_release_frame(unsigned int channelId) {
+ 	int s32Ret = HI_MPI_VPSS_ReleaseChnFrame(0, channelId, &channelFrames[channelId]);
+
+ 	if (HI_SUCCESS != s32Ret) {
+ 		printf("HI_MPI_VPSS_ReleaseChnFrame failed with %#x!\n", s32Ret);
+ 	}
+
+ 	return s32Ret;
+}
+
+void mpp3_send_frame_to_clients(unsigned int channelId, void* callback) {
+	callbackFunc func = callback;
+	func(&channelFrames[channelId]);
 }
 
 */
@@ -212,13 +246,24 @@ func DestroyChannel(channel Channel) {
 }
 
 func sendDataToClients(channel Channel) {
-	channel.Started = true
 	for{
-		channel.Mutex.RLock()
 		if (!channel.Started){
 			break
 		}
 
-		channel.Mutex.RUnlock()
+		err := C.mpp3_receive_frame(C.uint(channel.ChannelId));
+		if (err != 0){
+			log.Println("Failed receive frame", channel.ChannelId, error.Resolve(int64(err)))
+			continue
+		}
+
+		for callback, _ := range channel.Clients {
+			C.mpp3_send_frame_to_clients(C.uint(channel.ChannelId), callback);
+		}
+
+		err = C.mpp3_release_frame(C.uint(channel.ChannelId));
+		if (err != 0){
+			log.Println("Failed release frame", channel.ChannelId, error.Resolve(int64(err)))
+		}
 	}
 }

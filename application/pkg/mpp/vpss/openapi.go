@@ -5,40 +5,20 @@ package vpss
 import (
 	"application/pkg/openapi"
 	"net/http"
-    "sync"
+	"unsafe"
 )
 
 type responseRecord struct {
 	Message string
 }
 
-type Channel struct {
-	ChannelId  int
-	Width int
-	Height int
-	Fps int
-	CropX int
-	CropY int
-	CropWidth int
-	CropHeight int
-    Mutex sync.RWMutex
-	Started bool
-}
-
-var (
-	channels map[int] Channel
-)
-
 func init() {
-	channels = make(map[int] Channel)
-
     openapi.AddApiRoute("apiDescription", "/mpp/channel", "GET", apiDescription)
 
     openapi.AddApiRoute("startChannel", "/mpp/channel/start", "GET", startChannelRequest)
     openapi.AddApiRoute("stopChannel", "/mpp/channel/stop", "GET", stopChannelRequest)
     openapi.AddApiRoute("listChannels", "/mpp/channel/list", "GET", listChannelsRequest)
 }
-
 
 func apiDescription(w http.ResponseWriter, r *http.Request)  {
 	openapi.ApiDescription(w, r, "Channels api:\n\n", "/mpp/channel")
@@ -88,7 +68,10 @@ func startChannelRequest(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
-	err, errorString := startChannel(channel)
+	channel.Started = true
+	channel.Clients = make(map[unsafe.Pointer] bool)
+
+	err, errorString := StartChannel(channel)
 	if err != 0 {
 		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: errorString})
 		return
@@ -97,25 +80,13 @@ func startChannelRequest(w http.ResponseWriter, r *http.Request)  {
 	openapi.ResponseSuccessWithDetails(w, responseRecord{Message: "Channel was started"})
 }
 
-func startChannel(channel Channel)  (int, string)  {
-	_, channelExists := channels[channel.ChannelId]
-	if (channelExists) {
-		return 1, "Channel already exists"
-	}
-
-	CreateChannel(channel)
-
-	channels[channel.ChannelId] = channel
-	return 0, ""
-}
-
 func stopChannelRequest(w http.ResponseWriter, r *http.Request) {
 	ok, channelId := openapi.GetIntParameter(w, r, "channelId")
 	if !ok {
 		return
 	}
 
-	err, errorString := stopChannel(channelId)
+	err, errorString := StopChannel(channelId)
 	if err != 0 {
 		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: errorString})
 		return
@@ -124,21 +95,9 @@ func stopChannelRequest(w http.ResponseWriter, r *http.Request) {
 	openapi.ResponseSuccessWithDetails(w, responseRecord{Message: "Channel was stopped"})
 }
 
-func stopChannel(channelId int)  (int, string)  {
-	channel, channelExists := channels[channelId]
-	if (!channelExists) {
-		return 1, "Channel does not exist"
-	}
-
-	DestroyChannel(channel)
-
-	delete(channels, channelId)
-	return 0, ""
-}
-
 func listChannelsRequest(w http.ResponseWriter, r *http.Request) {
 	var channelsInfo []Channel
-	for _, channel := range channels {
+	for _, channel := range Channels {
 		channelsInfo = append(channelsInfo, channel)
 	}
 	openapi.ResponseSuccessWithDetails(w, channelsInfo)

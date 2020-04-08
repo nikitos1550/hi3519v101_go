@@ -8,23 +8,23 @@ import (
 )
 
 var (
-	processings map[string] unsafe.Pointer
+	Processings map[string] unsafe.Pointer
 )
 
 func Init() {
-	log.Println("main processing Init", len(processings))
+	log.Println("main processing Init", len(Processings))
 }
 
 func init() {
-	processings = make(map[string] unsafe.Pointer)
+	Processings = make(map[string] unsafe.Pointer)
 	log.Println("main processing init")
 }
 
 func register(name string, callback unsafe.Pointer){
-	_, exists := processings[name]
+	_, exists := Processings[name]
 	if (exists) {
 		log.Fatal("processing already exists", name)
 	}
 	
-	processings[name] = callback
+	Processings[name] = callback
 }
