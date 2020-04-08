@@ -16,15 +16,15 @@ CMOS	?= unknown
 FAMILY_UPPERCASE    := $(shell echo '$(FAMILY)' | tr '[:lower:]' '[:upper:]')
 CHIP_UPPERCASE      := $(shell echo '$(CHIP)' | tr '[:lower:]' '[:upper:]')
 
-GOTAGS_PROBE    := $(FAMILY) netgo nethttpomithttp2
-GOTAGS_CAM 	:= $(FAMILY) $(CHIP) $(CMOS) netgo nethttpomithttp2 openapi scripts debug streamerJpeg streamerFile streamerRtsp streamerPipe
+GOTAGS_PROBE    := gohisiprobe $(FAMILY) netgo nethttpomithttp2
+GOTAGS_CAM 	:= gohisicam $(FAMILY) $(CHIP) $(CMOS) netgo nethttpomithttp2 openapi scripts debug streamerJpeg streamerFile streamerRtsp streamerPipe
 GOTAGS := $(GOTAGS_$(shell echo '$(APP)' | tr '[:lower:]' '[:upper:]'))
 
 CGO_CFLAGS  := -I$(abspath sdk/$(FAMILY)/include) -D$(FAMILY_UPPERCASE)
 #-D$(CHIP_UPPERCASE)
 
 #TODO rework this
-ifneq ($(wildcard ./output/boards/$(BOARD)/cmos/lib_cmoses.a),)
+ifneq ($(CMOS),unknown)
        CMOS_TARGET := ../output/boards/$(BOARD)/cmos/lib_cmoses.a
 endif
 
@@ -88,7 +88,7 @@ CMOSOBJ := $(patsubst pkg/mpp/cmos/$(FAMILY)/%.c, ../output/boards/$(BOARD)/cmos
 	$(CC) $(CFLAGS) -I$(abspath sdk/$(FAMILY)/include) -c $< -o $@
 
 generate: 
-	GOPATH=$(GOPATH) $(GO) generate -tags "$(FAMILY)" application/pkg/ko
+	GOPATH=$(GOPATH) $(GO) generate -tags "$(GOTAGS)" application/pkg/ko	
 	#GOPATH=$(GOPATH) $(GO) generate -tags "$(FAMILY)" application/pkg/utils/regs
 
 distrib:

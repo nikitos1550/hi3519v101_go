@@ -75,7 +75,7 @@ func main() {
 	log.Println("GoHisiProbe")
 
         memTotal := flag.String("mem-total", "32M", "Total RAM size") //&ko.MemTotal
-        memLinux := flag.String("mem-linux", "20M", "RAM size passed to Linux kernel, rest will be used for MPP") //ko.MemLinux
+        memLinux := flag.String("mem-linux", "20M", "RAM size passed to Linux kernel, rest should be used for MPP") //ko.MemLinux
         memMpp   := flag.String("mem-mpp", "12M", "RAM size passed to MPP") //ko.MemMpp
 
         flag.Parse()
