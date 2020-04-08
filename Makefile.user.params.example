@@ -120,3 +120,6 @@ THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 #CAMERA  ?= 32
 #BOARD   ?= hisilicon_dembverc_hi3559av100_imx334
 #PROG    ?= no
+#GREETING ?= System 
+#PROMPT   ?= hisilicon
+

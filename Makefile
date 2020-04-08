@@ -169,6 +169,7 @@ deprecated-control-uart:
 
 catch-uboot:
 	cd burner; ./burner2.py \
+		--uboot-params 'GREETING="$(GREETING)" PROMPT="$(PROMPT) #"' \
 		--port /dev/ttyCAM$(CAMERA) \
 		--reset-power "./power2.py --num $(CAMERA) reset" \
 		--mode camstore printenv
