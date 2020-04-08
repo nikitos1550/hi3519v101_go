@@ -1,114 +1,31 @@
-//The following directive is necessary to make the package coherent:
+//+build !gohisiprobe
 
-//+build ignore
+//go:generate rm -f kobin_hi3516av100.go
+//go:generate go run -tags "generate hi3516av100" ./generator.go --output kobin_hi3516av100.go --tag hi3516av100 --dir ../../sdk/hi3516av100/ko/ --pkg ko --source ./hi3516av100.go
 
-//This program generates kobin_hi35****.go. It can be invoked by running
-//make generate
+//go:generate rm -f kobin_hi3516av200.go
+//go:generate go run -tags "generate hi3516av200" ./generator.go --output kobin_hi3516av200.go --tag hi3516av200 --dir ../../sdk/hi3516av200/ko/ --pkg ko --source ./hi3516av200.go
 
-package main
+//go:generate rm -f kobin_hi3516cv100.go
+//go:generate go run -tags "generate hi3516cv100" ./generator.go --output kobin_hi3516cv100.go --tag hi3516cv100 --dir ../../sdk/hi3516cv100/ko/ --pkg ko --source ./hi3516cv100.go
 
-import (
-    "log"
-    "github.com/shuLhan/go-bindata"
-    "path/filepath"
-    "regexp"
-    "flag"
-    "application/pkg/ko" //MAYBE replace by go/parser?
-    "os"
-    "strconv"
-)
+//go:generate rm -f kobin_hi3516cv200.go
+//go:generate go run -tags "generate hi3516cv200" ./generator.go --output kobin_hi3516cv200.go --tag hi3516cv200 --dir ../../sdk/hi3516cv200/ko/ --pkg ko --source ./hi3516cv200.go
 
-var (
-    output  string
-    tag     string
-    source  string
-    pkg     string
-    dir     string
-    mode    string
-)
+//go:generate rm -f kobin_hi3516cv300.go
+//go:generate go run -tags "generate hi3516cv300" ./generator.go --output kobin_hi3516cv300.go --tag hi3516cv300 --dir ../../sdk/hi3516cv300/ko/ --pkg ko --source ./hi3516cv300.go
 
-func main() {
-    log.Println("Ko binary embedded generator (go-bindata based)");
+//go:generate rm -f kobin_hi3516cv500.go
+//go:generate go run -tags "generate hi3516cv500" ./generator.go --output kobin_hi3516cv500.go --tag hi3516cv500 --dir ../../sdk/hi3516cv500/ko/ --pkg ko --source ./hi3516cv500.go
 
-    flag.StringVar(&output, "output",   "", "help")
-    flag.StringVar(&tag,    "tag",      "", "help")
-    flag.StringVar(&source, "source",   "", "help")
-    flag.StringVar(&pkg,    "pkg",      "", "help")
-    flag.StringVar(&dir,    "dir",      "", "help")
-    flag.StringVar(&mode,   "mode",     "", "help")
+//go:generate rm -f kobin_hi3516ev200.go
+//go:generate go run -tags "generate hi3516ev200" ./generator.go --output kobin_hi3516ev200.go --tag hi3516ev200 --dir ../../sdk/hi3516ev200/ko/ --pkg ko --source ./hi3516ev200.go
 
-    flag.Parse()
+//go:generate rm -f kobin_hi3519av100.go
+//go:generate go run -tags "generate hi3519av100" ./generator.go --output kobin_hi3519av100.go --tag hi3519av100 --dir ../../sdk/hi3519av100/ko/ --pkg ko --source ./hi3519av100.go
 
-    //dir     = filepath.Clean(dir)
-    output  = filepath.Clean(output)
-    source  = filepath.Clean(source)
+//go:generate rm -f kobin_hi3559av100.go
+//go:generate go run -tags "generate hi3559av100" ./generator.go --output kobin_hi3559av100.go --tag hi3559av100 --dir ../../sdk/hi3559av100/ko/ --pkg ko --source ./hi3559av100.go
 
-    //TODO check input options
-
-    cfg := bindata.NewConfig()
-
-    cfg.Debug       = false
-    cfg.Dev         = false
-    cfg.MD5Checksum = false
-    cfg.NoCompress  = true
-    cfg.NoMemCopy   = true
-    cfg.NoMetadata  = true
-    cfg.Split       = false
-
-    cfg.Output      = output
-    cfg.Package     = pkg
-    cfg.Tags        = tag
-
-    cfg.Prefix, _   = regexp.Compile(dir)
-
-    //var list *[][2]string
-    //list := ko.ModulesList
-    //list := ko.MinimalModulesList
-    	//count := len(ko.ModulesList)
-
-	var list []string
-	if mode != "minimal" {
-        	count := len(ko.ModulesList)
-        	list = make([]string, count)
-        	for i := range(list) {
-                	list[i] = ko.ModulesList[i][0]
-        	}
-	} else {
-	
-		count := len(ko.MinimalModulesList)
-		list = make([]string, count)
-		for i := range(list) {
-			list[i] = ko.MinimalModulesList[i]
-		}
-	}
-
-    //if mode == "minimal" {
-    //	list = ko.MinimalModulesList
-    //}
-
-    log.Println("Expecting " + strconv.Itoa(len(list)) + " files...")
-
-    cfg.Input = make([]bindata.InputConfig, len(list))
-
-    for i := range(list) {
-        _, err := os.Stat(dir+"/"+list[i])
-
-        if os.IsNotExist(err) {
-            log.Fatal("File "+dir+"/"+list[i]+" doesn`t exist!")
-        } else {
-            log.Println("Adding file "+dir+"/"+list[i])
-        }
-
-        var inputConfigTmp bindata.InputConfig
-        inputConfigTmp.Path = dir+"/"+list[i]
-        cfg.Input[i] = inputConfigTmp
-    }
-
-    err := bindata.Translate(cfg)
-    if err != nil {
-        log.Fatal("go-bindata error: ", err)
-    }
-
-    log.Println("Output file "+output)
-}
+package ko
 
