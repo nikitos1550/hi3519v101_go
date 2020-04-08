@@ -18,16 +18,16 @@ import (
 type answerSchema struct {
 	App string `json:"appName"`
 
-	ChipDetectedReg string `json:"chipDetectedReg"`
+	//ChipDetectedReg string `json:"chipDetectedReg"`
 	ChipDetectedMpp string          `json:"chipDetectedMpp"`
 
 	Mpp string `json:"mppVersion"`
 
-	SysIdReg uint32 `json:"chipIdReg"`
-	SysIdMpp        uint32          `json:"chipIdMpp"`
+	//SysIdReg uint32 `json:"chipIdReg"`
+	//SysIdMpp        uint32          `json:"chipIdMpp"`
 
-	TempVal float32 `json:"temperature"`
-	TempHW  string  `json:"temperatureHW"`
+	TempVal float32 `json:"temperature,omitempty"`
+	TempHW  bool  `json:"temperatureHW"`
 
 	Info buildinfo.Info `json:"buildInfo"`
 }
@@ -44,21 +44,21 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 
 	schema.App = "GoHisiProbe"
 
-	schema.ChipDetectedReg = chip.Detect(chip.RegId())
+	//schema.ChipDetectedReg = chip.Detect(chip.RegId())
 	schema.ChipDetectedMpp  = chip.Detect(utils.MppId())
 
 	schema.Mpp = utils.Version()
 
-	schema.SysIdReg = chip.RegId()
-	schema.SysIdMpp = utils.MppId()
+	//schema.SysIdReg = chip.RegId()
+	//schema.SysIdMpp = utils.MppId()
 
 	var err error
 	schema.TempVal, err = temperature.Get()
 
 	if err != nil {
-		schema.TempHW = "not availible"
+		schema.TempHW = false
 	} else {
-		schema.TempHW = "availible"
+		schema.TempHW = true
 	}
 
 	buildinfo.CopyAll(&schema.Info)
