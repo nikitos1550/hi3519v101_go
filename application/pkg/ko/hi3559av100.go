@@ -9,7 +9,7 @@ var (
         ModulesList = [...][2]string{
         }
 
-        minimalModulesList = [...]string{
+        MinimalModulesList = [...]string{
         }
 
 )

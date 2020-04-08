@@ -111,11 +111,11 @@ deploy-dir-cam: distrib
 
 deploy-dir-probe: distrib
 	rm -rf ./distrib/$(FAMILY)
-	mkdir -p ./distrib/$(FAMILY)/opt/configs
 	mkdir -p ./distrib/$(FAMILY)/etc/init.d
+	mkdir -p ./distrib/$(FAMILY)/opt
 	cp ./init/S99gohisiprobe ./distrib/$(FAMILY)/etc/init.d/
 	if [ -f ../boards/$(BOARD)/config ]; then cp ../boards/$(BOARD)/config ./distrib/$(FAMILY)/opt/board.config; fi
-	cp ../application/configs/* ./distrib/$(FAMILY)/opt/configs/
+	#cp ../application/configs/* ./distrib/$(FAMILY)/opt/configs/
 
 TRIMPATH := $(abspath .) 
 

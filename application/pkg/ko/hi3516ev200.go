@@ -46,11 +46,11 @@ var (
 		//[2]string{"hi_user.ko", ""},
 	}
 
-        minimalModulesList = [...]string{
+        MinimalModulesList = [...]string{
                 "sys_config.ko",
                 "hi_osal.ko",
-                "hi3516cv500_base.ko",
-                "hi3516cv500_sys.ko",
+                "hi3516ev200_base.ko",
+                "hi3516ev200_sys.ko",
         }
 
 )

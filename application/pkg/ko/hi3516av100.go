@@ -53,7 +53,7 @@ var (
 		[2]string{"hi_mipi.ko", ""},
 	}
 
-	minimalModulesList = [...]string{
+	MinimalModulesList = [...]string{
 		"mmz.ko",
 		"hi_media.ko",
 		"hi3516a_base.ko",

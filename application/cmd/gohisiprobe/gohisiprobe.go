@@ -62,6 +62,7 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	buildinfo.CopyAll(&schema.Info)
+	schema.Info.CmosProfile = ""
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -89,31 +90,22 @@ func main() {
         *memMpp = strings.Trim(*memMpp, "M")
         ko.MemMpp, _     = strconv.ParseUint(*memMpp, 10, 64)
 
-        log.Println("mem-total", ko.MemTotal)
-        log.Println("mem-linux", ko.MemLinux)
-        log.Println("mem-mpp", ko.MemMpp)
-
+        //log.Println("mem-total", ko.MemTotal)
+        //log.Println("mem-linux", ko.MemLinux)
+        //log.Println("mem-mpp", ko.MemMpp)
 
 	log.Println("CMD parsed params:")
 	log.Println("Total board RAM ", ko.MemTotal, "MB")
 	log.Println("Linux RAM ", ko.MemLinux, "MB")
-	log.Println("")
+	log.Println("MPP RAM", ko.MemMpp, "MB")
 
 	log.Println("Build time info:")
 	log.Println("Go: ", buildinfo.GoVersion)
 	log.Println("Gcc: ", buildinfo.GccVersion)
 	log.Println("Date: ", buildinfo.BuildDateTime)
 	log.Println("Tags: ", buildinfo.BuildTags)
-	//log.Println("User: ", buildinfo.BuildUser)
-	//log.Println("Commit: ", buildinfo.BuildCommit)
 	log.Println("Branch: ", buildinfo.BuildBranch)
-	//log.Println("Vendor: ", buildinfo.BoardVendor)
-	//log.Println("Model: ", buildinfo.BoardModel)
-	//log.Println("Chip: ", buildinfo.Chip)
 	log.Println("Cmos: ", buildinfo.CmosProfile)
-	//log.Println("Total ram: ", buildinfo.TotalRam)
-	//log.Println("Linux ram: ", buildinfo.LinuxRam)
-	//log.Println("Mpp ram: ", buildinfo.MppRam)
 	log.Println("")
 
 	log.Println("Loading modules...")

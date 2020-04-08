@@ -43,7 +43,7 @@ type Info struct {
 	Family		string  `json:"family"`
 	SDK		string  `json:"SDK"`
 	//Chip 			string	`json:"chip"`
-	CmosProfile 	string	`json:"cmos"`
+	CmosProfile 	string	`json:"cmos,omitempty"`
 	//TotalRam 		string	`json:"totalram"`
 	//LinuxRam 		string	`json:"linuxram"`
 	//MppRam   		string	`json:"mppram"`

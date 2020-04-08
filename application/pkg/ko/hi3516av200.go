@@ -46,7 +46,7 @@ var (
 		[2]string{"hi_user.ko", ""},
 		[2]string{"hi_ssp_sony.ko", ""},
 	}
-	minimalModulesList = [...]string{
+	MinimalModulesList = [...]string{
 		"hi_osal.ko",
 		"hi3519v101_base.ko",
 		"hi3519v101_sys.ko",

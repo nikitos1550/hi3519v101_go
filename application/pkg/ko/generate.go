@@ -24,6 +24,7 @@ var (
     source  string
     pkg     string
     dir     string
+    mode    string
 )
 
 func main() {
@@ -34,6 +35,7 @@ func main() {
     flag.StringVar(&source, "source",   "", "help")
     flag.StringVar(&pkg,    "pkg",      "", "help")
     flag.StringVar(&dir,    "dir",      "", "help")
+    flag.StringVar(&mode,   "mode",     "", "help")
 
     flag.Parse()
 
@@ -59,21 +61,46 @@ func main() {
 
     cfg.Prefix, _   = regexp.Compile(dir)
 
-    log.Println("Expecting " + strconv.Itoa(len(ko.ModulesList)) + " files...")
+    //var list *[][2]string
+    //list := ko.ModulesList
+    //list := ko.MinimalModulesList
+    	//count := len(ko.ModulesList)
 
-    cfg.Input = make([]bindata.InputConfig, len(ko.ModulesList))
+	var list []string
+	if mode != "minimal" {
+        	count := len(ko.ModulesList)
+        	list = make([]string, count)
+        	for i := range(list) {
+                	list[i] = ko.ModulesList[i][0]
+        	}
+	} else {
+	
+		count := len(ko.MinimalModulesList)
+		list = make([]string, count)
+		for i := range(list) {
+			list[i] = ko.MinimalModulesList[i]
+		}
+	}
 
-    for i := range(ko.ModulesList) {
-        _, err := os.Stat(dir+"/"+ko.ModulesList[i][0])
+    //if mode == "minimal" {
+    //	list = ko.MinimalModulesList
+    //}
+
+    log.Println("Expecting " + strconv.Itoa(len(list)) + " files...")
+
+    cfg.Input = make([]bindata.InputConfig, len(list))
+
+    for i := range(list) {
+        _, err := os.Stat(dir+"/"+list[i])
 
         if os.IsNotExist(err) {
-            log.Fatal("File "+dir+"/"+ko.ModulesList[i][0]+" doesn`t exist!")
+            log.Fatal("File "+dir+"/"+list[i]+" doesn`t exist!")
         } else {
-            log.Println("Adding file "+dir+"/"+ko.ModulesList[i][0])
+            log.Println("Adding file "+dir+"/"+list[i])
         }
 
         var inputConfigTmp bindata.InputConfig
-        inputConfigTmp.Path = dir+"/"+ko.ModulesList[i][0]
+        inputConfigTmp.Path = dir+"/"+list[i]
         cfg.Input[i] = inputConfigTmp
     }
 
