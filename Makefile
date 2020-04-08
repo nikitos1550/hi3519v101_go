@@ -27,7 +27,7 @@ PROMPT		?= hisilicon
 APP             := application
 APP_TARGET      ?= probe   #default target will be tester, daemon build on request durin it`s early dev stage
 
-include ./boards/$(strip $(BOARD))/config
+-include ./boards/$(strip $(BOARD))/config
 
 .PHONY: $(APP)/distrib/$(FAMILY) help prepare cleanall
 
