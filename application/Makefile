@@ -20,14 +20,15 @@ CGO_CFLAGS  := -I$(abspath sdk/$(FAMILY)/include) -D$(FAMILY_UPPERCASE)
 #-D$(CHIP_UPPERCASE)
 
 #TODO rework this
-ifneq ($(CMOS),unknown)
+ifneq ($(wildcard ./output/boards/$(BOARD)/cmos/lib_cmoses.a),)
        CMOS_TARGET := ../output/boards/$(BOARD)/cmos/lib_cmoses.a
 endif
 
-ifneq ($(wildcard ../output/hisilicon/$(FAMILY)/Makefile.params),) 
+ifneq ($(wildcard ../hisilicon/$(FAMILY)/Makefile.params),) 
        LIB_TARGET := ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a
        CGO_LDFLAGS := $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a) $(abspath $(CMOS_TARGET))
 endif 
+
 
 CGOPARAMS := CGO_CFLAGS='$(CFLAGS) $(CGO_CFLAGS)' CGO_CFLAGS_ALLOW='.*' CGO_ENABLED=1 CGO_LDFLAGS='$(CGO_LDFLAGS) $(FAMILY_LDFLAGS)'
 

@@ -11,6 +11,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
+	"strconv"
 )
 
 type answerSchema struct {
@@ -71,10 +73,33 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	log.Println("GoHisiProbe")
 
-	flag.UintVar(&memTotal, "memtotal", 512, "Total RAM size, MB")
-	flag.UintVar(&memLinux, "memlinux", 256, "RAM size passed to Linux kernel, rest will be used for MPP, MB")
+	/*
+	flag.UintVar(&memTotal, "mem-total", 32, "Total RAM size, MB")
+	flag.UintVar(&memLinux, "mem-linux", 24, "RAM size passed to Linux kernel, rest will be used for MPP, MB")
 
 	flag.Parse()
+	*/
+        memTotal := flag.String("mem-total", "32M", "Total RAM size") //&ko.MemTotal
+        memLinux := flag.String("mem-linux", "20M", "RAM size passed to Linux kernel, rest will be used for MPP") //ko.MemLinux
+        memMpp   := flag.String("mem-mpp", "12M", "RAM size passed to MPP") //ko.MemMpp
+
+        //log.Println("application daemon")
+        flag.Parse()
+
+        //TODO make correct memory size siffix handle
+        *memTotal = strings.Trim(*memTotal, "M")
+        ko.MemTotal, _ = strconv.ParseUint(*memTotal, 10, 64)
+        
+        *memLinux = strings.Trim(*memLinux, "M")
+        ko.MemLinux, _  = strconv.ParseUint(*memLinux, 10, 64)
+
+        *memMpp = strings.Trim(*memMpp, "M")
+        ko.MemMpp, _     = strconv.ParseUint(*memMpp, 10, 64)
+
+        log.Println("mem-total", ko.MemTotal)
+        log.Println("mem-linux", ko.MemLinux)
+        log.Println("mem-mpp", ko.MemMpp)
+
 
 	log.Println("CMD parsed params:")
 	log.Println("Total board RAM ", memTotal, "MB")
@@ -104,9 +129,11 @@ func main() {
 	log.Println("Loading modules done")
 
 	log.Println("Starting http server :80")
-	//http.HandleFunc("/", apiHandler)
+	http.HandleFunc("/", apiHandler)
+	/*
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Hello World!")
 	})
-	http.ListenAndServe(":8888", nil)
+	*/
+	http.ListenAndServe(":80", nil)
 }
