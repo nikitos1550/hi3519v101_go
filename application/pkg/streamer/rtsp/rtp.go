@@ -11,7 +11,7 @@ import (
 
 const (
 	RtpHeaderSize = 12 + 2 //4 bytes interleaved prefix + 12 bytes RTP header + 2 bytes FUA header
-	fuASize       = 1387   //ipPacketSize - RtpHeaderSize
+	fuASize       = 1387   //ipPacketSize >= RtpHeaderSize + fuASize
 )
 
 type Packetizer interface {
@@ -41,9 +41,86 @@ func (p *packetizer) FrameMJPEGToRtp(nal []byte) [][]byte {
 }
 
 func (p *packetizer) NalH265ToRtp(nal []byte) [][]byte {
-	return nil
+	var nalType byte = (nal[0] & 126) >> 1
+	var payloadH1 byte = nal[0];
+        var payloadH2 byte = nal[1];
+
+	nal2 := nal[2:len(nal)]
+
+	var count uint = uint(len(nal2)/fuASize) + 1
+
+	var out [][]byte = make([][]byte, count)
+
+	if (count > 1) { //FUA
+		var FuAStart byte = 1
+        	var FuAEnd byte = 0
+
+		for i:= 0; i < count; i++ {
+
+			packetSize := 12 + 3 + fuASize //rtpheader fragmented mode + paylaod 
+			if i == (count-1) {
+				packetSize = 12 + 3 + uint(len(nal2)) - (i)*uint(fuASize)
+			}
+			out[i] = make([]byte, packetSize)
+
+	                out[i][0] = 2 << 6;
+	                out[i][1] = (FuAEnd << 7) | 98; // 98 is our hardcoded h265 payload type
+	                out[i][2] = byte((p.sequence >> 8) & 0xFF)
+	                out[i][3] = byte((p.sequence) & 0xFF)
+	
+	                out[i][4] = byte((p.timestamp >> 24) & 0xFF)
+	                out[i][5] = byte((p.timestamp >> 16) & 0xFF)
+	                out[i][6] = byte((p.timestamp >> 8) & 0xFF)
+	                out[i][7] = byte(p.timestamp & 0xFF)
+	                out[i][8] = 0
+	                out[i][9] = 0
+	                out[i][10] = 0
+	                out[i][11] = 2;
+
+                	out[i][12] = 98
+        	        out[i][13] = 1
+			out[i][14] = fuaStart << 7 | fuaEnd << 6 | nalType;
+	
+        	        copy(out[0][15:packetSize], nal2[(i*fuASize):(i*fuASize)+packetSize-15])
+	                p.sequence = p.sequence + 1
+
+		}
+	} else { //single packet
+		var packetSize uint = 12 + 2 + len(nal2) // rtpheader non fragmented mode + payload
+		
+		out[i] = make([]byte, packetSize)
+
+		out[0][0] = 2 << 6;
+                out[0][1] = 98; // 98 is our hardcoded h265 payload type
+		out[0][2] = byte((p.sequence >> 8) & 0xFF)
+		out[0][3] = byte((p.sequence) & 0xFF)
+
+                out[0][4] = byte((p.timestamp >> 24) & 0xFF)
+                out[0][5] = byte((p.timestamp >> 16) & 0xFF)
+                out[0][6] = byte((p.timestamp >> 8) & 0xFF)
+                out[0][7] = byte(p.timestamp & 0xFF)
+                out[0][8] = 0
+		out[0][9] = 0
+		out[0][10] = 0
+                out[0][11] = 2;
+
+		out[0][12] = payloadH1
+		out[0][13] = payloadH2
+
+		copy(out[0][14:packetSize], nal2[0:len(nal2)])
+
+		FuAStart = 0 //after first iter it will be 0 forever
+		p.sequence = p.sequence + 1
+
+	}
+
+	p.timestamp = p.timestamp + (90000 / 25)
+
+	return out
 }
 
+// This is always FuA packatizer, even if NAL length is less than
+// one packet size we will pack it as FuA with corresponding start and end marks
 func (p *packetizer) NalH264ToRtp(nal []byte) [][]byte {
 	//var count uint = uint(len(nal) / fuASize) + 1
 

@@ -1,6 +1,6 @@
 -include $(PARAMS_FILE)
 
-APP	?= probe
+APP	?= cam
 
 GO	?= go
 
@@ -26,6 +26,9 @@ CGO_CFLAGS  := -I$(abspath sdk/$(FAMILY)/include) -D$(FAMILY_UPPERCASE)
 #TODO rework this
 ifneq ($(CMOS),unknown)
        CMOS_TARGET := ../output/boards/$(BOARD)/cmos/lib_cmoses.a
+endif
+ifeq ($(APP),probe)
+	CMOS_TARGET :=
 endif
 
 ifneq ($(wildcard ../hisilicon/$(FAMILY)/Makefile.params),) 
@@ -53,7 +56,9 @@ EMBEDDVARS :=   -X 'application/pkg/buildinfo.BuildDateTime=$(shell date --utc "
                 -X 'application/pkg/buildinfo.CmosProfile=$(CMOS)'  
 
 #NO DEBUG SYMBOLS, COMMENT IF WANT TO TURN ON DEBUG
-GODEBUG := -s -w -extldflags "-static"
+GODEBUG := -s -w 
+#-extldflags "-static" 
+#-linkmode "external"
 
 guard:
 	@echo "guard"
@@ -126,6 +131,10 @@ build-probe: generate $(LIB_TARGET) deploy-dir-probe
 	$(GOENV) $(CGOPARAMS) $(GO) build -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/gohisiprobe application/cmd/gohisiprobe
 
 build: build-$(APP)
+
+test: generate
+	GOPATH=$(GOPATH)  $(GO) test -tags "$(GOTAGS)" ./... -v
+
 
 #build-object:
 #	$(GOENV) $(CGOPARAMS) $(GO) tool nm ./distrib/$(FAMILY)/opt/application

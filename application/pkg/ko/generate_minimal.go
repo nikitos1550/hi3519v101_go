@@ -27,4 +27,7 @@
 //go:generate rm -f kobin_hi3559av100.go
 //go:generate go run -tags "generate hi3559av100" ./generator.go --output kobin_hi3559av100.go --tag hi3559av100 --dir ../../sdk/hi3559av100/ko/ --pkg ko --source ./hi3559av100.go --mode minimal
 
+//go:generate rm -f kobin_host.go
+//go:generate go run -tags "generate host" ./generator.go --output kobin_host.go --tag host --dir ../../sdk/host/ko/ --pkg ko --source ./host.go --mode minimal
+
 package ko

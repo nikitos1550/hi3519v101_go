@@ -4,12 +4,12 @@
 
 package error
 
-import (
-        "strconv"
-)
+//import (
+//        "strconv"
+//)
 
 func Resolve(code int64) string {
 	panic("This can`t be invoked in host build!")
-	return nil
+	return ""
 }
 

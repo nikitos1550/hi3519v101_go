@@ -28,6 +28,8 @@ func Detect(reg uint32) string {
             return "hi3516cv200"
         case 890688256: //0x3516D300
             return "hi3516dv300"
+	case 895066368: //0x3559A100
+	    return "hi3559av100"
         default:
             return "unknown"
     }
