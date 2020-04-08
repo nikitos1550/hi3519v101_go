@@ -117,6 +117,7 @@ deploy: pack
         --log-level DEBUG \
                 --mode camstore \
                 --port /dev/ttyCAM$(CAMERA) \
+		--uboot-params 'GREETING="$(GREETING)" PROMPT="$(PROMPT) #"' \
                 --reset-power "./power2.py --num $(CAMERA) reset" \
                 load \
                 --target-ip $(CAMERA_IP) --iface enp3s0 \
