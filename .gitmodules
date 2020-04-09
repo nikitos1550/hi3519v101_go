@@ -1,0 +1,4 @@
+[submodule "hiburn"]
+	path = hiburn
+	url = https://github.com/OpenHisiIpCam/hiburn.git
+	branch = master
