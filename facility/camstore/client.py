@@ -111,7 +111,8 @@ def main():
         rc = handle_response(response, execute=(not args.no_exec), quite=args.quite)
         exit(rc)
     except FailedRequest as err:
-        common.print_response(err.response)
+        if not args.quite:
+            common.print_response(err.response)
         exit(-1)
     except Exception as err:
         logging.error(err)
