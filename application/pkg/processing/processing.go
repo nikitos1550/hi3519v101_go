@@ -2,6 +2,20 @@
 
 package processing
 
+/*
+
+#include "../mpp/include/mpp_v3.h"
+
+void sendToClients(unsigned int processingId, VIDEO_FRAME_INFO_S* frame) {
+	sendToEncoders(processingId, frame);
+}
+
+void sendToEncoder(unsigned int vencId, VIDEO_FRAME_INFO_S* frame) {
+}
+
+*/
+import "C"
+
 import (
 	"log"
 	"unsafe"

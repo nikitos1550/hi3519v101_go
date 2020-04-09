@@ -8,10 +8,19 @@ package processing
 import "C"
 
 import (
-	//"log"
-	//"unsafe"
+	"log"
+	"unsafe"
 )
 
 //export sendToEncoders
-func sendToEncoders() {
+func sendToEncoders(processingId C.uint, frame unsafe.Pointer) {
+	processing, exists := ActiveProcessings[int(processingId)]
+	if (!exists) {
+		log.Println("processing not found", int(processingId))
+	}
+
+	for encodersId, _ := range processing.Encoders {
+		log.Println("send to venc", encodersId)
+
+	}
 }
