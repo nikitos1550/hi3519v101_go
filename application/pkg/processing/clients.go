@@ -20,7 +20,6 @@ func sendToEncoders(processingId C.uint, frame unsafe.Pointer) {
 	}
 
 	for encodersId, _ := range processing.Encoders {
-		log.Println("send to venc", encodersId)
 
 	}
 }

@@ -80,3 +80,20 @@ func CreateProcessing(processingName string)  (int, string)  {
 
 	return lastProcessingId, ""
 }
+
+func SubscribeProcessing(processingId int, encoderId int)  (int, string)  {
+	processing, exists := ActiveProcessings[processingId]
+	if (!exists) {
+		return -1, "Processing not created"
+	}
+
+	_, exists = processing.Encoders[encoderId]
+	if (exists) {
+		return -1, "Already subscribed"
+	}
+	
+	processing.Encoders[encoderId] = true
+	ActiveProcessings[processingId] = processing
+
+	return 0, ""
+}
