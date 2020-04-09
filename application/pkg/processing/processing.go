@@ -1,23 +1,37 @@
-package processing
+//+build processing
 
-import "C"
+package processing
 
 import (
 	"log"
 	"unsafe"
 )
 
+type ActiveProcessing struct {
+	Name string
+	Callback unsafe.Pointer
+	Encoders map[int] bool
+	Processings map[unsafe.Pointer] bool
+}
+
+type Processing struct {
+	Name string
+	Callback unsafe.Pointer
+}
+
 var (
-	Processings map[string] unsafe.Pointer
+	Processings map[string] Processing
+	ActiveProcessings map[int] ActiveProcessing
+	lastProcessingId int
 )
 
 func Init() {
-	log.Println("main processing Init", len(Processings))
 }
 
 func init() {
-	Processings = make(map[string] unsafe.Pointer)
-	log.Println("main processing init")
+	Processings = make(map[string] Processing)
+	ActiveProcessings = make(map[int] ActiveProcessing)
+	lastProcessingId = 0
 }
 
 func register(name string, callback unsafe.Pointer){
@@ -25,6 +39,30 @@ func register(name string, callback unsafe.Pointer){
 	if (exists) {
 		log.Fatal("processing already exists", name)
 	}
+
+	processing := Processing{
+		Name: name,
+		Callback: callback,
+	}
 	
-	Processings[name] = callback
+	Processings[name] = processing
+}
+
+func CreateProcessing(processingName string)  (int, string)  {
+	processing, exists := Processings[processingName]
+	if (!exists) {
+		return -1, "Processing not found"
+	}
+
+	activeProcessing := ActiveProcessing{
+		Name: processing.Name,
+		Callback: processing.Callback,
+		Encoders: make(map[int] bool),
+		Processings: make(map[unsafe.Pointer] bool),
+	}
+
+	lastProcessingId++
+	ActiveProcessings[lastProcessingId] = activeProcessing
+
+	return lastProcessingId, ""
 }

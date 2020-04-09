@@ -12,19 +12,24 @@ type responseRecord struct {
 	Message string
 }
 
-type processing struct {
-	Name string
+type processingRecord struct {
+	Id int
+	Message string
 }
 
-type activeProcessing struct {
+type processingInfo struct {
 	Name string
 }
 
 func init() {
     openapi.AddApiRoute("apiDescription", "/processing", "GET", apiDescription)
 
+    openapi.AddApiRoute("listChannels", "/processing/create", "GET", createProcessingRequest)
+    openapi.AddApiRoute("listChannels", "/processing/delete", "GET", deleteProcessingRequest)
+
     openapi.AddApiRoute("listChannels", "/processing/subscribeChannel", "GET", subscribeChannelRequest)
     openapi.AddApiRoute("listChannels", "/processing/unsubscribeChannel", "GET", unsubscribeChannelRequest)
+
     openapi.AddApiRoute("listChannels", "/processing/list", "GET", listProcessingRequest)
     openapi.AddApiRoute("listChannels", "/processing/listActive", "GET", listActiveProcessingRequest)
 }
@@ -33,8 +38,26 @@ func apiDescription(w http.ResponseWriter, r *http.Request)  {
 	openapi.ApiDescription(w, r, "Processings api:\n\n", "/processing")
 }
 
-func subscribeChannelRequest(w http.ResponseWriter, r *http.Request)  {
+func createProcessingRequest(w http.ResponseWriter, r *http.Request)  {
 	ok, processingName := openapi.GetStringParameter(w, r, "processingName")
+	if !ok {
+		return
+	}
+
+	id, errorString := CreateProcessing(processingName)
+	if id <= 0 {
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: errorString})
+		return
+	}
+
+	openapi.ResponseSuccessWithDetails(w, processingRecord{Id: id, Message: "Processing was created"})
+}
+
+func deleteProcessingRequest(w http.ResponseWriter, r *http.Request)  {
+}
+
+func subscribeChannelRequest(w http.ResponseWriter, r *http.Request)  {
+	ok, processingId := openapi.GetIntParameter(w, r, "processingId")
 	if !ok {
 		return
 	}
@@ -44,9 +67,9 @@ func subscribeChannelRequest(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
-	callback, exists := Processings[processingName]
+	processing, exists := ActiveProcessings[processingId]
 	if (!exists) {
-		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: "Processing not found"})
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: "Processing not created"})
 		return
 	}
 
@@ -56,7 +79,7 @@ func subscribeChannelRequest(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
-	err, errorString := vpss.SubscribeChannel(channelId, callback)
+	err, errorString := vpss.SubscribeChannel(channelId, processingId, processing.Callback)
 	if err != 0 {
 		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: errorString})
 		return
@@ -69,14 +92,14 @@ func unsubscribeChannelRequest(w http.ResponseWriter, r *http.Request)  {
 }
 
 func listProcessingRequest(w http.ResponseWriter, r *http.Request)  {
-	var processingInfo []processing
+	var processingsInfo []processingInfo
 	for name, _ := range Processings {
-		info := processing{
+		info := processingInfo{
 			Name: name,
 		}
-		processingInfo = append(processingInfo, info)
+		processingsInfo = append(processingsInfo, info)
 	}
-	openapi.ResponseSuccessWithDetails(w, processingInfo)
+	openapi.ResponseSuccessWithDetails(w, processingsInfo)
 }
 
 func listActiveProcessingRequest(w http.ResponseWriter, r *http.Request)  {

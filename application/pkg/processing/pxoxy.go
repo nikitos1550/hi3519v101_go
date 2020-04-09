@@ -6,8 +6,7 @@ package processing
 
 #include "../mpp/include/mpp_v3.h"
 
-void proxyCallback(VIDEO_FRAME_INFO_S* frame) {
-	printf("proxyCallback\n");
+void proxyCallback(unsigned int processingId, VIDEO_FRAME_INFO_S* frame) {
 }
 
 void* getCallback(){

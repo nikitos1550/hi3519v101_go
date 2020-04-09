@@ -3,7 +3,6 @@
 package vpss
 
 import (
-    "log"
     "sync"
 	"unsafe"
 )
@@ -19,7 +18,7 @@ type Channel struct {
 	CropHeight int
     Mutex sync.RWMutex
 	Started bool
-	Clients map[unsafe.Pointer] bool
+	Clients map[int] unsafe.Pointer
 }
 
 var (
@@ -54,20 +53,19 @@ func StopChannel(channelId int)  (int, string)  {
 	return 0, ""
 }
 
-func SubscribeChannel(channelId int, callback unsafe.Pointer)  (int, string)  {
+func SubscribeChannel(channelId int, processingId int, callback unsafe.Pointer)  (int, string)  {
 	channel, channelExists := Channels[channelId]
 	if (!channelExists) {
 		return 1, "Channel does not exist"
 	}
 
-	_, callbackExists := channel.Clients[callback]
+	_, callbackExists := channel.Clients[processingId]
 	if (callbackExists) {
 		return 1, "Already subscribed"
 	}
 
-	channel.Clients[callback] = true
+	channel.Clients[processingId] = callback
 	Channels[channelId] = channel
-	log.Println("SubscribeChannel", len(Channels[channelId].Clients))
 	
 	return 0, ""
 }

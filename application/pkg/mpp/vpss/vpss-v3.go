@@ -16,7 +16,7 @@ package vpss
 #define MAX_CHANNELS 10
 VIDEO_FRAME_INFO_S channelFrames[MAX_CHANNELS];
 
-typedef void (*callbackFunc) (VIDEO_FRAME_INFO_S*);
+typedef void (*callbackFunc) (unsigned int, VIDEO_FRAME_INFO_S*);
 
 int mpp3_vpss_init(unsigned int *error_code) {
     *error_code = 0;
@@ -172,9 +172,9 @@ int mpp3_release_frame(unsigned int channelId) {
  	return s32Ret;
 }
 
-void mpp3_send_frame_to_clients(unsigned int channelId, void* callback) {
+void mpp3_send_frame_to_clients(unsigned int channelId, unsigned int processingId, void* callback) {
 	callbackFunc func = callback;
-	func(&channelFrames[channelId]);
+	func(processingId, &channelFrames[channelId]);
 }
 
 */
@@ -257,8 +257,8 @@ func sendDataToClients(channel Channel) {
 			continue
 		}
 
-		for callback, _ := range channel.Clients {
-			C.mpp3_send_frame_to_clients(C.uint(channel.ChannelId), callback);
+		for processingId, callback := range channel.Clients {
+			C.mpp3_send_frame_to_clients(C.uint(channel.ChannelId), C.uint(processingId), callback);
 		}
 
 		err = C.mpp3_release_frame(C.uint(channel.ChannelId));

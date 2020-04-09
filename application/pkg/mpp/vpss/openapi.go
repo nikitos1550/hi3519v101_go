@@ -69,7 +69,7 @@ func startChannelRequest(w http.ResponseWriter, r *http.Request)  {
 	}
 
 	channel.Started = true
-	channel.Clients = make(map[unsafe.Pointer] bool)
+	channel.Clients = make(map[int] unsafe.Pointer)
 
 	err, errorString := StartChannel(channel)
 	if err != 0 {
