@@ -113,18 +113,14 @@ pack-app: $(BOARD_OUTDIR)/rootfs+app.squashfs $(BOARD_OUTDIR)/kernel/uImage
 pack: $(BOARD_OUTDIR)/rootfs.squashfs $(BOARD_OUTDIR)/kernel/uImage
 
 deploy: pack
-	cd burner; authbind --deep ./burner2.py \
-        --log-level DEBUG \
-                --mode camstore \
-                --port /dev/ttyCAM$(CAMERA) \
-		--uboot-params 'GREETING="$(GREETING)" PROMPT="$(PROMPT) #"' \
-                --reset-power "./power2.py --num $(CAMERA) reset" \
-                load \
-                --target-ip $(CAMERA_IP) --iface enp3s0 \
-                --uimage $(BOARD_OUTDIR)/kernel/uImage \
-                --rootfs $(BOARD_OUTDIR)/rootfs.squashfs \
-                --initrd-size $(shell ls -s --block-size=1048576 $(BOARD_OUTDIR)/rootfs.squashfs | cut -d' ' -f1)M --memory-size $(RAM_LINUX_SIZE) \
-                --lconsole "ttyAMA0,115200"
+	authbind --deep scripts/hiburn.sh $(CAMERA) --verbose \
+        --net-device_ip $(CAMERA_IP) \
+        --net-host_ip 192.168.10.2/24 \
+        --mem-linux_size $(RAM_LINUX_SIZE) \
+        --linux_console "ttyAMA0,115200" \
+        boot \
+        --uimage $(BOARD_OUTDIR)/kernel/uImage \
+        --rootfs $(BOARD_OUTDIR)/rootfs.squashfs
 
 deploy-app: pack-app
 	cd burner; authbind --deep ./burner2.py \
