@@ -28,6 +28,7 @@ APP             := application
 APP_TARGET      ?= probe   #default target will be tester, daemon build on request durin it`s early dev stage
 
 -include ./boards/$(strip $(BOARD))/config
+-include ./hisilicon/$(strip $(FAMILY))/Makefile.params
 
 .PHONY: $(APP)/distrib/$(FAMILY) help prepare cleanall
 
@@ -119,22 +120,28 @@ deploy: pack
         --mem-linux_size $(RAM_LINUX_SIZE) \
         --linux_console "ttyAMA0,115200" \
         boot \
+	--upload-addr $(KERNEL_UPLOAD_ADDR) \
         --uimage $(BOARD_OUTDIR)/kernel/uImage \
         --rootfs $(BOARD_OUTDIR)/rootfs.squashfs
 
+#--mem-start_addr $(MEM_START_ADDR) \
+
 deploy-app: pack-app
-	cd burner; authbind --deep ./burner2.py \
-        --log-level DEBUG \
-		--mode camstore \
-		--port /dev/ttyCAM$(CAMERA) \
-                --uboot-params 'GREETING="$(GREETING)" PROMPT="$(PROMPT) #"' \
-	        --reset-power "./power2.py --num $(CAMERA) reset" \
-		load \
-		--target-ip $(CAMERA_IP) --iface enp3s0 \
-		--uimage $(BOARD_OUTDIR)/kernel/uImage \
-		--rootfs $(BOARD_OUTDIR)/rootfs+app.squashfs \
-		--initrd-size $(shell ls -s --block-size=1048576 $(BOARD_OUTDIR)/rootfs+app.squashfs | cut -d' ' -f1)M --memory-size $(RAM_LINUX_SIZE) \
-		--lconsole "ttyAMA0,115200"
+	authbind --deep scripts/hiburn.sh $(CAMERA) --verbose \
+		--net-device_ip $(CAMERA_IP) \
+        	--net-host_ip 192.168.10.2/24 \
+        	--mem-linux_size $(RAM_LINUX_SIZE) \
+        	--linux_console "ttyAMA0,115200" \
+		boot \
+		        --upload-addr $(KERNEL_UPLOAD_ADDR) \
+		        --uimage $(BOARD_OUTDIR)/kernel/uImage \
+        		--rootfs $(BOARD_OUTDIR)/rootfs+app.squashfs
+
+#		--target-ip $(CAMERA_IP) --iface enp3s0 \
+#		--uimage $(BOARD_OUTDIR)/kernel/uImage \
+#		--rootfs $(BOARD_OUTDIR)/rootfs+app.squashfs \
+#		--initrd-size $(shell ls -s --block-size=1048576 $(BOARD_OUTDIR)/rootfs+app.squashfs | cut -d' ' -f1)M --memory-size $(RAM_LINUX_SIZE) \
+#		--lconsole "ttyAMA0,115200"
 
 
 deploy-app-control-uart: deploy-app control-uart
