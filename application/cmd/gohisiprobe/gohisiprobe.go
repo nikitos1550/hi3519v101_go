@@ -9,23 +9,31 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"log"
+	//"log"
 	"net/http"
+	"strings"
+	"strconv"
+	//"time"
+
+	//"os"
+	//"github.com/rs/zerolog"
+    	//"github.com/rs/zerolog/log"
+	"application/pkg/logger"
 )
 
 type answerSchema struct {
 	App string `json:"appName"`
 
-	ChipDetectedReg string `json:"chipDetectedReg"`
-	//ChipDetectedMpp string          `json:"chipDetectedMpp"`
+	//ChipDetectedReg string `json:"chipDetectedReg"`
+	ChipDetectedMpp string          `json:"chipDetectedMpp"`
 
 	Mpp string `json:"mppVersion"`
 
-	SysIdReg uint32 `json:"chipIdReg"`
+	//SysIdReg uint32 `json:"chipIdReg"`
 	//SysIdMpp        uint32          `json:"chipIdMpp"`
 
-	TempVal float32 `json:"temperature"`
-	TempHW  string  `json:"temperatureHW"`
+	TempVal float32 `json:"temperature,omitempty"`
+	TempHW  bool  `json:"temperatureHW"`
 
 	Info buildinfo.Info `json:"buildInfo"`
 }
@@ -36,28 +44,31 @@ var (
 )
 
 func apiHandler(w http.ResponseWriter, r *http.Request) {
+	//log.Println("ytytyt")
+
 	var schema answerSchema
 
-	schema.App = "tester"
+	schema.App = "GoHisiProbe"
 
-	schema.ChipDetectedReg = chip.Detect(chip.RegId())
-	//schema.ChipDetectedMpp  = chip.Detect(chip.MppId())
+	//schema.ChipDetectedReg = chip.Detect(chip.RegId())
+	schema.ChipDetectedMpp  = chip.Detect(utils.MppId())
 
 	schema.Mpp = utils.Version()
 
-	schema.SysIdReg = chip.RegId()
-	//schema.SysIdMpp         = chip.MppId()
+	//schema.SysIdReg = chip.RegId()
+	//schema.SysIdMpp = utils.MppId()
 
 	var err error
 	schema.TempVal, err = temperature.Get()
 
 	if err != nil {
-		schema.TempHW = "not availible"
+		schema.TempHW = false
 	} else {
-		schema.TempHW = "availible"
+		schema.TempHW = true
 	}
 
 	buildinfo.CopyAll(&schema.Info)
+	schema.Info.CmosProfile = ""
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -67,41 +78,83 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	log.Println("GoHisiProbe")
+	//zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 
-	flag.UintVar(&memTotal, "memtotal", 512, "Total RAM size, MB")
-	flag.UintVar(&memLinux, "memlinux", 256, "RAM size passed to Linux kernel, rest will be used for MPP, MB")
+    	//log.Print("hello world")
 
-	flag.Parse()
+	//log := zerolog.New(os.Stdout)
+	//logWriter := zerolog.MultiLevelWriter(os.Stdout, zerolog.ConsoleWriter{Out: os.Stderr})
+	//log := zerolog.New(logWriter).With().Timestamp().Logger()
+	//log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 
-	log.Println("CMD parsed params:")
-	log.Println("Total board RAM ", memTotal, "MB")
-	log.Println("Linux RAM ", memLinux, "MB")
-	log.Println("")
+	//log.Print("GoHisiProbe")
 
-	log.Println("Build time info:")
-	log.Println("Go: ", buildinfo.GoVersion)
-	log.Println("Gcc: ", buildinfo.GccVersion)
-	log.Println("Date: ", buildinfo.BuildDateTime)
-	log.Println("Tags: ", buildinfo.BuildTags)
-	log.Println("User: ", buildinfo.BuildUser)
-	log.Println("Commit: ", buildinfo.BuildCommit)
-	log.Println("Branch: ", buildinfo.BuildBranch)
-	log.Println("Vendor: ", buildinfo.BoardVendor)
-	log.Println("Model: ", buildinfo.BoardModel)
-	log.Println("Chip: ", buildinfo.Chip)
-	log.Println("Cmos: ", buildinfo.CmosProfile)
-	log.Println("Total ram: ", buildinfo.TotalRam)
-	log.Println("Linux ram: ", buildinfo.LinuxRam)
-	log.Println("Mpp ram: ", buildinfo.MppRam)
-	log.Println("")
+        memTotal := flag.String("mem-total", "32M", "Total RAM size") //&ko.MemTotal
+        memLinux := flag.String("mem-linux", "20M", "RAM size passed to Linux kernel, rest should be used for MPP") //ko.MemLinux
+        memMpp   := flag.String("mem-mpp", "12M", "RAM size passed to MPP") //ko.MemMpp
+	
+	httpPort := flag.Uint("http-port", 80, "Web server port")
 
-	log.Println("Loading modules...")
+        flag.Parse()
+
+	logger.Init()
+
+        //TODO make correct memory size siffix handle
+        *memTotal = strings.Trim(*memTotal, "M")
+        ko.MemTotal, _ = strconv.ParseUint(*memTotal, 10, 64)
+        
+        *memLinux = strings.Trim(*memLinux, "M")
+        ko.MemLinux, _  = strconv.ParseUint(*memLinux, 10, 64)
+
+        *memMpp = strings.Trim(*memMpp, "M")
+        ko.MemMpp, _     = strconv.ParseUint(*memMpp, 10, 64)
+
+        //log.Println("mem-total", ko.MemTotal)
+        //log.Println("mem-linux", ko.MemLinux)
+        //log.Println("mem-mpp", ko.MemMpp)
+
+	logger.Info().
+		Uint64("mem-total", ko.MemTotal).
+		Uint64("mem-linux", ko.MemLinux).
+                Uint64("mem-mm", ko.MemMpp).
+		Msg("cmdline mem params")
+
+
+	logger.Log.Info().
+		Str("go", buildinfo.GoVersion).
+		Str("gcc", buildinfo.GccVersion).
+		Str("date", buildinfo.BuildDateTime).
+		Str("tags", buildinfo.BuildTags).
+		Str("branch", buildinfo.BuildBranch).
+		Str("sdk", buildinfo.SDK).
+		Str("cmos", buildinfo.CmosProfile).
+		Msg("build info")
+
+	//log.Print("Loading modules...")
 	ko.UnloadAll()
 	ko.LoadMinimal()
-	log.Println("Loading modules done")
+	//log.Print("Loading modules done")
 
-	log.Println("Starting http server :80")
 	http.HandleFunc("/", apiHandler)
-	http.ListenAndServe(":80", nil)
+
+	if *httpPort == 0 {
+		*httpPort = 80
+	}
+	if *httpPort > 65536 {
+		*httpPort = 80
+	}
+	port := strconv.Itoa(int(*httpPort))
+	logger.Log.Info().
+        	Uint("port", *httpPort).
+                Msg("Starting http server")
+	
+	//logger.Log.Panic().Msg("Test panic")
+
+	//TODO check errors
+	http.ListenAndServe(":"+port, nil)
+
+        logger.Log.Error().
+                Msg("TODO Something wrong with http server")
+
+	//time.Sleep(20*time.Millisecond)
 }

@@ -9,6 +9,8 @@ import (
 	"application/pkg/mpp/venc"
 	"application/pkg/mpp/vi"
 	"application/pkg/mpp/vpss"
+
+	"application/pkg/mpp/ai"
 )
 
 func Init() {
@@ -30,4 +32,5 @@ func Init() {
 	//init sample videopipeline
 	vpss.SampleChannel0()
 
+	ai.Init()
 }

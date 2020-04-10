@@ -6,8 +6,9 @@ import (
 	"application/pkg/openapi"
 	"encoding/json"
 	"fmt"
-	"log"
+	//"log"
 	"net/http"
+	"application/pkg/logger"
 )
 
 func init() {
@@ -27,7 +28,8 @@ type serveTemperatureSchema struct {
  *  Once a second value is captured.
  */
 func serveTemperature(w http.ResponseWriter, r *http.Request) {
-	log.Println("temperature.serveTemperature")
+	//log.Println("temperature.serveTemperature")
+	logger.Log.Trace().Msg("temperature.serveTemperature")
 
 	var schema serveTemperatureSchema
 

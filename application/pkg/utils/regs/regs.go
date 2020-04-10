@@ -1,3 +1,4 @@
+//+build ignore
 /////go:generate goyacc -l -o parser.go parser.y
 
 package regs

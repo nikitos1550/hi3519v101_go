@@ -2,76 +2,116 @@ THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 #THIS IS YOUR CUSTOM SETTINGS
 
-#APP_TARGET := daemon
+#APP_TARGET := cam
 
-#1.  hi3519v101+imx274 jvt OK
-CAMERA  ?= 1
-BOARD   ?= jvt_s274h19v-l29_hi3519v101_imx274
-PROG	?= 1
+#BOARD ?= unknown_unknown_hi3516av100_unknown
+#BOARD ?= unknown_unknown_hi3516av200_unknown
+#BOARD ?= unknown_unknown_hi3516cv100_unknown
+#BOARD ?= unknown_unknown_hi3516cv200_unknown
+#BOARD ?= unknown_unknown_hi3516cv300_unknown
+#BOARD ?= unknown_unknown_hi3516cv500_unknown 
+#BOARD ?= unknown_unknown_hi3516ev200_unknown 
+#BOARD ?= unknown_unknown_hi3519av100_unknown 
+#BOARD ?= unknown_unknown_hi3559av100_unknown 
 
-#CAMERA  ?= 2
-#BOARD   ?= xm_ivg-85hf20pya-s_hi3516ev200_imx307
-#PROG	 ?= 2
+#CAMERA  ?= 1
+#BOARD   ?= jvt_s274h19v-l29_hi3519v101_imx274
+#PROG	 ?= 1
+#GREETING  ?= System startup
+#PROMPT   ?= hisilicon
 
-#CAMERA  ?= 3
-#BOARD   ?= xm_53h20-s_hi3516cv100_imx122
+#CAMERA    ?= 2
+#BOARD     ?= xm_ivg-85hf20pya-s_hi3516ev200_imx307
+#PROG	  ?= 2
+#GREETING  ?= System startup
+#PROMPT	  ?= hisilicon
+
+#CAMERA   ?= 3
+#BOARD    ?= xm_53h20-s_hi3516cv100_imx122
 #PROG	 ?= 3
+#GREETING ?= U-Boot
+#PROMPT   ?= hisilicon
 
-#CAMERA  ?= 4
-#BOARD   ?= xm_ivg-hp203y-se_hi3516cv300_imx291
-#PROG    ?= 4
+#CAMERA   ?= 4
+#BOARD    ?= xm_ivg-hp203y-se_hi3516cv300_imx291
+#PROG     ?= 4
+#GREETING ?= Uncompress
+#PROMPT	 ?= xmtech
 
 #CAMERA  ?= 5
 #BOARD   ?= xm_ivg-hp201y-se_hi3516cv300_imx323
 #PROG    ?= 5
+#GREETING ?= hi3516cv300
+#PROMPT   ?= xmtech
 
 #CAMERA  ?= 6
 #BOARD   ?= jvt_s323h16xf_hi3516cv300_imx323
 #PROG    ?= 6
+#GREETING ?= System startup
+#PROMPT   ?= hisilicon
 
 #CAMERA  ?= 7
 #BOARD   ?= ruision_rs-h622qm-b0_hi3516cv300_imx323
 #PROG    ?= 7
+#GREETING ?= System startup
+#PROMPT   ?= Zview
+
 
 #CAMERA  ?= 8
 #BOARD   ?= xm_ivg-85hg50pya-s_hi3516ev300_imx335
 #PROG    ?= 8
 
-#CAMERA  ?= 9
-#BOARD   ?= xm_ipg-83h50p-b_hi3516av100_imx178
-#PROG    ?= 9
+#CAMERA   ?= 9
+#BOARD    ?= xm_ipg-83h50p-b_hi3516av100_imx178
+#PROG     ?= 9
+#GREETING ?= Uncompress
+#PROMPT	  ?= xmtech
 
-#CAMERA  ?= 10
-#BOARD   ?= xm_ipg-83he20py-s_hi3516ev100_imx323
-#PROG    ?= 10
+#CAMERA   ?= 10
+#BOARD    ?= xm_ipg-83he20py-s_hi3516ev100_imx323
+#PROG     ?= 10
+#GREETING ?= hi3516cv300
+#PROMPT	  ?= xmtech
 
-#CAMERA  ?= 11
-#BOARD   ?= xm_ivg-83h80nv-be_hi3516av200_os08a10
-#PROG    ?= no
+#CAMERA   ?= 11
+#BOARD    ?= xm_ivg-83h80nv-be_hi3516av200_os08a10
+#PROG     ?= no
+#GREETING ?= Uncompress
+#PROMPT   ?= hisilicon
 
-#CAMERA  ?= 13
-#BOARD   ?= ssqvision_on335h16d_hi3516dv300_imx335
-#PROG    ?= 13
+#CAMERA   ?= 13
+#BOARD    ?= ssqvision_on335h16d_hi3516dv300_imx335
+#PROG     ?= 13
+#GREETING ?= Uncompress
+#PROMPT   ?= hi3516dv300
 
-#CAMERA  ?= 14
-#BOARD   ?= jvt_s226h19v-l29_hi3519v101_imx226
-#PROG    ?= no
+#CAMERA   ?= 14
+#BOARD    ?= jvt_s226h19v-l29_hi3519v101_imx226
+#PROG     ?= no
+#GREETING ?= System startup
+#PROMPT   ?= hisilicon
 
-#CAMERA  ?= 15
-#BOARD   ?= xm_53h20-ae_hi3516cv100_imx222
-#PROG    ?= no
+#CAMERA   ?= 15
+#BOARD    ?= xm_53h20-ae_hi3516cv100_imx222
+#PROG     ?= no
+#GREETING ?= System startup
+#PROMPT   ?= hisilicon
 
 #CAMERA	 ?= 16
-#BOARD   ?= xm_83h40pl-b_hi3516av100_ov4689 
-#PROG    ?= no
+#BOARD    ?= xm_83h40pl-b_hi3516dv100_ov4689 
+#PROG     ?= no
+#GREETING ?= Uncompress
+#PROMPT   ?= xmtech
 
 #CAMERA  ?= 17
 #BOARD   ?= ssqvision_unknown_hi3519v101_imx326 
 #PROG    ?= no
 
-#CAMERA  ?= 18
-#BOARD   ?= ssqvision_on290h16d_hi3516dv100_imx290
-#PROG    ?= no
+#CAMERA   ?= 18
+#BOARD    ?= ssqvision_on290h16d_hi3516dv100_imx290
+#PROG     ?= no
+#GREETING ?= U-Boot
+#PROMPT   ?= hisilicon 
 
 #CAMERA  ?= 31
 #BOARD   ?= hisilicon_demb_hi3516dv300_imx290 
@@ -80,3 +120,6 @@ PROG	?= 1
 #CAMERA  ?= 32
 #BOARD   ?= hisilicon_dembverc_hi3559av100_imx334
 #PROG    ?= no
+#GREETING ?= System 
+#PROMPT   ?= hisilicon
+

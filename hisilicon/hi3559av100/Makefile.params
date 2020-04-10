@@ -1,4 +1,7 @@
-TOOLCHAIN_NAME   := arm-buildroot-linux-gnueabi
+MEM_START_ADDR=0x40000000
+KERNEL_UPLOAD_ADDR=0x42000000
+
+TOOLCHAIN_NAME   := aarch64-buildroot-linux-gnu
 TOOLCHAIN        := $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_NAME)-
 
 CC      := $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_NAME)-gcc
@@ -16,12 +19,22 @@ SWIG    := $(TOOLCHAIN_DIR)/bin/swig
 CFLAGS  :=  -std=gnu11 \
             -fPIC \
             -mcpu=cortex-a73.cortex-a53 \
-            -mfloat-abi=softfp \
-            -mfpu=neon-vfpv4 \
-            -mno-unaligned-access \
-            -fno-aggressive-loop-optimizations \
             -O2 \
             -fno-common -ffunction-sections
 
-ARMV    := 8
+#CFLAGS  :=  -std=gnu11 \
+#            -fPIC \
+#            -mcpu=cortex-a73.cortex-a53 \
+#            -mfloat-abi=softfp \
+#            -mfpu=neon-vfpv4 \
+#            -mno-unaligned-access \
+#            -fno-aggressive-loop-optimizations \
+#            -O2 \
+#            -fno-common -ffunction-sections
+
+FAMILY_LDFLAGS := -lm -ldl
+
+GOARCH    := arm64
+
+GOPATH    := $(abspath ../output/go_workspace)
 

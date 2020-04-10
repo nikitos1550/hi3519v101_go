@@ -1,7 +1,7 @@
 // +build hi3516cv300
 
-//go:generate rm -f hi3516cv300_kobin.go
-//go:generate go run -tags "generate hi3516cv300" ./generate.go --output hi3516cv300_kobin.go --tag hi3516cv300 --dir ../../sdk/hi3516cv300/ko/ --pkg ko --source ./hi3516cv300.go
+//g-o:generate rm -f kobin_hi3516cv300.go
+//g-o:generate go run -tags "generate hi3516cv300" ./generate.go --output kobin_hi3516cv300.go --tag hi3516cv300 --dir ../../sdk/hi3516cv300/ko/ --pkg ko --source ./hi3516cv300.go
 
 package ko
 
@@ -39,7 +39,7 @@ var (
 		[2]string{"hi_mipi.ko", ""},
 	}
 
-	minimalModulesList = [...]string{
+	MinimalModulesList = [...]string{
 		"sys_config.ko",
 		"hi_osal.ko",
 		"hi3516cv300_base.ko",

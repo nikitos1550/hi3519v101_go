@@ -1,7 +1,7 @@
 //+build hi3516av200
 
-//go:generate rm -f hi3516av200_kobin.go
-//go:generate go run -tags "generate hi3516av200" ./generate.go --output hi3516av200_kobin.go --tag hi3516av200 --dir ../../sdk/hi3516av200/ko/ --pkg ko --source ./hi3516av200.go
+//g-o:generate rm -f kobin_hi3516av200.go
+//g-o:generate go run -tags "generate hi3516av200" ./generate.go --output kobin_hi3516av200.go --tag hi3516av200 --dir ../../sdk/hi3516av200/ko/ --pkg ko --source ./hi3516av200.go
 
 package ko
 
@@ -46,7 +46,7 @@ var (
 		[2]string{"hi_user.ko", ""},
 		[2]string{"hi_ssp_sony.ko", ""},
 	}
-	minimalModulesList = [...]string{
+	MinimalModulesList = [...]string{
 		"hi_osal.ko",
 		"hi3519v101_base.ko",
 		"hi3519v101_sys.ko",

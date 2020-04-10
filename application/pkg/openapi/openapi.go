@@ -5,7 +5,7 @@ package openapi
 import (
 	"flag"
 	"github.com/gorilla/mux"
-	"log"
+	//"log"
 	"net"
 	"net/http"
 	"os"
@@ -14,6 +14,8 @@ import (
 	"strconv"
 
     "github.com/gorilla/websocket"
+
+	"application/pkg/logger"
 )
 
 ////////////////////////////////////////////////////////
@@ -61,7 +63,8 @@ type Method interface {
 }
 
 func serveApi(w http.ResponseWriter, r *http.Request) {
-    log.Println("serveApi")
+    //log.Println("serveApi")
+    logger.Log.Trace().Msg("serveApi")
 
     w.Header().Set("Content-Type", "application/json; charset=UTF-8")
     w.WriteHeader(http.StatusOK)
@@ -105,8 +108,9 @@ func init() {
 }
 
 ////////////////////////////////////////////////////////
-
-func PrintInfo() {
+//TODO
+/*
+func PrintInfo() {//TODO
     router = newRouter()
 
         //TODO use it or make another cmd/app to generate auto doc
@@ -123,11 +127,13 @@ func PrintInfo() {
             //if err == nil {
             //  return err
             //}
-            log.Println(m, " ", t)//, " ", r)
+            
+	    //log.Println(m, " ", t)//, " ", r)
             return nil
         })
 
 }
+*/
 
 func Init() {
 	router = newRouter()
@@ -158,7 +164,11 @@ func Init() {
 }
 
 func Start() {
-	log.Println("Starting NET HTTP server")
+	//log.Println("Starting NET HTTP server")
+	logger.Log.Debug().
+		Uint("port", *flagHttpPort).
+		Msg("Starting NET HTTP server")
+
 	//TODO check ability to bind port
 	srv := &http.Server{
 		Addr:           ":"+strconv.FormatUint(uint64(*flagHttpPort), 10),
@@ -169,12 +179,18 @@ func Start() {
 	}
 	go srv.ListenAndServe()
 
-	log.Println("Starting USD server")
+	//log.Println("Starting USD server")
+	logger.Log.Debug().
+		Str("file", *flagUdsPath).
+		Msg("Starting USD server")
 
 	os.Remove(*flagUdsPath)
 	l, err := net.Listen("unix", *flagUdsPath)
 	if err != nil {
-		log.Printf("error: %v\n", err)
+		//log.Printf("error: %v\n", err)
+		logger.Log.Error().
+			Str("reason", err.Error()).
+			Msg("Error creating UDS")
 		return
 	}
 	go http.Serve(l, router)

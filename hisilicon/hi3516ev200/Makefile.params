@@ -1,3 +1,6 @@
+MEM_START_ADDR=0x40000000
+KERNEL_UPLOAD_ADDR=0x41000000
+
 TOOLCHAIN_NAME   := arm-buildroot-linux-uclibcgnueabi
 TOOLCHAIN        := $(TOOLCHAIN_DIR)/bin/$(TOOLCHAIN_NAME)-
 
@@ -23,5 +26,8 @@ CFLAGS  :=  -std=gnu11 \
             -O2 \
             -fno-common -ffunction-sections
 
-ARMV    := 7
+GOARCH    := arm
+GOARM     := 7
+
+GOPATH    := $(abspath ../output/go_workspace)
 

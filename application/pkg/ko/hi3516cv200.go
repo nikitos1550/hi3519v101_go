@@ -1,7 +1,7 @@
 // +build hi3516cv200
 
-//go:generate rm -f hi3516cv200_kobin.go
-//go:generate go run -tags "generate hi3516cv200" ./generate.go --output hi3516cv200_kobin.go --tag hi3516cv200 --dir ../../sdk/hi3516cv200/ko/ --pkg ko --source ./hi3516cv200.go
+//g-o:generate rm -f kobin_hi3516cv200.go
+//g-o:generate go run -tags "generate hi3516cv200" ./generate.go --output kobin_hi3516cv200.go --tag hi3516cv200 --dir ../../sdk/hi3516cv200/ko/ --pkg ko --source ./hi3516cv200.go
 
 package ko
 
@@ -22,7 +22,7 @@ var (
 		[2]string{"hi3518e_viu.ko", "detect_err_frame=10"},
 		[2]string{"hi3518e_vpss.ko", "rfr_frame_comp=1"},
 		[2]string{"hi3518e_vou.ko", ""},
-		[2]string{"hi3518e_vou.ko", "transparentTransmit=1"}, //enable transparentTransmit
+		//[2]string{"hi3518e_vou.ko", "transparentTransmit=1"}, //enable transparentTransmit
 		//[2]string{"hifb.ko", 'video="hifb:vram0_size:1620"'}, //default pal
 		[2]string{"hi3518e_rc.ko", ""},
 		[2]string{"hi3518e_venc.ko", ""},
@@ -44,7 +44,7 @@ var (
 		[2]string{"hi_mipi.ko", ""},
 	}
 
-	minimalModulesList = [...]string{
+	MinimalModulesList = [...]string{
 		"mmz.ko",
 		"hi_media.ko",
 		"hi3518e_base.ko",
