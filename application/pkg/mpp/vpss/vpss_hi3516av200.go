@@ -186,10 +186,10 @@ void mpp3_send_frame_to_clients(unsigned int channelId, unsigned int processingI
 import "C"
 
 import (
-    "log"
+    //"log"
     "application/pkg/mpp/error"
 
-// 	"application/pkg/logger"
+    "application/pkg/logger"
 )
 
 func Init() {
@@ -197,15 +197,35 @@ func Init() {
 
     switch err := C.mpp3_vpss_init(&errorCode); err {
     case C.ERR_NONE:
-        log.Println("C.mpp3_vpss_init() ok")
+        //log.Println("C.mpp3_vpss_init() ok")
+	logger.Log.Debug().
+		Msg("C.mpp3_vpss_init() ok")
     case C.ERR_HI_MPI_VPSS_CreateGrp:
-        log.Fatal("C.mpp3_vpss_init() HI_MPI_VPSS_CreateGrp() error ", error.Resolve(int64(errorCode)))
+        //log.Fatal("C.mpp3_vpss_init() HI_MPI_VPSS_CreateGrp() error ", error.Resolve(int64(errorCode)))
+	logger.Log.Fatal().
+		Str("func", "HI_MPI_VPSS_CreateGrp()").
+		Int("error", int(errorCode)).
+		Str("error_desc", error.Resolve(int64(errorCode))).
+		Msg("C.mpp3_vpss_init() error")
     case C.ERR_HI_MPI_VPSS_StartGrp:
-        log.Fatal("C.mpp3_vpss_init() HI_MPI_VPSS_StartGrp() error ", error.Resolve(int64(errorCode)))
+        //log.Fatal("C.mpp3_vpss_init() HI_MPI_VPSS_StartGrp() error ", error.Resolve(int64(errorCode)))
+	logger.Log.Fatal().
+		Str("func", "HI_MPI_VPSS_StartGrp()").
+		Int("error", int(errorCode)).
+		Str("error_desc", error.Resolve(int64(errorCode))).
+		Msg("C.mpp3_vpss_init() error")
     case C.ERR_HI_MPI_SYS_Bind:
-        log.Fatal("C.mpp3_vpss_init() HI_MPI_SYS_Bind() error ", error.Resolve(int64(errorCode)))
+        //log.Fatal("C.mpp3_vpss_init() HI_MPI_SYS_Bind() error ", error.Resolve(int64(errorCode)))
+	logger.Log.Fatal().
+		Str("func", "HI_MPI_SYS_Bind()").
+                Int("error", int(errorCode)).
+                Str("error_desc", error.Resolve(int64(errorCode))).
+                Msg("C.mpp3_vpss_init() error")
     default:
-        log.Fatal("Unexpected return ", err , " of C.mpp3_vpss_init()")
+        //log.Fatal("Unexpected return ", err , " of C.mpp3_vpss_init()")
+	logger.Log.Fatal().
+		Int("error", int(err)).
+		Msg("C.mpp3_vpss_init() Unexpected return")
     }
 }
 
@@ -214,11 +234,21 @@ func SampleChannel0() {
 
     switch err := C.mpp3_vpss_sample_channel0(&errorCode); err {
     case C.ERR_NONE:
-        log.Println("C.mpp3_vpss_sample_channel0() ok")
+        //log.Println("C.mpp3_vpss_sample_channel0() ok")
+	logger.Log.Debug().
+		Msg("C.mpp3_vpss_sample_channel0() ok")
     case C.ERR_MPP:
-        log.Fatal("C.mpp3_vpss_sample_channel0() MPP error ", error.Resolve(int64(errorCode)))
+        //log.Fatal("C.mpp3_vpss_sample_channel0() MPP error ", error.Resolve(int64(errorCode)))
+	logger.Log.Fatal().
+		Int("error", int(errorCode)).
+		Str("error_desc", error.Resolve(int64(errorCode))).
+		Msg("C.mpp3_vpss_sample_channel0() MPP error")
+
     default:
-        log.Fatal("Unexpected return ", err , " of C.mpp3_vpss_sample_channel0()")
+        //log.Fatal("Unexpected return ", err , " of C.mpp3_vpss_sample_channel0()")
+	logger.Log.Fatal().
+		Int("error", int(err)).
+		Msg("C.mpp3_vpss_sample_channel0() Unexpected return")
     }
 }
 
@@ -227,11 +257,20 @@ func CreateChannel(channel Channel) {
 
     switch err := C.mpp3_vpss_sample_channel(C.uint(channel.ChannelId), C.uint(channel.Width), C.uint(channel.Height), C.uint(channel.Fps), &errorCode); err {
     case C.ERR_NONE:
-        log.Println("C.mpp3_vpss_sample_channel() ok")
+        //log.Println("C.mpp3_vpss_sample_channel() ok")
+	logger.Log.Debug().
+		Msg("C.mpp3_vpss_sample_channel() ok")
     case C.ERR_MPP:
-        log.Fatal("C.mpp3_vpss_sample_channel() MPP error ", error.Resolve(int64(errorCode)))
+        //log.Fatal("C.mpp3_vpss_sample_channel() MPP error ", error.Resolve(int64(errorCode)))
+	logger.Log.Fatal().
+                Int("error", int(errorCode)). 
+                Str("error_desc", error.Resolve(int64(errorCode))).
+                Msg("C.mpp3_vpss_sample_channel() MPP error")
     default:
-        log.Fatal("Unexpected return ", err , " of C.mpp3_vpss_sample_channel()")
+        //log.Fatal("Unexpected return ", err , " of C.mpp3_vpss_sample_channel()")
+	logger.Log.Fatal().
+                Int("error", int(err)).
+                Msg("C.mpp3_vpss_sample_channel() Unexpected return")
     }
 
     go func() {
@@ -244,11 +283,20 @@ func DestroyChannel(channel Channel) {
 
     switch err := C.mpp3_destroy_vpss_sample_channel(C.uint(channel.ChannelId), &errorCode); err {
     case C.ERR_NONE:
-        log.Println("C.mpp3_destroy_vpss_sample_channel() ok")
+        //log.Println("C.mpp3_destroy_vpss_sample_channel() ok")
+	logger.Log.Debug().
+		Msg("C.mpp3_destroy_vpss_sample_channel() ok")
     case C.ERR_MPP:
-        log.Fatal("C.mpp3_destroy_vpss_sample_channel() MPP error ", error.Resolve(int64(errorCode)))
+        //log.Fatal("C.mpp3_destroy_vpss_sample_channel() MPP error ", error.Resolve(int64(errorCode)))
+	logger.Log.Fatal().
+                Int("error", int(errorCode)). 
+                Str("error_desc", error.Resolve(int64(errorCode))).
+                Msg("C.mpp3_destroy_vpss_sample_channel() MPP error")
     default:
-        log.Fatal("Unexpected return ", err , " of C.mpp3_destroy_vpss_sample_channel()")
+        //log.Fatal("Unexpected return ", err , " of C.mpp3_destroy_vpss_sample_channel()")
+	logger.Log.Fatal().
+                Int("error", int(err)).
+                Msg("C.mpp3_destroy_vpss_sample_channel() Unexpected return")
     }
 }
 
@@ -260,7 +308,12 @@ func sendDataToClients(channel Channel) {
 
 		err := C.mpp3_receive_frame(C.uint(channel.ChannelId));
 		if (err != 0){
-			log.Println("Failed receive frame", channel.ChannelId, error.Resolve(int64(err)))
+			//log.Println("Failed receive frame", channel.ChannelId, error.Resolve(int64(err)))
+			logger.Log.Warn().
+				Int("channelId", channel.ChannelId).
+				Int("error", int(err)).
+				Str("error_desc", error.Resolve(int64(err))).
+				Msg("Failed receive frame")
 			continue
 		}
 
@@ -270,7 +323,12 @@ func sendDataToClients(channel Channel) {
 
 		err = C.mpp3_release_frame(C.uint(channel.ChannelId));
 		if (err != 0){
-			log.Println("Failed release frame", channel.ChannelId, error.Resolve(int64(err)))
+			//log.Println("Failed release frame", channel.ChannelId, error.Resolve(int64(err)))
+			logger.Log.Warn().
+				Int("channelId", channel.ChannelId).
+                                Int("error", int(err)).
+                                Str("error_desc", error.Resolve(int64(err))).
+                                Msg("Failed receive frame")
 		}
 	}
 }

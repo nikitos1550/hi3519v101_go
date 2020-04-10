@@ -54,8 +54,9 @@ int mpp3_sys_init(unsigned int *error_code) {
 import "C"
 
 import (
-    "log"
+    //"log"
     "application/pkg/mpp/error"
+    "application/pkg/logger"
 )
 
 func Init() {
@@ -63,20 +64,57 @@ func Init() {
     
     switch err := C.mpp3_sys_init(&errorCode); err {
     case C.ERR_NONE:
-        log.Println("C.mpp3_sys_init ok")
+        //log.Println("C.mpp3_sys_init ok")
+	logger.Log.Debug().
+		Msg("C.mpp3_sys_init ok")
     case C.ERR_HI_MPI_SYS_Exit:
-        log.Fatal("C.mpp3_sys_init() HI_MPI_SYS_Exit() error ", error.Resolve(int64(errorCode)))
+        //log.Fatal("C.mpp3_sys_init() HI_MPI_SYS_Exit() error ", error.Resolve(int64(errorCode)))
+	logger.Log.Fatal().
+		Str("func", "HI_MPI_SYS_Exit()").
+		Int("error", int(errorCode)).
+		Str("error_desc", error.Resolve(int64(errorCode))).
+		Msg("C.mpp3_sys_init() error")
     case C.ERR_HI_MPI_VB_Exit:
-        log.Fatal("C.mpp3_sys_init() HI_MPI_VB_Exit() error ", error.Resolve(int64(errorCode)))
+        //log.Fatal("C.mpp3_sys_init() HI_MPI_VB_Exit() error ", error.Resolve(int64(errorCode)))
+	logger.Log.Fatal().        
+                Str("func", "HI_MPI_VB_Exit()"). 
+                Int("error", int(errorCode)).
+                Str("error_desc", error.Resolve(int64(errorCode))).
+                Msg("C.mpp3_sys_init() error")
+
     case C.ERR_HI_MPI_VB_SetConf:
-        log.Fatal("C.mpp3_sys_init() HI_MPI_VB_SetConf() error ", error.Resolve(int64(errorCode)))
+        //log.Fatal("C.mpp3_sys_init() HI_MPI_VB_SetConf() error ", error.Resolve(int64(errorCode)))
+	 logger.Log.Fatal().        
+                Str("func", "HI_MPI_VB_SetConf()"). 
+                Int("error", int(errorCode)).
+                Str("error_desc", error.Resolve(int64(errorCode))).
+                Msg("C.mpp3_sys_init() error")
+
     case C.ERR_HI_MPI_VB_Init:
-        log.Fatal("C.mpp3_sys_init() HI_MPI_VB_Init() error ", error.Resolve(int64(errorCode)))
+        //log.Fatal("C.mpp3_sys_init() HI_MPI_VB_Init() error ", error.Resolve(int64(errorCode)))
+	logger.Log.Fatal().
+                Str("func", "HI_MPI_VB_Init()").
+                Int("error", int(errorCode)).
+                Str("error_desc", error.Resolve(int64(errorCode))).
+                Msg("C.mpp3_sys_init() error")
     case C.ERR_HI_MPI_SYS_SetConf:
-        log.Fatal("C.mpp3_sys_init() HI_MPI_SYS_SetConf() error ", error.Resolve(int64(errorCode)))
+        //log.Fatal("C.mpp3_sys_init() HI_MPI_SYS_SetConf() error ", error.Resolve(int64(errorCode)))
+	logger.Log.Fatal().
+                Str("func", "HI_MPI_SYS_SetConf()").
+                Int("error", int(errorCode)).
+                Str("error_desc", error.Resolve(int64(errorCode))).
+                Msg("C.mpp3_sys_init() error")
     case C.ERR_HI_MPI_SYS_Init:
-        log.Fatal("C.mpp3_sys_init() HI_MPI_SYS_Init() error ", error.Resolve(int64(errorCode)))
+        //log.Fatal("C.mpp3_sys_init() HI_MPI_SYS_Init() error ", error.Resolve(int64(errorCode)))
+	logger.Log.Fatal().
+		Str("func", "HI_MPI_SYS_Init()").
+                Int("error", int(errorCode)).
+                Str("error_desc", error.Resolve(int64(errorCode))).
+                Msg("C.mpp3_sys_init() error")
     default:
-        log.Fatal("Unexpected return ", err , " of C.mpp3_sys_init()")
+        //log.Fatal("Unexpected return ", err , " of C.mpp3_sys_init()")
+	logger.Log.Fatal().
+		Int("error", int(err)).
+		Msg("Unexpected return of C.mpp3_sys_init()")
     }
 }

@@ -158,7 +158,8 @@ int mpp3_mipi_init(int *error_code) {
 import "C"
 
 import (
-    "log"
+    //"log"
+	"application/pkg/logger"
 )
 
 func Init() {
@@ -166,9 +167,14 @@ func Init() {
 
     switch err := C.mpp3_mipi_init(&errorCode); err {
     case C.ERR_NONE:
-        log.Println("C.mpp3_mipi_init() ok")
+        //log.Println("C.mpp3_mipi_init() ok")
+	logger.Log.Debug().
+		Msg("C.mpp3_mipi_init() ok")
     default:
-        log.Fatal("Unexpected return ", err , " of C.mpp3_mipi_init()")
+        //log.Fatal("Unexpected return ", err , " of C.mpp3_mipi_init()")
+	logger.Log.Fatal().
+		Int("error", int(err)).
+		Msg("Unexpected return of C.mpp3_mipi_init()")
     }
 }
 

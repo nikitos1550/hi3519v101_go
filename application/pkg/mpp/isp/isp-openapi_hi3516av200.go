@@ -5,11 +5,13 @@
 package isp
 
 import (
-    "log"
+    //"log"
     "fmt"
     "net/http"
     "application/pkg/openapi"
     "encoding/json"
+
+    "application/pkg/logger"
 )
 
 /*
@@ -33,7 +35,9 @@ type serveIspStatSchema struct {
 }
 
 func serveIspStat(w http.ResponseWriter, r *http.Request) {
-    log.Println("mpp.isp.serveIspStat")
+    //log.Println("mpp.isp.serveIspStat")
+	logger.Log.Trace().
+		Msg("mpp.isp.serveIspStat")
 
     var schema serveIspStatSchema
 

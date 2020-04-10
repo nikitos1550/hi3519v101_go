@@ -114,8 +114,9 @@ int mpp3_isp_init(int *error_code) {
 import "C"
 
 import (
-    "log"
+    //"log"
     "application/pkg/mpp/error"
+    "application/pkg/logger"
 )
 
 func Init() {
@@ -123,10 +124,19 @@ func Init() {
 
 	switch err := C.mpp3_isp_init(&errorCode); err {
     case C.ERR_NONE:
-        log.Println("C.mpp3_isp_init() ok")
+        //log.Println("C.mpp3_isp_init() ok")
+	logger.Log.Debug().
+		Msg("C.mpp3_isp_init() ok")
     case C.ERR_MPP:
-        log.Fatal("C.mpp3_isp_init() mpp error ", error.Resolve(int64(errorCode)))
+        //log.Fatal("C.mpp3_isp_init() mpp error ", error.Resolve(int64(errorCode)))
+	logger.Log.Fatal().
+                Int("error", int(errorCode)).
+                Str("error_desc", error.Resolve(int64(errorCode))).
+		Msg("C.mpp3_isp_init() mpp error ")
     default:
-	    log.Fatal("Unexpected return ", err , " of C.mpp3_isp_init()")
+	    //log.Fatal("Unexpected return ", err , " of C.mpp3_isp_init()")
+	    logger.Log.Fatal().
+	    	Int("error", int(err)).
+		Msg("Unexpected return of C.mpp3_isp_init()")
 	}
 }

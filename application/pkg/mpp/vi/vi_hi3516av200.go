@@ -124,7 +124,9 @@ int mpp3_vi_init(unsigned int *error_code) {
 import "C"
 
 import (
-    "log"
+    //"log"
+	"application/pkg/logger"
+
     "application/pkg/mpp/error"
 )
 
@@ -133,16 +135,43 @@ func Init() {
 
     switch err := C.mpp3_vi_init(&errorCode); err {
     case C.ERR_NONE:
-        log.Println("C.mpp3_vi_init() ok")
+        //log.Println("C.mpp3_vi_init() ok")
+	logger.Log.Debug().
+		Msg("C.mpp3_vi_init() ok")
     case C.ERR_HI_MPI_VI_SetDevAttr:
-        log.Fatal("C.mpp3_vi_init() ERR_HI_MPI_VI_SetDevAttr() error ", error.Resolve(int64(errorCode)))
+        // log.Fatal("C.mpp3_vi_init() ERR_HI_MPI_VI_SetDevAttr() error ", error.Resolve(int64(errorCode)))
+	logger.Log.Fatal().
+		Str("func", "ERR_HI_MPI_VI_SetDevAttr()").
+		Int("error", int(errorCode)).
+		Str("error_desc", error.Resolve(int64(errorCode))).
+		Msg("C.mpp3_vi_init() error")
     case C.ERR_HI_MPI_VI_EnableDev:
-        log.Fatal("C.mpp3_vi_init() ERR_HI_MPI_VI_EnableDev() error ", error.Resolve(int64(errorCode)))
+        //log.Fatal("C.mpp3_vi_init() ERR_HI_MPI_VI_EnableDev() error ", error.Resolve(int64(errorCode)))
+	logger.Log.Fatal().
+                Str("func", "ERR_HI_MPI_VI_EnableDev()").
+                Int("error", int(errorCode)).
+                Str("error_desc", error.Resolve(int64(errorCode))).
+                Msg("C.mpp3_vi_init() error")
+
     case C.ERR_HI_MPI_VI_SetChnAttr:
-        log.Fatal("C.mpp3_vi_init() ERR_HI_MPI_VI_SetChnAttr() error ", error.Resolve(int64(errorCode)))
+        //log.Fatal("C.mpp3_vi_init() ERR_HI_MPI_VI_SetChnAttr() error ", error.Resolve(int64(errorCode)))
+	logger.Log.Fatal().
+                Str("func", "ERR_HI_MPI_VI_SetChnAttr()"). 
+                Int("error", int(errorCode)).
+                Str("error_desc", error.Resolve(int64(errorCode))).
+                Msg("C.mpp3_vi_init() error")
     case C.ERR_HI_MPI_VI_EnableChn:
-        log.Fatal("C.mpp3_vi_init() ERR_HI_MPI_VI_EnableChn() error ", error.Resolve(int64(errorCode)))        
+        //log.Fatal("C.mpp3_vi_init() ERR_HI_MPI_VI_EnableChn() error ", error.Resolve(int64(errorCode)))        
+	logger.Log.Fatal().
+                Str("func", "ERR_HI_MPI_VI_EnableChn()"). 
+                Int("error", int(errorCode)).
+                Str("error_desc", error.Resolve(int64(errorCode))).
+                Msg("C.mpp3_vi_init() error")
     default:
-        log.Fatal("Unexpected return ", err , " of C.mpp3_vi_init()")
+        //log.Fatal("Unexpected return ", err , " of C.mpp3_vi_init()")
+	logger.Log.Fatal().
+		Int("error", int(err)).
+		Msg("C.mpp3_vi_init() Unexpected return")
+
     }
 }

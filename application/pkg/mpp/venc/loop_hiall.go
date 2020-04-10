@@ -122,7 +122,9 @@ void * mpp_data_loop_thread() {
 import "C"
 
 import (
-    "log"
+    //"log"
+	"application/pkg/logger"
+
 
     "fmt"
     "net/http"
@@ -134,7 +136,9 @@ func init() {
 }
 
 func serveDebugLoop(w http.ResponseWriter, r *http.Request) {
-    log.Println("mpp.venc.serveDebugLoop")
+    //log.Println("mpp.venc.serveDebugLoop")
+    logger.Log.Trace().
+    	Msg("mpp.venc.serveDebugLoop")
 
     w.Header().Set("Content-Type", "test/plain; charset=UTF-8")
     w.WriteHeader(http.StatusOK)
@@ -150,14 +154,24 @@ func addVenc(venc int) {
 
     switch err := C.mpp_data_loop_add(&errorCode, vencChannelId); err {
     case C.ERR_NONE:
-        log.Println("C.mpp_data_loop_add() ok")
+        //log.Println("C.mpp_data_loop_add() ok")
+	logger.Log.Debug().
+		Msg("C.mpp_data_loop_add() ok")
     case C.ERR_SYS:
-        log.Println("C.mpp_data_loop_add() SYS error")
+        //log.Println("C.mpp_data_loop_add() SYS error")
+	logger.Log.Fatal().
+		Msg("C.mpp_data_loop_add() SYS error")
     default:
-        log.Fatal("Unexpected return ", err , " of C.mpp_data_loop_add()")
+        //log.Fatal("Unexpected return ", err , " of C.mpp_data_loop_add()")
+	logger.Log.Fatal().
+		Int("error", int(err)).
+		Msg("C.mpp_data_loop_add() Unexpected return")
     }
 
-    log.Println("getloop added venc channel ", venc)
+    //log.Println("getloop added venc channel ", venc)
+    logger.Log.Debug().
+    	Int("venc", venc).
+	Msg("getloop added venc channel")
 }
 
 func delVenc(venc int) {
@@ -167,14 +181,24 @@ func delVenc(venc int) {
 
     switch err := C.mpp_data_loop_del(&errorCode, vencChannelId); err {
     case C.ERR_NONE:
-        log.Println("C.mpp_data_loop_del() ok")
+        //log.Println("C.mpp_data_loop_del() ok")
+	logger.Log.Debug().
+		Msg("C.mpp_data_loop_del() ok")
     case C.ERR_SYS:
-        log.Println("C.mpp_data_loop_del() SYS error")
+        //log.Println("C.mpp_data_loop_del() SYS error")
+	logger.Log.Fatal().
+		Msg("C.mpp_data_loop_del() SYS error")
     default:
-        log.Fatal("Unexpected return ", err , " of C.mpp_data_loop_del()")
+        //log.Fatal("Unexpected return ", err , " of C.mpp_data_loop_del()")
+	logger.Log.Fatal().
+		Int("error", int(err)).
+		Msg("C.mpp_data_loop_del() Unexpected return")
     }
 
-    log.Println("getloop deleted venc channel ", venc)
+    //log.Println("getloop deleted venc channel ", venc)
+    logger.Log.Debug().
+        Int("venc", venc).    
+        Msg("getloop deleted venc channel")
 }
 
 
@@ -183,11 +207,18 @@ func loopInit() {
 
     switch err := C.mpp_data_loop_init(&errorCode); err {
     case C.ERR_NONE:
-        log.Println("C.mpp_data_loop_init() ok")
+        //log.Println("C.mpp_data_loop_init() ok")
+	logger.Log.Debug().
+		Msg("C.mpp_data_loop_init() ok")
     case C.ERR_SYS:
-        log.Println("C.mpp_data_loop_init() SYS error")
+        //log.Println("C.mpp_data_loop_init() SYS error")
+	logger.Log.Fatal().
+		Msg("C.mpp_data_loop_init() SYS error")
     default:
-        log.Fatal("Unexpected return ", err , " of C.mpp_data_loop_init()")
+        //log.Fatal("Unexpected return ", err , " of C.mpp_data_loop_init()")
+	logger.Log.Fatal().
+		Int("error", int(err)).
+		Msg("C.mpp_data_loop_init() Unexpected return")
     }
 
 }
