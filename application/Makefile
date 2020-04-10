@@ -165,6 +165,7 @@ testvideo-h265.mp4: testvideo.h265
 	MP4Box -add testvideo.h265 -fps 25 testvideo-h265.mp4
 
 clean:
+	rm -rf ./pkg/ko/kobin_hi*.go
 	rm -rf ./distrib
 	rm -f ./testvideo.h264
 	rm -f ./testvideo.h265
