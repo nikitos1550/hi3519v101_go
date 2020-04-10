@@ -4,7 +4,9 @@
 #include "../mpp/include/mpp_v3.h"
 
 #ifndef HI3516AV200
+#ifndef HI3516CV300
 typedef void VIDEO_FRAME_INFO_S;
+#endif
 #endif
 
 

@@ -15,8 +15,8 @@ var (
 	MemMpp   uint64   = 12
 	MemLinux uint64   = 20
 	MemTotal uint64   = 32
-	//ddrStartAddr uint64 = 0x80000000
-	ddrStartAddr uint64 = 0x40000000
+	ddrStartAddr uint64 = 0x80000000
+	//ddrStartAddr uint64 = 0x40000000
 	chip     string = "hi3516ev200"
 )
 
