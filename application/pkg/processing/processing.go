@@ -5,6 +5,7 @@ package processing
 /*
 
 #include "../mpp/include/mpp_v3.h"
+#include "processing.h"
 
 void sendToClients(unsigned int processingId, VIDEO_FRAME_INFO_S* frame) {
 	sendToEncoders(processingId, frame);

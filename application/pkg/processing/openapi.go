@@ -1,4 +1,5 @@
 //+build processing
+//+build openapi
 
 package processing
 
