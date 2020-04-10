@@ -8,6 +8,18 @@ import (
 	"unsafe"
 )
 
+type ChannelInfo struct {
+	ChannelId  int
+	Width int
+	Height int
+	Fps int
+	CropX int
+	CropY int
+	CropWidth int
+	CropHeight int
+	Processings []int
+}
+
 type responseRecord struct {
 	Message string
 }
@@ -96,9 +108,23 @@ func stopChannelRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func listChannelsRequest(w http.ResponseWriter, r *http.Request) {
-	var channelsInfo []Channel
+	var channelsInfo []ChannelInfo
 	for _, channel := range Channels {
-		channelsInfo = append(channelsInfo, channel)
+		info := ChannelInfo{
+			ChannelId: channel.ChannelId,
+			Width: channel.Width,
+			Height: channel.Height,
+			Fps: channel.Fps,
+			CropX: channel.CropX,
+			CropY: channel.CropY,
+			CropWidth: channel.CropWidth,
+			CropHeight: channel.CropHeight,
+		}
+		for processingId, _ := range channel.Clients {
+			info.Processings = append(info.Processings, processingId)
+		}
+
+		channelsInfo = append(channelsInfo, info)
 	}
 	openapi.ResponseSuccessWithDetails(w, channelsInfo)
 }

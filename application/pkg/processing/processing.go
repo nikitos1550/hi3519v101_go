@@ -11,7 +11,8 @@ void sendToClients(unsigned int processingId, VIDEO_FRAME_INFO_S* frame) {
 	sendToEncoders(processingId, frame);
 }
 
-void sendToEncoder(unsigned int vencId, VIDEO_FRAME_INFO_S* frame) {
+int sendToEncoder(unsigned int vencId, void* frame) {
+ 	return HI_MPI_VENC_SendFrame(vencId, frame, -1);
 }
 
 */
@@ -24,9 +25,11 @@ import (
 
 type ActiveProcessing struct {
 	Name string
+	InputChannel int
+	InputProcessing int
 	Callback unsafe.Pointer
 	Encoders map[int] bool
-	Processings map[unsafe.Pointer] bool
+	Processings map[int] unsafe.Pointer
 }
 
 type Processing struct {
@@ -71,9 +74,11 @@ func CreateProcessing(processingName string)  (int, string)  {
 
 	activeProcessing := ActiveProcessing{
 		Name: processing.Name,
+		InputChannel: -1,
+		InputProcessing: -1,
 		Callback: processing.Callback,
 		Encoders: make(map[int] bool),
-		Processings: make(map[unsafe.Pointer] bool),
+		Processings: make(map[int] unsafe.Pointer),
 	}
 
 	lastProcessingId++

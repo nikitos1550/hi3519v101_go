@@ -22,6 +22,15 @@ type processingInfo struct {
 	Name string
 }
 
+type activeProcessingInfo struct {
+	Id int
+	Name string
+	InputChannel int
+	InputProcessing int
+	OutputEncoders []int
+	OutputProcessings []int
+}
+
 func init() {
     openapi.AddApiRoute("apiDescription", "/processing", "GET", apiDescription)
 
@@ -68,28 +77,51 @@ func subscribeChannelRequest(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
-	processing, exists := ActiveProcessings[processingId]
-	if (!exists) {
+	activeProcessing, processingExists := ActiveProcessings[processingId]
+	if (!processingExists) {
 		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: "Processing not created"})
 		return
 	}
 
-	_, exists = vpss.Channels[channelId]
-	if (!exists) {
-		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: "Channel not started"})
-		return
-	}
-
-	err, errorString := vpss.SubscribeChannel(channelId, processingId, processing.Callback)
+	err, errorString := vpss.SubscribeChannel(channelId, processingId, activeProcessing.Callback)
 	if err != 0 {
 		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: errorString})
 		return
 	}
 
+	activeProcessing.InputChannel = channelId
+	ActiveProcessings[processingId] = activeProcessing
+
 	openapi.ResponseSuccessWithDetails(w, responseRecord{Message: "Channel was subscribed"})
 }
 
 func unsubscribeChannelRequest(w http.ResponseWriter, r *http.Request)  {
+	ok, processingId := openapi.GetIntParameter(w, r, "processingId")
+	if !ok {
+		return
+	}
+
+	ok, channelId := openapi.GetIntParameter(w, r, "channelId")
+	if !ok {
+		return
+	}
+
+	activeProcessing, processingExists := ActiveProcessings[processingId]
+	if (!processingExists) {
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: "Processing not created"})
+		return
+	}
+
+	err, errorString := vpss.UnsubscribeChannel(channelId, processingId)
+	if err != 0 {
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: errorString})
+		return
+	}
+
+	activeProcessing.InputChannel = -1
+	ActiveProcessings[processingId] = activeProcessing
+
+	openapi.ResponseSuccessWithDetails(w, responseRecord{Message: "Channel was unsubscribed"})
 }
 
 func listProcessingRequest(w http.ResponseWriter, r *http.Request)  {
@@ -104,4 +136,25 @@ func listProcessingRequest(w http.ResponseWriter, r *http.Request)  {
 }
 
 func listActiveProcessingRequest(w http.ResponseWriter, r *http.Request)  {
+	var infos []activeProcessingInfo
+	for id, processing := range ActiveProcessings {
+		info := activeProcessingInfo{
+			Id: id,
+			Name: processing.Name,
+			InputChannel: processing.InputChannel,
+			InputProcessing: processing.InputProcessing,
+		}
+
+		for encoderId, _ := range processing.Encoders {
+			info.OutputEncoders = append(info.OutputEncoders, encoderId)
+		}
+
+		for processingId, _ := range processing.Processings {
+			info.OutputProcessings = append(info.OutputProcessings, processingId)
+		}
+
+		infos = append(infos, info)
+	}
+
+	openapi.ResponseSuccessWithDetails(w, infos)
 }

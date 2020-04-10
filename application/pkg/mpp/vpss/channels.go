@@ -69,3 +69,19 @@ func SubscribeChannel(channelId int, processingId int, callback unsafe.Pointer) 
 	
 	return 0, ""
 }
+
+func UnsubscribeChannel(channelId int, processingId int)  (int, string)  {
+	channel, channelExists := Channels[channelId]
+	if (!channelExists) {
+		return 1, "Channel does not exist"
+	}
+
+	_, callbackExists := channel.Clients[processingId]
+	if (!callbackExists) {
+		return 1, "Not subscribed"
+	}
+
+	delete(channel.Clients, processingId)
+
+	return 0, ""
+}
