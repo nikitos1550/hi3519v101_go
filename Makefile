@@ -122,7 +122,8 @@ deploy: pack
         boot \
 	--upload-addr $(KERNEL_UPLOAD_ADDR) \
         --uimage $(BOARD_OUTDIR)/kernel/uImage \
-        --rootfs $(BOARD_OUTDIR)/rootfs.squashfs
+        --rootfs $(BOARD_OUTDIR)/rootfs.squashfs \
+        --no-wait
 
 #--mem-start_addr $(MEM_START_ADDR) \
 
