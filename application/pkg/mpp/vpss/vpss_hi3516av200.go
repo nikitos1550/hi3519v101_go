@@ -6,6 +6,8 @@ package vpss
 /*
 #include "../include/mpp_v3.h"
 
+#include "logger.h"
+
 #include <string.h>
 
 #define ERR_NONE                    0
@@ -14,8 +16,12 @@ package vpss
 #define ERR_HI_MPI_VPSS_StartGrp    4
 #define ERR_HI_MPI_SYS_Bind         5
 
+//static void go_logger(int level, char * msg);
+
 int mpp3_vpss_init(unsigned int *error_code) {
     *error_code = 0;
+
+    go_logger(1, "this is test message from mpp3_vpss_init");
 
     VPSS_GRP_ATTR_S stVpssGrpAttr;
 
@@ -106,6 +112,8 @@ import "C"
 import (
     "log"
     "application/pkg/mpp/error"
+
+// 	"application/pkg/logger"
 )
 
 func Init() {

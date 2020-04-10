@@ -5,11 +5,12 @@ package openapi
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+	//"log"
 	"net/http"
 	"strings"
 	"time"
 	//"net"
+	"application/pkg/logger"
 )
 
 func init() {
@@ -60,7 +61,8 @@ type apiAnswerSystemDateTimeSchema struct {
  * @apiSuccess (200) {int} nanosecs
  */
 func systemDate(w http.ResponseWriter, r *http.Request) {
-    log.Println("systemDate")
+    //log.Println("systemDate")
+	logger.Log.Trace().Msg("systemDate")
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)

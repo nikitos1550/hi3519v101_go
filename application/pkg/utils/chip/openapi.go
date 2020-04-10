@@ -3,11 +3,12 @@
 package chip
 
 import (
-	"log"
+	//"log"
 	"fmt"
 	"net/http"
 	"application/pkg/openapi"
 	"encoding/json"
+	"application/pkg/logger"
 )
 
 func init() {
@@ -27,7 +28,8 @@ type serveInfoSchema struct {
  * @apiGroup Common
  */
 func serveInfo(w http.ResponseWriter, r *http.Request) {
-	log.Println("chip.serveInfo")
+	//log.Println("chip.serveInfo")
+	logger.Log.Trace().Msg("chip.serveInfo")
 
 	var schema serveInfoSchema
 

@@ -33,7 +33,8 @@ int mpp3_isp_exit(int *error_code) {
 import "C"
 
 import (
-    "log"
+    //"log"
+    "application/pkg/logger"
     "os"
 
 	"application/pkg/ko"
@@ -51,11 +52,21 @@ func systemInit() {
         var errorCode C.int
         switch err := C.mpp3_sys_exit(&errorCode); err {
         case C.ERR_NONE:
-            log.Println("C.mpp3_sys_exit() ok")
+            //log.Println("C.mpp3_sys_exit() ok")
+	    logger.Log.Debug().
+	    	Msg("C.mpp3_sys_exit() ok")
         case C.ERR_MPP:
-            log.Fatal("C.mpp3_sys_exit() HI_MPI_SYS_Exit() error ", error.Resolve(int64(errorCode))) 
+            //log.Fatal("C.mpp3_sys_exit() HI_MPI_SYS_Exit() error ", error.Resolve(int64(errorCode)))
+	    logger.Log.Fatal().
+	    	Str("func", "HI_MPI_SYS_Exit()").
+		Int("error", int(errorCode)).
+		Str("error_desc", error.Resolve(int64(errorCode))).
+		Msg("C.mpp3_sys_exit() error")
         default:
-            log.Fatal("Unexpected return ", err , " of C.mpp3_sys_exit()")
+            //log.Fatal("Unexpected return ", err , " of C.mpp3_sys_exit()")
+	    logger.Log.Fatal().
+	    	Int("error", int(err)).
+		Msg("Unexpected return of C.mpp3_sys_exit()")
         } 
     }
 
@@ -75,11 +86,21 @@ func systemInit() {
         var errorCode C.int
         switch err := C.mpp3_vb_exit(&errorCode); err {
         case C.ERR_NONE:
-            log.Println("C.mpp3_vb_exit() ok")
+            //log.Println("C.mpp3_vb_exit() ok")
+	    logger.Log.Debug().
+	    	Msg("C.mpp3_vb_exit() ok")
         case C.ERR_MPP:
-            log.Fatal("C.mpp3_vb_exit() HI_MPI_VB_Exit() error ", error.Resolve(int64(errorCode))) 
+            //log.Fatal("C.mpp3_vb_exit() HI_MPI_VB_Exit() error ", error.Resolve(int64(errorCode))) 
+	    logger.Log.Fatal().
+	    	Str("func", "HI_MPI_VB_Exit()").
+	    	Int("error", int(errorCode)).
+		Str("error_desc", error.Resolve(int64(errorCode))).
+		Msg("C.mpp3_vb_exit() error")
         default:
-            log.Fatal("Unexpected return ", err , " of C.mpp3_vb_exit()")
+            //log.Fatal("Unexpected return ", err , " of C.mpp3_vb_exit()")
+	    logger.Log.Fatal().
+	    		Int("error", int(err)).
+			Msg("Unexpected return of C.mpp3_vb_exit()")
         }
     }
 	//delete_module("hi3519v101_isp", NULL);//ATTENTION THIS IS NEED FOR PROPER APP RERUN, also some info here

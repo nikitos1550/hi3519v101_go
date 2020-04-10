@@ -6,7 +6,7 @@ GO	?= go
 
 GOOS    ?= linux
 GOARCH  ?= amd64
-GOENV   := GOPATH=$(GOPATH) GOOS=$(GOOS) GOARCH=$(GOARCH) GOARM=$(GOARM) 
+GOENV   := GOROOT_FINAL=/test/ GOPATH=$(GOPATH) GOOS=$(GOOS) GOARCH=$(GOARCH) GOARM=$(GOARM) 
 
 FAMILY	?= host
 CMOS	?= unknown
@@ -17,7 +17,7 @@ FAMILY_UPPERCASE    := $(shell echo '$(FAMILY)' | tr '[:lower:]' '[:upper:]')
 CHIP_UPPERCASE      := $(shell echo '$(CHIP)' | tr '[:lower:]' '[:upper:]')
 
 GOTAGS_PROBE    := gohisiprobe $(FAMILY) netgo nethttpomithttp2
-GOTAGS_CAM 	:= gohisicam $(FAMILY) $(CHIP) $(CMOS) netgo nethttpomithttp2 openapi scripts debug streamerJpeg streamerFile streamerRtsp streamerPipe
+GOTAGS_CAM 	:= gohisicam $(FAMILY) $(CHIP) $(CMOS) netgo nethttpomithttp2 openapi debug streamerJpeg streamerFile streamerRtsp streamerPipe
 GOTAGS := $(GOTAGS_$(shell echo '$(APP)' | tr '[:lower:]' '[:upper:]'))
 
 CGO_CFLAGS  := -I$(abspath sdk/$(FAMILY)/include) -D$(FAMILY_UPPERCASE)
@@ -46,9 +46,11 @@ GIT	:= $(shell git branch | grep \* | cut -d " " -f2) $(GIT_TREE_STATE)
 
 SDKV 	:= $(HISDK_ARCHIVE) $(HISDK)
 
+GOCC	:=$(shell $(GOENV) $(CGOPARAMS) $(GO) env | grep "CC=" | rev | cut -d '"' -f 2 | rev)
+
 EMBEDDVARS :=   -X 'application/pkg/buildinfo.BuildDateTime=$(shell date --utc "+%Y-%m-%d %H:%M (UTC)")' \
                 -X 'application/pkg/buildinfo.GoVersion=$(shell $(GOENV) $(GO) version)' \
-                -X 'application/pkg/buildinfo.GccVersion=$(shell $(CC) --version | head -n 1)' \
+                -X 'application/pkg/buildinfo.GccVersion=$(shell $(GOCC) --version | head -n 1)' \
                 -X 'application/pkg/buildinfo.BuildTags=$(GOTAGS)' \
                 -X 'application/pkg/buildinfo.BuildBranch=$(GIT)' \
                 -X 'application/pkg/buildinfo.Family=$(FAMILY)' \
@@ -92,8 +94,12 @@ CMOSOBJ := $(patsubst pkg/mpp/cmos/$(FAMILY)/%.c, ../output/boards/$(BOARD)/cmos
 ../output/boards/$(BOARD)/cmos/%.o: pkg/mpp/cmos/$(FAMILY)/%.c
 	$(CC) $(CFLAGS) -I$(abspath sdk/$(FAMILY)/include) -c $< -o $@
 
-generate: 
-	GOPATH=$(GOPATH) $(GO) generate -tags "$(GOTAGS)" application/pkg/ko	
+pkg/ko/kobin_$(FAMILY).go:
+	GOPATH=$(GOPATH) $(GO) generate -tags "$(GOTAGS)" ./...
+
+generate: pkg/ko/kobin_$(FAMILY).go
+	#GOPATH=$(GOPATH) $(GO) generate -tags "$(GOTAGS)" ./...
+	#GOPATH=$(GOPATH) $(GO) generate -tags "$(GOTAGS)" application/pkg/ko	
 	#GOPATH=$(GOPATH) $(GO) generate -tags "$(FAMILY)" application/pkg/utils/regs
 
 distrib:
@@ -138,17 +144,13 @@ test-host: generate
 test-target: generate
 	rm -rf ./tests
 	mkdir tests
-	@for i in `GOPATH=$(GOPATH) $(GO) list -tags "$(GOTAGS)" ./...`; do \
+	for i in `GOPATH=$(GOPATH) $(GO) list -tags "$(GOTAGS)" ./...`; do \
 		echo $$i; \
 		$(GOENV) $(CGOPARAMS) $(GO) test -tags "$(GOTAGS)" -c $$i -o tests/`echo $$i | rev | cut -d '/' -f 1 | rev`.test; \
 	done
 
-
 #build-object:
-#	$(GOENV) $(CGOPARAMS) $(GO) tool nm ./distrib/$(FAMILY)/opt/application
-
-#buid-with-vendors: generate
-#	$(GOENV) $(CGOPARAMS) $(GO) build -a -tags $(GOTAGS) -mod vendor -o $(APPOUT) application/cmd/daemon
+#	$(GOENV) $(CGOPARAMS) $(GO) tool nm ./tests/*
 
 testvideo.h264:
 	ffmpeg -f lavfi -i testsrc=size=320x340 -t 30 -pix_fmt yuv420p -c:v libx264 -tune zerolatency -profile:v main -g 25 -vbsf h264_mp4toannexb -f h264 testvideo.h264

@@ -8,10 +8,17 @@ import (
     "golang.org/x/sys/unix"
     "os"
     "unsafe"
+
+    "application/pkg/logger"
 )
 
 func WriteDevMem32(target, value uint32) {
     //var valueOld uint32 = 0xFFFFFFFF   //todo
+
+    logger.Log.Trace().
+    	Str("addr", fmt.Sprintf("0x%08X", target)).
+	Str("value", fmt.Sprintf("0x%08X", value)).
+	Msg("WriteDevMem32")
 
     const pageSize int = 4096
 
@@ -33,14 +40,20 @@ func WriteDevMem32(target, value uint32) {
     //file, err := os.Open("/dev/mem")
     file, err := os.OpenFile("/dev/mem", os.O_RDWR, 0)
     if err != nil {
-        fmt.Println("OpenFile error ", err)
+        //fmt.Println("OpenFile error ", err)
+	logger.Log.Error().
+		Str("error", err.Error()).
+		Msg("/dev/mem open error")
         return
     }
     defer file.Close()
 
     mmap, err := unix.Mmap(int(file.Fd()), mapOffset, mapSize, unix.PROT_READ | unix.PROT_WRITE, unix.MAP_SHARED)
     if err != nil {
-        fmt.Println("Mmap error ", err)
+        //fmt.Println("Mmap error ", err)
+	logger.Log.Error().
+		Str("error", err.Error()).
+		Msg("MMAP error")
         return
     }
 
@@ -59,12 +72,19 @@ func WriteDevMem32(target, value uint32) {
 
     err = unix.Munmap(mmap)
     if err != nil {
-        fmt.Println(err)
+        //fmt.Println(err)
+	logger.Log.Error().
+		Str("error", err.Error()).
+		Msg("MUNMAP error")
         return
     }
 }
 
 func ReadDevMem32(target uint32) uint32 {
+	logger.Log.Trace(). 
+        Str("addr", fmt.Sprintf("0x%08X", target)). //Uint32("addr", target).
+	        Msg("ReadDevMem32")
+
     var value uint32 = 0xFFFFFFFF   //todo
 
     const pageSize int = 4096
@@ -86,14 +106,22 @@ func ReadDevMem32(target uint32) uint32 {
 
     file, err := os.Open("/dev/mem")
     if err != nil {
-        fmt.Println(err)
+        //fmt.Println(err)
+		logger.Log.Error().
+                Str("error", err.Error()).
+		                Msg("/dev/mem open error")
+
         return value
     }
     defer file.Close()
 
     mmap, err := unix.Mmap(int(file.Fd()), mapOffset, mapSize, unix.PROT_READ, unix.MAP_SHARED)
     if err != nil {
-        fmt.Println(err)
+        //fmt.Println(err)
+ 		logger.Log.Error().
+                 Str("error", err.Error()).
+		                 Msg("MMAP error")
+
         return value
     }
 
@@ -102,7 +130,10 @@ func ReadDevMem32(target uint32) uint32 {
 
     err = unix.Munmap(mmap)
     if err != nil {
-        fmt.Println(err)
+        //fmt.Println(err)
+	        logger.Log.Error().
+                Str("error", err.Error()).
+                Msg("MUNMAP error")
         return value
     }
 

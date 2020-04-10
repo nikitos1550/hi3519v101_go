@@ -9,10 +9,16 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"log"
+	//"log"
 	"net/http"
 	"strings"
 	"strconv"
+	//"time"
+
+	//"os"
+	//"github.com/rs/zerolog"
+    	//"github.com/rs/zerolog/log"
+	"application/pkg/logger"
 )
 
 type answerSchema struct {
@@ -72,13 +78,26 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	log.Println("GoHisiProbe")
+	//zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+
+    	//log.Print("hello world")
+
+	//log := zerolog.New(os.Stdout)
+	//logWriter := zerolog.MultiLevelWriter(os.Stdout, zerolog.ConsoleWriter{Out: os.Stderr})
+	//log := zerolog.New(logWriter).With().Timestamp().Logger()
+	//log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+
+	//log.Print("GoHisiProbe")
 
         memTotal := flag.String("mem-total", "32M", "Total RAM size") //&ko.MemTotal
         memLinux := flag.String("mem-linux", "20M", "RAM size passed to Linux kernel, rest should be used for MPP") //ko.MemLinux
         memMpp   := flag.String("mem-mpp", "12M", "RAM size passed to MPP") //ko.MemMpp
+	
+	httpPort := flag.Uint("http-port", 80, "Web server port")
 
         flag.Parse()
+
+	logger.Init()
 
         //TODO make correct memory size siffix handle
         *memTotal = strings.Trim(*memTotal, "M")
@@ -94,28 +113,48 @@ func main() {
         //log.Println("mem-linux", ko.MemLinux)
         //log.Println("mem-mpp", ko.MemMpp)
 
-	log.Println("CMD parsed params:")
-	log.Println("Total board RAM ", ko.MemTotal, "MB")
-	log.Println("Linux RAM ", ko.MemLinux, "MB")
-	log.Println("MPP RAM", ko.MemMpp, "MB")
+	logger.Info().
+		Uint64("mem-total", ko.MemTotal).
+		Uint64("mem-linux", ko.MemLinux).
+                Uint64("mem-mm", ko.MemMpp).
+		Msg("cmdline mem params")
 
-	log.Println("Build time info:")
-	log.Println("Go: ", buildinfo.GoVersion)
-	log.Println("Gcc: ", buildinfo.GccVersion)
-	log.Println("Date: ", buildinfo.BuildDateTime)
-	log.Println("Tags: ", buildinfo.BuildTags)
-	log.Println("Branch: ", buildinfo.BuildBranch)
-	log.Println("Cmos: ", buildinfo.CmosProfile)
-	log.Println("")
 
-	log.Println("Loading modules...")
+	logger.Log.Info().
+		Str("go", buildinfo.GoVersion).
+		Str("gcc", buildinfo.GccVersion).
+		Str("date", buildinfo.BuildDateTime).
+		Str("tags", buildinfo.BuildTags).
+		Str("branch", buildinfo.BuildBranch).
+		Str("sdk", buildinfo.SDK).
+		Str("cmos", buildinfo.CmosProfile).
+		Msg("build info")
+
+	//log.Print("Loading modules...")
 	ko.UnloadAll()
 	ko.LoadMinimal()
-	log.Println("Loading modules done")
+	//log.Print("Loading modules done")
 
-	log.Println("Starting http server :80")
 	http.HandleFunc("/", apiHandler)
+
+	if *httpPort == 0 {
+		*httpPort = 80
+	}
+	if *httpPort > 65536 {
+		*httpPort = 80
+	}
+	port := strconv.Itoa(int(*httpPort))
+	logger.Log.Info().
+        	Uint("port", *httpPort).
+                Msg("Starting http server")
 	
+	//logger.Log.Panic().Msg("Test panic")
+
 	//TODO check errors
-	http.ListenAndServe(":80", nil)
+	http.ListenAndServe(":"+port, nil)
+
+        logger.Log.Error().
+                Msg("TODO Something wrong with http server")
+
+	//time.Sleep(20*time.Millisecond)
 }

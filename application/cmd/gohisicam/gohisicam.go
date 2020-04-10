@@ -3,10 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
-	"log"
+	//"io/ioutil"
+	//"log"
 	"os"
-	"regexp"
+	//"regexp"
 	"strings"
 	"strconv"
 
@@ -16,7 +16,7 @@ import (
 	"application/pkg/openapi"
 	"application/pkg/scripts"
 
-	"application/pkg/mpp/cmos"
+	//"application/pkg/mpp/cmos"
 
 	"application/pkg/streamer"
 
@@ -24,6 +24,8 @@ import (
 	"application/pkg/ko"
 	_ "application/pkg/utils/chip"
 	_ "application/pkg/utils/temperature"
+
+	"application/pkg/logger"
 )
 
 func main() {
@@ -38,6 +40,8 @@ func main() {
 	//log.Println("application daemon")
 	flag.Parse()
 
+	logger.Init()
+
 	//TODO make correct memory size siffix handle
 	*memTotal = strings.Trim(*memTotal, "M")
         ko.MemTotal, _ = strconv.ParseUint(*memTotal, 10, 64)
@@ -48,10 +52,30 @@ func main() {
 	*memMpp = strings.Trim(*memMpp, "M")
         ko.MemMpp, _     = strconv.ParseUint(*memMpp, 10, 64)
 
-	log.Println("mem-total", ko.MemTotal)
-	log.Println("mem-linux", ko.MemLinux)
-	log.Println("mem-mpp", ko.MemMpp)
+	//log.Println("mem-total", ko.MemTotal)
+	//log.Println("mem-linux", ko.MemLinux)
+	//log.Println("mem-mpp", ko.MemMpp)
 
+
+        logger.Info().
+                Uint64("mem-total", ko.MemTotal).
+                Uint64("mem-linux", ko.MemLinux).
+                Uint64("mem-mm", ko.MemMpp).
+                Msg("cmdline mem params")
+
+
+        logger.Log.Info().
+                Str("go", buildinfo.GoVersion).
+                Str("gcc", buildinfo.GccVersion).
+                Str("date", buildinfo.BuildDateTime).
+                Str("tags", buildinfo.BuildTags).
+                Str("branch", buildinfo.BuildBranch).
+                Str("sdk", buildinfo.SDK).
+                Str("cmos", buildinfo.CmosProfile).
+                Msg("build info")
+
+
+	/*
 	cmdline, err := ioutil.ReadFile("/proc/cmdline")
 	if err != nil {
 		log.Println("Can`t read /proc/cmdline")
@@ -67,6 +91,8 @@ func main() {
 		log.Println("Linux mem mistmatch!")
 		os.Exit(0)
 	}
+	*/
+
 	/*
 		    if *flagVersion {
 				printVersion()
@@ -89,31 +115,16 @@ func main() {
 	scripts.Start()
 	openapi.Start()
 
-	log.Println("daemon init done")
+	//log.Println("daemon init done")
+	logger.Log.Info().Msg("GoHisiCam started")
 	select {} //pause this routine forever
 }
 
 func usage() {
 	fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
-	printVersion()
+	//printVersion()
 	//openapi.PrintInfo()
-	cmos.PrintInfo()
+	//cmos.PrintInfo()
 	flag.PrintDefaults()
 }
 
-func printVersion() {
-	log.Println("Go: ", buildinfo.GoVersion)
-	log.Println("Gcc: ", buildinfo.GccVersion)
-	log.Println("Date: ", buildinfo.BuildDateTime)
-	log.Println("Tags: ", buildinfo.BuildTags)
-	//log.Println("User: ", buildinfo.BuildUser)
-	//log.Println("Commit: ", buildinfo.BuildCommit)
-	log.Println("Branch: ", buildinfo.BuildBranch)
-	//log.Println("Vendor: ", buildinfo.BoardVendor)
-	//log.Println("Model: ", buildinfo.BoardModel)
-	//log.Println("Chip: ", buildinfo.Chip)
-	log.Println("Cmos: ", buildinfo.CmosProfile)
-	//log.Println("Total ram: ", buildinfo.TotalRam)
-	//log.Println("Linux ram: ", buildinfo.LinuxRam)
-	//log.Println("Mpp ram: ", buildinfo.MppRam)
-}
