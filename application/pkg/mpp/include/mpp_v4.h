@@ -2,7 +2,7 @@
 #define MPP_V4_H_
 
 #ifdef HI3516CV500 //Family includes
-	//TODO
+	#include "../include/hi3516cv500_mpp.h"
 #endif
 #ifdef HI3516EV200 //Family includes
 	//TODO
