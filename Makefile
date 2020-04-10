@@ -44,9 +44,11 @@ help:
 		" - make kernel                           - build board kernel\n"\
 		" - make cleanall                         - remove all artifacts"
 
-prepare: $(BUILDROOT_DIR)
+submodules:
 	git submodule init
 	git submodule update
+
+prepare: $(BUILDROOT_DIR) submodules
 	@echo "All prepared"
 
 $(BUILDROOT_DIR):
