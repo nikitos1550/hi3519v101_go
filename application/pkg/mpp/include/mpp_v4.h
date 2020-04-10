@@ -5,7 +5,7 @@
 	#include "../include/hi3516cv500_mpp.h"
 #endif
 #ifdef HI3516EV200 //Family includes
-	//TODO
+	#include "../include/hi3516ev200_mpp.h"
 #endif
 #ifdef HI3519AV100 //Family includes
 	//TODO

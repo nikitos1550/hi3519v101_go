@@ -15,6 +15,8 @@ var (
 	MemMpp   uint64   = 12
 	MemLinux uint64   = 20
 	MemTotal uint64   = 32
+	//ddrStartAddr uint64 = 0x80000000
+	ddrStartAddr uint64 = 0x40000000
 	chip     string = "hi3516ev200"
 )
 
@@ -69,10 +71,17 @@ func unload(modules [][2]string) {
 		err := unix.DeleteModule(rmname, 0)
 		if err != nil {
 			//log.Println(modules[i][0], " removing error ", err)
-			logger.Log.Warn().
+			if err.Error() != "no such file or directory" { //TODO comapre code!
+				logger.Log.Warn().
 				Str("name", modules[i][0]).
 				Str("error", err.Error()).
 				Msg("ko module removing error")
+			} else {
+                                logger.Log.Trace().
+                                Str("name", modules[i][0]).
+                                Str("error", err.Error()).
+                                Msg("ko module removing error")
+			}
 		} else {
 			//log.Println(modules[i][0], " removed")
 			logger.Log.Trace().
@@ -122,7 +131,7 @@ func load(modules [][2]string) {
 }
 
 func setupParams(modules [][2]string) {
-	var memStartAddr uint64 = 0x80000000 + (uint64(MemLinux) * 1024 * 1024)
+	var memStartAddr uint64 = ddrStartAddr + (uint64(MemLinux) * 1024 * 1024)
 	var memMpp2 uint64 = MemTotal - MemLinux
 
 	if memMpp2 != MemMpp {
