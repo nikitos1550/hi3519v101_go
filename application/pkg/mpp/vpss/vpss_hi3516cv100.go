@@ -61,3 +61,8 @@ func SampleChannel0() {
 	}
 
 }
+
+func CreateChannel(channel Channel) {}
+
+func DestroyChannel(channel Channel) {}
+

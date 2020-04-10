@@ -4,10 +4,57 @@
 package vi
 
 /*
-int vi_init(void){
-        HI_S32                  ret;
 
-   HI_S32 s32Ret;
+#include "../include/mpp_v2.h"
+#include <string.h>
+
+VI_DEV_ATTR_S DEV_ATTR_LVDS_BASE =
+{
+    // interface mode
+    VI_MODE_LVDS,
+    // multiplex mode
+    VI_WORK_MODE_1Multiplex,
+    //r_mask    g_mask    b_mask
+    {0xFFF00000,    0x0},
+    //progessive or interleaving
+    VI_SCAN_PROGRESSIVE,
+    //AdChnId
+    {-1, -1, -1, -1},
+    //enDataSeq, only support yuv
+    VI_INPUT_DATA_YUYV,
+
+    // synchronization information
+    {
+    //port_vsync   port_vsync_neg     port_hsync        port_hsync_neg
+    VI_VSYNC_PULSE, VI_VSYNC_NEG_LOW, VI_HSYNC_VALID_SINGNAL,VI_HSYNC_NEG_HIGH,VI_VSYNC_VALID_SINGAL,VI_VSYNC_VALID_NEG_HIGH,
+   
+    //hsync_hfb    hsync_act    hsync_hhb
+    {0,            1280,        0,
+    //vsync0_vhb vsync0_act vsync0_hhb
+     0,            720,        0,
+    //vsync1_vhb vsync1_act vsync1_hhb
+     0,            0,            0}
+    },
+    // use interior ISP
+    VI_PATH_ISP,
+    // input data type
+    VI_DATA_TYPE_RGB,    
+    // bRever
+    HI_FALSE,    
+    // DEV CROP
+    {0, 0, 1920, 1080}
+};
+
+
+#define ERR_NONE                    0
+#define ERR_HI_MPI_VI_SetDevAttr        2
+#define ERR_HI_MPI_VI_EnableDev     3
+#define ERR_HI_MPI_VI_SetChnAttr    4
+#define ERR_HI_MPI_VI_EnableChn     5
+
+int mpp2_vi_init(unsigned int *error_code) {
+    *error_code = 0;
+
     HI_S32 s32IspDev = 0;
     ISP_WDR_MODE_S stWdrMode;
     VI_DEV_ATTR_S  stViDevAttr;
@@ -23,19 +70,11 @@ int vi_init(void){
             stViDevAttr.stDevRect.u32Height = 1944;
 
 
-    s32Ret = HI_MPI_VI_SetDevAttr(0, &stViDevAttr);
-    if (s32Ret != HI_SUCCESS)
-    {
-        printf("HI_MPI_VI_SetDevAttr failed with %#x!\n", s32Ret);
-        return HI_FAILURE;
-    }
+    *error_code = HI_MPI_VI_SetDevAttr(0, &stViDevAttr);
+    if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VI_SetDevAttr;
 
-        s32Ret = HI_MPI_VI_EnableDev(0);
-    if (s32Ret != HI_SUCCESS)
-    {
-        printf("HI_MPI_VI_EnableDev failed with %#x!\n", s32Ret);
-        return HI_FAILURE;
-    }
+    *error_code = HI_MPI_VI_EnableDev(0);
+    if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VI_EnableDev;
 
     RECT_S stCapRect;
     SIZE_S stTargetSize;
@@ -47,13 +86,9 @@ int vi_init(void){
        stTargetSize.u32Width = stCapRect.u32Width;
         stTargetSize.u32Height = stCapRect.u32Height;
 
-
-
-
-
     VI_CHN_ATTR_S stChnAttr;
 
-memcpy(&stChnAttr.stCapRect, &stCapRect, sizeof(RECT_S));
+	memcpy(&stChnAttr.stCapRect, &stCapRect, sizeof(RECT_S));
     stChnAttr.enCapSel = VI_CAPSEL_BOTH;
     stChnAttr.stDestSize.u32Width = stTargetSize.u32Width ;
     stChnAttr.stDestSize.u32Height =  stTargetSize.u32Height ;
@@ -66,42 +101,62 @@ memcpy(&stChnAttr.stCapRect, &stCapRect, sizeof(RECT_S));
     stChnAttr.s32DstFrameRate = 25;
     stChnAttr.enCompressMode = COMPRESS_MODE_NONE;
 
-    s32Ret = HI_MPI_VI_SetChnAttr(0, &stChnAttr);
-    if (s32Ret != HI_SUCCESS)
-    {
-        printf("HI_MPI_VI_SetChnAttr failed with %#x!\n", s32Ret);
-        return HI_FAILURE;
-    }
+    *error_code = HI_MPI_VI_SetChnAttr(0, &stChnAttr);
+    if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VI_SetChnAttr;
 
-    s32Ret = HI_MPI_VI_EnableChn(0);
-    if (s32Ret != HI_SUCCESS)
-    {
-        printf(" HI_MPI_VI_EnableChn failed with %#x!\n", s32Ret);
-        return HI_FAILURE;
-    }
+    *error_code = HI_MPI_VI_EnableChn(0);
+    if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VI_EnableChn;
 
-
-        return 0;
+	return ERR_NONE;
 }
 
 
 */
+import "C"
+
+import (
+        "application/pkg/logger"
+
+    "application/pkg/mpp/error"
+)
 
 func Init() {
-	var errorCode C.uint
+    var errorCode C.uint
 
-	switch err := C.mpp2_vi_init(&errorCode); err {
-	case C.ERR_NONE:
-		log.Println("C.mpp2_vi_init() ok")
-	case C.ERR_HI_MPI_VI_SetDevAttr:
-		log.Fatal("C.mpp2_vi_init() ERR_HI_MPI_VI_SetDevAttr() error ", error.Resolve(int64(errorCode)))
-	case C.ERR_HI_MPI_VI_EnableDev:
-		log.Fatal("C.mpp2_vi_init() ERR_HI_MPI_VI_EnableDev() error ", error.Resolve(int64(errorCode)))
-	case C.ERR_HI_MPI_VI_SetChnAttr:
-		log.Fatal("C.mpp2_vi_init() ERR_HI_MPI_VI_SetChnAttr() error ", error.Resolve(int64(errorCode)))
-	case C.ERR_HI_MPI_VI_EnableChn:
-		log.Fatal("C.mpp2_vi_init() ERR_HI_MPI_VI_EnableChn() error ", error.Resolve(int64(errorCode)))
-	default:
-		log.Fatal("Unexpected return ", err, " of C.mpp2_vi_init()")
-	}
+    switch err := C.mpp2_vi_init(&errorCode); err {
+    case C.ERR_NONE:
+        logger.Log.Debug().
+                Msg("C.mpp2_vi_init() ok")
+    case C.ERR_HI_MPI_VI_SetDevAttr:
+        logger.Log.Fatal().
+                Str("func", "ERR_HI_MPI_VI_SetDevAttr()").
+                Int("error", int(errorCode)).
+                Str("error_desc", error.Resolve(int64(errorCode))).
+                Msg("C.mpp2_vi_init() error")
+    case C.ERR_HI_MPI_VI_EnableDev:
+        logger.Log.Fatal().
+                Str("func", "ERR_HI_MPI_VI_EnableDev()").
+                Int("error", int(errorCode)).
+                Str("error_desc", error.Resolve(int64(errorCode))).
+                Msg("C.mpp2_vi_init() error")
+
+    case C.ERR_HI_MPI_VI_SetChnAttr:
+        logger.Log.Fatal().
+                Str("func", "ERR_HI_MPI_VI_SetChnAttr()"). 
+                Int("error", int(errorCode)).
+                Str("error_desc", error.Resolve(int64(errorCode))).
+                Msg("C.mpp2_vi_init() error")
+    case C.ERR_HI_MPI_VI_EnableChn:
+        logger.Log.Fatal().
+                Str("func", "ERR_HI_MPI_VI_EnableChn()"). 
+                Int("error", int(errorCode)).
+                Str("error_desc", error.Resolve(int64(errorCode))).
+                Msg("C.mpp2_vi_init() error")
+    default:
+        logger.Log.Fatal().
+                Int("error", int(err)).
+                Msg("C.mpp2_vi_init() Unexpected return")
+
+    }
 }
+

@@ -72,3 +72,8 @@ func SampleH264() {
 	SampleH264Start = make(chan int, 1)
 	addVenc(0) //add venc to get loop
 }
+
+func createEncoder(encoder Encoder) {}
+
+func deleteEncoder(encoder Encoder) {}
+

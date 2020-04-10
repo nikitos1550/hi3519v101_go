@@ -4,6 +4,14 @@
 package mipi
 
 /*
+#include "../include/mpp_v2.h"
+
+#include <string.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+
+
 combo_dev_attr_t LVDS_4lane_SENSOR_IMX178_12BIT_5M_NOWDR_ATTR =
 {
     // input mode
@@ -57,42 +65,61 @@ combo_dev_attr_t LVDS_4lane_SENSOR_IMX178_12BIT_5M_NOWDR_ATTR =
                     {0xab0, 0xb60, 0x800, 0x9d0},
                     {0xab0, 0xb60, 0x800, 0x9d0},
                     {0xab0, 0xb60, 0x800, 0x9d0}}
-                }
+		    }
         }
     }
 };
 
 
+#define ERR_NONE    0
+#define ERR_GENERAL 1
+
+int mpp2_mipi_init(int *error_code) {
+    *error_code = 0;
 
 
-
-HI_S32 SAMPLE_COMM_VI_SetMipiAttr(void) {
-
-    HI_S32 fd;
+    int fd;
     combo_dev_attr_t *pstcomboDevAttr;
 
     // mipi reset unrest
     fd = open("/dev/hi_mipi", O_RDWR);
     if (fd < 0)
     {
-        printf("warning: open hi_mipi dev failed\n");
-        return -1;
+        //printf("warning: open hi_mipi dev failed\n");
+        return ERR_GENERAL;
     }
 
-        pstcomboDevAttr = &LVDS_4lane_SENSOR_IMX178_12BIT_5M_NOWDR_ATTR;
+    pstcomboDevAttr = &LVDS_4lane_SENSOR_IMX178_12BIT_5M_NOWDR_ATTR;
 
     if (ioctl(fd, HI_MIPI_SET_DEV_ATTR, pstcomboDevAttr))
     {
-        printf("set mipi attr failed\n");
+        //printf("set mipi attr failed\n");
         close(fd);
-        return -1;
+        return ERR_GENERAL;
     }
     close(fd);
 
 
-    return HI_SUCCESS;
+    return ERR_NONE;
 }
 */
+import "C"
+
+import (
+	"application/pkg/logger"
+)
 
 func Init() {
+    var errorCode C.int
+
+    switch err := C.mpp2_mipi_init(&errorCode); err {
+    case C.ERR_NONE:
+        logger.Log.Debug().
+                Msg("C.mpp2_mipi_init() ok")
+    default:
+        logger.Log.Fatal().
+                Int("error", int(err)).
+                Msg("Unexpected return of C.mpp2_mipi_init()")
+    }
+
 }

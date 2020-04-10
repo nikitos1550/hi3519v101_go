@@ -10,6 +10,8 @@ import (
 	"application/pkg/ko"
 	"application/pkg/utils"
 	//"application/pkg/mpp/error"
+
+	"application/pkg/logger"
 )
 
 func systemInit() {
@@ -74,6 +76,10 @@ func systemInit() {
 	//# -------------vi vpss online open
 	//if [ $b_vpss_online -eq 1 ]; then
 	//	echo "==============vi_vpss_online==============";
+	if false {
+		logger.Log.Debug().
+			Msg("b_vpss_online 1")
+
 	utils.WriteDevMem32(0x20120004, 0x40000000) //;			# online, SPI1 CS0
 	//#pri config
 	utils.WriteDevMem32(0x20120058, 0x26666400) //			# each module 4bit£ºvedu       ddrt_md  ive  aio    jpge    tde   vicap  vdp
@@ -84,7 +90,10 @@ func systemInit() {
 	utils.WriteDevMem32(0x20120064, 0x00000011) //			# each module 4bit£ºvedu       ddrt_md  ive  aio    jpge    tde   vicap  vdp
 	utils.WriteDevMem32(0x20120068, 0x00000020) //			# each module 4bit£ºsfc_nand   sfc_nor  nfc  sdio1  sdio0   a7    vpss   vgs
 	utils.WriteDevMem32(0x2012006c, 0x00000000) //			# each module 4bit£ºreserve    reserve  avc  usb    cipher  dma2  dma1   gsf
-	/*
+	} else {
+		logger.Log.Debug().
+                        Msg("b_vpss_online 0")
+	
 			//else
 		//	echo "==============vi_vpss_offline==============";
 			utils.WriteDevMem32(0x20120004, 0x0)//;			    # offline, mipi SPI1 CS0;
@@ -97,14 +106,22 @@ func systemInit() {
 			utils.WriteDevMem32(0x20120068, 0x00000000)//    		# each module 4bit£ºsfc_nand   sfc_nor  nfc  sdio1  sdio0   a7    vpss   vgs
 			utils.WriteDevMem32(0x2012006c, 0x00000000)//    		# each module 4bit£ºreserve    reserve  avc  usb    cipher  dma2  dma1   gsf
 		//fi
-	*/
+	}
+	
 	//}
-
+	/* //insert_sns after ko load
 	//imx178)
 	utils.WriteDevMem32(0x200f0050, 0x2)     //;                # i2c0_scl
 	utils.WriteDevMem32(0x200f0054, 0x2)     //;                # i2c0_sda
 	utils.WriteDevMem32(0x2003002c, 0xF0007) //             # sensor unreset, clk 25MHz, VI 250MHz
-	//#himm 0x2003002c 0x90007            # sensor unreset, clk 37.125MHz, VI 250MHz
-
+	//utils.WriteDevMem32(0x2003002c 0x90007) //            # sensor unreset, clk 37.125MHz, VI 250MHz
+	*/
 	ko.LoadAll()
+
+        //imx178)
+        utils.WriteDevMem32(0x200f0050, 0x2)     //;                # i2c0_scl
+        utils.WriteDevMem32(0x200f0054, 0x2)     //;                # i2c0_sda
+        utils.WriteDevMem32(0x2003002c, 0xF0007) //             # sensor unreset, clk 25MHz, VI 250MHz
+        //utils.WriteDevMem32(0x2003002c 0x90007) //            # sensor unreset, clk 37.125MHz, VI 250MHz
+
 }
