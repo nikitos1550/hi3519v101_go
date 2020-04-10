@@ -45,6 +45,8 @@ help:
 		" - make cleanall                         - remove all artifacts"
 
 prepare: $(BUILDROOT_DIR)
+	git submodule init
+	git submodule update
 	@echo "All prepared"
 
 $(BUILDROOT_DIR):
@@ -136,7 +138,8 @@ deploy-app: pack-app
 		boot \
 		        --upload-addr $(KERNEL_UPLOAD_ADDR) \
 		        --uimage $(BOARD_OUTDIR)/kernel/uImage \
-        		--rootfs $(BOARD_OUTDIR)/rootfs+app.squashfs
+        		--rootfs $(BOARD_OUTDIR)/rootfs+app.squashfs \
+			--no-wait
 
 #		--target-ip $(CAMERA_IP) --iface enp3s0 \
 #		--uimage $(BOARD_OUTDIR)/kernel/uImage \
