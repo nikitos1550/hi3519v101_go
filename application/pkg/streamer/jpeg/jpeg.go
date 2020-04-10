@@ -3,7 +3,9 @@
 package jpeg
 
 import (
-	"log"
+	//"log"
+	"application/pkg/logger"
+
 	"net/http"
 	"application/pkg/openapi"
 
@@ -18,22 +20,35 @@ func init() {
 func Init() {}
 
 func serve(w http.ResponseWriter, encoderId string) {
-	log.Println("serveJpeg")
+	//log.Println("serveJpeg")
+	logger.Log.Trace().
+		Msg("serveJpeg")
 
 	var payload = make(chan []byte, 1)
 	venc.SubsribeEncoder(encoderId, payload)
-	log.Println("reed data from channel ")
+	//log.Println("reed data from channel ")
+		logger.Log.Trace().
+			Str("encoderId", encoderId).
+			Msg("reed data from channel")
 	data := <- payload
-	log.Println("reeded data from channel ")
+	//log.Println("reeded data from channel ")
+		logger.Log.Trace().
+                        Str("encoderId", encoderId).
+                        Msg("reeded data from channel")
 	venc.RemoveSubscription(encoderId, payload)
 
 	w.Header().Set("Content-Type", "image/jpeg")
 
 	n, err := w.Write(data)
 	if err != nil {
-		log.Println("Failed to write data")
+		//log.Println("Failed to write data")
+		logger.Log.Warn().
+			Msg("Failed to write data")
 	} else {
-		log.Println("written size is ", n)
+		//log.Println("written size is ", n)
+		logger.Log.Trace().
+			Int("size", n).
+			Msg("written size")
 	}
 }
 

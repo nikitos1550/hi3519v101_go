@@ -6,10 +6,11 @@ package venc
 /*
 #include "../include/mpp_v3.h"
 
+#include "../../logger/logger.h"
+
 #include <string.h>
 #include <stdlib.h>
 
-//#include "getfunc.h"
 #include "loop.h"
 
 int mpp_venc_getfd(int venc_channel_id) {
@@ -27,7 +28,8 @@ void mpp_data_loop_get_data(unsigned int venc_channel) {
     memset(&stStream, 0, sizeof(stStream));
     s32Ret = HI_MPI_VENC_Query(venc_channel, &stStat);
     if (HI_SUCCESS != s32Ret) {
-        printf("HI_MPI_VENC_Query failed with %#x!\n", s32Ret);
+        //printf("HI_MPI_VENC_Query failed with %#x!\n", s32Ret);
+	go_logger_venc(LOGGER_PANIC, "HI_MPI_VENC_Query failed"); //TODO pass err code
         return; //continue;
     }
 
@@ -48,7 +50,8 @@ void mpp_data_loop_get_data(unsigned int venc_channel) {
     if (HI_SUCCESS != s32Ret) {
         free(stStream.pstPack);
         stStream.pstPack = NULL;
-        printf("HI_MPI_VENC_GetStream failed with %#x!\n", s32Ret);
+        //printf("HI_MPI_VENC_GetStream failed with %#x!\n", s32Ret);
+	go_logger_venc(LOGGER_PANIC, "HI_MPI_VENC_GetStream failed"); //TODO pass err code
         return; //continue;
     }
 
@@ -70,7 +73,8 @@ void mpp_data_loop_get_data(unsigned int venc_channel) {
 
     s32Ret = HI_MPI_VENC_ReleaseStream(venc_channel, &stStream);
     if (HI_SUCCESS != s32Ret) {
-        printf("failed to release stream: %#x\n", s32Ret);
+        //printf("failed to release stream: %#x\n", s32Ret);
+	go_logger_venc(LOGGER_PANIC, "HI_MPI_VENC_ReleaseStream failed"); //TODO pass err code
         return; //continue;
     }
     free(stStream.pstPack);

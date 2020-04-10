@@ -6,7 +6,7 @@ package vpss
 /*
 #include "../include/mpp_v3.h"
 
-#include "logger.h"
+#include "../../logger/logger.h"
 
 #include <string.h>
 
@@ -24,7 +24,7 @@ typedef void (*callbackFunc) (unsigned int, VIDEO_FRAME_INFO_S*);
 int mpp3_vpss_init(unsigned int *error_code) {
     *error_code = 0;
 
-    go_logger(1, "this is test message from mpp3_vpss_init");
+    //go_logger_vpss(1, "this is test message from mpp3_vpss_init");
 
     VPSS_GRP_ATTR_S stVpssGrpAttr;
 

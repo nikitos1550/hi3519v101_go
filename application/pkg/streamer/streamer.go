@@ -8,6 +8,8 @@ import (
     "application/pkg/streamer/rtsp"
     "application/pkg/streamer/webrtc"
     "application/pkg/streamer/ws"
+
+    "application/pkg/logger"
 )
 
 func Init() {
@@ -18,4 +20,7 @@ func Init() {
     rtsp.Init()
     webrtc.Init()
     ws.Init()
+
+    logger.Log.Debug().
+    	Msg("Streamers inited")
 }

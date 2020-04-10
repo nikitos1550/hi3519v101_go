@@ -9,7 +9,13 @@
 #define LOGGER_DEBUG 	0
 #define LOGGER_TRACE 	-1
 
-static void go_logger(int level, char * msg);
+void go_logger_ai(int level, char * msg);
+void go_logger_vi(int level, char * msg);
+void go_logger_isp(int level, char * msg);
+void go_logger_mipi(int level, char * msg);
+void go_logger_sys(int level, char * msg);
+void go_logger_venc(int level, char * msg);
+void go_logger_vpss(int level, char * msg);
 
 #endif //_LOGGER_H
 

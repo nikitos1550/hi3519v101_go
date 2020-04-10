@@ -1,20 +1,18 @@
 package vpss
 
 /*
-#include "logger.h"
+#include "../../logger/logger.h"
 //Should be here to export go callback
 */
 import "C"
 
 import (
-	"application/pkg/logger"
-        "github.com/rs/zerolog"
+        "application/pkg/logger"
 )
 
-//export go_logger
-func go_logger(level C.int, msgC *C.char) {
-        msgGo := C.GoString(msgC)
-        logger.Log.WithLevel(zerolog.Level(level)).
-                Msg(msgGo)
+//export go_logger_vpss
+func go_logger_vpss(level C.int, msgC *C.char) {
+        logger.CLogger("venc", int(level), C.GoString(msgC))
 }
+
 

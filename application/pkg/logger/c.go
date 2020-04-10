@@ -1,21 +1,24 @@
-//+build ingore
-
 package logger
-
-/*
-#include "logger.h"
-//Should be here to export go callback
-*/
-import "C"
 
 import (
 	"github.com/rs/zerolog"
 )
 
-//export go_logger
-func go_logger(level C.int, msgC *C.char) {
-	msgGo := C.GoString(msgC)
-	Log.WithLevel(zerolog.Level(level)).
-		Msg(msgGo)
+func CLogger(packageName string, level int, msg string) {
+        switch level {
+        case 5:
+                Log.Panic().
+                Str("package", packageName).
+                Msg(msg)
+        case 4:
+                Log.Fatal().
+                Str("package", packageName).
+                Msg(msg)
+        default:
+                Log.WithLevel(zerolog.Level(level)).
+                Str("package", "venc").
+                Msg(msg)
+        }
+
 }
 

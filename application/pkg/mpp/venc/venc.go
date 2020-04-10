@@ -1,7 +1,8 @@
 package venc
 
 import (
-	"log"
+	//"log"
+	"application/pkg/logger"
 )
 
 func Init() {
@@ -21,7 +22,10 @@ func init() {
 func SubsribeEncoder(encoderId string, ch chan []byte) {
         encoder, encoderExists := Encoders[encoderId]
         if !encoderExists {
-                log.Println("Failed to find encoder ", encoderId)
+                //log.Println("Failed to find encoder ", encoderId)
+		logger.Log.Error().
+			Str("encoderId", encoderId).
+			Msg("Failed to find encoder")
                 return
         }
 
@@ -49,14 +53,21 @@ func hasSubscription(vencId int) bool {
 func RemoveSubscription(encoderId string, ch chan []byte) {
         encoder, encoderExists := Encoders[encoderId]
         if !encoderExists {
-                log.Println("Failed to find encoder ", encoderId)
+                //log.Println("Failed to find encoder ", encoderId)
+		logger.Log.Error().
+                        Str("encoderId", encoderId).
+                        Msg("Failed to find encoder")
                 return
         }
 
         EncoderSubscriptions[encoder.VencId][ch] = false
 
         if !hasSubscription(encoder.VencId) {
-                log.Println("No subscriptions for ", encoder.VencId, " remove venc")
+                //log.Println("No subscriptions for ", encoder.VencId, " remove venc")
+		logger.Log.Error().
+                        Int("vencId", encoder.VencId).
+                        Msg("remove venc as No subscriptions")
+
                 deleteEncoder(encoder) //delVenc(encoder.VencId)
         }
 }
