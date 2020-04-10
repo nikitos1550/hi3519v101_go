@@ -25,7 +25,7 @@ if [[ $NUM == "" ]]; then
 fi
 
 
-POWER2_PATH="$PROJECT_ROOT/burner/power2.py"
+POWER2_PATH="$PROJECT_ROOT/scripts/power2.py"
 HIBURN_APP_PATH="$PROJECT_ROOT/hiburn/hiburn_app.py"
 
 get_telnet_endpoint /dev/ttyCAM$NUM
