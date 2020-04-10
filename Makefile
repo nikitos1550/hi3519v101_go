@@ -120,7 +120,8 @@ deploy: pack
         --linux_console "ttyAMA0,115200" \
         boot \
         --uimage $(BOARD_OUTDIR)/kernel/uImage \
-        --rootfs $(BOARD_OUTDIR)/rootfs.squashfs
+        --rootfs $(BOARD_OUTDIR)/rootfs.squashfs \
+        --no-wait
 
 deploy-app: pack-app
 	cd burner; authbind --deep ./burner2.py \
