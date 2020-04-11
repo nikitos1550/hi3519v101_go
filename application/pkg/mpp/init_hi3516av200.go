@@ -40,6 +40,8 @@ import (
 	"application/pkg/ko"
     "application/pkg/utils"
     "application/pkg/mpp/error"
+
+    "application/pkg/mpp/cmos"
 )
 
 //TODO rework this mess
@@ -198,25 +200,124 @@ func systemInit() {
 
 	ko.LoadAll()
 
+		/*switch cmos.Model() {
+			case "imx274":
+			case "imx226":
+			default:
+		}*/
+        utils.WriteDevMem32(0x1201004c, 0x00094c23)
+        utils.WriteDevMem32(0x12010054, 0x0004041)
+
+
+		switch cmos.Clock() {
+			case 24:
+				utils.WriteDevMem32(0x12010040, 0x14) //           # sensor0 clk_en, 24MHz
+			case 72:
+				utils.WriteDevMem32(0x12010040, 0x11);       //sensor0 clk_en, 72MHz
+			default:
+				logger.Log.Fatal().
+					Float32("clock", cmos.Clock()).
+					Msg("CMOS clock is not supported")
+		}
+
+		switch cmos.BusType() {
+		case cmos.I2C:
+			if cmos.BusNum() == 0 {
+				//i2c0_pin_mux()
+        			utils.WriteDevMem32(0x12040190, 0x2)    //;  #I2C0_SDA
+        			utils.WriteDevMem32(0x1204018c, 0x2)    //;  #I2C0_SCL
+    
+        			//#drive capability
+        			utils.WriteDevMem32(0x1204099c, 0x120)  //; #I2C0_SDA
+        			utils.WriteDevMem32(0x12040998, 0x120)  //; #I2C0_SCL    
+
+			} else {
+				logger.Log.Fatal().Msg("CMOS bus num not 0 is not supported")
+			}
+		case cmos.Spi4Wire:
+			if cmos.BusNum() == 0 {
+			    //spi0_4wire_pin_mux;
+			    //pinmux
+			    utils.WriteDevMem32(0x1204018c, 0x1); //  #SPI0_SCLK
+			    utils.WriteDevMem32(0x12040190, 0x1); // #SPI0_SD0
+			    utils.WriteDevMem32(0x12040194, 0x1); // #SPI0_SDI
+			    utils.WriteDevMem32(0x12040198, 0x1); // #SPI0_CSN
+
+			    //drive capability
+			    utils.WriteDevMem32(0x12040998, 0x150); // #SPI0_SCLK
+			    utils.WriteDevMem32(0x1204099c, 0x160); // #SPI0_SD0
+			    utils.WriteDevMem32(0x120409a0, 0x160); // #SPI0_SDI
+			    utils.WriteDevMem32(0x120409a4, 0x160); // #SPI0_CSN
+
+			} else {
+
+			}
+		default:
+			logger.Log.Fatal().
+				Int("type", int(cmos.BusType())).
+				Msg("unrecognized cmos bus typy")
+	}
+
+    if false {
 	//imx274)
     //tmp=0x11;
-    utils.WriteDevMem32(0x12010040, 0x11);       //sensor0 clk_en, 72MHz
+    //utils.WriteDevMem32(0x12010040, 0x11);       //sensor0 clk_en, 72MHz
     //SDK config:     IVE:396M,  GDC:475M,  VGS:500M,  VEDU:600M,   VPSS:300M 
     //imx274:viu0: 600M,isp0:300M, viu1:300M,isp1:300M
-    utils.WriteDevMem32(0x1201004c, 0x00094c23);
-    utils.WriteDevMem32(0x12010054, 0x0004041);
+    //utils.WriteDevMem32(0x1201004c, 0x00094c23);
+    //utils.WriteDevMem32(0x12010054, 0x0004041);
     //spi0_4wire_pin_mux;
     //pinmux
-    utils.WriteDevMem32(0x1204018c, 0x1); //  #SPI0_SCLK
-    utils.WriteDevMem32(0x12040190, 0x1); // #SPI0_SD0
-    utils.WriteDevMem32(0x12040194, 0x1); // #SPI0_SDI
-    utils.WriteDevMem32(0x12040198, 0x1); // #SPI0_CSN
+    //utils.WriteDevMem32(0x1204018c, 0x1); //  #SPI0_SCLK
+    //utils.WriteDevMem32(0x12040190, 0x1); // #SPI0_SD0
+    //utils.WriteDevMem32(0x12040194, 0x1); // #SPI0_SDI
+    //utils.WriteDevMem32(0x12040198, 0x1); // #SPI0_CSN
 
     //drive capability
-    utils.WriteDevMem32(0x12040998, 0x150); // #SPI0_SCLK
-    utils.WriteDevMem32(0x1204099c, 0x160); // #SPI0_SD0
-    utils.WriteDevMem32(0x120409a0, 0x160); // #SPI0_SDI
-    utils.WriteDevMem32(0x120409a4, 0x160); // #SPI0_CSN
+    //utils.WriteDevMem32(0x12040998, 0x150); // #SPI0_SCLK
+    //utils.WriteDevMem32(0x1204099c, 0x160); // #SPI0_SD0
+    //utils.WriteDevMem32(0x120409a0, 0x160); // #SPI0_SDI
+    //utils.WriteDevMem32(0x120409a4, 0x160); // #SPI0_CSN
+
+    } else {
+
+	    //os05a)
+            //tmp=0x14;
+            //            # SDK config:     IVE:396M,  GDC:475M,  VGS:500M,  VEDU:600M,   VPSS:300M 
+            //            himm 0x1201004c 0x00094c21;
+            //            himm 0x12010054 0x0004041;
+            //himm 0x12010040 0x14;           # sensor0 clk_en, 24MHz
+            //i2c0_pin_mux;
+
+
+	    //os08a10)
+            //tmp=0x14;
+            //            # SDK config:     IVE:396M,  GDC:475M,  VGS:500M,  VEDU:600M,   VPSS:300M 
+            //            #os08a10:       viu0: 600M, isp0:300M, viu1:300M,isp1:300M
+            //            himm 0x1201004c 0x00094c23;
+            //            himm 0x12010054 0x0004041;
+            //himm 0x12010040 0x14;           # sensor0 clk_en, 24MHz
+            //i2c0_pin_mux;
+
+
+    	//utils.WriteDevMem32(0x1201004c, 0x00094c23)
+    	//utils.WriteDevMem32(0x12010054, 0x0004041)
+    	//utils.WriteDevMem32(0x12010040, 0x14) //           # sensor0 clk_en, 24MHz
+
+
+	//i2c0_pin_mux()
+	//{
+    	//#pinmux
+    	//utils.WriteDevMem32(0x12040190, 0x2)	//;  #I2C0_SDA
+    	//utils.WriteDevMem32(0x1204018c, 0x2)	//;  #I2C0_SCL
+    
+    	//#drive capability
+    	//utils.WriteDevMem32(0x1204099c, 0x120)	//; #I2C0_SDA
+    	//utils.WriteDevMem32(0x12040998, 0x120)	//; #I2C0_SCL    
+	//}
+
+    }
+
     /////////////////////////////////////////////////
   	//single_pipe)
   	utils.WriteDevMem32(0x12040184, 0x1); //   # SENSOR0 HS from VI0 HS

@@ -63,21 +63,22 @@ VI_DEV_ATTR_S DEV_ATTR_LVDS_BASE =
 #define ERR_HI_MPI_VI_SetChnAttr    4
 #define ERR_HI_MPI_VI_EnableChn     5
 
-int mpp3_vi_init(unsigned int *error_code) {
+int mpp3_vi_init(unsigned int *error_code, void *videv, unsigned int width, unsigned int height, unsigned int fps) {
     *error_code = 0;
 
     VI_DEV_ATTR_S  stViDevAttr;
 
     memset(&stViDevAttr, 0, sizeof(stViDevAttr));
     
-    memcpy(&stViDevAttr, &DEV_ATTR_LVDS_BASE, sizeof(stViDevAttr));
+    //memcpy(&stViDevAttr, &DEV_ATTR_LVDS_BASE, sizeof(stViDevAttr));
+    memcpy(&stViDevAttr, videv, sizeof(stViDevAttr));
 
     stViDevAttr.stDevRect.s32X                              = 0;
     stViDevAttr.stDevRect.s32Y                              = 0;
-    stViDevAttr.stDevRect.u32Width                          = 3840;
-    stViDevAttr.stDevRect.u32Height                         = 2160;
-    stViDevAttr.stBasAttr.stSacleAttr.stBasSize.u32Width    = 3840;
-    stViDevAttr.stBasAttr.stSacleAttr.stBasSize.u32Height   = 2160;
+    stViDevAttr.stDevRect.u32Width                          = width; //3840;
+    stViDevAttr.stDevRect.u32Height                         = height; //2160;
+    stViDevAttr.stBasAttr.stSacleAttr.stBasSize.u32Width    = width; //3840;
+    stViDevAttr.stBasAttr.stSacleAttr.stBasSize.u32Height   = height ;//2160;
     stViDevAttr.stBasAttr.stSacleAttr.bCompress             = HI_FALSE;
 
     *error_code = HI_MPI_VI_SetDevAttr(0, &stViDevAttr);
@@ -91,8 +92,8 @@ int mpp3_vi_init(unsigned int *error_code) {
 
     stCapRect.s32X          = 0;
     stCapRect.s32Y          = 0;
-    stCapRect.u32Width      = 3840;
-    stCapRect.u32Height     = 2160;
+    stCapRect.u32Width      = width; //3840;
+    stCapRect.u32Height     = height; //2160;
     stTargetSize.u32Width   = stCapRect.u32Width;
     stTargetSize.u32Height  = stCapRect.u32Height;
 
@@ -108,8 +109,8 @@ int mpp3_vi_init(unsigned int *error_code) {
     stChnAttr.bMirror               = HI_FALSE;
     stChnAttr.bFlip                 = HI_FALSE;
 
-    stChnAttr.s32SrcFrameRate       = 30;
-    stChnAttr.s32DstFrameRate       = 30;
+    stChnAttr.s32SrcFrameRate       = fps; //30;
+    stChnAttr.s32DstFrameRate       = fps; //30;
     stChnAttr.enCompressMode        = COMPRESS_MODE_NONE;
 
     *error_code = HI_MPI_VI_SetChnAttr(0, &stChnAttr);
@@ -127,13 +128,15 @@ import (
     //"log"
 	"application/pkg/logger"
 
+	"application/pkg/mpp/cmos"
+
     "application/pkg/mpp/error"
 )
 
 func Init() {
     var errorCode C.uint
 
-    switch err := C.mpp3_vi_init(&errorCode); err {
+    switch err := C.mpp3_vi_init(&errorCode, cmos.ViDev(), C.uint(cmos.Width()), C.uint(cmos.Height()), C.uint(cmos.Fps())); err {
     case C.ERR_NONE:
         //log.Println("C.mpp3_vi_init() ok")
 	logger.Log.Debug().

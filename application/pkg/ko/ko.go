@@ -12,6 +12,7 @@ import (
 )
 
 var (
+	CmosName string   
 	MemMpp   uint64   = 12
 	MemLinux uint64   = 20
 	MemTotal uint64   = 32
@@ -143,6 +144,7 @@ func setupParams(modules [][2]string) {
 	}
 
 	for i := 0; i < len(modules); i++ {
+		modules[i][1] = strings.Replace(modules[i][1], "{cmosName}", CmosName, -1)
 		modules[i][1] = strings.Replace(modules[i][1], "{memStartAddr}", strconv.FormatUint(memStartAddr, 16), -1)
 		modules[i][1] = strings.Replace(modules[i][1], "{memMppSize}", strconv.FormatUint(MemMpp, 10), -1)
 		modules[i][1] = strings.Replace(modules[i][1], "{memTotalSize}", strconv.FormatUint(MemTotal, 10), -1)

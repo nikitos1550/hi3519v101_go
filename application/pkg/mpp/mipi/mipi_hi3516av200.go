@@ -106,7 +106,7 @@ combo_dev_attr_t MIPI_CMOS323_ATTR =
 #define ERR_NONE    0
 #define ERR_GENERAL 1
 
-int mpp3_mipi_init(int *error_code) {
+int mpp3_mipi_init(int *error_code, void *mipi) {
     *error_code = 0;
     
     int fd;
@@ -117,7 +117,8 @@ int mpp3_mipi_init(int *error_code) {
 
     //TODO
     #ifdef HI3516AV200
-    memcpy(&stcomboDevAttr, &LVDS_6lane_SENSOR_IMX274_12BIT_8M_NOWDR_ATTR, sizeof(combo_dev_attr_t));
+    //memcpy(&stcomboDevAttr, &LVDS_6lane_SENSOR_IMX274_12BIT_8M_NOWDR_ATTR, sizeof(combo_dev_attr_t));
+    memcpy(&stcomboDevAttr, mipi, sizeof(combo_dev_attr_t));
     #endif
     #ifdef HI3516CV300
     memcpy(&stcomboDevAttr, &MIPI_CMOS323_ATTR, sizeof(combo_dev_attr_t));
@@ -160,12 +161,14 @@ import "C"
 import (
     //"log"
 	"application/pkg/logger"
+
+	"application/pkg/mpp/cmos"
 )
 
 func Init() {
     var errorCode C.int
 
-    switch err := C.mpp3_mipi_init(&errorCode); err {
+    switch err := C.mpp3_mipi_init(&errorCode, cmos.Mipi() ); err {
     case C.ERR_NONE:
         //log.Println("C.mpp3_mipi_init() ok")
 	logger.Log.Debug().

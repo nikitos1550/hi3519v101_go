@@ -44,7 +44,7 @@ var (
 		//[2]string{"hi_tlv320aic31.ko",    ""},
 		[2]string{"hi_mipi.ko", ""},
 		[2]string{"hi_user.ko", ""},
-		[2]string{"hi_ssp_sony.ko", ""},
+		//[2]string{"hi_ssp_sony.ko", ""},
 	}
 	MinimalModulesList = [...]string{
 		"hi_osal.ko",

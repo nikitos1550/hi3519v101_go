@@ -23,14 +23,26 @@ HI_VOID* mpp3_isp_thread(HI_VOID *param){
     //return error_code;
 }
 
-int mpp3_isp_init(int *error_code) {
+int mpp3_isp_exit2(int *error_code) {
+	*error_code = 0;
+
+    *error_code = HI_MPI_ISP_Exit(0);    
+    if (*error_code != HI_SUCCESS) return ERR_MPP;
+
+    return ERR_NONE;
+}
+
+int mpp3_isp_init(	int *error_code, 
+			unsigned int width,
+			unsigned int height,
+			unsigned int fps) {
     *error_code = 0;
 
     ISP_PUB_ATTR_S stPubAttr;
     ALG_LIB_S stLib;
 
-    *error_code = HI_MPI_ISP_Exit(0);
-    if (*error_code != HI_SUCCESS) return ERR_MPP;
+    //*error_code = HI_MPI_ISP_Exit(0);
+    //if (*error_code != HI_SUCCESS) return ERR_MPP;
 
     ALG_LIB_S stAeLib;
     ALG_LIB_S stAwbLib;
@@ -46,13 +58,13 @@ int mpp3_isp_init(int *error_code) {
 
     //TODO
     #ifdef HI3516AV200
-    ISP_SNS_OBJ_S *cmos = &stSnsImx274Obj;
-    if (cmos->pfnRegisterCallback != HI_NULL) {
-        *error_code = cmos->pfnRegisterCallback(0, &stAeLib, &stAwbLib);
-        if (*error_code != HI_SUCCESS) return ERR_GENERAL;
-    } else {
-        return ERR_GENERAL;
-    }
+    //ISP_SNS_OBJ_S *cmos = &stSnsImx274Obj;
+    //if (cmos->pfnRegisterCallback != HI_NULL) {
+    //    *error_code = cmos->pfnRegisterCallback(0, &stAeLib, &stAwbLib);
+    //    if (*error_code != HI_SUCCESS) return ERR_GENERAL;
+    //} else {
+    //    return ERR_GENERAL;
+    //}
     #endif
     #ifdef HI3516CV300
     //*error_code = sensor_register_callback();
@@ -88,14 +100,14 @@ int mpp3_isp_init(int *error_code) {
     //TODO WDR modes support
 
     stPubAttr.enBayer               = BAYER_RGGB;
-    stPubAttr.f32FrameRate          = 30;
+    stPubAttr.f32FrameRate          = fps; //30;
     stPubAttr.stWndRect.s32X        = 0;
     stPubAttr.stWndRect.s32Y        = 0;
-    stPubAttr.stWndRect.u32Width    = 3840;     //TODO What is WND rect?
-    stPubAttr.stWndRect.u32Height   = 2160;    //TODO
+    stPubAttr.stWndRect.u32Width    = width; //3840;     //TODO What is WND rect?
+    stPubAttr.stWndRect.u32Height   = height; //2160;    //TODO
     #ifdef HI3516AV200
-    stPubAttr.stSnsSize.u32Width    = 3840;
-    stPubAttr.stSnsSize.u32Height   = 2160;
+    stPubAttr.stSnsSize.u32Width    = width; //3840;
+    stPubAttr.stSnsSize.u32Height   = height; //2160;
     #endif
 
     *error_code = HI_MPI_ISP_SetPubAttr(0, &stPubAttr);
@@ -117,24 +129,42 @@ import (
     //"log"
     "application/pkg/mpp/error"
     "application/pkg/logger"
+    "application/pkg/mpp/cmos"
 )
 
 func Init() {
     var errorCode C.int
 
-	switch err := C.mpp3_isp_init(&errorCode); err {
+            switch err := C.mpp3_isp_exit2(&errorCode); err {
     case C.ERR_NONE:
-        //log.Println("C.mpp3_isp_init() ok")
+        logger.Log.Debug().
+                Msg("C.mpp3_isp_exit() ok")
+    case C.ERR_MPP:
+        logger.Log.Fatal().
+                Int("error", int(errorCode)).
+                Str("error_desc", error.Resolve(int64(errorCode))).
+                Msg("C.mpp3_isp_exit() mpp error ")
+    default:
+            logger.Log.Fatal().
+                Int("error", int(err)).
+                Msg("Unexpected return of C.mpp3_isp_exit()")
+        }
+
+	cmos.Init()
+
+	switch err := C.mpp3_isp_init(	&errorCode, 
+					C.uint(cmos.Width()), 
+					C.uint(cmos.Height()), 
+					C.uint(cmos.Fps()) ); err {
+    case C.ERR_NONE:
 	logger.Log.Debug().
 		Msg("C.mpp3_isp_init() ok")
     case C.ERR_MPP:
-        //log.Fatal("C.mpp3_isp_init() mpp error ", error.Resolve(int64(errorCode)))
 	logger.Log.Fatal().
                 Int("error", int(errorCode)).
                 Str("error_desc", error.Resolve(int64(errorCode))).
 		Msg("C.mpp3_isp_init() mpp error ")
     default:
-	    //log.Fatal("Unexpected return ", err , " of C.mpp3_isp_init()")
 	    logger.Log.Fatal().
 	    	Int("error", int(err)).
 		Msg("Unexpected return of C.mpp3_isp_init()")
