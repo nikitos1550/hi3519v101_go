@@ -53,6 +53,7 @@ type cmos struct {
         /*
                 72 MHz
                 37.125 MHz
+		25 MHz
                 24 Mhz
         */
 	clock   float32

@@ -3,25 +3,24 @@
   Copyright (C), 2016, Hisilicon Tech. Co., Ltd.
 
  ******************************************************************************
-  File Name     : IMX335_slave_priv.h
+  File Name     : imx327_cmos_ex.h
   Version       : Initial Draft
   Author        : Hisilicon multimedia software group
-  Created       : 2015/06/18
-  Description   : this file was private for IMX377 master mode sensor
+  Created       : 2018/06/28
+  Description   : this file was private for IMX327 master mode sensor
   History       :
   1.Date        :
     Author      :
     Modification: Created file
 ******************************************************************************/
-#ifndef __IMX335_CMOS_EX_H_
-#define __IMX335_CMOS_EX_H_
+#ifndef __IMX327_CMOS_EX_H_
+#define __IMX327_CMOS_EX_H_
 
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
 #endif
 #endif
-
 
 static const ISP_CMOS_LCAC_S g_stIspLCac = {
 	
@@ -76,18 +75,6 @@ static const ISP_CMOS_LCAC_S g_stIspLCacWdr = {
 	}
 };
 
-
-/* Piris attr */
-static ISP_PIRIS_ATTR_S gstPirisAttr = {
-    0,      // bStepFNOTableChange
-    1,      // bZeroIsMax
-    94,     // u16TotalStep
-    62,     // u16StepCount
-    /* Step-F number mapping table. Must be from small to large. F1.0 is 1024 and F32.0 is 1 */
-    {30, 35, 40, 45, 50, 56, 61, 67, 73, 79, 85, 92, 98, 105, 112, 120, 127, 135, 143, 150, 158, 166, 174, 183, 191, 200, 208, 217, 225, 234, 243, 252, 261, 270, 279, 289, 298, 307, 316, 325, 335, 344, 353, 362, 372, 381, 390, 399, 408, 417, 426, 435, 444, 453, 462, 470, 478, 486, 493, 500, 506, 512},
-    ISP_IRIS_F_NO_1_4, // enMaxIrisFNOTarget
-    ISP_IRIS_F_NO_5_6  // enMinIrisFNOTarget
-};
 
 static const ISP_CMOS_DPC_S g_stCmosDpc = {
     /* ISO */
@@ -164,7 +151,7 @@ static const ISP_CMOS_ANTIFALSECOLOR_S g_stIspWdrAntiFalseColor = {
 };
 
 /***BAYER NR**/
-static ISP_CMOS_NOISE_CALIBRATION_S g_stIspNoiseCalibration = {
+static ISP_CMOS_NOISE_CALIBRATION_S g_stIspNoiseCalibratio = {
     12,     // Calibration Lut Num
     /*************Calibration LUT Table*************/
     {
@@ -240,7 +227,6 @@ static const ISP_CMOS_BAYERNR_S g_stIspBayerNrWdr2To1 = {
 };
 
 
-
 static const ISP_CMOS_LDCI_S g_stIspLdci = {
     /* bEnable */
     1,
@@ -249,15 +235,19 @@ static const ISP_CMOS_LDCI_S g_stIspLdci = {
 
     /* au8HePosWgt */
     {50, 45, 42, 40, 35, 32, 12, 8, 6, 0, 0, 0, 0, 0, 0, 0},
+
     /* au8HePosSigma */
     {80, 80, 72, 72, 72, 64, 24, 20, 12, 8, 6, 2, 1, 1, 1, 1},
+
     /* au8HePosMean */
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 
     /* au8HeNegWgt */
     {50, 45, 45, 45, 45, 24, 12, 8, 6, 0, 0, 0, 0, 0, 0, 0},
+
     /* au8HeNegSigma */
     {80, 80, 80, 80, 80, 72, 64, 54, 36, 8, 6, 2, 1, 1, 1, 1},
+
     /* au8HeNegMean */
     {128, 128, 128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 
@@ -265,24 +255,28 @@ static const ISP_CMOS_LDCI_S g_stIspLdci = {
     {20, 20, 20, 20, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30}
 };
 
-
 static const ISP_CMOS_LDCI_S g_stIspWdrLdci = {
     /* bEnable */
     0,
+
     /* u8GaussLPFSigma */
     36,
 
     /* au8HePosWgt */
     {50, 45, 42, 40, 35, 32, 12, 8, 6, 0, 0, 0, 0, 0, 0, 0},
+
     /* au8HePosSigma */
     {80, 80, 72, 72, 72, 64, 24, 20, 12, 8, 6, 2, 1, 1, 1, 1},
+
     /* au8HePosMean */
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 
     /* au8HeNegWgt */
     {50, 45, 45, 45, 45, 24, 12, 8, 6, 0, 0, 0, 0, 0, 0, 0},
+
     /* au8HeNegSigma */
     {80, 80, 80, 80, 80, 72, 64, 54, 36, 8, 6, 2, 1, 1, 1, 1},
+
     /* au8HeNegMean */
     {128, 128, 128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 
@@ -607,25 +601,23 @@ static const ISP_CMOS_SHARPEN_S g_stIspYuvSharpen = {
         { 18,   18,    18,  18,    18,   18,    18,    18,      18,   18,    18,    18,    18,    18,    18,   18 },
 
         /*au8RGain[ISP_AUTO_ISO_STRENGTH_NUM];*/
-        {   28,     31,     31,      31,     31,      31,      31,      31,      31,      31,    31,     31,     31,     31,       31,     31},
+        {28,     31,       31,       31,     31,        31,        31,        31,    31,        31,    31,     31,     31,     31,       31,     31},
 
         /* au8GGain */
         {   32,     32,     32,      32,     32,      32,      32,      32,      32,      32,      32,      32,      32,      32,      32,     32},
 
         /* au8BGain */
-        {   31,     31,     31,      31,     31,      31,      31,      31,      31,      31,    31,     31,     31,     31,       31,     31},
+        {31,     31,       31,       31,     31,        31,        31,        31,    31,        31,    31,     31,     31,     31,       31,     31},
 
         /* au8SkinGain */
         {30,     30,       31,       31,     31,        31,        31,        31,    31,        31,    31,     31,     31,     31,       31,     31},
 
         /* u8MaxSharpGain */
-        {  67,    70,     72,    74,   80,   80,    80,    80,    80,     80,     80,     80,    80,      80,       80,     80},
+        {   67,     70,     72,      74,     80,      80,      80,      80,      80,      80,      80,      80,      80,      80,      80,     80},
         /* au8WeakDetailGain                          */
-        /* ISO */
-        /* 100,    200,          400,           800,        1600,           3200,          6400,         12800,     25600,         51200,  102400,  204800,   409600,   819200,   1638400,  3276800 */
-        {   0,     0,        0,        0,      0,         0,         0,         0,     0,         0,     0,      0,      0,      0,        0,      0  }
-    },
+        {   0,       0,     0,       0,     0,      0,         0,         0,     0,         0,     0,      0,      0,      0,        0,      0  }
 
+    },
 };
 
 static const ISP_CMOS_SHARPEN_S g_stIspYuvSharpenWdr = {
@@ -665,7 +657,7 @@ static const ISP_CMOS_SHARPEN_S g_stIspYuvSharpenWdr = {
         62,
         /*u8EdgeFiltMaxCap; */
         18,
-        /* u8RGain; */
+        /*u8RGain; */
         31,
         /* u8GGain; */
         32,
@@ -788,7 +780,7 @@ static const ISP_CMOS_SHARPEN_S g_stIspYuvSharpenWdr = {
             { 320,     300,    200,     36,     32,     30,     30,     30,     25,     25,     25,     25,     25,     25,     25,     25},
             { 320,     300,    200,     30,     26,     20,     20,     20,     20,     20,     20,     20,     20,     20,     20,     20}
         },
-        /* au16TextureFreq                           */
+        /* au16TextureFreq */
         /* ISO */
         /* 100,    200,    400,    800,   1600,   3200,   6400,  12800,  25600,  51200, 102400, 204800, 409600, 819200, 1638400, 3276800 */
         {  256,    256,    256,    160,    160,    160,    200,    160,    150,    130,    128,    128,    128,    128,     128,     128},
@@ -816,9 +808,11 @@ static const ISP_CMOS_SHARPEN_S g_stIspYuvSharpenWdr = {
 
         /* au8EdgeFiltStr */
         {   45,     45,     45,      50,    62,     62,     62,     62,     62,     62,     62,     62,     62,     62,      62,      62},
-        /*au8EdgeFiltMaxCap*/
+
+        /*au8EdgeFiltMaxCap[ISP_AUTO_ISO_STRENGTH_NUM];*/
         { 18,   18,    18,  18,    18,   18,    18,    18,      18,   18,    18,    18,    18,    18,    18,   18 },
-        /* au8RGain */
+
+        /*au8RGain[ISP_AUTO_ISO_STRENGTH_NUM];*/
         {   31,     31,     31,      31,    31,     31,     31,     31,     31,     31,     31,     31,     31,     31,      31,      31},
 
         /* au8GGain */
@@ -831,11 +825,10 @@ static const ISP_CMOS_SHARPEN_S g_stIspYuvSharpenWdr = {
         {   31,     31,     31,      31,    31,     31,     31,     31,     31,     31,     31,     31,     31,     31,      31,      31},
 
         /* u8MaxSharpGain */
-        {  70,    70,     72,    74,   80,   80,    80,    80,    80,     80,     80,     80,    80,      80,       80,     80},
+        {   70,     70,     72,      74,    80,     80,     80,     80,     80,     80,     80,     80,     80,     80,      80,      80},
         /* au8WeakDetailGain                          */
-        /* ISO */
-        /* 100,    200,          400,           800,        1600,           3200,          6400,         12800,     25600,         51200,  102400,  204800,   409600,   819200,   1638400,  3276800 */
-        {   0,     0,        0,        0,      0,         0,         0,         0,     0,         0,     0,      0,      0,      0,        0,      0  }
+        {   0,       0,     0,       0,     0,      0,         0,         0,     0,         0,     0,      0,      0,      0,        0,      0  }
+
     },
 };
 
@@ -965,6 +958,7 @@ static AWB_CCM_S g_stAwbCcmFsWdr = {
     },
 };
 
+
 static AWB_AGC_TABLE_S g_stAwbAgcTable = {
     /* bvalid */
     1,
@@ -997,7 +991,6 @@ static const ISP_CMOS_WDR_S g_stIspWDR = {
     3008,
 
     /* bForceLong */
-
     1,
 
     /* u16ForceLongLowThr */
@@ -1043,7 +1036,6 @@ static const ISP_CMOS_DEHAZE_S g_stIspDehaze = {
     128,
     /* u8ManualStrength */
     128
-
 };
 
 static const ISP_CMOS_DEHAZE_S g_stIspDehazeWDR = {
@@ -1404,6 +1396,8 @@ static const ISP_CMOS_LSC_S g_stCmosLsc = {
 
 };
 
+
+
 #ifdef __cplusplus
 #if __cplusplus
 }
@@ -1411,4 +1405,4 @@ static const ISP_CMOS_LSC_S g_stCmosLsc = {
 #endif /* End of #ifdef __cplusplus */
 
 
-#endif /* __IMX335_CMOS_EX_H_ */
+#endif /* __IMX327_CMOS_EX_H_ */
