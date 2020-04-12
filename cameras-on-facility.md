@@ -1,7 +1,7 @@
 
 # Facility cameras
 
-## 05.04.2020
+## 12.04.2020
 
 |FSlot|Vendor|Model|SoC|CMOS|Comment|
 |-----|------|-----|---|----|-------|
@@ -23,8 +23,12 @@
 |16|XM|83H40PL-B|hi3516av100|OV4689|-|
 |17|SSQVISION|unknown|hi3519v101|imx326|-|
 |18|SSQVISION|ON290H16D|hi3516dv100|imx290|rev.2|
-|...|...|...|...|...|...|
-|31|HISILICON|DEMB|hi3516dv300|imx290|official dev board|
+|19|unknown|unknown|hi3518ev200|unknown|-|
+|20|unknown|unknown|hi3518ev201|unknown|-|
+|..|...|...|...|...|...|
+|23|XM|IPG-53H13PL-S|hi3518cv100|AR0130|k4b1g164...|
+|..|...|...|...|...|...|
+|31|HISILICON|DEMB|hi3516dv300|imx327|official dev board|
 |32|HISILICON|DEMBVERC|hi3559av100|imx334|official dev board|
 
 ## Checklist
@@ -37,12 +41,12 @@
 	- [X] hi3516av200
 - hi3516cv100 family
 	- [X] hi3516cv100
-	- [ ] hi3518cv100
+	- [X] hi3518cv100
 	- [ ] hi3518ev100
 - hi3516cv200 family
 	- [ ] hi3516cv200 **N/A**
-	- [ ] hi3518ev200 **N/A**
-	- [ ] hi3518ev201 **N/A**         
+	- [X] hi3518ev200 
+	- [X] hi3518ev201         
 - hi3516cv300 family
 	- [X] hi3516cv300
 	- [X] hi3516ev100
@@ -56,6 +60,6 @@
 	- [ ] hi3516dv200 **N/A**
 	- [ ] hi3518ev300 **N/A**
 - hi3519av100 family
-	- [ ] hi3519av100 **N/A**
+	- [ ] hi3519av100 **Pcb seems to be broken**
 - hi3559av100 family
 	- [X] hi3559av100
