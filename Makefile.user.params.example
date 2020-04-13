@@ -84,7 +84,7 @@ THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 #BOARD    ?= xm_53h20-ae_hi3516cv100_imx222
 #PROG     ?= no
 
-#cmos ?
+#cmos bad
 #CAMERA	 ?= 16
 #BOARD    ?= xm_83h40pl-b_hi3516dv100_ov4689 
 #PROG     ?= no
