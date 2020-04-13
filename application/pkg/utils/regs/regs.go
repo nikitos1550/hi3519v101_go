@@ -1,154 +1,192 @@
-//+build ignore
-/////go:generate goyacc -l -o parser.go parser.y
-
 package regs
 
-/*
-    Thinking about usage interface for regs util
-
-    Sample reg:
-    reg {
-        desc = "APLL configuration register 0";
-
-        field {
-            desc = "Reserved";
-        } reserved2[31:31] = 0;
-        field {
-            desc = "Level-2 output frequency divider of the APLL";
-        } apll_postdiv2[30:28];
-        field {
-            desc = "Reserved";
-        } reserved1[27:27];
-        field {
-            desc = "Level-1 output frequency divider of the APLL";
-        } apll_postdiv1[26:24];
-        field {
-            desc = "Decimal part of the APLL frequency multiplication coefficient";
-        } apll_frac[23:0];
-
-    } PERI_CRG_PLL0 @ 0x0000;
-
-
-    [regs.]REG_NAME.reset()
-    [regs.]REG_NAME.set()
-    [regs.]REG_NAME.get()
-    //[regs.]REG_NAME.apll_frac.reset()
-    [regs.]REG_NAME.apll_frac.set()
-    [regs.]REG_NAME.apll_frac.get()
-    [regs.]REG_NAME.apll_frac.VALUE_PRESET
-
-    type Field struct {
-        startBit    uint8
-        endBit      uint8
-        size        uint8
-        valids      []uint32 //??? valid values array
-        presets     map[string]uint32
-    }
-    func (f * Field) setValue(v uint32) {}
-    func (f * Field) setPreset(p string) {}
-    func (f * Field) getValue() uint32 {}
-
-    type Register32 struct {
-        base            uint64      //base address
-        offset          uint64      //offset address
-        reset           uint32      //reset value
-        apll_postdiv2   Field //
-        apll_postdiv1   Field //
-        apll_frac       Field //
-    }
-
-    //////
-
-    type Register32 struct {
-        base            uint64                  //base address
-        offset          uint64                  //offset address
-        reset           uint32                  //reset value
-        fields          map[string]Field        //
-    }
-
-    var hi3516av200 = map[string]Register32 {
-        "testreg" : Register32 {
-            base: 0x0,
-            offset: 0x0,
-            reset: 0x0,
-            fields: map[string]Field {
-                "apll_postdiv2" : Field {
-                    startBit: 0,
-                    endbit: 1,
-                },
-                "apll_postdiv1" : Field {
-                    startBit: 2,
-                    endbit: 4,
-                },
-                "apll_frac" : Field {
-                    startBit: 2,
-                    endbit: 4,
-                },
-            },
-        },
-    }
-
-
-*/
-
-
-/*
-playground tested
-
-package main
-
 import (
-    "fmt"
+	"fmt"
+    "application/pkg/utils"
+    "application/pkg/logger"
 )
 
-type Field struct {
-    startBit uint8
-    endBit   uint8
-    //size        uint8
-    //valids      []uint32 //??? valid values array
-    //presets     map[string]uint32
+//var addrMaps map[string][]register32
+
+//func addAddrMap(name string, regs []register32) {
+//	if len(addrMaps) == 0 {
+//		addrMaps = make(map[string][]register32)
+//	}
+//	addrMaps[name] = regs
+//}
+
+type value struct {
+	value uint32
+	name  string
+	desc  string
 }
 
-type Register32 struct {
-    base   uint64           //base address
-    offset uint64           //offset address
-    addr   uint64           //full address
-    reset  uint32           //reset value
-    fields map[string]Field //
+type field struct {
+	bitStart uint8
+	bitEnd   uint8
+	name     string
+	desc     string
+	values   []value
 }
 
-var hi3516av200 = map[string]Register32{
-    "testreg": Register32{
-        base:   0x0,
-        offset: 0x0,
-        reset:  0x0,
-        fields: map[string]Field{
-            "apll_postdiv2": Field{
-                startBit: 0,
-                endBit:   1,
-            },
-            "apll_postdiv1": Field{
-                startBit: 2,
-                endBit:   4,
-            },
-            "apll_frac": Field{
-                startBit: 2,
-                endBit:   4,
-            },
-        },
-    },
+func (f *field) getName() string {
+	if f == nil {
+		return ""
+	}
+	return f.name
 }
 
-//func GetRegValue(name string) uint32 {}
-//func SetRegValue(name string, value uint32) {}
-//func SetRegValueEx(name string, values []FieldValue) {}
-
-func main() {
-    fmt.Println(hi3516av200["testreg"])
-    //fmt.Println(romanNumeralDict[900])
+func (f *field) getDesc() string {
+	if f == nil {
+		return ""
+	}
+	return f.desc
 }
 
+func (f *field) getValueName(value uint32) string {
 
+	if f == nil {
+		return ""
+	}
+	if len(f.values) == 0 {
+		return ""
+	}
+	for i := 0; i < len(f.values); i++ {
+		if f.values[i].value == value {
+			return f.values[i].name
+		}
+	}
+	return "unknown"
+}
 
+func (f *field) Set(value uint32) {
+    //TODO
+}
 
-*/
+func (f *field) Get() uint32 {
+    //TODO
+    return 0
+}
+
+type register32 struct {
+	addr   uint32 //full address
+	name   string
+	desc   string
+	fields []field
+}
+
+func (r *register32) getName() string {
+	if r == nil {
+		return ""
+	}
+	return r.name
+}
+
+func (r *register32) getDesc() string {
+	if r == nil {
+		return ""
+	}
+	return r.desc
+}
+
+func (r *register32) Set(value uint32) {
+    if r == nil {
+        //TODO
+        return
+    }
+    utils.WriteDevMem32(r.addr, value)
+}
+
+func (r *register32) Get() uint32 {
+    if r == nil {
+        //TODO
+        return 0
+    }
+    return utils.ReadDevMem32(r.addr)
+}
+
+func (r *register32) Field(n string) *field {
+    //TOOD
+    return nil
+}
+
+func (r *register32) Fields(bitStart, bitEnd uint8) []*field {
+	fields := make([]*field, 0)
+
+	if r == nil {
+		return fields
+	}
+
+	for i := 0; i < len(r.fields); i++ {
+		field := &r.fields[i]
+		if field.bitStart >= bitStart {
+			if field.bitEnd <= bitEnd {
+				fields = append(fields, field)
+			}
+		}
+	}
+	return fields
+}
+////
+func (r *register32) Dump() {
+    if r == nil {
+        //TODO
+        return
+    }
+    value   := r.Get()
+
+    fmt.Printf("Register %s (%s)\n", r.getName(), r.getDesc() )
+
+    fields := r.Fields(0, 32)
+    if len(fields) > 0 {
+        for _, field := range fields {
+            fmt.Printf("Field %s[%d:%d] (%s) ", field.getName(), field.bitStart, field.bitEnd, field.getDesc())
+
+            fieldValue := ((value << 0) << (31 - field.bitEnd) >> (31 - field.bitEnd)) >> field.bitStart
+            recognizedValue := field.getValueName(fieldValue)
+            if recognizedValue != "" {
+                fmt.Printf("val = 0x%X (%s)\n", fieldValue, recognizedValue)
+            } else {
+                fmt.Printf("val = 0x%X\n", fieldValue)
+            }
+        }
+    } else {
+        fmt.Printf("Fields not found\n")
+    }
+}
+////
+
+func ByAddr(r uint32) *register32 {
+	var found *register32
+
+	for _, reg := range Registers {
+		if reg.addr == r {
+			found = &reg
+			break
+		}
+	}
+    if found == nil {
+        logger.Log.Fatal().
+            Uint32("addr", r).
+            Msg("No such reg")
+    }
+	return found
+}
+
+func ByName(n string) *register32 {
+    var found *register32
+
+    for _, reg := range Registers {
+        if reg.name == n {
+            found = &reg
+            break
+        }
+    }
+    if found == nil {
+        logger.Log.Fatal().
+            Str("name", n).
+            Msg("No such reg")
+    }
+    return found
+}
+

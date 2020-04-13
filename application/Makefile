@@ -121,6 +121,7 @@ pkg/ko/kobin_$(APP)_$(FAMILY).go:
 	GOPATH=$(GOPATH) $(GO) generate -tags "$(GOTAGS)" application/pkg/ko
 
 generate: pkg/ko/kobin_$(APP)_$(FAMILY).go
+	make -C pkg/utils/regs
 
 distrib:
 	mkdir distrib

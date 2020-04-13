@@ -41,6 +41,7 @@ import (
     "application/pkg/mpp/error"
 
     "application/pkg/mpp/cmos"
+    "application/pkg/utils/regs"
 )
 
 const (
@@ -114,7 +115,10 @@ func systemInit(devInfo DeviceInfo) {
     ko.UnloadAll()
 
 	//sensor0 pinmux
-	utils.WriteDevMem32(0x1204017c, 0x1);  //#SENSOR0_CLK
+	//utils.WriteDevMem32(0x1204017c, 0x1);  //#SENSOR0_CLK
+    regs.ByName("muxctrl_reg95").Set(0x1)
+    regs.ByAddr(0x1204017c).Dump()
+
 	utils.WriteDevMem32(0x12040180, 0x0);  //#SENSOR0_RSTN
 	utils.WriteDevMem32(0x12040184, 0x1);  //#SENSOR0_HS,from vi0
 	utils.WriteDevMem32(0x12040188, 0x1);  //#SENSOR0_VS,from vi0
