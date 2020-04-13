@@ -27,6 +27,72 @@ HI_VOID* mpp3_isp_thread(HI_VOID *param){
 int mpp3_isp_init(int *error_code) {
     *error_code = 0;
 
+    ISP_DEV IspDev = 0;
+    ISP_PUB_ATTR_S stPubAttr;
+    ALG_LIB_S stLib;
+
+    ALG_LIB_S stAeLib;
+    ALG_LIB_S stAwbLib;
+    ALG_LIB_S stAfLib;
+
+    stAeLib.s32Id = 0;
+    stAwbLib.s32Id = 0;
+    stAfLib.s32Id = 0;
+    strncpy(stAeLib.acLibName, HI_AE_LIB_NAME, sizeof(HI_AE_LIB_NAME));
+    strncpy(stAwbLib.acLibName, HI_AWB_LIB_NAME, sizeof(HI_AWB_LIB_NAME));
+    strncpy(stAfLib.acLibName, HI_AF_LIB_NAME, sizeof(HI_AF_LIB_NAME)); 
+
+    // 1. sensor register callback
+    *error_code = sensor_register_callback();
+    if (*error_code != HI_SUCCESS) return ERR_MPP;
+
+    // 2. register hisi ae lib
+    stLib.s32Id = 0;
+    strcpy(stLib.acLibName, HI_AE_LIB_NAME);
+    *error_code = HI_MPI_AE_Register(IspDev, &stLib);
+    if (*error_code != HI_SUCCESS) return ERR_MPP;
+
+    // 3. register hisi awb lib
+    stLib.s32Id = 0;
+    strcpy(stLib.acLibName, HI_AWB_LIB_NAME);
+    *error_code = HI_MPI_AWB_Register(IspDev, &stLib);
+    if (*error_code != HI_SUCCESS) return ERR_MPP;
+
+    // 4. register hisi af lib
+    stLib.s32Id = 0;
+    strcpy(stLib.acLibName, HI_AF_LIB_NAME);
+    *error_code = HI_MPI_AF_Register(IspDev, &stLib);
+    if (*error_code != HI_SUCCESS) return ERR_MPP;
+
+    // 5. isp mem init 
+    *error_code = HI_MPI_ISP_MemInit(IspDev);
+    if (*error_code != HI_SUCCESS) return ERR_MPP;
+
+    // 6. isp set WDR mode 
+    ISP_WDR_MODE_S stWdrMode;
+    stWdrMode.enWDRMode  = WDR_MODE_NONE;//enWDRMode;
+    //stWdrMode.enWDRMode  = WDR_MODE_2To1_LINE ;//WDR_MODE_2To1_FRAME_FULL_RATE;//WDR_MODE_NONE;//enWDRMode;
+    *error_code = HI_MPI_ISP_SetWDRMode(0, &stWdrMode);    
+    if (*error_code != HI_SUCCESS) return ERR_MPP;
+
+            stPubAttr.enBayer               = BAYER_RGGB;
+            stPubAttr.stWndRect.s32X        = 0;//30;
+            stPubAttr.stWndRect.s32Y        = 0;
+            stPubAttr.stWndRect.u32Width    = 1920;
+            stPubAttr.stWndRect.u32Height   = 1080;
+                        stPubAttr.f32FrameRate = 30;
+
+    *error_code = HI_MPI_ISP_SetPubAttr(IspDev, &stPubAttr);
+    if (*error_code != HI_SUCCESS) return ERR_MPP;
+
+    // 8. isp init 
+    *error_code = HI_MPI_ISP_Init(IspDev);
+    if (*error_code != HI_SUCCESS) return ERR_MPP;
+
+    if (pthread_create(&mpp3_isp_thread_pid, 0, (void* (*)(void*))mpp3_isp_thread, NULL) != 0) {
+        return ERR_GENERAL;
+    }
+
 	return ERR_NONE;
 }
 

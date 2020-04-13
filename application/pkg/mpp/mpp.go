@@ -13,24 +13,20 @@ import (
 	"application/pkg/mpp/ai"
 )
 
-func Init() {
-	//cmos.Test() //TEST
+func Init(devInfo DeviceInfo) {
 
-	//panic("TEST")
+	systemInit(devInfo)
 
-	systemInit()
-	//
-	//
 	sys.Init()
 	mipi.Init()
 	isp.Init()
 	vi.Init()
 	vpss.Init()
 
+	ai.Init()
+
 	venc.Init()
 
 	//init sample videopipeline
 	vpss.SampleChannel0()
-
-	ai.Init()
 }

@@ -7,8 +7,8 @@ import (
 	//"log"
 	"os"
 	//"regexp"
-	"strings"
-	"strconv"
+	//"strings"
+	//"strconv"
 
 	"application/pkg/buildinfo"
 	//"application/pkg/config"
@@ -23,58 +23,55 @@ import (
 	"application/pkg/streamer"
 
 	_ "application/pkg/debug"
-	"application/pkg/ko"
+	//"application/pkg/ko"
 	_ "application/pkg/utils/chip"
 	_ "application/pkg/utils/temperature"
 
 	"application/pkg/logger"
+
+    "application/pkg/utils/memparse"
 )
 
 func main() {
-	//log.SetOutput(os.Stdout)
-	//log.SetOutput(ioutil.Discard)
 	flag.Usage = usage
 	//flagVersion := flag.Bool("version", false, "Prints application version information")
+
 	memTotal := flag.String("mem-total", "32M", "Total RAM size") //&ko.MemTotal
 	memLinux := flag.String("mem-linux", "20M", "RAM size passed to Linux kernel, rest will be used for MPP") //ko.MemLinux
 	memMpp	 := flag.String("mem-mpp", "12M", "RAM size passed to MPP") //ko.MemMpp
 
-	//log.Println("application daemon")
+	chip	 := flag.String("chip", buildinfo.Family, "Chip app will be running on")
+	
 	flag.Parse()
 
 	logger.Init()
 
-	//TODO make correct memory size siffix handle
-	*memTotal = strings.Trim(*memTotal, "M")
-        ko.MemTotal, _ = strconv.ParseUint(*memTotal, 10, 64)
-	
-	*memLinux = strings.Trim(*memLinux, "M")
-        ko.MemLinux, _  = strconv.ParseUint(*memLinux, 10, 64)
+    var devInfo mpp.DeviceInfo
 
-	*memMpp = strings.Trim(*memMpp, "M")
-        ko.MemMpp, _     = strconv.ParseUint(*memMpp, 10, 64)
+    devInfo.MemTotalSize = memparse.Str(*memTotal)
+    devInfo.MemLinuxSize = memparse.Str(*memLinux)
+    devInfo.MemMppSize = memparse.Str(*memMpp)
 
-	//log.Println("mem-total", ko.MemTotal)
-	//log.Println("mem-linux", ko.MemLinux)
-	//log.Println("mem-mpp", ko.MemMpp)
+    devInfo.Chip = *chip
 
+    logger.Info().
+        Uint64("mem-total", devInfo.MemTotalSize).
+        Uint64("mem-linux", devInfo.MemLinuxSize).
+        Uint64("mem-mpp", devInfo.MemMppSize).
+        Str("chip", *chip).
+        Msg("cmdline mem params")
 
-        logger.Info().
-                Uint64("mem-total", ko.MemTotal).
-                Uint64("mem-linux", ko.MemLinux).
-                Uint64("mem-mm", ko.MemMpp).
-                Msg("cmdline mem params")
+    logger.Log.Info().
+        Str("go", buildinfo.GoVersion).
+        Str("gcc", buildinfo.GccVersion).
+        Str("date", buildinfo.BuildDateTime).
+        Str("tags", buildinfo.BuildTags).
+        Str("branch", buildinfo.BuildBranch).
+        Str("sdk", buildinfo.SDK).
+        Str("cmos", buildinfo.CmosProfile).
+        Msg("build info")
 
-
-        logger.Log.Info().
-                Str("go", buildinfo.GoVersion).
-                Str("gcc", buildinfo.GccVersion).
-                Str("date", buildinfo.BuildDateTime).
-                Str("tags", buildinfo.BuildTags).
-                Str("branch", buildinfo.BuildBranch).
-                Str("sdk", buildinfo.SDK).
-                Str("cmos", buildinfo.CmosProfile).
-                Msg("build info")
+	//ko.CmosName = buildinfo.CmosProfile
 
 
 	/*
@@ -110,7 +107,7 @@ func main() {
 
 	scripts.Init() //
 
-	mpp.Init()      //Init mpp and all subsystems
+	mpp.Init(devInfo)      //Init mpp and all subsystems
 	streamer.Init() //Init streamers
 	processing.Init()
 

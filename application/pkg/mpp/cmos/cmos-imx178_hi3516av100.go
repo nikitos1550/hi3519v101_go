@@ -1,6 +1,6 @@
 //+build arm
 //+build hi3516av100
-//+build imx178
+//+build imx178,cmos_data_lvds,cmos_control_i2c,cmos_bus_0
 
 package cmos
 
@@ -17,7 +17,7 @@ int mpp_cmos_init(int *error_code) {
     return ERR_NONE;
 }
 
-combo_dev_attr_t LVDS_4lane_SENSOR_IMX178_12BIT_5M_NOWDR_ATTR___ =
+combo_dev_attr_t LVDS_4lane_SENSOR_IMX178_12BIT_5M_NOWDR_ATTR =
 {
     // input mode
     .input_mode = INPUT_MODE_LVDS,
@@ -75,7 +75,7 @@ combo_dev_attr_t LVDS_4lane_SENSOR_IMX178_12BIT_5M_NOWDR_ATTR___ =
     }
 };
 
-VI_DEV_ATTR_S DEV_ATTR_LVDS_BASE__ =
+VI_DEV_ATTR_S DEV_ATTR_LVDS_BASE =
 {
     // interface mode
     VI_MODE_LVDS,
@@ -129,14 +129,15 @@ var (
 				width: 2592,
 				height: 1944,
 				fps: 30,
-				mipi: unsafe.Pointer(&C.LVDS_4lane_SENSOR_IMX178_12BIT_5M_NOWDR_ATTR___),
+				mipi: unsafe.Pointer(&C.LVDS_4lane_SENSOR_IMX178_12BIT_5M_NOWDR_ATTR),
+                viDev: unsafe.Pointer(&C.DEV_ATTR_LVDS_BASE),
+                clock: 25,
 			},
 		},
-		viDev: unsafe.Pointer(&C.DEV_ATTR_LVDS_BASE__),
-		clock: 25,
-                control: cmosControl {
-                        bus: I2C,
-                        busNum: 0,
-                },		
+        control: cmosControl {
+            bus: I2C,
+            busNum: 0,
+        },
+        data: LVDS,
 	}
 )

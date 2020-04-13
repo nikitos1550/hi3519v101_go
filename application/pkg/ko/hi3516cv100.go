@@ -1,13 +1,10 @@
 //+build hi3516cv100
 
-//g-o:generate rm -f kobin_hi3516cv100.go
-//g-o:generate go run -tags "generate hi3516cv100" ./generate.go --output kobin_hi3516cv100.go --tag hi3516cv100 --dir ../../sdk/hi3516cv100/ko/ --pkg ko --source ./hi3516cv100.go
-
 package ko
 
 var (
 	ModulesList = [...][2]string{
-		[2]string{"mmz.ko", "mmz=anonymous,0,0x{memStartAddr},{memMppSize}M anony=1"},
+		[2]string{"mmz.ko", "mmz=anonymous,0,{mem_start_addr},{mem_mpp_size} anony=1"},
 		[2]string{"hi3518_base.ko", ""},
 		[2]string{"hi3518_sys.ko", ""},
 		[2]string{"hiuser.ko", ""},
@@ -16,7 +13,7 @@ var (
 		[2]string{"hi3518_viu.ko", ""},
 		[2]string{"hi3518_isp.ko", ""},
 		[2]string{"hi3518_vpss.ko", ""},
-		[2]string{"hi3518_vou.ko", ""},
+		//[2]string{"hi3518_vou.ko", ""},
 		//[2]string{"hi3518_vou.ko", "detectCycle=0"}, //close dac detect
 		//[2]string{"hifb.ko", 'video="hifb:vram0_size:1620"'},
 		[2]string{"hi3518_venc.ko", ""},
@@ -33,7 +30,6 @@ var (
 		//[2]string{"gpioi2c_ex.ko", ""},
 		[2]string{"pwm.ko", ""},
 		//[2]string{"sil9024.ko", "norm=5"}, //720P@60fps
-		//[2]string{"hi3518_isp.ko", ""},
 		[2]string{"acodec.ko", ""},
 		[2]string{"hidmac.ko", ""},
 		[2]string{"hi3518_sio.ko", ""},

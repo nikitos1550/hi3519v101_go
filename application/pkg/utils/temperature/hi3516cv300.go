@@ -1,4 +1,5 @@
-// +build hi3516cv300
+//+build arm
+//+build hi3516cv300
 
 package temperature
 

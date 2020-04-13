@@ -1,6 +1,6 @@
 //+build arm
 //+build hi3516av200
-//+build os08a10
+//+build os08a10,cmos_data_mipi,cmos_control_i2c,cmos_bus_0
 
 package cmos
 
@@ -131,13 +131,14 @@ var (
 				height: 2160,
 				fps: 30,
 				mipi: unsafe.Pointer(&C.MIPI_4lane_SENSOR_OS08A_12BIT_4K_NOWDR_ATTR),
+                viDev: unsafe.Pointer(&C.DEV_ATTR_MIPI_BASE),
+                clock: 24,
 			},
 		},
-		viDev: unsafe.Pointer(&C.DEV_ATTR_MIPI_BASE),
-		clock: 24,
 		control: cmosControl {
 			bus: I2C,
 			busNum: 0,
 		},
+        data: MIPI,
 	}
 )

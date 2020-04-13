@@ -33,7 +33,6 @@ int mpp3_isp_exit(int *error_code) {
 import "C"
 
 import (
-    //"log"
     "application/pkg/logger"
     "os"
 
@@ -44,8 +43,13 @@ import (
     "application/pkg/mpp/cmos"
 )
 
+const (
+	DDRMemStartAddr = 0x80000000
+)
+
 //TODO rework this mess
-func systemInit() {
+func systemInit(devInfo DeviceInfo) {
+
     //NOTE should be done, otherwise there can be kernel panic on module unload
     //ATTENTION maybe isp exit should be added as well
     //TODO rework, add error codes, deal with C includes
@@ -107,7 +111,7 @@ func systemInit() {
     }
 	//delete_module("hi3519v101_isp", NULL);//ATTENTION THIS IS NEED FOR PROPER APP RERUN, also some info here
     //http://bbs.ebaina.com/forum.php?mod=viewthread&tid=13925&extra=&highlight=run%2Bae%2Blib%2Berr%2B0xffffffff%21&page=1
-	ko.UnloadAll()
+    ko.UnloadAll()
 
 	//sensor0 pinmux
 	utils.WriteDevMem32(0x1204017c, 0x1);  //#SENSOR0_CLK
@@ -147,66 +151,91 @@ func systemInit() {
     utils.WriteDevMem32(0x120100b0, 0x000001f0);
 
 	//#ifdef VPSS_ONLINE
-	/*
-	devmem(0x12030000, 0x00000204, NULL);
+    logger.Log.Trace().
+            Bool("mode", devInfo.ViVpssOnline).
+            Msg("VI-VPSS mode")
 
-	//write priority select
-	devmem(0x12030054, 0x55552356, NULL); //  each module 4bit  cci       ---        ddrt  ---    ---     gzip   ---    ---
-	devmem(0x12030058, 0x16554411, NULL); // each module 4bit  vicap1    hash       ive   aio    jpge    tde   vicap0  vdp 
-	devmem(0x1203005c, 0x33466314, NULL); // each module 4bit  mmc2      A17        fmc   sdio1  sdio0   A7    vpss0   vgs 
-	devmem(0x12030060, 0x46266666, NULL); // each module 4bit  gdc       usb3/pcie  vedu  usb2   cipher  dma2  dma1    gsf
+    if devInfo.ViVpssOnline == true {
 
-	//read priority select
-	devmem(0x12030064, 0x55552356, NULL); // each module 4bit  cci       ---         ddrt  ---    ---     gzip   ---    ---
-	devmem(0x12030068, 0x06554401, NULL); // each module 4bit  vicap1    hash        ive   aio    jpge    tde   vicap0  vdp
-	devmem(0x1203006c, 0x33466304, NULL); // each module 4bit  mmc2      A17         fmc   sdio1  sdio0    A7   vpss0   vgs 
-	devmem(0x12030070, 0x46266666, NULL); // each module 4bit  gdc       usb3/pcie   vedu  usb2   cipher  dma2  dma1    gsf
+	    utils.WriteDevMem32(0x12030000, 0x00000204);
 
-	devmem(0x120641f0, 0x1, NULL);  //use pri_map
-	//write timeout select
-	devmem(0x1206409c, 0x00000040, NULL);
-	devmem(0x120640a0, 0x00000000, NULL);
+	    //write priority select
+	    utils.WriteDevMem32(0x12030054, 0x55552356); //  each module 4bit  cci       ---        ddrt  ---    ---     gzip   ---    ---
+	    utils.WriteDevMem32(0x12030058, 0x16554411); // each module 4bit  vicap1    hash       ive   aio    jpge    tde   vicap0  vdp 
+	    utils.WriteDevMem32(0x1203005c, 0x33466314); // each module 4bit  mmc2      A17        fmc   sdio1  sdio0   A7    vpss0   vgs 
+	    utils.WriteDevMem32(0x12030060, 0x46266666); // each module 4bit  gdc       usb3/pcie  vedu  usb2   cipher  dma2  dma1    gsf
 
-	//read timeout select
-	devmem(0x120640ac, 0x00000040, NULL);
-	devmem(0x120640b0, 0x00000000, NULL);
-	*/
-    //#else //VPSS_OFFLINE
-	utils.WriteDevMem32(0x12030000, 0x00000004);
+	    //read priority select
+	    utils.WriteDevMem32(0x12030064, 0x55552356); // each module 4bit  cci       ---         ddrt  ---    ---     gzip   ---    ---
+	    utils.WriteDevMem32(0x12030068, 0x06554401); // each module 4bit  vicap1    hash        ive   aio    jpge    tde   vicap0  vdp
+	    utils.WriteDevMem32(0x1203006c, 0x33466304); // each module 4bit  mmc2      A17         fmc   sdio1  sdio0    A7   vpss0   vgs 
+	    utils.WriteDevMem32(0x12030070, 0x46266666); // each module 4bit  gdc       usb3/pcie   vedu  usb2   cipher  dma2  dma1    gsf
 
-    //write priority select
-    utils.WriteDevMem32(0x12030054, 0x55552366); // each module 4bit  cci       ---        ddrt  ---    ---     gzip   ---    ---
-    utils.WriteDevMem32(0x12030058, 0x16556611); // each module 4bit  vicap1    hash       ive   aio    jpge    tde   vicap0  vdp
-    utils.WriteDevMem32(0x1203005c, 0x43466445); // each module 4bit  mmc2      A17        fmc   sdio1  sdio0   A7    vpss0   vgs
-    utils.WriteDevMem32(0x12030060, 0x56466666); // each module 4bit  gdc       usb3/pcie  vedu  usb2   cipher  dma2  dma1    gsf
+	    utils.WriteDevMem32(0x120641f0, 0x1);  //use pri_map
+	    //write timeout select
+	    utils.WriteDevMem32(0x1206409c, 0x00000040);
+	    utils.WriteDevMem32(0x120640a0, 0x00000000);
 
-    //read priority select
-    utils.WriteDevMem32(0x12030064, 0x55552366); // each module 4bit  cci       ---        ddrt  ---    ---     gzip   ---    ---
-    utils.WriteDevMem32(0x12030068, 0x06556600); // each module 4bit  vicap1    hash       ive   aio    jpge    tde   vicap0  vdp
-    utils.WriteDevMem32(0x1203006c, 0x43466435); // each module 4bit  mmc2      A17        fmc   sdio1  sdio0   A7    vpss0   vgs
-    utils.WriteDevMem32(0x12030070, 0x56266666); // each module 4bit  gdc       usb3/pcie  vedu  usb2   cipher  dma2  dma1    gsf
+	    //read timeout select
+	    utils.WriteDevMem32(0x120640ac, 0x00000040);
+	    utils.WriteDevMem32(0x120640b0, 0x00000000);
+    } else {
 
-    utils.WriteDevMem32(0x120641f0, 0x1);  // use pri_map
-    //write timeout select
-    utils.WriteDevMem32(0x1206409c, 0x00000040);   
-    utils.WriteDevMem32(0x120640a0, 0x00000000);    
+	    utils.WriteDevMem32(0x12030000, 0x00000004);
 
-    //read timeout select
-    utils.WriteDevMem32(0x120640ac, 0x00000040);   // each module 8bit
-    utils.WriteDevMem32(0x120640b0, 0x00000000);
-    //#endif
+        //write priority select
+        utils.WriteDevMem32(0x12030054, 0x55552366); // each module 4bit  cci       ---        ddrt  ---    ---     gzip   ---    ---
+        utils.WriteDevMem32(0x12030058, 0x16556611); // each module 4bit  vicap1    hash       ive   aio    jpge    tde   vicap0  vdp
+        utils.WriteDevMem32(0x1203005c, 0x43466445); // each module 4bit  mmc2      A17        fmc   sdio1  sdio0   A7    vpss0   vgs
+        utils.WriteDevMem32(0x12030060, 0x56466666); // each module 4bit  gdc       usb3/pcie  vedu  usb2   cipher  dma2  dma1    gsf
+
+        //read priority select
+        utils.WriteDevMem32(0x12030064, 0x55552366); // each module 4bit  cci       ---        ddrt  ---    ---     gzip   ---    ---
+        utils.WriteDevMem32(0x12030068, 0x06556600); // each module 4bit  vicap1    hash       ive   aio    jpge    tde   vicap0  vdp
+        utils.WriteDevMem32(0x1203006c, 0x43466435); // each module 4bit  mmc2      A17        fmc   sdio1  sdio0   A7    vpss0   vgs
+        utils.WriteDevMem32(0x12030070, 0x56266666); // each module 4bit  gdc       usb3/pcie  vedu  usb2   cipher  dma2  dma1    gsf
+
+        utils.WriteDevMem32(0x120641f0, 0x1);  // use pri_map
+        //write timeout select
+        utils.WriteDevMem32(0x1206409c, 0x00000040);   
+        utils.WriteDevMem32(0x120640a0, 0x00000000);    
+
+        //read timeout select
+        utils.WriteDevMem32(0x120640ac, 0x00000040);   // each module 8bit
+        utils.WriteDevMem32(0x120640b0, 0x00000000);
+    }
 
 	utils.WriteDevMem32(0x120300e0, 0xd); // internal codec: AIO MCLK out, CODEC AIO TX MCLK 
 
+    //KO
+    ko.Params.Add("mem_start_addr").Str("0x").Uint64Hex(DDRMemStartAddr + devInfo.MemLinuxSize)
+    ko.Params.Add("mem_mpp_size").Uint64(devInfo.MemMppSize/(1024*1024)).Str("M")
+    ko.Params.Add("mem_total_size").Uint64(devInfo.MemTotalSize/(1024*1024))
+    ko.Params.Add("vi_vpss_online").Bool(devInfo.ViVpssOnline)
+    ko.Params.Add("cmos").Str(cmos.Model())
+	ko.Params.Add("proc_param").Uint64(30)
+    ko.Params.Add("detect_err_frame").Uint64(10)
+    ko.Params.Add("save_power").Uint64(1)
+
 	ko.LoadAll()
 
-		/*switch cmos.Model() {
+
+		switch cmos.Model() {
+            case "imx326":
+                utils.WriteDevMem32(0x1201004c, 0x00094c21)
+                utils.WriteDevMem32(0x12010054, 0x0004041)
+                utils.WriteDevMem32(0x12010040, 0x14)
 			case "imx274":
+                utils.WriteDevMem32(0x1201004c, 0x00094c23)
+                utils.WriteDevMem32(0x12010054, 0x0004041)
 			case "imx226":
+                utils.WriteDevMem32(0x1201004c, 0x00094c23)
+                utils.WriteDevMem32(0x12010054, 0x0004041)
 			default:
-		}*/
-        utils.WriteDevMem32(0x1201004c, 0x00094c23)
-        utils.WriteDevMem32(0x12010054, 0x0004041)
+                logger.Log.Fatal().
+                    Str("name", cmos.Model()).
+                    Msg("CMOS is not supported")
+		}
 
 
 		switch cmos.Clock() {
@@ -232,7 +261,9 @@ func systemInit() {
         			utils.WriteDevMem32(0x12040998, 0x120)  //; #I2C0_SCL    
 
 			} else {
-				logger.Log.Fatal().Msg("CMOS bus num not 0 is not supported")
+				logger.Log.Fatal().
+                    Uint("bus", cmos.BusNum()).
+                    Msg("CMOS bus num not supported")
 			}
 		case cmos.Spi4Wire:
 			if cmos.BusNum() == 0 {
@@ -250,7 +281,9 @@ func systemInit() {
 			    utils.WriteDevMem32(0x120409a4, 0x160); // #SPI0_CSN
 
 			} else {
-
+                logger.Log.Fatal().
+                    Uint("bus", cmos.BusNum()).
+                    Msg("CMOS bus num not supported")
 			}
 		default:
 			logger.Log.Fatal().

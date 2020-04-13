@@ -1,25 +1,22 @@
-// +build hi3516cv200
-
-//g-o:generate rm -f kobin_hi3516cv200.go
-//g-o:generate go run -tags "generate hi3516cv200" ./generate.go --output kobin_hi3516cv200.go --tag hi3516cv200 --dir ../../sdk/hi3516cv200/ko/ --pkg ko --source ./hi3516cv200.go
+//+build hi3516cv200
 
 package ko
 
 var (
 	ModulesList = [...][2]string{
-		[2]string{"sys_config.ko", "vi_vpss_online=$b_arg_online sensor=$SNS_TYPE pin_mux_select=0"}, //TODO!!!!!!!!!!!!!!!!!!!!!
+		[2]string{"sys_config.ko", "vi_vpss_online={vi_vpss_online} sensor={cmos} pin_mux_select=0"}, //TODO!!!!!!!!!!!!!!!!!!!!!
 
-		[2]string{"mmz.ko", "mmz=anonymous,0,0x{memStartAddr},{memMppSize}M anony=1"},
+		[2]string{"mmz.ko", "mmz=anonymous,0,{mem_start_addr},{mem_mpp_size} anony=1"},
 		[2]string{"hi_media.ko", ""},
 		[2]string{"hi3518e_base.ko", ""},
-		[2]string{"hi3518e_sys.ko", "vi_vpss_online=0 sensor=NULL"},
+		[2]string{"hi3518e_sys.ko", "vi_vpss_online={vi_vpss_online} sensor={cmos} mem_total={mem_total_size}"},
 
 		[2]string{"hi3518e_tde.ko", ""},
 		[2]string{"hi3518e_region.ko", ""},
 		[2]string{"hi3518e_vgs.ko", ""},
 		//[2]string{"hi3518e_isp.ko", "update_pos=1"}, //ov9750
 		[2]string{"hi3518e_isp.ko", "update_pos=0 proc_param=1"}, //rest cmoses
-		[2]string{"hi3518e_viu.ko", "detect_err_frame=10"},
+		[2]string{"hi3518e_viu.ko", "detect_err_frame={detect_err_frame}"}, //10
 		[2]string{"hi3518e_vpss.ko", "rfr_frame_comp=1"},
 		[2]string{"hi3518e_vou.ko", ""},
 		//[2]string{"hi3518e_vou.ko", "transparentTransmit=1"}, //enable transparentTransmit
@@ -29,7 +26,7 @@ var (
 		[2]string{"hi3518e_chnl.ko", "ChnlLowPower=1"},
 		[2]string{"hi3518e_h264e.ko", "H264eMiniBufMode=1"},
 		[2]string{"hi3518e_jpege.ko", ""},
-		[2]string{"hi3518e_ive.ko", "save_power=0"},
+		[2]string{"hi3518e_ive.ko", "save_power={save_power}"}, //0
 		//[2]string{"hi3518e_ive.ko", ""},
 		[2]string{"sensor_i2c.ko", ""},
 		[2]string{"pwm.ko", ""},

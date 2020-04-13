@@ -5,6 +5,7 @@ package sys
 
 /*
 #include "../include/mpp_v2.h"
+#include "../../logger/logger.h"
 
 #include <string.h>
 
@@ -16,7 +17,9 @@ package sys
 #define ERR_HI_MPI_SYS_SetConf  6
 #define ERR_HI_MPI_SYS_Init     7
 
-int mpp2_sys_init(unsigned int *error_code) {
+int mpp2_sys_init(unsigned int *error_code,
+                    unsigned int width,
+                    unsigned int height) {
     *error_code = 0;
 
     *error_code = HI_MPI_SYS_Exit();
@@ -29,8 +32,11 @@ int mpp2_sys_init(unsigned int *error_code) {
 
     memset(&stVbConf, 0, sizeof(VB_CONF_S));
     stVbConf.u32MaxPoolCnt                  = 128;
-    stVbConf.astCommPool[0].u32BlkSize      = (CEILING_2_POWER(2592, 64) * CEILING_2_POWER(1944, 64) * 1.5);
+    //stVbConf.astCommPool[0].u32BlkSize      = (CEILING_2_POWER(2592, 64) * CEILING_2_POWER(1944, 64) * 1.5);
+    stVbConf.astCommPool[0].u32BlkSize      = (CEILING_2_POWER(width, 64) * CEILING_2_POWER(height, 64) * 1.5);
     stVbConf.astCommPool[0].u32BlkCnt       = 10;
+
+    //GO_LOG_SYS(LOGGER_DEBUG, msg) 
 
     *error_code = HI_MPI_VB_SetConf(&stVbConf);
     if(*error_code != HI_SUCCESS) return ERR_HI_MPI_VB_SetConf;
@@ -58,14 +64,17 @@ import (
 	//"log"
 
 	"application/pkg/logger"
+    "application/pkg/mpp/cmos"
 )
 
 func Init() {
 	var errorCode C.uint
 
-	switch err := C.mpp2_sys_init(&errorCode); err {
+	switch err := C.mpp2_sys_init(&errorCode, C.uint(cmos.Width()), C.uint(cmos.Height())); err {
 	case C.ERR_NONE:
 		logger.Log.Debug().
+            Uint("width", cmos.Width()).
+            Uint("height", cmos.Height()).
 			Msg("C.mpp2_sys_init ok")
 	case C.ERR_HI_MPI_SYS_Exit:
 		logger.Log.Fatal().

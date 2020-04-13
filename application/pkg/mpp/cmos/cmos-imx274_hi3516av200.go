@@ -1,6 +1,6 @@
 //+build arm
 //+build hi3516av200
-//+build imx274
+//+build imx274,cmos_data_lvds,cmos_control_spi4wire,cmos_bus_0
 
 package cmos
 
@@ -33,7 +33,7 @@ int mpp_cmos_init(int *error_code) {
     return ERR_NONE;
 }
 
-combo_dev_attr_t LVDS_6lane_SENSOR_IMX274_12BIT_8M_NOWDR_ATTR____ =
+combo_dev_attr_t LVDS_6lane_SENSOR_IMX274_12BIT_8M_NOWDR_ATTR =
 {
     .devno = 0,  
     // input mode
@@ -86,7 +86,7 @@ combo_dev_attr_t LVDS_6lane_SENSOR_IMX274_12BIT_8M_NOWDR_ATTR____ =
     }
 };
 
-VI_DEV_ATTR_S DEV_ATTR_LVDS_BASE__ =
+VI_DEV_ATTR_S DEV_ATTR_LVDS_BASE =
 {
     // interface mode
     VI_MODE_LVDS,
@@ -153,14 +153,15 @@ var (
 				width: 3840,
 				height: 2160,
 				fps: 30,
-				mipi: unsafe.Pointer(&C.LVDS_6lane_SENSOR_IMX274_12BIT_8M_NOWDR_ATTR____),
+				mipi: unsafe.Pointer(&C.LVDS_6lane_SENSOR_IMX274_12BIT_8M_NOWDR_ATTR),
+                viDev: unsafe.Pointer(&C.DEV_ATTR_LVDS_BASE),
+                clock: 72,
 			},
 		},
-		viDev: unsafe.Pointer(&C.DEV_ATTR_LVDS_BASE__),
-		clock: 72,
-                control: cmosControl {
-                        bus: Spi4Wire,
-                        busNum: 0,
-                },		
+        control: cmosControl {
+            bus: Spi4Wire,
+            busNum: 0,
+        },
+        data: LVDS
 	}
 )

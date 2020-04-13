@@ -10,32 +10,57 @@ import (
 )
 
 var (
-	mode	uint
-	testmod bool
+    //cmos        string
+	mode	    uint
+    //data        string
+    //control     string
+    //controlN    uint
+	testmod     bool
 )
 
 func init() {
+        //flag.StrVar(&cmos, "cmos", "unknown", "CMOS model") //TODO one package multiple CMOSes support
+
         flag.UintVar(&mode, "cmos-mode", 0, "CMOS mode") 
-        flag.BoolVar(&testmod, "cmos-list-modes", false, "Show availible CMOS modes")
+        //flag.StrVar(&data, "cmos-data", "LVDS", "CMOS data connection type [LVDS, MIPI, DC]")
+        //flag.StrVar(&control, "cmos-control", "i2c", "CMOS control connection type [i2c, spi4wire]")
+        //flag.UintVar(&controlN, "cmos-control-bus", 0, "CMOS control bus number")
+
+        flag.BoolVar(&testmod, "cmos-info", false, "Show supported CMOS modes")
 }
 
-//func PrintInfo() {
-//    fmt.Println("Here will be list of supported cmoses soon...")
-//}
+type cmosWdr struct {
+    enabled bool
+}
 
 type cmosMode struct {
 	width uint
 	height uint
 	fps	uint
-	
-	mipi	unsafe.Pointer
+
+    mipi	unsafe.Pointer
+    viDev   unsafe.Pointer
+    wdr     cmosWdr
+
+    /*    
+        72 MHz    
+        37.125 MHz
+        25 MHz
+        24 Mhz
+    */
+    clock   float32
+    //SDK config:     IVE:396M,  GDC:475M,  VGS:500M,  VEDU:600M,   VPSS:300M 
+    //      #os08a10:       viu0: 600M, isp0:300M, viu1:300M,isp1:300M
+    hw  hwFreq
+
+    description string
 }
 
 type busType uint
 
 const (
-   I2C		busType = 0
-   Spi4Wire	busType = 1
+   I2C		busType = 1
+   Spi4Wire	busType = 2
 )
 
 type cmosControl struct {
@@ -43,26 +68,22 @@ type cmosControl struct {
 	busNum	uint
 }
 
+type cmosData   uint
+
+const (
+	LVDS	cmosData = 1
+	MIPI	cmosData = 2
+	DC	    cmosData = 3
+)
+
 type cmos struct {
 	vendor	string
 	model	string
 
 	modes   []cmosMode
 
-	viDev 	unsafe.Pointer
-        /*
-                72 MHz
-                37.125 MHz
-		25 MHz
-                24 Mhz
-        */
-	clock   float32
-        control cmosControl
-
-	//SDK config:     IVE:396M,  GDC:475M,  VGS:500M,  VEDU:600M,   VPSS:300M 
-        //      #os08a10:       viu0: 600M, isp0:300M, viu1:300M,isp1:300M
-	hw	hwFreq
-
+    control cmosControl
+	data	cmosData
 }
 
 type hwFreq struct {
@@ -72,17 +93,25 @@ type hwFreq struct {
 	//vedu	uint
 	//vpss	uint
 
-	viu	uint
+	viu	    uint
 	isp0	uint
 	viui	uint
 	isp1	uint
 }
 
 func Init() {
+
+    if mode >= uint(len(cmosItem.modes)) {
+        logger.Log.Fatal().
+            Int("mode", int(mode)).
+            Msg("Cmod mode not found")
+    }
+//}
+//func Setup() {
 	var errorCode C.int
 	//err := C.mpp_cmos_init(&errorCode)
 
-	            switch err := C.mpp_cmos_init(&errorCode); err {
+	switch err := C.mpp_cmos_init(&errorCode); err {
     case C.ERR_NONE:
         logger.Log.Debug().
                 Msg("C.mpp_cmos_init() ok")
@@ -97,31 +126,34 @@ func Init() {
                 Msg("Unexpected return of C.mpp_cmos_init()")
         }
 
+}
 
+func Model() string {
+    return cmosItem.model
 }
 
 func Mipi() unsafe.Pointer {
-	return cmosItem.modes[0].mipi
+	return cmosItem.modes[mode].mipi
 }
 
 func ViDev() unsafe.Pointer {
-	return cmosItem.viDev
+	return cmosItem.modes[mode].viDev
 }
 
 func Width() uint {
-        return cmosItem.modes[0].width
+    return cmosItem.modes[mode].width
 }
 
 func Height() uint {
-	return cmosItem.modes[0].height
+	return cmosItem.modes[mode].height
 }
 
 func Fps() uint {
-        return cmosItem.modes[0].fps
+    return cmosItem.modes[mode].fps
 }
 
 func Clock() float32 {
-	return cmosItem.clock
+	return cmosItem.modes[mode].clock
 }
 
 func BusType() busType {

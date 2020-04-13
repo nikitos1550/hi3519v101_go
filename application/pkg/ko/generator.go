@@ -96,7 +96,7 @@ func main() {
         if os.IsNotExist(err) {
             log.Fatal("File "+dir+"/"+list[i]+" doesn`t exist!")
         } else {
-            log.Println("Adding file "+dir+"/"+list[i])
+            log.Println("Adding file "+dir+""+list[i])
         }
 
         var inputConfigTmp bindata.InputConfig
