@@ -181,8 +181,21 @@ int mpp3_venc_delete_encoder(unsigned int *error_code, int channelId) {
 	//HI_S32 HI_MPI_VENC_CloseFd(VENC_CHN VeChn);
 	//HI_S32 HI_MPI_VENC_DestroyChn(VENC_CHN VeChn);
 
-        *error_code = HI_MPI_VENC_StopRecvPic(channelId);
-        if (*error_code != HI_SUCCESS) return ERR_MPP;
+    MPP_CHN_S stSrcChn;
+    MPP_CHN_S stDestChn;
+
+    stSrcChn.enModId    = HI_ID_VPSS;
+    stSrcChn.s32DevId   = 0;
+    stSrcChn.s32ChnId   = 0;
+    stDestChn.enModId   = HI_ID_VENC;
+    stDestChn.s32DevId  = 0;
+    stDestChn.s32ChnId  = channelId;
+
+    *error_code = HI_MPI_SYS_UnBind(&stSrcChn, &stDestChn);
+    if (*error_code != HI_SUCCESS) return ERR_MPP;
+
+    *error_code = HI_MPI_VENC_StopRecvPic(channelId);
+    if (*error_code != HI_SUCCESS) return ERR_MPP;
 
 	*error_code = HI_MPI_VENC_DestroyChn(channelId);
 	if (*error_code != HI_SUCCESS) return ERR_MPP;
