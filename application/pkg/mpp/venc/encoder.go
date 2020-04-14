@@ -4,33 +4,31 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
-//	"net/http"
-
-//	"application/pkg/openapi"
 )
 
-type Encoder struct {
-    VencId int
+type PredefinedEncoder struct {
     Format string 
     Width int 
     Height int 
     Bitrate int 
 }
 
-type encoderInfo struct {
-    Name string
+type ActiveEncoder struct {
+    VencId int 
     Format string 
     Width int 
     Height int 
     Bitrate int 
 }
 
-var Encoders map[string] Encoder
+var PredefinedEncoders map[string] PredefinedEncoder
+var ActiveEncoders map[int] ActiveEncoder
+var lastEncoderId int
 
 func init() {
-    //openapi.AddApiRoute("listEncoders", "/encoders", "GET", listEncoders)
-	Encoders = make(map[string] Encoder)
-//	readEncoders() //moved to venc.go Init()
+	PredefinedEncoders = make(map[string] PredefinedEncoder)
+	ActiveEncoders = make(map[int] ActiveEncoder)
+	lastEncoderId = 0
 }
 
 func readEncoders() {
@@ -41,26 +39,30 @@ func readEncoders() {
 		return
     }
     
-	err = json.Unmarshal(data, &Encoders)
+	err = json.Unmarshal(data, &PredefinedEncoders)
     if err != nil {
         log.Fatal("Failed to parse records from file " + path)
     }
 }
 
-/*
-func listEncoders(w http.ResponseWriter, r *http.Request)  {
-	var encodersInfo []encoderInfo
-	for name, encoder := range Encoders {
-		info := encoderInfo{
-			Name: name,
-			Format: encoder.Format,
-			Width: encoder.Width,
-			Height: encoder.Height,
-			Bitrate: encoder.Bitrate,
-		}
-	
-		encodersInfo = append(encodersInfo, info)
+func CreatePredefinedEncoder(encoderName string) (int, string)  {
+	encoder, encoderExists := PredefinedEncoders[encoderName]
+	if (!encoderExists) {
+		return -1, "Failed to find encoder  " + encoderName
 	}
-	openapi.ResponseSuccessWithDetails(w, encodersInfo)
+
+	lastEncoderId++
+	activeEncoder := ActiveEncoder{
+		VencId: lastEncoderId, 
+		Format: encoder.Format,
+		Width: encoder.Width,
+		Height: encoder.Height,
+		Bitrate: encoder.Bitrate,
+	}
+
+	CreateEncoder(activeEncoder)
+
+	ActiveEncoders[lastEncoderId] = activeEncoder
+
+	return lastEncoderId, ""
 }
-*/

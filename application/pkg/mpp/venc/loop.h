@@ -17,6 +17,13 @@ typedef struct st_data_from_c {
 
 void go_callback_receive_data(int venc, unsigned int seq, data_from_c * data_pointer, int num);
 
+#define ERR_NONE                0
+#define ERR_MPP                 2
+
+int mpp3_venc_sample_mjpeg(unsigned int *error_code, int width, int height, int bitrate, int channelId);
+int mpp3_venc_sample_h264(unsigned int *error_code, int width, int height, int bitrate, int channelId);
+int mpp3_venc_sample_h265(unsigned int *error_code, int width, int height, int bitrate, int channelId);
+int mpp3_venc_delete_encoder(unsigned int *error_code, int channelId);
 
 #endif //_LOOP_H
 

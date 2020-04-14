@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"path"
 	"os"
+	"strconv"    
 	"syscall"
 	"log"
 	
@@ -19,13 +20,13 @@ var flagStoragePath     *string
 type pipe struct {
     Payload    chan []byte
 	Started    bool
-	EncoderId  string
+	EncoderId  int
 	File *os.File
 	FilePath string
 }
 
 type pipeInfo struct {
-	EncoderId  string
+	EncoderId  int
 	FilePath string
 }
 
@@ -57,14 +58,14 @@ func apiDescription(w http.ResponseWriter, r *http.Request)  {
 }
 
 func startPipe(w http.ResponseWriter, r *http.Request)  {
-	ok, encoderId := openapi.GetStringParameter(w, r, "encoderId")
+	ok, encoderId := openapi.GetIntParameter(w, r, "encoderId")
 	if !ok {
 		return
 	}
 
-	_, encoderExists := venc.Encoders[encoderId]
+	_, encoderExists := venc.ActiveEncoders[encoderId]
 	if (!encoderExists) {
-		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: "Failed to find encoder  " + encoderId})
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: "Failed to find encoder  " + strconv.Itoa(encoderId)})
 		return
 	}
 

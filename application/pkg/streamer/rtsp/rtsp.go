@@ -7,6 +7,7 @@ import (
 	"application/pkg/openapi"
 	"log"
 	"net/http"
+	"strconv"    
 
 	"github.com/aler9/gortsplib"
 )
@@ -17,7 +18,7 @@ type responseRecord struct {
 
 type rtspStream struct {
 	Name string
-	EncoderId string
+	EncoderId int
 	EncoderType string
 	Started bool
 	Published bool
@@ -29,7 +30,7 @@ type rtspStream struct {
 
 type rtspInfo struct {
 	Name string
-	EncoderId string
+	EncoderId int
 }
 
 var (
@@ -60,7 +61,7 @@ func rtspApiDescription(w http.ResponseWriter, r *http.Request)  {
 }
 
 func startRtspStream(w http.ResponseWriter, r *http.Request)  {
-	ok, encoderId := openapi.GetStringParameter(w, r, "encoderId")
+	ok, encoderId := openapi.GetIntParameter(w, r, "encoderId")
 	if !ok {
 		return
 	}
@@ -70,9 +71,9 @@ func startRtspStream(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
-	encoder, encoderExists := venc.Encoders[encoderId]
+	encoder, encoderExists := venc.ActiveEncoders[encoderId]
 	if (!encoderExists) {
-		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: "Failed to find encoder  " + encoderId})
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: "Failed to find encoder  " + strconv.Itoa(encoderId)})
 		return
 	}
 
