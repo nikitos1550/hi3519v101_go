@@ -30,7 +30,7 @@ int mpp3_sys_init(unsigned int *error_code,
 
     //video buffer
     stVbConf.astCommPool[0].u32BlkSize =(CEILING_2_POWER(width, 64) * CEILING_2_POWER(height, 64) * 1.5);
-    stVbConf.astCommPool[0].u32BlkCnt = 10;
+    stVbConf.astCommPool[0].u32BlkCnt = 6;
 
         *error_code = HI_MPI_SYS_Exit();
 	if (*error_code != HI_SUCCESS) return ERR_HI_MPI_SYS_Exit;

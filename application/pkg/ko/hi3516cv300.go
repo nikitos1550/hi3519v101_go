@@ -31,15 +31,18 @@ ive_frequency=297000000;  # 297M, ive clock frequency
 var (
 	ModulesList = [...][2]string{
 		[2]string{"sys_config.ko", "vi_vpss_online={vi_vpss_online}"}, //TODO!!!!!!!!!
+        //[2]string{"sys_config.ko", ""},
 		[2]string{"hi_osal.ko", "mmz=anonymous,0,{mem_start_addr},{mem_mpp_size} anony=1"},
 		[2]string{"hi3516cv300_base.ko", ""},
 		[2]string{"hi3516cv300_sys.ko", "vi_vpss_online={vi_vpss_online} sensor={cmos} mem_total={mem_total_size}"},
 		[2]string{"hi3516cv300_region.ko", ""},
 		[2]string{"hi3516cv300_vgs.ko", "vgs_clk_frequency={vgs_clk_frequency}"},
-		[2]string{"hi3516cv300_viu.ko", "detect_err_frame={detect_err_frame} viu_clk_frequency={viu_clk_frequency} isp_div={isp_div} input_mode={input_mode}"}, // 10 19800000 2 default
-		[2]string{"hi3516cv300_isp.ko", "update_pos={update_pos} proc_param={proc_param} port_init_delay={port_init_delay}"}, //0 30 0
+		//[2]string{"hi3516cv300_viu.ko", "detect_err_frame=10 viu_clk_frequency=198000000 isp_div=2 input_mode=default"},
+        [2]string{"hi3516cv300_viu.ko", "detect_err_frame={detect_err_frame} viu_clk_frequency={viu_clk_frequency} isp_div={isp_div} input_mode={input_mode}"}, // 10 19800000 2 default
+        //[2]string{"hi3516cv300_isp.ko", "update_pos=0 proc_param=30 port_init_delay=0"},
+        [2]string{"hi3516cv300_isp.ko", "update_pos={update_pos} proc_param={proc_param} port_init_delay={port_init_delay}"}, //0 30 0
 		[2]string{"hi3516cv300_vpss.ko", "vpss_clk_frequency={vpss_clk_frequency}"}, //250000000
-		//[2]string{"hi3516cv300_vou.ko", "vou_mode=$vou_intf_mode"},
+		[2]string{"hi3516cv300_vou.ko", "vou_mode=default"}, 
 		//    #insmod hi3516cv300_vou.ko detectCycle=0 vou_mode=$vou_intf_mode #close dac detect
 		//    #insmod hi3516cv300_vou.ko transparentTransmit=1 vou_mode=$vou_intf_mode #enable transparentTransmit
 		[2]string{"hi3516cv300_rc.ko", ""},

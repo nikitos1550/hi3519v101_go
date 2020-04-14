@@ -6,7 +6,7 @@ import (
 	"golang.org/x/sys/unix"
 	"strings"
 	"application/pkg/logger"
-
+    //"log"
     //"time"
 )
 
@@ -135,6 +135,7 @@ func load(modules [][2]string) {
 		}
 
 		//TODO rework, remove err2
+        //log.Println("params", modules[i][1])
 		err2 := unix.InitModule(data, modules[i][1])
 		if err2 != nil {
 			logger.Log.Error().

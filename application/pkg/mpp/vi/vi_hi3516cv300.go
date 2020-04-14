@@ -20,7 +20,7 @@ int mpp3111_vi_init(unsigned int *error_code,  void *videv, unsigned int width, 
 
     printf("VI width=%d height=%d fps=%d\n", width, height, fps);
 
-    HI_S32 s32IspDev = 0;
+    //HI_S32 s32IspDev = 0;
     ISP_WDR_MODE_S stWdrMode;
     VI_DEV_ATTR_S  stViDevAttr;
     

@@ -12,7 +12,7 @@ CHIP_TYPE=hi3516ev200;      # chip type
 
 var (
         ModulesList = [...][2]string{
-                [2]string{"sys_config.ko", "chip={chipName} sensors=imx307 g_cmos_yuv_flag=0 board=demo"}, //TODO!!!!!!!!!!!!!!!!
+                [2]string{"sys_config.ko", "chip={chip} sensors={cmos} g_cmos_yuv_flag={g_cmos_yuv_flag} board={board}"}, //TODO!!!!!!!!!!!!!!!!
                 [2]string{"hi_osal.ko", "anony=1 mmz_allocator=hisi mmz=anonymous,0,{mem_start_addr},{mem_mpp_size}"},
                 [2]string{"hi3516ev200_base.ko", ""},
                 [2]string{"hi3516ev200_sys.ko", ""},
@@ -31,7 +31,7 @@ var (
         	[2]string{"hi3516ev200_h264e.ko", ""},
         	[2]string{"hi3516ev200_h265e.ko", ""},
         	[2]string{"hi3516ev200_jpege.ko", ""},
-        	[2]string{"hi3516ev200_ive.ko", "save_power=0"},
+        	[2]string{"hi3516ev200_ive.ko", "save_power={save_power}"},
         	[2]string{"hi_pwm.ko", ""},
         	[2]string{"hi_sensor_i2c.ko", ""},
         	[2]string{"hi_sensor_spi.ko", ""},

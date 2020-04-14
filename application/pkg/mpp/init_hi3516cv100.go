@@ -120,6 +120,12 @@ func systemInit(devInfo DeviceInfo) {
 
 	ko.LoadAll()
 
+
+    //ar0130|9m034|po3100k|bf3116|bg0703)
+    //himm 0x20030030 0x5;              #Sensor clock 27 MHz
+    //insmod extdrv/ssp_ad9020.ko;;
+
+
 	//imx104|imx122|imx138|imx225)
 	utils.WriteDevMem32(0x200f000c, 0x1) //;              #pinmux SPI0
 	utils.WriteDevMem32(0x200f0010, 0x1) //;              #pinmux SPI0

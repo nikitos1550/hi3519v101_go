@@ -13,7 +13,6 @@ package mipi
 #define ERR_NONE    0
 #define ERR_GENERAL 1
 
-
 int mpp3_mipi_init(int *error_code, void *mipi) {
     *error_code = 0;
 

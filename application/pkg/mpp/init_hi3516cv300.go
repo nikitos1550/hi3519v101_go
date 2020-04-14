@@ -50,20 +50,51 @@ func systemInit(devInfo DeviceInfo) {
     //ko.Params.Add("mem_mpp_size").Uint64(devInfo.MemMppSize/(1024*1024)).Str("M")
     //ko.Params.Add("mem_total_size").Uint64(devInfo.MemTotalSize/(1024*1024))
 
-    ///////devInfo.ViVpssOnline = true
-
     ko.Params.Add("vi_vpss_online").Bool(devInfo.ViVpssOnline)
     ko.Params.Add("mem_start_addr").Str("0x").Uint64Hex(DDRMemStartAddr + devInfo.MemLinuxSize)
     ko.Params.Add("mem_mpp_size").Uint64(devInfo.MemMppSize/(1024*1024)).Str("M")
-    
-    //ko.Params.Add("cmos").Str(cmos.Model())
-    ko.Params.Add("cmos").Str("NULL")
+                
+    ko.Params.Add("cmos").Str(cmos.Model())
 
     ko.Params.Add("mem_total_size").Uint64(devInfo.MemTotalSize/(1024*1024))
     ko.Params.Add("vgs_clk_frequency").Uint64(297000000)
     ko.Params.Add("detect_err_frame").Uint64(10)
-    ko.Params.Add("viu_clk_frequency").Uint64(19800000)
+
+    switch devInfo.Chip {
+    case "hi3516cv300":
+
+    //ko.Params.Add("vi_vpss_online").Bool(devInfo.ViVpssOnline)
+    //ko.Params.Add("mem_start_addr").Str("0x").Uint64Hex(DDRMemStartAddr + devInfo.MemLinuxSize)
+    //ko.Params.Add("mem_mpp_size").Uint64(devInfo.MemMppSize/(1024*1024)).Str("M")
+    
+    //ko.Params.Add("cmos").Str(cmos.Model())
+    //ko.Params.Add("cmos").Str("NULL")
+
+    //ko.Params.Add("mem_total_size").Uint64(devInfo.MemTotalSize/(1024*1024))
+    //ko.Params.Add("vgs_clk_frequency").Uint64(297000000)
+    //ko.Params.Add("detect_err_frame").Uint64(10)
+    ko.Params.Add("viu_clk_frequency").Uint64(198000000)
     ko.Params.Add("isp_div").Uint64(2)
+    //ko.Params.Add("isp_div").Uint64(1)
+
+    //ko.Params.Add("input_mode").Str("default")
+    //ko.Params.Add("update_pos").Uint64(0)
+    //ko.Params.Add("proc_param").Uint64(30)
+    //ko.Params.Add("port_init_delay").Uint64(0)
+    //ko.Params.Add("vpss_clk_frequency").Uint64(250000000)
+    //ko.Params.Add("vedu_clk_frequency").Uint64(198000000)
+    //ko.Params.Add("save_power").Uint64(1)
+    //ko.Params.Add("ive_clk_frequency").Uint64(297000000)
+
+    case "hi3516ev100":
+        ko.Params.Add("viu_clk_frequency").Uint64(83300000)
+        ko.Params.Add("isp_div").Uint64(1)
+    default:
+        logger.Log.Fatal().
+            Str("chip", devInfo.Chip).
+            Msg("unknown chip version")
+    }
+
     ko.Params.Add("input_mode").Str("default")
     ko.Params.Add("update_pos").Uint64(0)
     ko.Params.Add("proc_param").Uint64(30)

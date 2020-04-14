@@ -79,7 +79,7 @@ int mpp3_isp_init(int *error_code,
     if (*error_code != HI_SUCCESS) return ERR_MPP;
 
             stPubAttr.enBayer               = BAYER_RGGB;
-            stPubAttr.stWndRect.s32X        = 0;//30;
+            stPubAttr.stWndRect.s32X        = 30;//30;
             stPubAttr.stWndRect.s32Y        = 0;
             stPubAttr.stWndRect.u32Width    = width;
             stPubAttr.stWndRect.u32Height   = height;
