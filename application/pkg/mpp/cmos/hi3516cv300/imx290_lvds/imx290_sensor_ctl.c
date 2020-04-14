@@ -185,7 +185,7 @@ void sensor_init(HI_VOID)
 
         else
         {
-            //sensor_linear_1080p30_init();
+            sensor_linear_1080p30_init();
             bSensorInit = HI_TRUE;
         }
     }

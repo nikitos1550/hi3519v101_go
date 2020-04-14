@@ -173,7 +173,7 @@ func ByAddr(r uint32) *register32 {
 	return found
 }
 
-func ByName(n string) *register32 {
+func ByNameStr(n string) *register32 {
     var found *register32
 
     for _, reg := range Registers {
@@ -188,5 +188,12 @@ func ByName(n string) *register32 {
             Msg("No such reg")
     }
     return found
+}
+
+func ByNameConst(n uint) *register32 {
+    if n > uint(len(Registers)) {
+        return nil
+    }
+    return &Registers[n]
 }
 

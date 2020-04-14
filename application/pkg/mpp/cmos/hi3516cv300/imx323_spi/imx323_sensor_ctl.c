@@ -11,6 +11,7 @@
 
 #include "hi_spi.h"
 
+
 extern WDR_MODE_E genSensorMode;
 extern HI_U8 gu8SensorImageMode;
 extern HI_BOOL bSensorInit;
@@ -189,9 +190,9 @@ void sensor_init(HI_VOID)
 void sensor_exit(HI_VOID)
 {
     sensor_spi_exit();
+
     return;
 }
-
 //HD 1080p mode;
 //37.125MHz
 //30fps

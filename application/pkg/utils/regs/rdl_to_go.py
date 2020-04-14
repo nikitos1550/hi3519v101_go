@@ -9,6 +9,8 @@ import argparse
 
 ################################################################################
 class RdlToGoCodeListener(RDLListener):
+    rnames = ""
+    rnames_counter = 0
     r32 = ""
     name = ""
 
@@ -22,9 +24,12 @@ class RdlToGoCodeListener(RDLListener):
     def enter_Reg(self, node):
         self.r32 += "register32 {\n"
         self.r32 += "addr: " + hex(node.absolute_address) + ",\n"
-        self.r32 += 'name: "' + node.type_name + '",\n'
+        self.r32 += 'name: "' + node.type_name.upper() + '",\n'
         self.r32 += 'desc: "' + node.get_property("name") + '",\n'
         self.r32 += "fields: []field {\n"
+
+        self.rnames += node.type_name.upper() + '= ' + str(self.rnames_counter) + '\n'
+        self.rnames_counter = self.rnames_counter + 1
 
     def exit_Reg(self, node):
         self.r32 += "},\n"
@@ -84,5 +89,9 @@ if args.tags != None:
 print("package regs")
 
 #print('func init() { addAddrMap("%s", %sRegisters[:]) }' % (golistener.name, golistener.name))
+
+print('const (')
+print(golistener.rnames)
+print(')')
 
 print(golistener.r32)

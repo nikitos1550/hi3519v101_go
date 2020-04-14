@@ -16,7 +16,9 @@ package sys
 #define ERR_HI_MPI_SYS_SetConf  6
 #define ERR_HI_MPI_SYS_Init     7
 
-int mpp3_sys_init(unsigned int *error_code) {
+int mpp3_sys_init(unsigned int *error_code,
+                    unsigned int width,
+                    unsigned int height) {
     *error_code = 0;
 
         VB_CONF_S               stVbConf;
@@ -27,7 +29,7 @@ int mpp3_sys_init(unsigned int *error_code) {
     stVbConf.u32MaxPoolCnt = 128;
 
     //video buffer
-    stVbConf.astCommPool[0].u32BlkSize =(CEILING_2_POWER(1920, 64) * CEILING_2_POWER(1080, 64) * 1.5);
+    stVbConf.astCommPool[0].u32BlkSize =(CEILING_2_POWER(width, 64) * CEILING_2_POWER(height, 64) * 1.5);
     stVbConf.astCommPool[0].u32BlkCnt = 10;
 
         *error_code = HI_MPI_SYS_Exit();
@@ -58,11 +60,15 @@ import "C"
 import (
 	"application/pkg/mpp/error"
 	"application/pkg/logger"
+
+    "application/pkg/mpp/cmos"
 )
 func Init() {
         var errorCode C.uint
 
-        switch err := C.mpp3_sys_init(&errorCode); err {
+        //switch err := C.mpp3_sys_init(&errorCode); err {
+        switch err := C.mpp3_sys_init(&errorCode, C.uint(cmos.Width()), C.uint(cmos.Height())); err {
+
         case C.ERR_NONE:
                 logger.Log.Debug().
                         Msg("C.mpp3_sys_init ok")

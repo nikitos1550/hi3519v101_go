@@ -167,10 +167,10 @@ void sensor_init(HI_VOID)
                  sensor_linear_1080p30_RAW12_init();
             break;
 	case 1: // 720P30
-                 sensor_linear_720p30_RAW12_init();
+                 //sensor_linear_720p30_RAW12_init();
             break;
 	case 2: // 720P30
-                 sensor_linear_720p60_RAW10_init();
+                 //sensor_linear_720p60_RAW10_init();
             break;
       default:
             printf("Not support this mode\n");

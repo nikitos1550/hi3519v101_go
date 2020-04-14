@@ -36,7 +36,7 @@ func Init() {
 
 	switch err := C.mpp3_vpss_init(&errorCode); err {
 	case C.ERR_NONE:
-		log.Println("C.mpp4_vpss_init() ok")
+		log.Println("C.mpp3_vpss_init() ok")
 	case C.ERR_HI_MPI_VPSS_CreateGrp:
 		log.Fatal("C.mpp3_vpss_init() HI_MPI_VPSS_CreateGrp() error ", error.Resolve(int64(errorCode)))
 	case C.ERR_HI_MPI_VPSS_StartGrp:

@@ -24,7 +24,10 @@ HI_VOID* mpp3_isp_thread(HI_VOID *param){
     //return error_code;
 }
 
-int mpp3_isp_init(int *error_code) {
+int mpp3_isp_init(int *error_code,
+            unsigned int width,
+            unsigned int height,
+            unsigned int fps) {
     *error_code = 0;
 
     ISP_DEV IspDev = 0;
@@ -78,9 +81,9 @@ int mpp3_isp_init(int *error_code) {
             stPubAttr.enBayer               = BAYER_RGGB;
             stPubAttr.stWndRect.s32X        = 0;//30;
             stPubAttr.stWndRect.s32Y        = 0;
-            stPubAttr.stWndRect.u32Width    = 1920;
-            stPubAttr.stWndRect.u32Height   = 1080;
-                        stPubAttr.f32FrameRate = 30;
+            stPubAttr.stWndRect.u32Width    = width;
+            stPubAttr.stWndRect.u32Height   = height;
+            stPubAttr.f32FrameRate          = fps;
 
     *error_code = HI_MPI_ISP_SetPubAttr(IspDev, &stPubAttr);
     if (*error_code != HI_SUCCESS) return ERR_MPP;
@@ -105,12 +108,21 @@ import (
          "application/pkg/mpp/error"
         
         "application/pkg/logger"
+
+        "application/pkg/mpp/cmos"
 )
 
 func Init() {
     var errorCode C.int
 
-        switch err := C.mpp3_isp_init(&errorCode); err {
+     //   switch err := C.mpp3_isp_init(&errorCode); err {
+
+
+    switch err := C.mpp3_isp_init(  &errorCode, 
+                    C.uint(cmos.Width()), 
+                    C.uint(cmos.Height()), 
+                    C.uint(cmos.Fps()) ); err {
+
     case C.ERR_NONE:
         logger.Log.Debug().
                 Msg("C.mpp3_isp_init() ok")

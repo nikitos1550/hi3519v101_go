@@ -61,6 +61,7 @@ type busType uint
 const (
    I2C		busType = 1
    Spi4Wire	busType = 2
+   SPI      busType = 3
 )
 
 type cmosControl struct {
@@ -162,4 +163,8 @@ func BusType() busType {
 
 func BusNum() uint{
 	return cmosItem.control.busNum
+}
+
+func Data() cmosData {
+    return cmosItem.data
 }
