@@ -81,9 +81,9 @@ func WriteDevMem32(target, value uint32) {
 }
 
 func ReadDevMem32(target uint32) uint32 {
-	logger.Log.Trace(). 
-        Str("addr", fmt.Sprintf("0x%08X", target)). //Uint32("addr", target).
-	        Msg("ReadDevMem32")
+	//logger.Log.Trace(). 
+    //    Str("addr", fmt.Sprintf("0x%08X", target)). //Uint32("addr", target).
+	//        Msg("ReadDevMem32")
 
     var value uint32 = 0xFFFFFFFF   //todo
 
@@ -136,6 +136,11 @@ func ReadDevMem32(target uint32) uint32 {
                 Msg("MUNMAP error")
         return value
     }
+
+    logger.Log.Trace().
+        Str("addr", fmt.Sprintf("0x%08X", target)).
+            Uint32("value", value).
+            Msg("ReadDevMem32")
 
     return value
 }

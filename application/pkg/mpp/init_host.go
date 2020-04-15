@@ -3,4 +3,4 @@
 
 package mpp
 
-func systemInit() {}
+func systemInit(devInfo DeviceInfo) {}

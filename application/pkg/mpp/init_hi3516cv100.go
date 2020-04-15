@@ -4,15 +4,15 @@
 package mpp
 
 import (
-	//"log"
-	//"os"
-
 	"application/pkg/ko"
 	"application/pkg/utils"
-	//"application/pkg/mpp/error"
 )
 
-func systemInit() {
+const (
+    DDRMemStartAddr = 0x80000000
+)
+
+func systemInit(devInfo DeviceInfo) {
 	ko.UnloadAll()
 
 	//#USB PHY
@@ -113,7 +113,18 @@ func systemInit() {
 	utils.WriteDevMem32(0x20030058, 0x2)   //            # TDE  unreset
 	utils.WriteDevMem32(0x20030068, 0x2)   //            # MDU  unreset
 
+
+    ko.Params.Add("mem_start_addr").Str("0x").Uint64Hex(DDRMemStartAddr + devInfo.MemLinuxSize)
+    ko.Params.Add("mem_mpp_size").Uint64(devInfo.MemMppSize/(1024*1024)).Str("M")
+    //ko.Params.Add("mem_total_size").Uint64(devInfo.MemTotalSize/(1024*1024))
+
 	ko.LoadAll()
+
+
+    //ar0130|9m034|po3100k|bf3116|bg0703)
+    //himm 0x20030030 0x5;              #Sensor clock 27 MHz
+    //insmod extdrv/ssp_ad9020.ko;;
+
 
 	//imx104|imx122|imx138|imx225)
 	utils.WriteDevMem32(0x200f000c, 0x1) //;              #pinmux SPI0
