@@ -11,6 +11,19 @@ umap:
                         text/plain:
                             schema:
                                 type: string
+umap.json:
+        get:
+            tags:
+                - debug
+            summary: 'MPP debug avalible information overview JSON'
+            operationId: 'debugUmapJson'
+            responses:
+                '200':
+                    description: 'Success'
+                    content:
+                        application/json:
+                            schema:
+                              type: object
 umap/{file}:
         parameters:
             -   name: file
@@ -46,6 +59,36 @@ umap/{file}:
                                             ...
                 '404':
                     description: 'File not found'
+
+umap/{file}.json:
+        parameters:
+            -   name: file
+                in: path
+                schema:
+                    type: string
+                description: File name
+                required: true
+        get:
+            tags:
+                - debug
+            summary: 'Show debug information JSON'
+            description: |
+                ATTENTION!!!
+
+                Json transformation is working somehow, not every file is parsed correct way
+                So before usage compare raw data and json, if for your task json is ok
+                (contains needed data), than use it otherwise use raw data.
+            operationId: 'debugUmapFileJson'
+            responses:
+                '200':
+                    description: 'Success'
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                '404':
+                    description: 'File not found'
+
 
 description: |
     If application was built with debug enabled, than this API subset will be exposed.
