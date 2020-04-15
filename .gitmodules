@@ -1,0 +1,7 @@
+[submodule "hiburn"]
+	path = hiburn
+	url = https://github.com/OpenHisiIpCam/hiburn.git
+	branch = master
+[submodule "application/pkg/utils/regs/registers-description"]
+	path = application/pkg/utils/regs/registers-description
+	url = https://github.com/OpenHisiIpCam/registers-description

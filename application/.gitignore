@@ -1,0 +1,9 @@
+distrib/
+testvideo.h264
+testvideo.mp4
+testvideo.h265
+testvideo-h264.mp4
+testvideo-h265.mp4
+gohisicam
+gohisiprobe
+tests/

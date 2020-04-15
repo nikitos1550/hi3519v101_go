@@ -1,0 +1,123 @@
+THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+
+#THIS IS YOUR CUSTOM SETTINGS
+
+#APP_TARGET := cam
+
+#BOARD ?= unknown_unknown_hi3516av100_unknown
+#BOARD ?= unknown_unknown_hi3516av200_unknown
+#BOARD ?= unknown_unknown_hi3516cv100_unknown
+#BOARD ?= unknown_unknown_hi3516cv200_unknown
+#BOARD ?= unknown_unknown_hi3516cv300_unknown
+#BOARD ?= unknown_unknown_hi3516cv500_unknown 
+#BOARD ?= unknown_unknown_hi3516ev200_unknown 
+#BOARD ?= unknown_unknown_hi3519av100_unknown 
+#BOARD ?= unknown_unknown_hi3559av100_unknown 
+
+#cmos ok
+#CAMERA  ?= 1
+#BOARD   ?= jvt_s274h19v-l29_hi3519v101_imx274 
+#PROG	 ?= 1
+
+#cmos ?
+#CAMERA    ?= 2
+#BOARD     ?= xm_ivg-85hf20pya-s_hi3516ev200_imx307
+#PROG	  ?= 2
+
+#cmos ok
+#CAMERA   ?= 3
+#BOARD    ?= xm_53h20-s_hi3516cv100_imx122
+#PROG	 ?= 3
+
+#cmos lvds patch ok
+#CAMERA   ?= 4
+#BOARD    ?= xm_ivg-hp203y-se_hi3516cv300_imx291
+#PROG     ?= 4
+
+#cmos ok i2c
+#CAMERA  ?= 5
+#BOARD   ?= xm_ivg-hp201y-se_hi3516cv300_imx323
+#PROG    ?= 5
+
+#cmos ok
+#CAMERA  ?= 6
+#BOARD   ?= jvt_s323h16xf_hi3516cv300_imx323
+#PROG    ?= 6
+
+#cmos ok i2c
+#CAMERA  ?= 7
+#BOARD   ?= ruision_rs-h622qm-b0_hi3516cv300_imx323
+#PROG    ?= 7
+
+#cmos ?
+#CAMERA  ?= 8
+#BOARD   ?= xm_ivg-85hg50pya-s_hi3516ev300_imx335
+#PROG    ?= 8
+
+#cmos ok
+#CAMERA   ?= 9
+#BOARD    ?= xm_ipg-83h50p-b_hi3516av100_imx178
+#PROG     ?= 9
+
+#cmos ok i2c
+#CAMERA   ?= 10
+#BOARD    ?= xm_ipg-83he20py-s_hi3516ev100_imx323
+#PROG     ?= 10
+
+#cmos ok
+#CAMERA   ?= 11
+#BOARD    ?= xm_ivg-83h80nv-be_hi3516av200_os08a10
+#PROG     ?= no
+
+#cmos ?
+#CAMERA   ?= 13
+#BOARD    ?= ssqvision_on335h16d_hi3516dv300_imx335
+#PROG     ?= 13
+
+#cmos ok
+#CAMERA   ?= 14
+#BOARD    ?= jvt_s226h19v-l29_hi3519v101_imx226
+#PROG     ?= no
+
+#cmos ok
+#CAMERA   ?= 15
+#BOARD    ?= xm_53h20-ae_hi3516cv100_imx222
+#PROG     ?= no
+
+#cmos bad
+#CAMERA	 ?= 16
+#BOARD    ?= xm_83h40pl-b_hi3516dv100_ov4689 
+#PROG     ?= no
+
+#cmos ?
+#CAMERA  ?= 17
+#BOARD   ?= ssqvision_unknown_hi3519v101_imx326 
+#PROG    ?= no
+
+#cmos no driver
+#CAMERA   ?= 18
+#BOARD    ?= ssqvision_on290h16d_hi3516dv100_imx290
+#PROG     ?= no
+
+#CAMERA	  ?= 19
+#BOARD    ?= unknown_unknown_hi3518ev200_unknown
+#PROG     ?= no
+
+#CAMERA   ?= 20
+#BAORD    ?= unknown_unknown_hi3518ev201_unknown
+#PROG     ?= no
+
+#CAMERA   ?= 23
+#BOARD    ?= xm_ipg-53h13pl-s_hi3518cv100_ar0130
+#PROG	  ?= no
+
+#cmos ?
+#CAMERA  ?= 31
+#BOARD   ?= hisilicon_demb_hi3516dv300_imx327
+#PROG    ?= no
+
+#cmos ?
+#CAMERA  ?= 32
+#BOARD   ?= hisilicon_dembverc_hi3559av100_imx334
+#PROG    ?= no
+

@@ -1,0 +1,23 @@
+streamer:
+    get:
+        summary: 'Show all avaible streamer types'
+        tags:
+            - streamer
+        operationId: 'streamersShow'
+        responses:
+                '200':
+                    description: 'Streamer names list'
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    type: string
+                                    description: Streamer name
+
+description: |
+    Here will be streamers idea description
+
+    Streamer is entity that works with encoded data and expose it to external world.
+    Main function of streamer is to establish connection (if we are talking about network delivery) 
+    with external client, repack data to corresponding format and send it.

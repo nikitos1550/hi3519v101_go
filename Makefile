@@ -1,64 +1,203 @@
 THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
-#THIS IS YOUR CUSTOM SETTINGS
-#APP := app_sample       # TARGET APPLICATION
-APP := app_minimal
-CAMERA := 1             # NUMBER OF CAMERA ATTACHED TO SERVER TO TEST ON
+ifeq ("$(wildcard Makefile.user.params)","")
+ $(error cp Makefile.user.params.example to Makefile.user.params) 
+endif
 
-CAMERA_LOCAL_LOAD_IP := 192.168.0.200 #ONLY FOR LOCAL USAGE, SERVER DOESN'T USE IT
-########################################################################
+include $(THIS_DIR)Makefile.user.params
 
-#buildroot-2019.05.1-toolchain:
-#	tar -xzf buildroot-2019.05.1.tar.gz -C $(THIS_DIR)
-#	mv buildroot-2019.05.1 buildroot-2019.05.1-toolchain
-#	cd buildroot-2019.05.1-toolchain; rm dl; ln -s ../buildroot-dl dl
-#	cd buildroot-2019.05.1-toolchain; make defconfig BR2_DEFCONFIG=$(THIS_DIR)/defconfig-toolchain.buildroot
-#	cp -r ./buildroot-2019.05.1-patch/* ./buildroot-2019.05.1-debug
-
-enviroiment-buildroot-2019.05.1-debug:
-	tar -xzf buildroot-2019.05.1.tar.gz -C $(THIS_DIR)
-	mv buildroot-2019.05.1 buildroot-2019.05.1-debug
-	test -e buildroot-dl || makdir buildroot-dl
-	cd buildroot-2019.05.1-debug; ln -s ../buildroot-dl dl
-	cd buildroot-2019.05.1-debug; make defconfig BR2_DEFCONFIG=$(THIS_DIR)/defconfig-debug.buildroot
-	cp -r ./buildroot-2019.05.1-patch/* ./buildroot-2019.05.1-debug
-
-#buildroot-2019.05.1-release:
-#	test -e buildroot-2019.05.1-release || tar -xzf buildroot-2019.05.1.tar.gz -C $(THIS_DIR)
-#	mv buildroot-2019.05.1 buildroot-2019.05.1-release
-#	cd buildroot-2019.05.1-release; rm dl; ln -s ../buildroot-dl dl
-#	cd buildroot-2019.05.1-release; make defconfig BR2_DEFCONFIG=$(THIS_DIR)/defconfig-release.buildroot
-#	cp -r ./buildroot-2019.05.1-patch/* ./buildroot-2019.05.1-release
-
-enviroiment-deploy-debug: enviroiment-buildroot-2019.05.1-debug
-	cd buildroot-2019.05.1-debug; make clean; make
+BR             := buildroot-2020.02
+BUILDROOT_DIR  := $(abspath ./$(BR))
+BOARD_OUTDIR   := $(abspath ./output/boards/$(BOARD))
+CAMERA_TTY     := /dev/ttyCAM$(CAMERA)
+CAMERA_IP      := 192.168.10.1$(shell printf '%02d' $(CAMERA))
+TELNET_PORT    := 453$(shell printf '%02d' $(CAMERA))
 
 ########################################################################
 
-app-build-debug:
-	cd $(APP); make
-	cd $(APP); cp ./$(APP) ../putonrootfs-debug/opt
-	cd buildroot-2019.05.1-debug; make
-	cp buildroot-2019.05.1-debug/output/images/rootfs.squashfs ./burner/images
-
-app-deploy-debug-server: app-build-debug deploy-no-build
-
-app-deploy-debug-local: app-build-debug
-	cd burner; \
-		sudo ./burner.py load --uimage ./images/uImage --rootfs ./images/rootfs.squashfs --ip $(CAMERA_LOCAL_LOAD_IP) --skip 1024 --memory 96
-
-deploy-no-build:
-	cd burner; \
-		authbind --deep ./burner.py \
-			load \
-			--uimage ./images/uImage \
-			--rootfs ./images/rootfs.squashfs \
-			--ip 192.169.0.10$(CAMERA) \
-			--skip 1024 \
-			--memory 96 \
-			--servercamera $(CAMERA)
-	screen /dev/ttyCAM$(CAMERA) 115200
+CAMSTORE       := $(THIS_DIR)/facility/camstore/control.sh client
 
 ########################################################################
-camera-serial:
-	screen -L /dev/ttyCAM$(CAMERA) 115200
+
+GREETING	?= System startup
+PROMPT		?= hisilicon
+
+########################################################################
+
+APP             := application
+APP_TARGET      ?= probe   #default target will be tester, daemon build on request durin it`s early dev stage
+
+-include ./boards/$(strip $(BOARD))/config
+-include ./hisilicon/$(strip $(FAMILY))/Makefile.params
+
+.PHONY: $(APP)/distrib/$(FAMILY) help prepare cleanall
+
+# -----------------------------------------------------------------------------------------------------------
+
+help:
+	@echo -e "Help:\n" \
+		" - make prepare                          - prepare; MUST be done once before anything\n"\
+		" - make deploy-app                       - build&deploy application onto particular board\n"\
+		" - make deploy-app-control-[uart|telnet] - build&deploy application, then attach control console onto particular board\n"\
+		" - make control-[uart|telnet]            - attach control console onto particular board\n"\
+		" - make rootfs.squashfs                  - build application and pack it within RootFS image\n"\
+		" - make kernel                           - build board kernel\n"\
+		" - make cleanall                         - remove all artifacts"
+
+submodules:
+	git submodule init
+	git submodule update
+
+prepare: $(BUILDROOT_DIR) submodules
+	@echo "All prepared"
+
+$(BUILDROOT_DIR):
+	tar -xzf $(BR).tar.gz -C $(THIS_DIR)
+	cp -r ./$(BR)-patch/* $(BUILDROOT_DIR)/
+
+cleanall:
+	if [ -d ./output ]; then chmod --recursive 777 ./output; fi
+	rm -rf ./output $(BUILDROOT_DIR)
+	make -C $(APP) clean
+
+# -----------------------------------------------------------------------------------------------------------
+
+rootfs-only.squashfs: $(BOARD_OUTDIR)/rootfs.squashfs
+	@echo "--- RootFS only image is ready: $^"
+
+$(BOARD_OUTDIR)/rootfs.squashfs: $(BOARD_OUTDIR)/rootfs
+	rm -f $@
+	mksquashfs $< $@ -all-root -comp xz -b 64K -Xdict-size 100%
+
+rootfs.squashfs: $(BOARD_OUTDIR)/rootfs+app.squashfs
+	@echo "--- RootFS image is ready: $^"
+
+kernel: $(BOARD_OUTDIR)/kernel/uImage
+	@echo "--- Kernel uImage is ready: $^"
+
+$(BOARD_OUTDIR)/rootfs+app.squashfs: $(BOARD_OUTDIR)/rootfs+app
+	rm -f $@
+	mksquashfs $< $@ -all-root -comp xz -b 64K -Xdict-size 100%
+	#rm -f $(BOARD_OUTDIR)/rootfs+app.squashfs.xz
+	#mksquashfs $< $(BOARD_OUTDIR)/rootfs+app.squashfs.xz -all-root -comp xz -b 64K -Xdict-size 100%
+	#rm -f $(BOARD_OUTDIR)/rootfs+app.squashfs.lz4
+	#mksquashfs $< $(BOARD_OUTDIR)/rootfs+app.squashfs.lz4 -all-root -comp lz4 -b 64K -Xhc
+	#rm -f $(BOARD_OUTDIR)/rootfs+app.squashfs.lzo
+	#mksquashfs $< $(BOARD_OUTDIR)/rootfs+app.squashfs.lzo -all-root -comp lzo -b 64K -Xcompression-level 9
+	#rm -f $(BOARD_OUTDIR)/rootfs+app.squashfs.gzip
+	#mksquashfs $< $(BOARD_OUTDIR)/rootfs+app.squashfs.gzip -all-root -comp gzip -b 64K -Xcompression-level 9
+
+$(BOARD_OUTDIR)/rootfs+app: $(BOARD_OUTDIR)/rootfs $(APP)/distrib/$(FAMILY)
+	rm -rf $@; mkdir -p $@
+	cp -r $(BOARD_OUTDIR)/rootfs/* $@/
+	cp -r $(APP)/distrib/$(FAMILY)/* $@/
+
+$(APP)/distrib/$(FAMILY): $(BOARD_OUTDIR)/Makefile.params
+	rm -rf $@
+	make -C $(APP) PARAMS_FILE=$< APP=$(APP_TARGET) build
+
+# -----------------------------------------------------------------------------------------------------------
+# Board's artifacts
+
+$(BOARD_OUTDIR)/rootfs:
+	make -C ./boards BOARD_OUTDIR=$(BOARD_OUTDIR) BOARD=$(BOARD) rootfs
+
+$(BOARD_OUTDIR)/Makefile.params:
+	make -C ./boards BOARD_OUTDIR=$(BOARD_OUTDIR) BOARD=$(BOARD) toolchain
+
+$(BOARD_OUTDIR)/kernel/uImage:
+	make -C ./boards BOARD_OUTDIR=$(BOARD_OUTDIR) BOARD=$(BOARD) kernel
+
+# ====================================================================================================================
+
+build-rootfs: $(BOARD_OUTDIR)/rootfs
+
+build-app: $(APP)/distrib/$(FAMILY)
+
+pack-app: $(BOARD_OUTDIR)/rootfs+app.squashfs $(BOARD_OUTDIR)/kernel/uImage
+
+pack: $(BOARD_OUTDIR)/rootfs.squashfs $(BOARD_OUTDIR)/kernel/uImage
+
+deploy: pack
+	authbind --deep scripts/hiburn.sh $(CAMERA) --verbose \
+        --net-device_ip $(CAMERA_IP) \
+        --net-host_ip 192.168.10.2/24 \
+        --mem-linux_size $(RAM_LINUX_SIZE) \
+        --linux_console "ttyAMA0,115200" \
+        boot \
+	--upload-addr $(KERNEL_UPLOAD_ADDR) \
+        --uimage $(BOARD_OUTDIR)/kernel/uImage \
+        --rootfs $(BOARD_OUTDIR)/rootfs.squashfs \
+        --no-wait
+
+#--mem-start_addr $(MEM_START_ADDR) \
+
+deploy-app: pack-app
+	authbind --deep scripts/hiburn.sh $(CAMERA) --verbose \
+		--net-device_ip $(CAMERA_IP) \
+        	--net-host_ip 192.168.10.2/24 \
+        	--mem-linux_size $(RAM_LINUX_SIZE) \
+        	--linux_console "ttyAMA0,115200" \
+		boot \
+		        --upload-addr $(KERNEL_UPLOAD_ADDR) \
+		        --uimage $(BOARD_OUTDIR)/kernel/uImage \
+        		--rootfs $(BOARD_OUTDIR)/rootfs+app.squashfs \
+			--no-wait
+
+#		--target-ip $(CAMERA_IP) --iface enp3s0 \
+#		--uimage $(BOARD_OUTDIR)/kernel/uImage \
+#		--rootfs $(BOARD_OUTDIR)/rootfs+app.squashfs \
+#		--initrd-size $(shell ls -s --block-size=1048576 $(BOARD_OUTDIR)/rootfs+app.squashfs | cut -d' ' -f1)M --memory-size $(RAM_LINUX_SIZE) \
+#		--lconsole "ttyAMA0,115200"
+
+
+deploy-app-control-uart: deploy-app control-uart
+
+deploy-control-uart: deploy control-uart
+
+deploy-app-control-telnet: deploy-app
+	@echo "waiting for 10s"
+	@sleep 3
+	@echo "7s more..."
+	@sleep 5
+	@echo "be patient, 2s more"
+	telnet $(CAMERA_IP)
+
+deploy-control-telnet: deploy
+	@echo "waiting for 10s"
+	@sleep 3
+	@echo "7s more..."
+	@sleep 5
+	@echo "be patient, 2s more"
+	telnet $(CAMERA_IP)
+
+
+########################################################################
+
+deprecated-control-uart:
+	miniterm $(CAMERA_TTY) 115200
+
+catch-uboot:
+	cd burner; ./burner2.py \
+		--uboot-params 'GREETING="$(GREETING)" PROMPT="$(PROMPT) #"' \
+		--port /dev/ttyCAM$(CAMERA) \
+		--reset-power "./power2.py --num $(CAMERA) reset" \
+		--mode camstore printenv
+	$(CAMSTORE) forward_serial $(CAMERA_TTY)
+
+control-uart:
+	#telnet localhost $(TELNET_PORT)
+	$(CAMSTORE) forward_serial $(CAMERA_TTY)
+
+deprecated-control-uart-%:
+	miniterm /dev/ttyCAM$(subst control-uart-,,$@) 115200
+
+control-uart-%:
+	#telnet localhost 453$(shell printf '%02d' $(subst control-uart-,,$@))
+	$(CAMSTORE) forward_serial /dev/ttyCAM$(subst control-uart-,,$@)
+
+control-telnet:
+	telnet $(CAMERA_IP)
+
+control-telnet-%:
+	telnet 192.168.10.1$(shell printf '%02d' $(subst control-telnet-,,$@))

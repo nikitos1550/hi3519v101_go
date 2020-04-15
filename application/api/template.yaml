@@ -1,0 +1,243 @@
+openapi: 3.0.0
+info:
+  title: GoHisiCam
+  version: x.y.z
+  x-logo:
+    url: "GOPHER200"
+    backgroundColor: "#FFFFFF"
+    altText: "OpenHisiIpCam logo"
+  contact:
+    email: info@openhisiipcam.org
+    url: https://www.openhisiipcam.org
+#  license:
+#    name: JRL
+#    url: '#section/License'
+  description: |
+
+    > ATTENTION!!! GoHisiCam is still at early development stage. Not all planned functions work. Of cource there are bugs.
+
+    <!--
+    <style>
+    .btn {
+      background-color: DodgerBlue;
+      border: none;
+      color: white;
+      padding: 12px 30px;
+      cursor: pointer;
+      font-size: 20px;
+    }
+    /* Darker background on mouse-over */
+    .btn:hover {
+      background-color: RoyalBlue;
+    }
+    </style>
+    <a target="_blank" href="https://github.com/openhisiipcam/openhisiipcam/releases">
+        <button class="btn" style="width:100%">
+        Download this release from github
+        </button>
+    </a>
+    -->
+
+    ### Quick links:
+
+    * <a target="_blank" href="https://www.openhisiipcam.org">Project website</a>
+    * <a target="_blank" href="https://github.com/OpenHisiIpCam/gohisicam/releases">GoHisiCam releases</a>.
+    * <a target="_blank" href="https://github.com/OpenHisiIpCam/br-firmware">BR-Firmware sources</a>.
+    * <a target="_blank" href="https://www.openhisiipcam.org/gohisicam/latest/">Latest version</a> of this documentation,
+        documentation for <a target="_blank" href="https://www.openhisiipcam.org/gohisicam/">other versions</a>.
+
+    ## General information
+
+    **GoHisiCam is audio/video core software for HiSilicon`s System-On-a-Chip ip cameras written in Go and C.**
+
+    GoHisiCam takes care about audio video pipeline management, cmos image sensor configuring, streaming and allow flexible
+    configuring of all process behaviour.
+
+    At the moment GoHisiCam hardcoded to setup one jpeg stream. 
+    Jpeg stream is binded to http streamer (/jpeg/1.jpg).
+
+    ## Hardware support
+
+    |Family     |SoCs                   |SDK version|CMOS  |
+    |-----------|-----------------------|-----------|------|
+    |hi3516av200|hi3516av200, hi3519v101|2.0.5.0    |imx274|
+
+    ## Deploy 
+    GoHisiCam is distributed as fully staticaly linked binaries. Separate binary is provided for each SoC family.
+    For example **gohisicam-hi3516av200-0.0.1** means build for hi3516av200 family.
+
+    There are several requirements for GNU/Linux system used for GoHisiCam software deploy:
+
+    * **Vendors patched Linux kernel used. Kernel version should match MPP library version.** *As software uses closed vendor (HiSilicon) 
+    libraries for internal audio/video related hardware, these libraries relay on vendor patched kernel.*
+    * **No kernel (*.ko) modules related to audio/video SoC peripheral are managed by other software.** *GoHisiCam load/unload kernel audio/video related modules itself,
+    so preloading or runtime manipulation them by other application will cause error.*
+    * **Other software doesn`t control auio/video peripheral hardware.** *Besides closed vendor libraries for audio/video peripheral control, 
+    software manipulates related internal SoC registers. It is supposed that it will be monopoly user of that registers.*
+    
+    For detailed information about deploy use 
+    <a target="_blank" href="https://github.com/OpenHisiIpCam/br-firmware">BR-Firmware</a> 
+    as reference.
+
+    ## Configuration options
+
+    |Option|Value|Default|Description|Comments|
+    |------|-----|-------|-----------|--------|
+    |help|N/A|N/A|Print help inormation| Your best friend|
+    |openapi-port|uint|80|Http port|It is assumed that the software will be installed on a specially prepared build of the GNU/Linux operating system.|
+    |openapi-socket|
+    |openapi-www|
+    |openapi-api-prefix|
+    |scripts-dir|
+    |scripts-init|
+    |streamer-file-storage|
+
+#    ## Notes    
+#    API has experimental status. It can be changed in next releases.
+
+#externalDocs:
+#  description: API Documentation
+#  url: https://openweathermap.org/api
+
+    #servers:
+    #  - url: '/api'
+    #    description: 'Standalone camera'
+
+paths:
+    #  /openapi.json:
+#    externalDocs:
+#      description: API Documentation
+#      url: https://openweathermap.org/api
+#    get:
+        #      tags:
+          #        - general
+          #      summary: 'Get openapi specification'
+      #      description: |
+          #        Actual openapi specification of software build is embedded to binary in json format.
+        #      operationId: 'openapi'
+      #      responses:
+          #        '200':
+            #          description: 'Success'
+                  #          content:
+              #            application/json:
+                #              schema:
+                  #              example: { "aaa":"dfdfdf"}
+#              openapi:
+#                summary: 'error return'
+#                value: "rere"
+
+  /system/date:
+    get:
+      tags:
+        - system
+      summary: 'Get system date and time'
+      description: "dfsdf"
+      operationId: 'systemDate'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemDateTime'
+  /debug/umap:
+    get:
+      tags:
+        - debug
+      summary: 'MPP debug avalible information overview'
+      description: "dfsdfdf"
+      operationId: 'debugUmap'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            text/plain:
+              schema:
+               type: string
+  /debug/umap/{file}:
+    parameters:
+      - name: file
+        in: path
+        schema:
+            type: string
+        description: File name
+        required: true
+    get:
+      tags:
+        - debug
+      summary: 'Show debug information'
+      description: "sdfsdf"
+      operationId: 'debugUmapFile'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |
+                [H264E] Version: [Hi3516CV300_MPP_V1.0.0.0 B010 Release], Build Time[Apr 5
+                2017, 14:49:42]
+                -----MODULE PARAM--------------------------------------------------------
+                H264eOneStreamBuffer H264eVBSource H264ePowerSaveEn H264eMiniBufMode 264eRcnEqualRef QpHstgrmEn
+                0 0 1 1 0 1
+                -----CHN ATTR----------------------------------------------------------
+                ID MaxWidth MaxHeight ByFrame GopMode  Width Height profile C2GEn BufSize MaxStrCnt
+                1 1920 1080  1920 1080 hp N 3110400 Y NormalP 200
+                -----PICTURE INFO--------------------------------------------------------
+                ID EncdStart EncdSucceed   Lost Disc Pskip Recode RlsStr UnrdStr
+                1 9 10 9 0 0 0 1 0 
+                -----STREAM BUFFER-------------------------------------------------------
+                ...
+#                test
+#                  summary: dfklgj ldfjg lflgjl
+        '404':
+          description: 'File not found'
+
+  /jpeg/1.jpeg:
+    get:
+      tags:
+        - serve
+      summary: 'Get jpeg image'
+      description: "sdfsdf"
+      operationId: 'serveJpeg'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            image/jpeg:
+              schema:
+               type: string
+               format: binary
+
+components:
+  schemas:
+    SystemDateTime:
+      type: object
+      properties:
+        formatted:
+          type: string
+          format: date-time
+        secs:
+          type: integer
+          format: uint64
+        nanosecs:
+          type: integer
+          format: uint64
+
+
+tags:
+  - name: general
+    description: General API methods 
+    x-displayName: General API methods
+  - name: system
+    description: System API methods
+    x-displayName: System API methods
+  - name: debug
+    description: Debug API methods
+    x-displayName: Debug API methods
+  - name: serve
+    description: Serving data
+    x-displayName: Serving data
+
+

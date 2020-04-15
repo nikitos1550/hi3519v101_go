@@ -1,0 +1,40 @@
+openapi.json:
+    get:
+      tags:
+        - misc
+      summary: 'Get openapi specification'
+      description: |
+        Actual openapi specification of software build is embedded to binary in JSON format.
+      operationId: 'openapi'
+      responses:
+        '200':
+          description: 'Success'
+          #          content:
+              #            application/json:
+                #              schema:
+                  #                  AnyValue: {}
+                  #              example: { "aaa":"dfdfdf"}
+#              openapi:
+#                summary: 'error return'
+#                value: "rere"
+
+
+openapi.yml:
+    get:
+      tags:
+        - misc
+      summary: 'Get openapi specification'
+      description: |
+        Actual openapi specification of software build is embedded to binary in YAML format.
+      operationId: 'openapi2'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            text/plain:
+              schema:
+               type: string
+               format: binary
+
+description: |
+    This is set of other queries that are handlered by application, but not actually part of API.
