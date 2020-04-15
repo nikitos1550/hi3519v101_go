@@ -58,6 +58,7 @@ $(BUILDROOT_DIR):
 cleanall:
 	if [ -d ./output ]; then chmod --recursive 777 ./output; fi
 	rm -rf ./output $(BUILDROOT_DIR)
+	make -C $(APP) clean
 
 # -----------------------------------------------------------------------------------------------------------
 
