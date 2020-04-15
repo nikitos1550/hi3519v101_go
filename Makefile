@@ -178,11 +178,7 @@ deprecated-control-uart:
 	miniterm $(CAMERA_TTY) 115200
 
 catch-uboot:
-	cd burner; ./burner2.py \
-		--uboot-params 'GREETING="$(GREETING)" PROMPT="$(PROMPT) #"' \
-		--port /dev/ttyCAM$(CAMERA) \
-		--reset-power "./power2.py --num $(CAMERA) reset" \
-		--mode camstore printenv
+	scripts/hiburn.sh $(CAMERA) -v printenv
 	$(CAMSTORE) forward_serial $(CAMERA_TTY)
 
 control-uart:
