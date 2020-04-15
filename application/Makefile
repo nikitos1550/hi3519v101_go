@@ -17,7 +17,7 @@ FAMILY_UPPERCASE    := $(shell echo '$(FAMILY)' | tr '[:lower:]' '[:upper:]')
 CHIP_UPPERCASE      := $(shell echo '$(CHIP)' | tr '[:lower:]' '[:upper:]')
 
 GOTAGS_PROBE    := gohisiprobe $(FAMILY) netgo nethttpomithttp2
-GOTAGS_CAM 	:= gohisicam $(FAMILY) $(CHIP) $(CMOS) netgo nethttpomithttp2 openapi debug processing streamerJpeg streamerFile streamerRtsp streamerPipe
+GOTAGS_CAM 	:= gohisicam $(FAMILY) $(CHIP) $(CMOS) netgo nethttpomithttp2 openapi debug pipeline processing streamerJpeg streamerFile streamerRtsp streamerPipe
 GOTAGS := $(GOTAGS_$(shell echo '$(APP)' | tr '[:lower:]' '[:upper:]'))
 
 CGO_CFLAGS  := -I$(abspath sdk/$(FAMILY)/include) -D$(FAMILY_UPPERCASE)
