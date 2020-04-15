@@ -40,9 +40,9 @@ static HI_U16 g_au16SampleBgain[ISP_MAX_DEV_NUM] = {0};
 #define SENSOR_720P_30FPS_MODE     (1)
 #define SENSOR_720P_60FPS_MODE     (2)
 
-#define SHS1_ADDR (0x208) 
-#define GAIN_ADDR (0x21E)
-#define VMAX_ADDR (0x205)
+#define SHS1_ADDR (0x0203) //(0x208) 
+#define GAIN_ADDR (0x301E) //(0x21E)
+#define VMAX_ADDR (0x0341) //(0x205)
 
 // hard limitation of RHS1 location Right Limit
         // 4n + 10
@@ -963,14 +963,14 @@ HI_U32 cmos_get_sns_regs_info(ISP_SNS_REGS_INFO_S *pstSnsRegsInfo)
 
     if (HI_FALSE == bInit)
     {
-        g_stSnsRegsInfo.enSnsType = ISP_SNS_SSP_TYPE;
+        g_stSnsRegsInfo.enSnsType = ISP_SNS_I2C_TYPE;
         g_stSnsRegsInfo.u8Cfg2ValidDelayMax =  2;        
         g_stSnsRegsInfo.u32RegNum = 5;
          
         for (i = 0; i < g_stSnsRegsInfo.u32RegNum; i++)
         {    
             g_stSnsRegsInfo.astSspData[i].bUpdate = HI_TRUE;
-            g_stSnsRegsInfo.astSspData[i].u32DevAddr = 0x02;
+            g_stSnsRegsInfo.astSspData[i].u32DevAddr = 0x34;
             g_stSnsRegsInfo.astSspData[i].u32DevAddrByteNum = 1;
             g_stSnsRegsInfo.astSspData[i].u32RegAddrByteNum = 1;
             g_stSnsRegsInfo.astSspData[i].u32DataByteNum = 1;
@@ -979,7 +979,7 @@ HI_U32 cmos_get_sns_regs_info(ISP_SNS_REGS_INFO_S *pstSnsRegsInfo)
         g_stSnsRegsInfo.astSspData[0].u8DelayFrmNum =  0;       //shutter
         g_stSnsRegsInfo.astSspData[0].u32RegAddr = SHS1_ADDR;
         g_stSnsRegsInfo.astSspData[1].u8DelayFrmNum =  0;
-        g_stSnsRegsInfo.astSspData[1].u32RegAddr = SHS1_ADDR + 1;
+        g_stSnsRegsInfo.astSspData[1].u32RegAddr = SHS1_ADDR - 1;
 		
         
         g_stSnsRegsInfo.astSspData[2].u8DelayFrmNum = 0;        //gain
@@ -988,7 +988,7 @@ HI_U32 cmos_get_sns_regs_info(ISP_SNS_REGS_INFO_S *pstSnsRegsInfo)
         g_stSnsRegsInfo.astSspData[3].u8DelayFrmNum = 0;
         g_stSnsRegsInfo.astSspData[3].u32RegAddr = VMAX_ADDR;
         g_stSnsRegsInfo.astSspData[4].u8DelayFrmNum = 0;       
-        g_stSnsRegsInfo.astSspData[4].u32RegAddr = VMAX_ADDR + 1;
+        g_stSnsRegsInfo.astSspData[4].u32RegAddr = VMAX_ADDR - 1;
     
         bInit = HI_TRUE;
     }

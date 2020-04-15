@@ -192,24 +192,26 @@ void sensor_exit(HI_VOID)
 //RAW12
 void sensor_linear_1080p30_RAW12_init(HI_VOID)
 {
-        sensor_write_register(0x0100, 0x00);//sensor_write_register(0x3000, 0x31);
-        sensor_write_register(0x3002, 0x0F);
-        sensor_write_register(0x3002, 0x4C);
-        sensor_write_register(0x3004, 0x04);
-        sensor_write_register(0x3005, 0x65);
-        sensor_write_register(0x3006, 0x04);
-        sensor_write_register(0x3012, 0x82);
-        sensor_write_register(0x3016, 0x3C);
-        sensor_write_register(0x301F, 0x73);
-        sensor_write_register(0x3020, 0xF0);
-        sensor_write_register(0x3027, 0x20);
-        sensor_write_register(0x302C, 0x00);
-        sensor_write_register(0x303F, 0x0A);
-        sensor_write_register(0x307A, 0x00);
-        sensor_write_register(0x307B, 0x00);
-        sensor_write_register(0x309A, 0x26);
-        sensor_write_register(0x309B, 0x02);
-        sensor_write_register(0x3017, 0x0D);
+        sensor_write_register(0x0100, 0x00);//sensor_write_register(0x3000, 0x31);  //STANDBY
+        sensor_write_register(0x3002, 0x0F);                                        //MODE 1080p
+        sensor_write_register(0x0342, 0x04);                                        //HMAX MSB
+        sensor_write_register(0x0343, 0x4C);//sensor_write_register(0x3004, 0x04);  //HMAX LSB
+        sensor_write_register(0x0340, 0x04);//sensor_write_register(0x3005, 0x65);  //VMAX MSB
+        sensor_write_register(0x0341, 0x65);//sensor_write_register(0x3006, 0x04);  //VMAX LSB
+        sensor_write_register(0x0112, 0x0C);//sensor_write_register(0x3012, 0x82);  //AD gradation setting: 12bit
+        sensor_write_register(0x0113, 0x0C);                                        // ---//---
+        sensor_write_register(0x3016, 0x3C);                                        //HD1080p
+        //sensor_write_register(0x301F, 0x73);                                        //magic
+        //sensor_write_register(0x0008, 0x00);//0x01//sensor_write_register(0x3020, 0xF0);  //BLKLEVEL [0]
+        //sensor_write_register(0x0008, 0x40);//0x70//sensor_write_register(0x3020, 0xF0);  // ---//--- [0:7]
+        //sensor_write_register(0x3027, 0x20);                                        //magic
+        sensor_write_register(0x302C, 0x00);                                        //XMSTA
+        //sensor_write_register(0x303F, 0x0A);                                        //magic
+        sensor_write_register(0x307A, 0x00);                                        //10BITC Setting registers for 10 bit
+        sensor_write_register(0x307B, 0x00);                                        // ---//---
+        sensor_write_register(0x309A, 0x26);                                        //12B1080 P [11:0]
+        sensor_write_register(0x309B, 0x02);                                        // ---//---
+        //sensor_write_register(0x3117, 0x0D);                                        //magic
         sensor_write_register(0x0100, 0x01);//sensor_write_register(0x3000, 0x30);
         printf("-------Sony IMX323 Sensor 1080p_30fps_raw12_cmos_37p125Mhz Initial OK!-------\n");
 }

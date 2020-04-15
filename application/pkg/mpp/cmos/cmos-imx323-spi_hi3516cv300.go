@@ -64,6 +64,7 @@ VI_DEV_ATTR_S DEV_ATTR_DC_IMX323 =
     HI_FALSE,
     // DEV CROP
     {200, 20, 1920, 1080}
+    //{0, 0, 1920, 1080}
 };
 
 */
