@@ -162,6 +162,6 @@ var (
             bus: Spi4Wire,
             busNum: 0,
         },
-        data: LVDS
+        data: LVDS,
 	}
 )
