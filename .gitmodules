@@ -5,3 +5,7 @@
 [submodule "application/pkg/utils/regs/registers-description"]
 	path = application/pkg/utils/regs/registers-description
 	url = https://github.com/OpenHisiIpCam/registers-description
+[submodule "br-hisicam"]
+	path = br-hisicam
+	url = git@github.com:OpenHisiIpCam/br-hisicam.git
+	branch = master
