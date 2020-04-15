@@ -119,17 +119,17 @@ func systemInit(devInfo DeviceInfo) {
     regs.ByNameConst(regs.MUXCTRL_REG95).Set(0x1)
 
 	//utils.WriteDevMem32(0x12040180, 0x0);  //#SENSOR0_RSTN
-    regs.ByNameStr("muxctrl_reg96").Set(0x0)
+    regs.ByNameConst(regs.MUXCTRL_REG96).Set(0x0)
     
     //utils.WriteDevMem32(0x12040184, 0x1);  //#SENSOR0_HS,from vi0
-    regs.ByNameStr("muxctrl_reg97").Set(0x1)
+    regs.ByNameConst(regs.MUXCTRL_REG97).Set(0x1)
 
 	//utils.WriteDevMem32(0x12040188, 0x1);  //#SENSOR0_VS,from vi0
-    regs.ByNameStr("muxctrl_reg98").Set(0x1)
+    regs.ByNameConst(regs.MUXCTRL_REG98).Set(0x1)
 
 	//sensor0 drive capability
 	//utils.WriteDevMem32(0x12040988, 0x150);  //#SENSOR0_CLK
-    regs.ByNameStr("pad_ctrl_reg98").Set(0x150)
+    regs.ByNameConst(regs.PAD_CTRL_REG98).Set(0x150)
 
 	utils.WriteDevMem32(0x1204098c, 0x170);  //#SENSOR0_RSTN
 	utils.WriteDevMem32(0x12040990, 0x170);  //#SENSOR0_HS

@@ -73,8 +73,8 @@ void mpp_data_loop_get_data(unsigned int venc_channel) {
 
     s32Ret = HI_MPI_VENC_ReleaseStream(venc_channel, &stStream);
     if (HI_SUCCESS != s32Ret) {
-        //printf("failed to release stream: %#x\n", s32Ret);
-	go_logger_venc(LOGGER_PANIC, "HI_MPI_VENC_ReleaseStream failed"); //TODO pass err code
+        printf("failed to release stream: %#x\n", s32Ret);
+	go_logger_venc(LOGGER_ERROR, "HI_MPI_VENC_ReleaseStream failed"); //TODO pass err code
         return; //continue;
     }
     free(stStream.pstPack);
