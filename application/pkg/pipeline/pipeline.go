@@ -67,7 +67,7 @@ func CreatePipeline(encoderName string)  (int, string)  {
 	}
 	logger.Log.Info().Int("processingId", processingId).Int("encoderId", encoderId).Msg("Subscribed to processing")
 
-	return 0, ""
+	return encoderId, ""
 }
 
 func createChannelFromEncoder(encoder venc.PredefinedEncoder)  (vpss.Channel)  {

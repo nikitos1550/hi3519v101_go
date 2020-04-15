@@ -19,6 +19,7 @@ type ActiveEncoder struct {
     Width int 
     Height int 
     Bitrate int 
+	Channels map[chan []byte]bool
 }
 
 var PredefinedEncoders map[string] PredefinedEncoder
@@ -58,6 +59,7 @@ func CreatePredefinedEncoder(encoderName string) (int, string)  {
 		Width: encoder.Width,
 		Height: encoder.Height,
 		Bitrate: encoder.Bitrate,
+		Channels: make(map[chan []byte]bool),
 	}
 
 	CreateEncoder(activeEncoder)

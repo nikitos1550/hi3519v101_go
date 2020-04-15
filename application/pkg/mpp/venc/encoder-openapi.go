@@ -26,6 +26,14 @@ type predefinedEncoderInfo struct {
     Bitrate int 
 }
 
+type activeEncoderInfo struct {
+    EncoderId int 
+    Format string 
+    Width int 
+    Height int 
+    Bitrate int 
+}
+
 func init() {
     openapi.AddApiRoute("apiDescription", "/encoder", "GET", apiDescription)
 
@@ -41,19 +49,19 @@ func init() {
 }
 
 func listPredefinedEncodersRequest(w http.ResponseWriter, r *http.Request)  {
-        var encodersInfo []predefinedEncoderInfo
-        for name, encoder := range PredefinedEncoders {
-                info := predefinedEncoderInfo{
-                        Name: name,
-                        Format: encoder.Format,
-                        Width: encoder.Width,
-                        Height: encoder.Height,
-                        Bitrate: encoder.Bitrate,
-                }
+    var encodersInfo []predefinedEncoderInfo
+    for name, encoder := range PredefinedEncoders {
+            info := predefinedEncoderInfo{
+                    Name: name,
+                    Format: encoder.Format,
+                    Width: encoder.Width,
+                    Height: encoder.Height,
+                    Bitrate: encoder.Bitrate,
+            }
         
-                encodersInfo = append(encodersInfo, info)
-        }
-        openapi.ResponseSuccessWithDetails(w, encodersInfo)
+            encodersInfo = append(encodersInfo, info)
+    }
+    openapi.ResponseSuccessWithDetails(w, encodersInfo)
 }
 
 func apiDescription(w http.ResponseWriter, r *http.Request)  {
@@ -103,4 +111,17 @@ func unsubscribeProcessingRequest(w http.ResponseWriter, r *http.Request)  {
 }
 
 func listEncodersRequest(w http.ResponseWriter, r *http.Request)  {
+    var encodersInfo []activeEncoderInfo
+    for id, encoder := range ActiveEncoders {
+            info := activeEncoderInfo{
+                    EncoderId: id,
+                    Format: encoder.Format,
+                    Width: encoder.Width,
+                    Height: encoder.Height,
+                    Bitrate: encoder.Bitrate,
+            }
+        
+            encodersInfo = append(encodersInfo, info)
+    }
+    openapi.ResponseSuccessWithDetails(w, encodersInfo)
 }

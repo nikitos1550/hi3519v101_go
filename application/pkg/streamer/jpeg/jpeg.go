@@ -3,7 +3,8 @@
 package jpeg
 
 import (
-	//"log"
+	"strconv"
+
 	"application/pkg/logger"
 
 	"net/http"
@@ -17,8 +18,7 @@ type responseRecord struct {
 }
 
 func init() {
-    openapi.AddRoute("serveHdJpeg",   "/jpeg/1920_1080.jpg",   "GET",      serveHdJpeg)
-    openapi.AddRoute("serve4KJpeg",   "/jpeg/3840_2160.jpg",   "GET",      serve4KJpeg)
+    openapi.AddRoute("serveJpeg",   "/jpeg/image.jpg",   "GET",      serveJpeg)
 }
 
 func Init() {}
@@ -56,22 +56,22 @@ func serve(w http.ResponseWriter, encoderId int) {
 	}
 }
 
-func serveHdJpeg(w http.ResponseWriter, r *http.Request) {
-	vencId, err := venc.CreatePredefinedEncoder("MGPEG_1920_1080")
-	if (vencId < 0){
-		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: err})
+func serveJpeg(w http.ResponseWriter, r *http.Request) {
+	ok, encoderId := openapi.GetIntParameter(w, r, "encoderId")
+	if !ok {
 		return
 	}
 
-	serve(w, vencId)
-}
-
-func serve4KJpeg(w http.ResponseWriter, r *http.Request) {
-	vencId, err := venc.CreatePredefinedEncoder("MGPEG_3840_2160")
-	if (vencId < 0){
-		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: err})
+	encoder, encoderExists := venc.ActiveEncoders[encoderId]
+	if (!encoderExists) {
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: "Failed to find encoder  " + strconv.Itoa(encoderId)})
 		return
 	}
 
-	serve(w, vencId)
+	if (encoder.Format != "mjpeg") {
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: "Encoder has wrong format " + encoder.Format + ". Should be mjpeg"})
+		return
+	}
+
+	serve(w, encoderId)
 }
