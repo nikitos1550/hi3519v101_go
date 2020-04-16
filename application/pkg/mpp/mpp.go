@@ -29,8 +29,5 @@ func Init() {
 
 	venc.Init()
 
-	//init sample videopipeline
-	vpss.SampleChannel0()
-
 	ai.Init()
 }

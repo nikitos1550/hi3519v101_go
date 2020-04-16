@@ -80,36 +80,6 @@ int mpp3_vpss_init(unsigned int *error_code) {
     return ERR_NONE;
 }
 
-int mpp3_vpss_sample_channel0(unsigned int *error_code) {
-    *error_code = 0;
-
-    VPSS_CHN_ATTR_S stVpssChnAttr;
-    VPSS_CHN_MODE_S stVpssChnMode;
-
-    stVpssChnMode.enChnMode      = VPSS_CHN_MODE_USER;
-    stVpssChnMode.bDouble        = HI_FALSE;
-    stVpssChnMode.enPixelFormat  = PIXEL_FORMAT_YUV_SEMIPLANAR_420;
-    stVpssChnMode.u32Width       = 3840;
-    stVpssChnMode.u32Height      = 2160;
-    stVpssChnMode.enCompressMode = COMPRESS_MODE_NONE; //COMPRESS_MODE_SEG;
-
-    memset(&stVpssChnAttr, 0, sizeof(stVpssChnAttr));
-
-    stVpssChnAttr.s32SrcFrameRate = 30;
-    stVpssChnAttr.s32DstFrameRate = 30;
-
-    *error_code = HI_MPI_VPSS_SetChnAttr(0, 0, &stVpssChnAttr);
-    if (*error_code != HI_SUCCESS) return ERR_MPP;
-
-    *error_code = HI_MPI_VPSS_SetChnMode(0, 0, &stVpssChnMode);
-    if (*error_code != HI_SUCCESS) return ERR_MPP;
-
-    *error_code = HI_MPI_VPSS_EnableChn(0, 0);
-    if (*error_code != HI_SUCCESS) return ERR_MPP;
-
-    return ERR_NONE;
-}
-
 int mpp3_vpss_sample_channel(
         unsigned int channelId,
         unsigned int width,
@@ -228,30 +198,6 @@ func Init() {
 		Msg("C.mpp3_vpss_init() Unexpected return")
     }
 }
-
-func SampleChannel0() {
-    var errorCode C.uint
-
-    switch err := C.mpp3_vpss_sample_channel0(&errorCode); err {
-    case C.ERR_NONE:
-        //log.Println("C.mpp3_vpss_sample_channel0() ok")
-	logger.Log.Debug().
-		Msg("C.mpp3_vpss_sample_channel0() ok")
-    case C.ERR_MPP:
-        //log.Fatal("C.mpp3_vpss_sample_channel0() MPP error ", error.Resolve(int64(errorCode)))
-	logger.Log.Fatal().
-		Int("error", int(errorCode)).
-		Str("error_desc", error.Resolve(int64(errorCode))).
-		Msg("C.mpp3_vpss_sample_channel0() MPP error")
-
-    default:
-        //log.Fatal("Unexpected return ", err , " of C.mpp3_vpss_sample_channel0()")
-	logger.Log.Fatal().
-		Int("error", int(err)).
-		Msg("C.mpp3_vpss_sample_channel0() Unexpected return")
-    }
-}
-
 func CreateChannel(channel Channel) {
     var errorCode C.uint
 

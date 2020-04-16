@@ -4,5 +4,3 @@
 package vpss
 
 func Init() {}
-
-func SampleChannel0() {}
