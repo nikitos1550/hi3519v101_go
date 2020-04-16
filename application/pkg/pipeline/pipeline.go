@@ -22,14 +22,16 @@ func CreatePipeline(encoderName string)  (int, string)  {
 	var freeChannel int = 0
 	for{
 		_, channelExists := vpss.Channels[freeChannel]
-		if !(channelExists) {
+		if (!channelExists) {
 			break
 		}
 		freeChannel++
 	}
+	logger.Log.Info().Int("channelId", freeChannel).Msg("Found free channel ")
 
 	channel := createChannelFromEncoder(encoder)
 	channel.ChannelId = freeChannel
+	logger.Log.Info().Int("channelId", channel.ChannelId).Msg("Starting Channel")
 	channelId, err := vpss.StartChannel(channel)
 	if channelId < 0 {
 		return channelId, err

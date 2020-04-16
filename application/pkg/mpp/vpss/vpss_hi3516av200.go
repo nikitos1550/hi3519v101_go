@@ -156,7 +156,6 @@ void mpp3_send_frame_to_clients(unsigned int channelId, unsigned int processingI
 import "C"
 
 import (
-    //"log"
     "application/pkg/mpp/error"
 
     "application/pkg/logger"

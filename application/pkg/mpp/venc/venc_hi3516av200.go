@@ -46,19 +46,6 @@ int mpp3_venc_sample_mjpeg(unsigned int *error_code, int width, int height, int 
     *error_code = HI_MPI_VENC_StartRecvPic(channelId);
     if (*error_code != HI_SUCCESS) return ERR_MPP;
 
-    MPP_CHN_S stSrcChn;
-    MPP_CHN_S stDestChn;
-
-    stSrcChn.enModId    = HI_ID_VPSS;
-    stSrcChn.s32DevId   = 0;
-    stSrcChn.s32ChnId   = 0;
-    stDestChn.enModId   = HI_ID_VENC;
-    stDestChn.s32DevId  = 0;
-    stDestChn.s32ChnId  = channelId;
-
-    *error_code = HI_MPI_SYS_Bind(&stSrcChn, &stDestChn);
-    if (*error_code != HI_SUCCESS) return ERR_MPP;
-
     return ERR_NONE;
 }
 
@@ -103,19 +90,6 @@ int mpp3_venc_sample_h264(unsigned int *error_code, int width, int height, int b
     *error_code = HI_MPI_VENC_StartRecvPic(channelId);
     if (*error_code != HI_SUCCESS) return ERR_MPP;
 
-    MPP_CHN_S stSrcChn;
-    MPP_CHN_S stDestChn;
-
-    stSrcChn.enModId    = HI_ID_VPSS;
-    stSrcChn.s32DevId   = 0;
-    stSrcChn.s32ChnId   = 0;
-    stDestChn.enModId   = HI_ID_VENC;
-    stDestChn.s32DevId  = 0;
-    stDestChn.s32ChnId  = channelId;
-
-    *error_code = HI_MPI_SYS_Bind(&stSrcChn, &stDestChn);
-    if (*error_code != HI_SUCCESS) return ERR_MPP;
-
     return ERR_NONE;
 }
 
@@ -158,41 +132,11 @@ int mpp3_venc_sample_h265(unsigned int *error_code, int width, int height, int b
     *error_code = HI_MPI_VENC_StartRecvPic(channelId);
     if (*error_code != HI_SUCCESS) return ERR_MPP;
 
-    MPP_CHN_S stSrcChn;
-    MPP_CHN_S stDestChn;
-
-    stSrcChn.enModId    = HI_ID_VPSS;
-    stSrcChn.s32DevId   = 0;
-    stSrcChn.s32ChnId   = 0;
-    stDestChn.enModId   = HI_ID_VENC;
-    stDestChn.s32DevId  = 0;
-    stDestChn.s32ChnId  = channelId;
-
-    *error_code = HI_MPI_SYS_Bind(&stSrcChn, &stDestChn);
-    if (*error_code != HI_SUCCESS) return ERR_MPP;
-
     return ERR_NONE;
 }
 
 int mpp3_venc_delete_encoder(unsigned int *error_code, int channelId) {
 	*error_code = 0;
-
-	//HI_S32 HI_MPI_VENC_StopRecvPic(VENC_CHN VeChn);
-	//HI_S32 HI_MPI_VENC_CloseFd(VENC_CHN VeChn);
-	//HI_S32 HI_MPI_VENC_DestroyChn(VENC_CHN VeChn);
-
-    MPP_CHN_S stSrcChn;
-    MPP_CHN_S stDestChn;
-
-    stSrcChn.enModId    = HI_ID_VPSS;
-    stSrcChn.s32DevId   = 0;
-    stSrcChn.s32ChnId   = 0;
-    stDestChn.enModId   = HI_ID_VENC;
-    stDestChn.s32DevId  = 0;
-    stDestChn.s32ChnId  = channelId;
-
-    *error_code = HI_MPI_SYS_UnBind(&stSrcChn, &stDestChn);
-    if (*error_code != HI_SUCCESS) return ERR_MPP;
 
     *error_code = HI_MPI_VENC_StopRecvPic(channelId);
     if (*error_code != HI_SUCCESS) return ERR_MPP;

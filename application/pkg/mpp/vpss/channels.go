@@ -32,13 +32,13 @@ func init() {
 func StartChannel(channel Channel)  (int, string)  {
 	_, channelExists := Channels[channel.ChannelId]
 	if (channelExists) {
-		return 1, "Channel already exists"
+		return -1, "Channel already exists"
 	}
 
 	CreateChannel(channel)
 
 	Channels[channel.ChannelId] = channel
-	return 0, ""
+	return channel.ChannelId, ""
 }
 
 func StopChannel(channelId int)  (int, string)  {
