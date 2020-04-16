@@ -1,6 +1,7 @@
 import os
 import sys
 import subprocess
+import logging
 
 
 TESTS_DIR = os.path.dirname(__file__)
@@ -35,8 +36,11 @@ class Make:
             line = line.strip()
             if not line:
                 continue
-            key, value = line.split("=")
-            info[key] = value
+            try:
+                key, value = line.split("=")
+                info[key] = value
+            except ValueError as err:
+                logging.error(f"Couldn't unpack {line}: {err}")
         return info
 
     def build_app(self, board):
