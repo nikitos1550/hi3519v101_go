@@ -138,6 +138,7 @@ int mpp3_venc_sample_h265(unsigned int *error_code, int width, int height, int b
 int mpp3_venc_delete_encoder(unsigned int *error_code, int channelId) {
 	*error_code = 0;
 
+
     *error_code = HI_MPI_VENC_StopRecvPic(channelId);
     if (*error_code != HI_SUCCESS) return ERR_MPP;
 

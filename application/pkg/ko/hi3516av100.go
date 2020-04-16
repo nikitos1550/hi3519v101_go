@@ -1,23 +1,20 @@
 //+build hi3516av100
 
-//g-o:generate rm -f kobin_hi3516av100.go
-//g-o:generate go run -tags "generate hi3516av100" ./generate.go --output kobin_hi3516av100.go --tag hi3516av100 --dir ../../sdk/hi3516av100/ko/ --pkg ko --source ./hi3516av100.go
-
 package ko
 
 var (
 	ModulesList = [...][2]string{
-		[2]string{"mmz.ko", "mmz=anonymous,0,0x{memStartAddr},{memMppSize}M anony=1"},
+		[2]string{"mmz.ko", "mmz=anonymous,0,{mem_start_addr},{mem_mpp_size} anony=1"},
 		[2]string{"hi_media.ko", ""},
 		[2]string{"hi3516a_base.ko", ""},
-		[2]string{"hi3516a_sys.ko", "vi_vpss_online=0 sensor=NULL"},
+		[2]string{"hi3516a_sys.ko", "vi_vpss_online={vi_vpss_online} sensor={cmos}"}, //0
 		[2]string{"hi3516a_tde.ko", ""},
 		[2]string{"hi3516a_region.ko", ""},
 		[2]string{"hi3516a_vgs.ko", ""},
 		[2]string{"hi3516a_isp.ko", ""},
-		[2]string{"hi3516a_viu.ko", "detect_err_frame=10"},
+		[2]string{"hi3516a_viu.ko", "detect_err_frame={detect_err_frame}"}, //10
 		[2]string{"hi3516a_vpss.ko", ""},
-		[2]string{"hi3516a_vou.ko", "lowPowerMode=0"},
+		//[2]string{"hi3516a_vou.ko", "lowPowerMode={lowPowerMode}"}, //0
 		//#insmod hi3516a_vou.ko detectCycle=0            #close dac detect
 		//[2]string{"hifb.ko", 'video="hifb:vram0_size:1620"'}, //     # default pal
 		[2]string{"hi3516a_rc.ko", ""},
@@ -48,7 +45,6 @@ var (
 		//#insmod extdrv/tlv_320aic31.ko
 		//#insmod extdrv/ak7756.ko
 
-		//echo "==== Your input Sensor type is $SNS_TYPE ===="
 
 		[2]string{"hi_mipi.ko", ""},
 	}

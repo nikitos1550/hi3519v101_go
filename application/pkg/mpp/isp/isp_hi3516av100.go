@@ -23,7 +23,10 @@ HI_VOID* mpp2_isp_thread(HI_VOID *param){
     //return error_code;
 }
 
-int mpp2_isp_init(int *error_code) {
+int mpp2_isp_init(int *error_code,
+            unsigned int width,
+            unsigned int height,
+            unsigned int fps) {
     *error_code = 0;
 
     //*error_code = HI_MPI_ISP_Exit(0);
@@ -70,12 +73,12 @@ int mpp2_isp_init(int *error_code) {
       //        if the sensor you used is different, you can change
       //        ISP_PUB_ATTR_S definition 
       // case SONY_IMX178_LVDS_5M_30FPS:
-            stPubAttr.enBayer               = BAYER_GBRG;
-            stPubAttr.f32FrameRate          = 25;
+            stPubAttr.enBayer               = BAYER_BGGR; //BAYER_GBRG;
+            stPubAttr.f32FrameRate          = fps;
             stPubAttr.stWndRect.s32X        = 0;
             stPubAttr.stWndRect.s32Y        = 0;
-            stPubAttr.stWndRect.u32Width    = 2560;
-            stPubAttr.stWndRect.u32Height   = 1944;
+            stPubAttr.stWndRect.u32Width    = width;
+            stPubAttr.stWndRect.u32Height   = height;
 
     *error_code = HI_MPI_ISP_SetPubAttr(IspDev, &stPubAttr);
     if (*error_code != HI_SUCCESS) return ERR_MPP;
@@ -98,12 +101,20 @@ import (
 	 "application/pkg/mpp/error"
 
 	"application/pkg/logger"
+    "application/pkg/mpp/cmos"
+
 )
 
 func Init() {
     var errorCode C.int
 
-        switch err := C.mpp2_isp_init(&errorCode); err {
+        //switch err := C.mpp2_isp_init(&errorCode); err {
+
+    switch err := C.mpp2_isp_init(  &errorCode, 
+                    C.uint(cmos.Width()), 
+                    C.uint(cmos.Height()), 
+                    C.uint(cmos.Fps()) ); err {
+
     case C.ERR_NONE:
         logger.Log.Debug().
                 Msg("C.mpp2_isp_init() ok")

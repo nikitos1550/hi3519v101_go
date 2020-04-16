@@ -9,31 +9,39 @@ GOARCH  ?= amd64
 GOENV   := GOROOT_FINAL=/test/ GOPATH=$(GOPATH) GOOS=$(GOOS) GOARCH=$(GOARCH) GOARM=$(GOARM) 
 
 FAMILY	?= host
-CMOS	?= unknown
+
+CMOS		?= unknown
+CMOS_DRIVER ?= unknown
 
 -include sdk/$(FAMILY)/Makefile.params
 
 FAMILY_UPPERCASE    := $(shell echo '$(FAMILY)' | tr '[:lower:]' '[:upper:]')
 CHIP_UPPERCASE      := $(shell echo '$(CHIP)' | tr '[:lower:]' '[:upper:]')
 
-GOTAGS_PROBE    := gohisiprobe $(FAMILY) netgo nethttpomithttp2
-GOTAGS_CAM 	:= gohisicam $(FAMILY) $(CHIP) $(CMOS) netgo nethttpomithttp2 openapi debug pipeline processing streamerJpeg streamerFile streamerRtsp streamerPipe
-GOTAGS := $(GOTAGS_$(shell echo '$(APP)' | tr '[:lower:]' '[:upper:]'))
-
-CGO_CFLAGS  := -I$(abspath sdk/$(FAMILY)/include) -D$(FAMILY_UPPERCASE)
+CGO_CFLAGS  := -I$(abspath sdk/$(FAMILY)/include) -D$(FAMILY_UPPERCASE) -DLOGGER_C
 #-D$(CHIP_UPPERCASE)
 
 #TODO rework this
 ifneq ($(CMOS),unknown)
-       CMOS_TARGET := ../output/boards/$(BOARD)/cmos/lib_cmoses.a
+#ifneq ($(CMOS_DRIVER),)
+#	CMOS := $(CMOS_DRIVER)
+#endif
+ 	CMOS_TARGET := ../output/boards/$(BOARD)/cmos/lib_$(CMOS_DRIVER).a
 endif
+
 ifeq ($(APP),probe)
 	CMOS_TARGET :=
 endif
 
+CMOS_TAGS		:= $(CMOS) cmos_data_$(CMOS_DATA) cmos_control_$(CMOS_CONTROL) cmos_bus_$(CMOS_BUS)
+
+GOTAGS_PROBE    := gohisiprobe $(FAMILY) netgo nethttpomithttp2
+GOTAGS_CAM      := gohisicam $(FAMILY) $(CHIP) $(CMOS_TAGS) netgo nethttpomithttp2 openapi debug processing streamerJpeg streamerFile streamerRtsp streamerPipe
+GOTAGS := $(GOTAGS_$(shell echo '$(APP)' | tr '[:lower:]' '[:upper:]'))
+
 ifneq ($(wildcard ../hisilicon/$(FAMILY)/Makefile.params),) 
        LIB_TARGET := ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a
-       CGO_LDFLAGS := $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a) $(abspath $(CMOS_TARGET))
+       CGO_LDFLAGS := $(abspath $(CMOS_TARGET)) $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a)
 endif 
 
 
@@ -79,28 +87,41 @@ LIBS := $(wildcard sdk/$(FAMILY)/lib/*.a)
 ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a:
 	$(AR) rcsT ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a $(LIBS)
 
-CMOSES := $(wildcard pkg/mpp/cmos/$(FAMILY)/*/)
-CMOSDIRS := $(patsubst pkg/mpp/cmos/$(FAMILY)/%/, ../output/boards/$(BOARD)/cmos/%/, $(CMOSES))
+#CMOS all in one archive
+#CMOSES := $(wildcard pkg/mpp/cmos/$(FAMILY)/*/)
+#CMOSDIRS := $(patsubst pkg/mpp/cmos/$(FAMILY)/%/, ../output/boards/$(BOARD)/cmos/%/, $(CMOSES))
+#
+#CMOSSRC   := $(wildcard pkg/mpp/cmos/$(FAMILY)/*/*.c)
+#CMOSOBJ := $(patsubst pkg/mpp/cmos/$(FAMILY)/%.c, ../output/boards/$(BOARD)/cmos/%.o, $(CMOSSRC))
+#
+#../output/boards/$(BOARD)/cmos/lib_cmoses.a: $(CMOSDIRS) $(CMOSOBJ)
+#	$(AR) rcs ../output/boards/$(BOARD)/cmos/lib_cmoses.a $(CMOSOBJ)
+#
+#../output/boards/$(BOARD)/cmos/%/:
+#	[ -d $@ ] || mkdir -p $@
+#
+#../output/boards/$(BOARD)/cmos/%.o: pkg/mpp/cmos/$(FAMILY)/%.c
+#	$(CC) $(CFLAGS) -I$(abspath sdk/$(FAMILY)/include) -c $< -o $@
 
-CMOSSRC   := $(wildcard pkg/mpp/cmos/$(FAMILY)/*/*.c)
-CMOSOBJ := $(patsubst pkg/mpp/cmos/$(FAMILY)/%.c, ../output/boards/$(BOARD)/cmos/%.o, $(CMOSSRC))
+#CMOS separate archive for each cmos
 
-../output/boards/$(BOARD)/cmos/lib_cmoses.a: $(CMOSDIRS) $(CMOSOBJ)
-	$(AR) rcs ../output/boards/$(BOARD)/cmos/lib_cmoses.a $(CMOSOBJ)
+CMOSSRC   := $(wildcard pkg/mpp/cmos/$(FAMILY)/$(CMOS_DRIVER)/*.c)
+CMOSOBJ := $(patsubst pkg/mpp/cmos/$(FAMILY)/$(CMOS_DRIVER)/%.c, ../output/boards/$(BOARD)/cmos/$(CMOS_DRIVER)/%.o, $(CMOSSRC))
 
 ../output/boards/$(BOARD)/cmos/%/:
 	[ -d $@ ] || mkdir -p $@
 
-../output/boards/$(BOARD)/cmos/%.o: pkg/mpp/cmos/$(FAMILY)/%.c
+../output/boards/$(BOARD)/cmos/$(CMOS_DRIVER)/%.o: pkg/mpp/cmos/$(FAMILY)/$(CMOS_DRIVER)/%.c
 	$(CC) $(CFLAGS) -I$(abspath sdk/$(FAMILY)/include) -c $< -o $@
 
-pkg/ko/kobin_$(FAMILY).go:
-	GOPATH=$(GOPATH) $(GO) generate -tags "$(GOTAGS)" ./...
+../output/boards/$(BOARD)/cmos/lib_$(CMOS_DRIVER).a: ../output/boards/$(BOARD)/cmos/$(CMOS_DRIVER)/ $(CMOSOBJ)
+	 $(AR) rcs ../output/boards/$(BOARD)/cmos/lib_$(CMOS_DRIVER).a $(CMOSOBJ)
 
-generate: pkg/ko/kobin_$(FAMILY).go
-	#GOPATH=$(GOPATH) $(GO) generate -tags "$(GOTAGS)" ./...
-	#GOPATH=$(GOPATH) $(GO) generate -tags "$(GOTAGS)" application/pkg/ko	
-	#GOPATH=$(GOPATH) $(GO) generate -tags "$(FAMILY)" application/pkg/utils/regs
+pkg/ko/kobin_$(APP)_$(FAMILY).go:
+	GOPATH=$(GOPATH) $(GO) generate -tags "$(GOTAGS)" application/pkg/ko
+
+generate: pkg/ko/kobin_$(APP)_$(FAMILY).go
+	make -C pkg/utils/regs
 
 distrib:
 	mkdir distrib
@@ -165,7 +186,7 @@ testvideo-h265.mp4: testvideo.h265
 	MP4Box -add testvideo.h265 -fps 25 testvideo-h265.mp4
 
 clean:
-	rm -rf ./pkg/ko/kobin_hi*.go
+	rm -rf ./pkg/ko/kobin_*.go
 	rm -rf ./distrib
 	rm -f ./testvideo.h264
 	rm -f ./testvideo.h265

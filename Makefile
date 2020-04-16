@@ -4,7 +4,16 @@ ifeq ("$(wildcard Makefile.user.params)","")
  $(error cp Makefile.user.params.example to Makefile.user.params) 
 endif
 
-include $(THIS_DIR)Makefile.user.params
+ifndef NO_USER_MAKEFILE
+    include $(THIS_DIR)Makefile.user.params
+endif
+ifndef BOARD
+    $(error BOARD variable MUST be defined)
+endif
+ifndef CAMERA
+    $(warning CAMERA variable isn't defined, only build targets are allowed)
+endif
+
 
 BR             := buildroot-2020.02
 BUILDROOT_DIR  := $(abspath ./$(BR))
@@ -58,6 +67,12 @@ $(BUILDROOT_DIR):
 cleanall:
 	if [ -d ./output ]; then chmod --recursive 777 ./output; fi
 	rm -rf ./output $(BUILDROOT_DIR)
+	make -C $(APP) clean
+
+info:
+	@echo "BOARD=$(BOARD)"
+	@echo "FAMILY=$(FAMILY)"
+	@echo "APP_OVERLAY=$(APP)/distrib/$(FAMILY)"
 
 # -----------------------------------------------------------------------------------------------------------
 
@@ -177,11 +192,7 @@ deprecated-control-uart:
 	miniterm $(CAMERA_TTY) 115200
 
 catch-uboot:
-	cd burner; ./burner2.py \
-		--uboot-params 'GREETING="$(GREETING)" PROMPT="$(PROMPT) #"' \
-		--port /dev/ttyCAM$(CAMERA) \
-		--reset-power "./power2.py --num $(CAMERA) reset" \
-		--mode camstore printenv
+	scripts/hiburn.sh $(CAMERA) -v printenv
 	$(CAMSTORE) forward_serial $(CAMERA_TTY)
 
 control-uart:

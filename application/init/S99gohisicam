@@ -7,7 +7,7 @@ start() {
     echo "S99 GoHisiCam"
     . /opt/board.config
     dmesg -n 1 # for details see dmesg
-    /opt/gohisicam -mem-total=$RAM_SIZE -mem-linux=$RAM_LINUX_SIZE -mem-mpp=$RAM_MPP_SIZE &
+    /opt/gohisicam -mem-total=$RAM_SIZE -mem-linux=$RAM_LINUX_SIZE -mem-mpp=$RAM_MPP_SIZE -chip=$CHIP &
 }
 
 stop() {

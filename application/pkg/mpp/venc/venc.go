@@ -14,6 +14,7 @@ func Init() {
 func init() {
 }
 
+
 func SubsribeEncoder(encoderId int, ch chan []byte) {
     encoder, encoderExists := ActiveEncoders[encoderId]
     if !encoderExists {
@@ -51,6 +52,7 @@ func RemoveSubscription(encoderId int, ch chan []byte) {
 			Msg("Not subscribed")
         return
     }
+
 
     delete(encoder.Channels, ch)
     ActiveEncoders[encoderId] = encoder

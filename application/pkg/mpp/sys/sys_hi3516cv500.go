@@ -22,18 +22,19 @@ int mpp4_sys_init(unsigned int *error_code) {
     VB_CONFIG_S        stVbConf;
     HI_U32             u32BlkSize;
 
-     hi_memset(&stVbConf, sizeof(VB_CONFIG_S), 0, sizeof(VB_CONFIG_S));
+    hi_memset(&stVbConf, sizeof(VB_CONFIG_S), 0, sizeof(VB_CONFIG_S));
+
     stVbConf.u32MaxPoolCnt              = 2;
 
 
-    u32BlkSize = COMMON_GetPicBufferSize(   1920, 
-                                            1080, 
+    u32BlkSize = COMMON_GetPicBufferSize(   2592, 
+                                            1944, 
                                             PIXEL_FORMAT_YVU_SEMIPLANAR_420, 
                                             DATA_BITWIDTH_8, 
                                             COMPRESS_MODE_SEG, 
                                             DEFAULT_ALIGN);
     stVbConf.astCommPool[0].u64BlkSize  = u32BlkSize;
-    stVbConf.astCommPool[0].u32BlkCnt   = 10;
+    stVbConf.astCommPool[0].u32BlkCnt   = 5;
 
     
 //    u32BlkSize = VI_GetRawBufferSize(       1920, 

@@ -7,7 +7,11 @@ start() {
 	echo "S99 GoHisiProbe"
     	. /opt/board.config
 	dmesg -n 1 # for details see dmesg
-	/opt/gohisiprobe -mem-total=$RAM_SIZE -mem-linux=$RAM_LINUX_SIZE -mem-mpp=$RAM_MPP_SIZE &
+	/opt/gohisiprobe \
+        -mem-total=$RAM_SIZE \
+        -mem-linux=$RAM_LINUX_SIZE \
+        -mem-mpp=$RAM_MPP_SIZE \
+        &
 }
 
 stop() {
