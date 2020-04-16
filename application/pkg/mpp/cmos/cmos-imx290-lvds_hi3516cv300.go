@@ -31,7 +31,13 @@ combo_dev_attr_t LVDS_4lane_SENSOR_IMX290_12BIT_1080_NOWDR_ATTR =
             .fid_type         = {LVDS_FID_NONE, HI_TRUE},
             .data_endian      = LVDS_ENDIAN_BIG,
             .sync_code_endian = LVDS_ENDIAN_BIG,
-            .lane_id = {0, 1, 2, 3},
+            //.lane_id = {0, 1, 2, 3}, //rggb
+            .lane_id = {1, 0, 3, 2}, 
+            //.lane_id = {1, 0, 3, 2}, //grbg
+            //.lane_id = {1, 0, 2, 3},
+            // .lane_id = {3, 0, 2, 1},
+            // .lane_id = {3, 2, 0, 1},
+            // .lane_id = {2, 3, 1, 0},
             .sync_code = {
                 {
                     {0xab0, 0xb60, 0x800, 0x9d0},      // lane 0

@@ -44,8 +44,12 @@ paths:
 
   /api/debug/umap:
     $ref: "~debug.yaml#/umap"
+  /api/debug/umap.json:
+    $ref: "~debug.yaml#/umap.json"
   /api/debug/umap/{file}:
     $ref: "~debug.yaml#/umap~1{file}"
+  /api/debug/umap/{file}.json:
+    $ref: "~debug.yaml#/umap~1{file}.json"
 
   /api/mpp/cmos:
       $ref: "~cmos.yaml#/cmos"

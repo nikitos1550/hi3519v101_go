@@ -22,6 +22,9 @@ extern "C"{
 
 #define FULL_LINES_MAX  (0xFFFF)
 
+extern const unsigned int sensor_i2c_addr;
+extern unsigned int sensor_addr_byte;
+extern unsigned int sensor_data_byte;
 
 /****************************************************************************
  * local variables                                                            *
@@ -40,9 +43,9 @@ static HI_U16 g_au16SampleBgain[ISP_MAX_DEV_NUM] = {0};
 #define SENSOR_720P_30FPS_MODE     (1)
 #define SENSOR_720P_60FPS_MODE     (2)
 
-#define SHS1_ADDR (0x208) 
-#define GAIN_ADDR (0x21E)
-#define VMAX_ADDR (0x205)
+#define SHS1_ADDR (0x0203) //(0x208) 
+#define GAIN_ADDR (0x301E) //(0x21E)
+#define VMAX_ADDR (0x0341) //(0x205)
 
 // hard limitation of RHS1 location Right Limit
         // 4n + 10
@@ -74,6 +77,7 @@ static char pcName[PATHLEN_MAX] = "configs/imx323_cfg.ini";
 
 static HI_S32 cmos_get_ae_default(AE_SENSOR_DEFAULT_S *pstAeSnsDft)
 {
+    printf("cmos_get_ae_default\n");
     if(HI_NULL == pstAeSnsDft)
     {
         printf("null pointer when get ae default value!\n");
@@ -153,6 +157,7 @@ static HI_S32 cmos_get_ae_default(AE_SENSOR_DEFAULT_S *pstAeSnsDft)
 /* the function of sensor set fps */
 static HI_VOID cmos_fps_set(HI_FLOAT f32Fps, AE_SENSOR_DEFAULT_S *pstAeSnsDft)
 {
+    printf("cmos_fps_set\n");
     HI_U32 u32VMAX = IMX323_VMAX_1080P_30FPS_LINEAR;
 
     switch (gu8SensorImageMode)
@@ -198,8 +203,11 @@ static HI_VOID cmos_fps_set(HI_FLOAT f32Fps, AE_SENSOR_DEFAULT_S *pstAeSnsDft)
 
     if (WDR_MODE_NONE == genSensorMode)
     {
-        g_stSnsRegsInfo.astSspData[3].u32Data = (u32VMAX & 0xFF);
-        g_stSnsRegsInfo.astSspData[4].u32Data = ((u32VMAX & 0xFF00) >> 8);
+        //g_stSnsRegsInfo.astSspData[3].u32Data = (u32VMAX & 0xFF);
+        //g_stSnsRegsInfo.astSspData[4].u32Data = ((u32VMAX & 0xFF00) >> 8);
+        g_stSnsRegsInfo.astI2cData[3].u32Data = (u32VMAX & 0xFF);
+        g_stSnsRegsInfo.astI2cData[4].u32Data = ((u32VMAX & 0xFF00) >> 8);
+
     }
     else
     {
@@ -228,14 +236,18 @@ static HI_VOID cmos_fps_set(HI_FLOAT f32Fps, AE_SENSOR_DEFAULT_S *pstAeSnsDft)
 static HI_VOID cmos_slow_framerate_set(HI_U32 u32FullLines,
     AE_SENSOR_DEFAULT_S *pstAeSnsDft)
 {
+    printf("cmos_slow_framerate_set\n");
     u32FullLines = (u32FullLines > FULL_LINES_MAX) ? FULL_LINES_MAX : u32FullLines;
     gu32FullLines = u32FullLines;
     pstAeSnsDft->u32FullLines = gu32FullLines;
 
     if (WDR_MODE_NONE == genSensorMode)
     {
-        g_stSnsRegsInfo.astSspData[3].u32Data = (u32FullLines & 0xFF);
-        g_stSnsRegsInfo.astSspData[4].u32Data = ((u32FullLines & 0xFF00) >> 8);
+        //g_stSnsRegsInfo.astSspData[3].u32Data = (u32FullLines & 0xFF);
+        //g_stSnsRegsInfo.astSspData[4].u32Data = ((u32FullLines & 0xFF00) >> 8);
+        g_stSnsRegsInfo.astI2cData[3].u32Data = (u32FullLines & 0xFF);
+        g_stSnsRegsInfo.astI2cData[4].u32Data = ((u32FullLines & 0xFF00) >> 8);
+
     }
     else
     {
@@ -256,11 +268,15 @@ static HI_VOID cmos_slow_framerate_set(HI_U32 u32FullLines,
 /* while isp notify ae to update sensor regs, ae call these funcs. */
 static HI_VOID cmos_inttime_update(HI_U32 u32IntTime)
 {
+    //printf("cmos_inttime_update 0x%X\n", u32IntTime);
     HI_U32 u32Value = 0;
      
     u32Value = gu32FullLines - u32IntTime;
-    g_stSnsRegsInfo.astSspData[0].u32Data = (u32Value & 0xFF);
-    g_stSnsRegsInfo.astSspData[1].u32Data = ((u32Value & 0xFF00) >> 8);
+    //g_stSnsRegsInfo.astSspData[0].u32Data = (u32Value & 0xFF);
+    //g_stSnsRegsInfo.astSspData[1].u32Data = ((u32Value & 0xFF00) >> 8);
+    g_stSnsRegsInfo.astI2cData[0].u32Data = (u32Value & 0xFF);
+    g_stSnsRegsInfo.astI2cData[1].u32Data = ((u32Value & 0xFF00) >> 8);
+
 
     return;
 }
@@ -339,9 +355,12 @@ static HI_VOID cmos_dgain_calc_table(HI_U32 *pu32DgainLin, HI_U32 *pu32DgainDb)
 
 static HI_VOID cmos_gains_update(HI_U32 u32Again, HI_U32 u32Dgain)
 {
+    //printf("cmos_gains_update GAIN UPDATE!\n");
 	HI_U32 u32Tmp;
 	u32Tmp = u32Again + u32Dgain;
- 	g_stSnsRegsInfo.astSspData[2].u32Data = (u32Tmp & 0xFF);
+ 	//g_stSnsRegsInfo.astSspData[2].u32Data = (u32Tmp & 0xFF);
+    g_stSnsRegsInfo.astI2cData[2].u32Data = (u32Tmp & 0xFF);
+
  	return;
 }
 
@@ -773,7 +792,9 @@ HI_U32 cmos_get_isp_black_level(ISP_CMOS_BLACK_LEVEL_S *pstBlackLevel)
 HI_VOID cmos_set_pixel_detect(HI_BOOL bEnable)
 {
     HI_U32 u32FullLines_5Fps;
-    
+
+    printf("cmos_set_pixel_detect bEnable=%d\n", bEnable);
+
     if(SENSOR_1080P_30FPS_MODE == gu8SensorImageMode)
     {
         u32FullLines_5Fps = (IMX323_VMAX_1080P_30FPS_LINEAR * 30) / 5;
@@ -795,22 +816,22 @@ HI_VOID cmos_set_pixel_detect(HI_BOOL bEnable)
 
     if (bEnable) /* setup for ISP pixel calibration mode */
     {
-        sensor_write_register (GAIN_ADDR,0x00);
-        sensor_write_register (GAIN_ADDR + 1,0x00);
+        sensor_write_register (GAIN_ADDR,0xF0);
+        //sensor_write_register (GAIN_ADDR + 1,0x00);
         
         sensor_write_register (VMAX_ADDR, u32FullLines_5Fps & 0xFF); 
-        sensor_write_register (VMAX_ADDR + 1, (u32FullLines_5Fps & 0xFF00) >> 8); 
+        sensor_write_register (VMAX_ADDR - 1, (u32FullLines_5Fps & 0xFF00) >> 8); 
 
-        sensor_write_register (SHS1_ADDR, 0x4);
-        sensor_write_register (SHS1_ADDR + 1, 0x0); 
-        sensor_write_register (SHS1_ADDR + 2, 0x0);          
+        sensor_write_register (SHS1_ADDR, 0xFF); //0x4
+        sensor_write_register (SHS1_ADDR - 1, 0x0); 
+        //sensor_write_register (SHS1_ADDR + 2, 0x0);          
     }
     else /* setup for ISP 'normal mode' */
     {
         gu32FullLinesStd = (gu32FullLinesStd > FULL_LINES_MAX) ? FULL_LINES_MAX : gu32FullLinesStd;
         gu32FullLines = gu32FullLinesStd;
         sensor_write_register (VMAX_ADDR, gu32FullLines & 0xFF); 
-        sensor_write_register (VMAX_ADDR + 1, (gu32FullLines & 0xFF00) >> 8); 
+        sensor_write_register (VMAX_ADDR - 1, (gu32FullLines & 0xFF00) >> 8); 
         bInit = HI_FALSE;
     }
 
@@ -961,48 +982,70 @@ HI_U32 cmos_get_sns_regs_info(ISP_SNS_REGS_INFO_S *pstSnsRegsInfo)
 {
     HI_S32 i;
 
+    //printf("cmos_get_sns_regs_info\n");
+
     if (HI_FALSE == bInit)
     {
-        g_stSnsRegsInfo.enSnsType = ISP_SNS_SSP_TYPE;
+        g_stSnsRegsInfo.enSnsType = ISP_SNS_I2C_TYPE;
         g_stSnsRegsInfo.u8Cfg2ValidDelayMax =  2;        
         g_stSnsRegsInfo.u32RegNum = 5;
          
         for (i = 0; i < g_stSnsRegsInfo.u32RegNum; i++)
         {    
-            g_stSnsRegsInfo.astSspData[i].bUpdate = HI_TRUE;
-            g_stSnsRegsInfo.astSspData[i].u32DevAddr = 0x02;
-            g_stSnsRegsInfo.astSspData[i].u32DevAddrByteNum = 1;
-            g_stSnsRegsInfo.astSspData[i].u32RegAddrByteNum = 1;
-            g_stSnsRegsInfo.astSspData[i].u32DataByteNum = 1;
+            g_stSnsRegsInfo.astI2cData[i].bUpdate = HI_TRUE;
+            g_stSnsRegsInfo.astI2cData[i].u8DevAddr = sensor_i2c_addr;
+            g_stSnsRegsInfo.astI2cData[i].u32AddrByteNum = sensor_addr_byte;
+            g_stSnsRegsInfo.astI2cData[i].u32DataByteNum = sensor_data_byte;
+
+            //g_stSnsRegsInfo.astSspData[i].u32DevAddr = 0x34;
+            //g_stSnsRegsInfo.astSspData[i].u32DevAddrByteNum = 1;
+            //g_stSnsRegsInfo.astSspData[i].u32RegAddrByteNum = 1;
+            //g_stSnsRegsInfo.astSspData[i].u32DataByteNum = 1;
         }        
         
-        g_stSnsRegsInfo.astSspData[0].u8DelayFrmNum =  0;       //shutter
-        g_stSnsRegsInfo.astSspData[0].u32RegAddr = SHS1_ADDR;
-        g_stSnsRegsInfo.astSspData[1].u8DelayFrmNum =  0;
-        g_stSnsRegsInfo.astSspData[1].u32RegAddr = SHS1_ADDR + 1;
+        //g_stSnsRegsInfo.astSspData[0].u8DelayFrmNum =  0;       //shutter
+        g_stSnsRegsInfo.astI2cData[0].u8DelayFrmNum =  0;
+        //g_stSnsRegsInfo.astSspData[0].u32RegAddr = SHS1_ADDR;
+        g_stSnsRegsInfo.astI2cData[0].u32RegAddr = SHS1_ADDR;
+        //g_stSnsRegsInfo.astSspData[1].u8DelayFrmNum =  0;
+        g_stSnsRegsInfo.astI2cData[1].u8DelayFrmNum =  0;
+        //g_stSnsRegsInfo.astSspData[1].u32RegAddr = SHS1_ADDR - 1;
+        g_stSnsRegsInfo.astI2cData[1].u32RegAddr = SHS1_ADDR - 1;
 		
         
-        g_stSnsRegsInfo.astSspData[2].u8DelayFrmNum = 0;        //gain
-        g_stSnsRegsInfo.astSspData[2].u32RegAddr = GAIN_ADDR;
+        //g_stSnsRegsInfo.astSspData[2].u8DelayFrmNum = 0;        //gain
+        g_stSnsRegsInfo.astI2cData[2].u8DelayFrmNum = 0;
+        //g_stSnsRegsInfo.astSspData[2].u32RegAddr = GAIN_ADDR;
+        g_stSnsRegsInfo.astI2cData[2].u32RegAddr = GAIN_ADDR;
 
-        g_stSnsRegsInfo.astSspData[3].u8DelayFrmNum = 0;
-        g_stSnsRegsInfo.astSspData[3].u32RegAddr = VMAX_ADDR;
-        g_stSnsRegsInfo.astSspData[4].u8DelayFrmNum = 0;       
-        g_stSnsRegsInfo.astSspData[4].u32RegAddr = VMAX_ADDR + 1;
+        //g_stSnsRegsInfo.astSspData[3].u8DelayFrmNum = 0;
+        g_stSnsRegsInfo.astI2cData[3].u8DelayFrmNum = 0;
+        //g_stSnsRegsInfo.astSspData[3].u32RegAddr = VMAX_ADDR;
+        g_stSnsRegsInfo.astI2cData[3].u32RegAddr = VMAX_ADDR;
+        //g_stSnsRegsInfo.astSspData[4].u8DelayFrmNum = 0;       
+        g_stSnsRegsInfo.astI2cData[4].u8DelayFrmNum = 0;
+        //g_stSnsRegsInfo.astSspData[4].u32RegAddr = VMAX_ADDR - 1;
+        g_stSnsRegsInfo.astI2cData[4].u32RegAddr = VMAX_ADDR - 1;
     
         bInit = HI_TRUE;
+        printf("cmos_get_sns_regs_info INITED\n");
     }
     else
     {
         for (i=0; i<g_stSnsRegsInfo.u32RegNum; i++)
         {
-            if (g_stSnsRegsInfo.astSspData[i].u32Data == g_stPreSnsRegsInfo.astSspData[i].u32Data)
+            //printf("%d : prev 0x%X now 0x%X\n",i, g_stPreSnsRegsInfo.astI2cData[i].u32Data, g_stSnsRegsInfo.astI2cData[i].u32Data);
+            //if (g_stSnsRegsInfo.astSspData[i].u32Data == g_stPreSnsRegsInfo.astSspData[i].u32Data)
+            if (g_stSnsRegsInfo.astI2cData[i].u32Data == g_stPreSnsRegsInfo.astI2cData[i].u32Data)
             {
-                g_stSnsRegsInfo.astSspData[i].bUpdate = HI_FALSE;
+                //g_stSnsRegsInfo.astSspData[i].bUpdate = HI_FALSE;
+                g_stSnsRegsInfo.astI2cData[i].bUpdate = HI_FALSE;
             }
             else
             {
-                g_stSnsRegsInfo.astSspData[i].bUpdate = HI_TRUE;
+                //g_stSnsRegsInfo.astSspData[i].bUpdate = HI_TRUE;
+				g_stSnsRegsInfo.astI2cData[i].bUpdate = HI_TRUE;
+                //printf("cmos_get_sns_regs_info PLS UPD %d : old 0x%x new 0x%x \n",i,g_stPreSnsRegsInfo.astI2cData[i].u32Data,g_stSnsRegsInfo.astI2cData[i].u32Data);
             }
         }
     }

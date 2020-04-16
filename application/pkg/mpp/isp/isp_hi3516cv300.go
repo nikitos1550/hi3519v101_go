@@ -78,8 +78,17 @@ int mpp3_isp_init(int *error_code,
     *error_code = HI_MPI_ISP_SetWDRMode(0, &stWdrMode);    
     if (*error_code != HI_SUCCESS) return ERR_MPP;
 
-            stPubAttr.enBayer               = BAYER_RGGB;
-            stPubAttr.stWndRect.s32X        = 30;//30;
+
+//./hi_comm_video.h:490:    BAYER_RGGB    = 0,
+//./hi_comm_video.h:491:    BAYER_GRBG    = 1,
+//./hi_comm_video.h:492:    BAYER_GBRG    = 2,
+//./hi_comm_video.h:493:    BAYER_BGGR    = 3,
+
+            stPubAttr.enBayer               = BAYER_RGGB; //bad
+            //stPubAttr.enBayer               = BAYER_GRBG;   //better
+            //stPubAttr.enBayer               = BAYER_GBRG; //bad
+            //stPubAttr.enBayer               = BAYER_BGGR; //bad
+            stPubAttr.stWndRect.s32X        = 0;//30;
             stPubAttr.stWndRect.s32Y        = 0;
             stPubAttr.stWndRect.u32Width    = width;
             stPubAttr.stWndRect.u32Height   = height;
