@@ -7,5 +7,5 @@
 	url = https://github.com/OpenHisiIpCam/registers-description
 [submodule "br-hisicam"]
 	path = br-hisicam
-	url = git@github.com:OpenHisiIpCam/br-hisicam.git
+	url = https://github.com/OpenHisiIpCam/br-hisicam
 	branch = master
