@@ -11,63 +11,50 @@ func Init() {
 
 }
 
-var (
-        EncoderSubscriptions map[int]map[chan []byte]bool
-)
-
 func init() {
-        EncoderSubscriptions = make(map[int]map[chan []byte]bool)
 }
 
-func SubsribeEncoder(encoderId string, ch chan []byte) {
-        encoder, encoderExists := Encoders[encoderId]
-        if !encoderExists {
-			logger.Log.Error().
-				Str("encoderId", encoderId).
-				Msg("Failed to find encoder")
-            return
-        }
-		
-        channels, exists := EncoderSubscriptions[encoder.VencId]
-        if !exists || !hasSubscription(encoder.VencId) {
-                createEncoder(encoder)
-                channels = make(map[chan []byte]bool)
-        } else {
-                addVenc(encoder.VencId)
-        }
 
-        channels[ch] = true
-        EncoderSubscriptions[encoder.VencId] = channels
-}
-
-func hasSubscription(vencId int) bool {
-        for _, value := range EncoderSubscriptions[vencId] {
-                if value {
-                        return true
-                }
-        }
-        return false
-}
-
-func RemoveSubscription(encoderId string, ch chan []byte) {
-        encoder, encoderExists := Encoders[encoderId]
-        if !encoderExists {
-                //log.Println("Failed to find encoder ", encoderId)
+func SubsribeEncoder(encoderId int, ch chan []byte) {
+    encoder, encoderExists := ActiveEncoders[encoderId]
+    if !encoderExists {
 		logger.Log.Error().
-                        Str("encoderId", encoderId).
-                        Msg("Failed to find encoder")
-                return
-        }
+			Int("encoderId", encoderId).
+			Msg("Failed to find encoder")
+        return
+    }
+		
+    _, exists := encoder.Channels[ch]
+    if (exists) {
+		logger.Log.Error().
+			Int("encoderId", encoderId).
+			Msg("Already subscribed")
+        return
+    }
 
-        EncoderSubscriptions[encoder.VencId][ch] = false
+    encoder.Channels[ch] = true
+    ActiveEncoders[encoderId] = encoder
+}
 
-        if !hasSubscription(encoder.VencId) {
-                //log.Println("No subscriptions for ", encoder.VencId, " remove venc")
-		logger.Log.Debug().
-                        Int("vencId", encoder.VencId).
-                        Msg("remove venc as No subscriptions")
+func RemoveSubscription(encoderId int, ch chan []byte) {
+    encoder, encoderExists := ActiveEncoders[encoderId]
+    if !encoderExists {
+		logger.Log.Error().
+			Int("encoderId", encoderId).
+			Msg("Failed to find encoder")
+        return
+    }
+		
+    _, exists := encoder.Channels[ch]
+    if (exists) {
+		logger.Log.Error().
+			Int("encoderId", encoderId).
+			Msg("Not subscribed")
+        return
+    }
 
-                deleteEncoder(encoder) //delVenc(encoder.VencId)
-        }
+
+    delete(encoder.Channels, ch)
+    ActiveEncoders[encoderId] = encoder
 }
 

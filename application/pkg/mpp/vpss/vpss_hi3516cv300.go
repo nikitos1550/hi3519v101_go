@@ -141,20 +141,6 @@ func Init() {
 	}
 }
 
-func SampleChannel0() {
-	var errorCode C.uint
-
-	switch err := C.mpp3_vpss_sample_channel0(&errorCode); err {
-	case C.ERR_NONE:
-		log.Println("C.mpp3_vpss_sample_channel0() ok")
-	case C.ERR_MPP:
-		log.Fatal("C.mpp3_vpss_sample_channel0() MPP error ", error.Resolve(int64(errorCode)))
-	default:
-		log.Fatal("Unexpected return ", err, " of C.mpp3_vpss_sample_channel0()")
-	}
-
-}
-
 func CreateChannel(channel Channel) {}
 
 func DestroyChannel(channel Channel) {}

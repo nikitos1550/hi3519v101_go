@@ -14,15 +14,15 @@ import (
 
 //export sendToEncoders
 func sendToEncoders(processingId C.uint, frame unsafe.Pointer) {
-	//processing, exists := ActiveProcessings[int(processingId)]
-	_, exists := ActiveProcessings[int(processingId)] 
+	processing, exists := ActiveProcessings[int(processingId)]
 	if (!exists) {
 		log.Println("processing not found", int(processingId))
 	}
 
-	/* // TODO encodersId not used
-	for encodersId, _ := range processing.Encoders {
-
+	for encoderId, _ := range processing.Encoders {
+		err := C.sendToEncoder(C.uint(encoderId), frame)
+		if (err != 0){
+			log.Println("failed send to encoder", int(err))
+		}
 	}
-	*/
 }

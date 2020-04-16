@@ -46,19 +46,6 @@ int mpp3_venc_sample_mjpeg(unsigned int *error_code, int width, int height, int 
     *error_code = HI_MPI_VENC_StartRecvPic(channelId);
     if (*error_code != HI_SUCCESS) return ERR_MPP;
 
-    MPP_CHN_S stSrcChn;
-    MPP_CHN_S stDestChn;
-
-    stSrcChn.enModId    = HI_ID_VPSS;
-    stSrcChn.s32DevId   = 0;
-    stSrcChn.s32ChnId   = 0;
-    stDestChn.enModId   = HI_ID_VENC;
-    stDestChn.s32DevId  = 0;
-    stDestChn.s32ChnId  = channelId;
-
-    *error_code = HI_MPI_SYS_Bind(&stSrcChn, &stDestChn);
-    if (*error_code != HI_SUCCESS) return ERR_MPP;
-
     return ERR_NONE;
 }
 
@@ -103,19 +90,6 @@ int mpp3_venc_sample_h264(unsigned int *error_code, int width, int height, int b
     *error_code = HI_MPI_VENC_StartRecvPic(channelId);
     if (*error_code != HI_SUCCESS) return ERR_MPP;
 
-    MPP_CHN_S stSrcChn;
-    MPP_CHN_S stDestChn;
-
-    stSrcChn.enModId    = HI_ID_VPSS;
-    stSrcChn.s32DevId   = 0;
-    stSrcChn.s32ChnId   = 0;
-    stDestChn.enModId   = HI_ID_VENC;
-    stDestChn.s32DevId  = 0;
-    stDestChn.s32ChnId  = channelId;
-
-    *error_code = HI_MPI_SYS_Bind(&stSrcChn, &stDestChn);
-    if (*error_code != HI_SUCCESS) return ERR_MPP;
-
     return ERR_NONE;
 }
 
@@ -158,41 +132,12 @@ int mpp3_venc_sample_h265(unsigned int *error_code, int width, int height, int b
     *error_code = HI_MPI_VENC_StartRecvPic(channelId);
     if (*error_code != HI_SUCCESS) return ERR_MPP;
 
-    MPP_CHN_S stSrcChn;
-    MPP_CHN_S stDestChn;
-
-    stSrcChn.enModId    = HI_ID_VPSS;
-    stSrcChn.s32DevId   = 0;
-    stSrcChn.s32ChnId   = 0;
-    stDestChn.enModId   = HI_ID_VENC;
-    stDestChn.s32DevId  = 0;
-    stDestChn.s32ChnId  = channelId;
-
-    *error_code = HI_MPI_SYS_Bind(&stSrcChn, &stDestChn);
-    if (*error_code != HI_SUCCESS) return ERR_MPP;
-
     return ERR_NONE;
 }
 
 int mpp3_venc_delete_encoder(unsigned int *error_code, int channelId) {
 	*error_code = 0;
 
-	//HI_S32 HI_MPI_VENC_StopRecvPic(VENC_CHN VeChn);
-	//HI_S32 HI_MPI_VENC_CloseFd(VENC_CHN VeChn);
-	//HI_S32 HI_MPI_VENC_DestroyChn(VENC_CHN VeChn);
-
-    MPP_CHN_S stSrcChn;
-    MPP_CHN_S stDestChn;
-
-    stSrcChn.enModId    = HI_ID_VPSS;
-    stSrcChn.s32DevId   = 0;
-    stSrcChn.s32ChnId   = 0;
-    stDestChn.enModId   = HI_ID_VENC;
-    stDestChn.s32DevId  = 0;
-    stDestChn.s32ChnId  = channelId;
-
-    *error_code = HI_MPI_SYS_UnBind(&stSrcChn, &stDestChn);
-    if (*error_code != HI_SUCCESS) return ERR_MPP;
 
     *error_code = HI_MPI_VENC_StopRecvPic(channelId);
     if (*error_code != HI_SUCCESS) return ERR_MPP;
@@ -204,137 +149,4 @@ int mpp3_venc_delete_encoder(unsigned int *error_code, int channelId) {
 }
 */
 import "C"
-
-import (
-	"application/pkg/mpp/error"
-	//"log"
-
-	"application/pkg/logger"
-)
-
-/*
-var (
-	EncoderSubscriptions map[int]map[chan []byte]bool
-)
-
-func init() {
-	EncoderSubscriptions = make(map[int]map[chan []byte]bool)
-}
-*/
-
-func deleteEncoder(encoder Encoder) {
-	var errorCode C.uint
-	var err C.int
-
-	delVenc(encoder.VencId) //first we remove fd from loop
-
-	err = C.mpp3_venc_delete_encoder(&errorCode, C.int(encoder.VencId))
-	switch err {
-	case C.ERR_NONE:
-		//log.Println("Encoder deleted ", encoder.VencId)
-		logger.Log.Debug().
-			Int("vencId", encoder.VencId).
-			Msg("Encoder deleted")
-	case C.ERR_MPP:
-		//log.Fatal("Failed to delete encoder ", encoder.VencId, " error ", error.Resolve(int64(errorCode)))
-		logger.Log.Fatal().
-			Int("vencId", encoder.VencId).
-			Int("error", int(errorCode)).
-			Str("error_code", error.Resolve(int64(errorCode))).
-			Msg("Failed to delete encoder")
-	default:
-		//log.Fatal("Failed to delete encoder ", encoder.VencId, "Unexpected return ", err)
-		logger.Log.Fatal().
-			Int("error", int(err)).
-			Msg("Failed to delete encoder, unexpected return")
-
-	}
-
-}
-
-func createEncoder(encoder Encoder) {
-	var errorCode C.uint
-	var err C.int
-	switch encoder.Format {
-	case "h264":
-		err = C.mpp3_venc_sample_h264(&errorCode, C.int(encoder.Width), C.int(encoder.Height), C.int(encoder.Bitrate), C.int(encoder.VencId))
-	case "h265":
-		err = C.mpp3_venc_sample_h265(&errorCode, C.int(encoder.Width), C.int(encoder.Height), C.int(encoder.Bitrate), C.int(encoder.VencId))
-	case "mjpeg":
-		err = C.mpp3_venc_sample_mjpeg(&errorCode, C.int(encoder.Width), C.int(encoder.Height), C.int(encoder.Bitrate), C.int(encoder.VencId))
-	default:
-		//log.Println("Unknown encoder format ", encoder.Format)
-		logger.Log.Warn().
-			Str("codec", encoder.Format).
-			Msg("Unknown encoder format")
-	}
-
-	switch err {
-	case C.ERR_NONE:
-		//log.Println("Encoder created ", encoder.Format)
-		logger.Log.Debug(). //TODO encoderId
-			Str("codec", encoder.Format).
-			Msg("Encoder created")
-
-	case C.ERR_MPP:
-		//log.Fatal("Failed to create encoder ", encoder.Format, " error ", error.Resolve(int64(errorCode)))
-		logger.Log.Fatal().
-			Str("codec", encoder.Format).
-			Int("error", int(errorCode)).
-			Str("error-dec", error.Resolve(int64(errorCode))).
-			Msg("Failed to create encoder")
-	default:
-		//log.Fatal("Failed to create encoder ", encoder.Format, "Unexpected return ", err)
-		logger.Log.Fatal().
-			Str("codec", encoder.Format).
-			Int("error", int(err)).
-			Msg("Failed to create encoder, unexpected return")
-	}
-
-	addVenc(encoder.VencId)
-}
-
-/*
-func SubsribeEncoder(encoderId string, ch chan []byte) {
-	encoder, encoderExists := Encoders[encoderId]
-	if !encoderExists {
-		log.Println("Failed to find encoder ", encoderId)
-		return
-	}
-
-	channels, exists := EncoderSubscriptions[encoder.VencId]
-	if !exists {
-		createEncoder(encoder)
-		channels = make(map[chan []byte]bool)
-	} else if !hasSubscription(encoder.VencId) {
-		addVenc(encoder.VencId)
-	}
-
-	channels[ch] = true
-	EncoderSubscriptions[encoder.VencId] = channels
-}
-
-func hasSubscription(vencId int) bool {
-	for _, value := range EncoderSubscriptions[vencId] {
-		if value {
-			return true
-		}
-	}
-	return false
-}
-
-func RemoveSubscription(encoderId string, ch chan []byte) {
-	encoder, encoderExists := Encoders[encoderId]
-	if !encoderExists {
-		log.Println("Failed to find encoder ", encoderId)
-		return
-	}
-
-	EncoderSubscriptions[encoder.VencId][ch] = false
-
-	if !hasSubscription(encoder.VencId) {
-		log.Println("No subscriptions for ", encoder.VencId, " remove venc")
-		deleteEncoder(encoder) //delVenc(encoder.VencId)
-	}
-}
-*/
+	

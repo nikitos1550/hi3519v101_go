@@ -18,6 +18,7 @@ import (
 
 	//"application/pkg/mpp/cmos"
 
+	"application/pkg/pipeline"
 	"application/pkg/processing"
 
 	"application/pkg/streamer"
@@ -109,6 +110,7 @@ func main() {
 
 	mpp.Init(devInfo)      //Init mpp and all subsystems
 	streamer.Init() //Init streamers
+	pipeline.Init()
 	processing.Init()
 
 	//Start serving after everything inited and setuped

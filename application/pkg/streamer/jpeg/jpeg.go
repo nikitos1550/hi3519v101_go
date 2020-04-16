@@ -3,7 +3,8 @@
 package jpeg
 
 import (
-	//"log"
+	"strconv"
+
 	"application/pkg/logger"
 
 	"net/http"
@@ -12,14 +13,17 @@ import (
     "application/pkg/mpp/venc"
 )
 
+type responseRecord struct {
+	Message string
+}
+
 func init() {
-    openapi.AddRoute("serveHdJpeg",   "/jpeg/1920_1080.jpg",   "GET",      serveHdJpeg)
-    openapi.AddRoute("serve4KJpeg",   "/jpeg/3840_2160.jpg",   "GET",      serve4KJpeg)
+    openapi.AddRoute("serveJpeg",   "/jpeg/image.jpg",   "GET",      serveJpeg)
 }
 
 func Init() {}
 
-func serve(w http.ResponseWriter, encoderId string) {
+func serve(w http.ResponseWriter, encoderId int) {
 	//log.Println("serveJpeg")
 	logger.Log.Trace().
 		Msg("serveJpeg")
@@ -28,12 +32,12 @@ func serve(w http.ResponseWriter, encoderId string) {
 	venc.SubsribeEncoder(encoderId, payload)
 	//log.Println("reed data from channel ")
 		logger.Log.Trace().
-			Str("encoderId", encoderId).
+			Int("encoderId", encoderId).
 			Msg("reed data from channel")
 	data := <- payload
 	//log.Println("reeded data from channel ")
 		logger.Log.Trace().
-                        Str("encoderId", encoderId).
+                        Int("encoderId", encoderId).
                         Msg("reeded data from channel")
 	venc.RemoveSubscription(encoderId, payload)
 
@@ -52,10 +56,22 @@ func serve(w http.ResponseWriter, encoderId string) {
 	}
 }
 
-func serveHdJpeg(w http.ResponseWriter, r *http.Request) {
-	serve(w, "MGPEG_1920_1080")
-}
+func serveJpeg(w http.ResponseWriter, r *http.Request) {
+	ok, encoderId := openapi.GetIntParameter(w, r, "encoderId")
+	if !ok {
+		return
+	}
 
-func serve4KJpeg(w http.ResponseWriter, r *http.Request) {
-	serve(w, "MGPEG_3840_2160")
+	encoder, encoderExists := venc.ActiveEncoders[encoderId]
+	if (!encoderExists) {
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: "Failed to find encoder  " + strconv.Itoa(encoderId)})
+		return
+	}
+
+	if (encoder.Format != "mjpeg") {
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: "Encoder has wrong format " + encoder.Format + ". Should be mjpeg"})
+		return
+	}
+
+	serve(w, encoderId)
 }

@@ -38,7 +38,7 @@ type chunk struct {
 type activeRecord struct {
     Payload    chan []byte
 	Started    bool
-	EncoderId  string
+	EncoderId  int
 	CurrentFile *os.File
 	CurrentFilePath string
 	Size int
@@ -48,7 +48,7 @@ type activeRecord struct {
 }
 
 type storedRecord struct {
-	EncoderId  string
+	EncoderId  int
 	RecordId  string
 	Size int
 	StartTime time.Time 
@@ -69,7 +69,7 @@ type chunkInfo struct {
 type recordInfo struct {
 	RecordId  string
 	Status    string
-	EncoderId  string
+	EncoderId  int
 	Size int
 	Duration string
 	StartTime time.Time 
@@ -265,13 +265,13 @@ func writeVideoData(uuid string, chunks int, duration int){
 
 func startNewRecord(w http.ResponseWriter, r *http.Request)  {
 	uuid := uuid.New().String()
-	ok, encoderId := openapi.GetStringParameter(w, r, "encoderId")
+	ok, encoderId := openapi.GetIntParameter(w, r, "encoderId")
 	if !ok {
 		return
 	}
-	encoder, encoderExists := venc.Encoders[encoderId]
+	encoder, encoderExists := venc.ActiveEncoders[encoderId]
 	if (!encoderExists) {
-		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{RecordId: "", Message: "Failed to find encoder  " + encoderId})
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{RecordId: "", Message: "Failed to find encoder  " + strconv.Itoa(encoderId)})
 		return
 	}
 

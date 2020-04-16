@@ -16,7 +16,7 @@ func go_callback_receive_data(venc_channel C.int, seq C.uint, data_pointer *C.da
 	vencChannel := int(venc_channel)
 	num := int(data_num)
 
-	channels, exists := EncoderSubscriptions[vencChannel]
+	encoder, exists := ActiveEncoders[vencChannel]
 	if (!exists) {
 		return
 	}
@@ -36,7 +36,7 @@ func go_callback_receive_data(venc_channel C.int, seq C.uint, data_pointer *C.da
 		offset = offset + n
 	}
 
-	for ch,enabled := range channels {
+	for ch,enabled := range encoder.Channels {
 		if (enabled){
 			if (cap(ch) <= len(ch)) {
 				log.Println("Channel is full. Capacity ", cap(ch), " Length ", len(ch), "Skip element")

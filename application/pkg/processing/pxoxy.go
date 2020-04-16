@@ -19,12 +19,10 @@ void* getCallback(){
 import "C"
 
 import (
-	"log"
 	"unsafe"
 )
 
 func init() {
-	log.Println("processing init")
 	var c unsafe.Pointer
 	c = C.getCallback()
 	register("proxy", c)

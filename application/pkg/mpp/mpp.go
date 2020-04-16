@@ -43,6 +43,7 @@ func Init(devInfo DeviceInfo) {
     //time.Sleep(1 * time.Second)
 	venc.Init()
 
-	//init sample videopipeline
-	vpss.SampleChannel0()
+
+	ai.Init()
+
 }
