@@ -36,7 +36,7 @@ PROMPT		?= hisilicon
 APP             := application
 APP_TARGET      ?= probe   #default target will be tester, daemon build on request durin it`s early dev stage
 
--include ./boards/$(strip $(BOARD))/config
+-include ./boards/boards/$(strip $(BOARD))/config
 -include ./hisilicon/$(strip $(FAMILY))/Makefile.params
 
 .PHONY: $(APP)/distrib/$(FAMILY) help prepare cleanall
@@ -54,10 +54,17 @@ help:
 		" - make cleanall                         - remove all artifacts"
 
 submodules:
-	git submodule init
-	git submodule update
+	git submodule update --init --recursive
+	#	git submodule init
+	#	git submodule update
 
-prepare: $(BUILDROOT_DIR) submodules
+br-hihisim-prepare:
+	make -C br-hisicam prepare
+
+boards/boards: submodules
+	ln -s ../br-hisicam/br-ext-hisicam/board boards/boards
+
+prepare: $(BUILDROOT_DIR) submodules br-hihisim-prepare boards/boards/
 	@echo "All prepared"
 
 $(BUILDROOT_DIR):
@@ -68,6 +75,8 @@ cleanall:
 	if [ -d ./output ]; then chmod --recursive 777 ./output; fi
 	rm -rf ./output $(BUILDROOT_DIR)
 	make -C $(APP) clean
+	rm -f ./boards/boards
+	rm -rf ./.buildroot-ccache
 
 info:
 	@echo "BOARD=$(BOARD)"
@@ -211,3 +220,12 @@ control-telnet:
 
 control-telnet-%:
 	telnet 192.168.10.1$(shell printf '%02d' $(subst control-telnet-,,$@))
+
+########################################################################
+
+pack-archive: pack-app
+	mkdir -p $(BOARD_OUTDIR)/$(BOARD)
+	cp $(BOARD_OUTDIR)/kernel/uImage $(BOARD_OUTDIR)/$(BOARD)/uImage
+	cp $(BOARD_OUTDIR)/rootfs+app.squashfs $(BOARD_OUTDIR)/$(BOARD)/rootfs+app.squashfs
+	cd $(BOARD_OUTDIR); tar -cvzf ./$(BOARD).tar.gz ./$(BOARD)
+	rm -rf $(BOARD_OUTDIR)/$(BOARD)

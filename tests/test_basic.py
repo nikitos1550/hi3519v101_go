@@ -32,9 +32,37 @@ def check_date(addr):
 
     logging.info(f"Handler {path} is OK")
 
+def check_umaps(addr):
+    path = "/api/debug/umap.json"
+
+    resp = urllib.request.urlopen(f"http://{addr}{path}")
+    umaps = json.loads(resp.read())
+
+    logging.info(umaps)
+
+    for umap in umaps:
+        path = f"/api/debug/umap/{umap}.json"
+        #logging.info(path)
+        resp = urllib.request.urlopen(f"http://{addr}{path}")
+        umapjson = json.loads(resp.read())
+        #logging.info(umapjson)
+
+    logging.info(f"Handler umaps is OK")
+
+def check_temperature(addr):
+    path = "/api/temperature"
+
+    resp = urllib.request.urlopen(f"http://{addr}{path}")
+    temperature = json.loads(resp.read())
+
+    logging.info(f"Handler {temperature} is OK")
+
+def check_mpp(addr):
+    path = "/api/mpp"
 
 def test_basic():
-    board = "xm_53h20-s_hi3516cv100_imx122"
+    board = "jvt_s274h19v-l29_hi3519v101_imx274"
+    #"xm_53h20-s_hi3516cv100_imx122"
 
     info = make.info(board)
     logging.info(f"Target info:\n{info}")
@@ -46,7 +74,6 @@ def test_basic():
     br_make_and_upload(board, app_overlay)
     logging.info(f"Camera is running with aplication onboard")
 
-
     check_date(DEVICE_LIST[board]["ip_addr"])
-
-
+    check_umaps(DEVICE_LIST[board]["ip_addr"])
+    check_temperature(DEVICE_LIST[board]["ip_addr"])

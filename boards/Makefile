@@ -5,11 +5,11 @@ ifndef BOARD
 endif
 
 # TODO: It may be needed some magic here when the config becomes JSON
--include ./$(BOARD)/config
+-include ./boards/$(BOARD)/config
 
 # source directories
 BUILDROOT_DIR  ?= $(abspath ../buildroot-2020.02)
-BOARD_DIR      := $(abspath ./$(BOARD))
+BOARD_DIR      := $(abspath ./boards/$(BOARD))
 FAMILY_ROOT    := $(abspath ../hisilicon)
 FAMILY_DIR     := $(FAMILY_ROOT)/$(FAMILY)
 
@@ -132,7 +132,7 @@ $(FAMILY_OUTDIR)/kernel:
 # Example: make CAMERA=1 BOARD=jvt_s274h19v-l29_hi3519v101_imx274 PROG=1 test_dump_tmp
 test_dump_tmp:
 	../burner/power2.py --num $(CAMERA) off
-	rm -f $(BOARD)/dumps/orig.bin
-	flashrom -p serprog:dev=/dev/ttyPROG$(PROG):2000000 -c $(shell cat $(BOARD)/dumps/orig.ic) -r $(BOARD)/dumps/orig.bin
-	flashrom -p serprog:dev=/dev/ttyPROG$(PROG):2000000 -c $(shell cat $(BOARD)/dumps/orig.ic) -v $(BOARD)/dumps/orig.bin
-	../burner/power2.py --num $(CAMERA) on
+	rm -f $(BOARD_DIR)/dumps/orig.bin
+	flashrom -p serprog:dev=/dev/ttyPROG$(PROG):2000000 -c $(shell cat $(BOARD_DIR)/dumps/orig.ic) -r $(BOARD_DIR)/dumps/orig.bin
+	flashrom -p serprog:dev=/dev/ttyPROG$(PROG):2000000 -c $(shell cat $(BOARD_DIR)/dumps/orig.ic) -v $(BOARD_DIR)/dumps/orig.bin
+	../scripts/power2.py --num $(CAMERA) on
