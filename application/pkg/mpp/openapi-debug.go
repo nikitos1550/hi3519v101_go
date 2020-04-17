@@ -22,8 +22,8 @@ import (
 func init() {
     openapi.AddApiRoute("debugUmap",       "/debug/umap",          "GET",      debugUmap)
     openapi.AddApiRoute("debugUmapJson",       "/debug/umap.json",          "GET",      debugUmapJson)
-    openapi.AddApiRoute("debugUmapFile",   "/debug/umap/{file:[a-z]+}",   "GET",      debugUmapFile)
-    openapi.AddApiRoute("debugUmapFileJson",   "/debug/umap/{file:[a-z]+}.json",   "GET",      debugUmapFileJson)
+    openapi.AddApiRoute("debugUmapFile",   "/debug/umap/{file:[a-z0-9_]+}",   "GET",      debugUmapFile)
+    openapi.AddApiRoute("debugUmapFileJson",   "/debug/umap/{file:[a-z0-9_]+}.json",   "GET",      debugUmapFileJson)
 }
 
 /**

@@ -1,10 +1,13 @@
+//+build 386 amd64
+//+build host
 package venc
 
 /*
 #include "loop.h"
 */
-import "C"
+//import "C"
 
+/*
 import (
 	"application/pkg/logger"
 	"application/pkg/mpp/error"
@@ -81,4 +84,4 @@ func CreateEncoder(encoder ActiveEncoder) {
 
 	addVenc(encoder.VencId)
 }
-
+*/

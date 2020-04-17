@@ -77,6 +77,14 @@ const (
 	DC	    cmosData = 3
 )
 
+type cmosBayer uint8
+const (
+    RGGB    = 1
+    GRBG    = 2
+    GBRG    = 3
+    BGGR    = 4
+)
+
 type cmos struct {
 	vendor	string
 	model	string
@@ -85,6 +93,7 @@ type cmos struct {
 
     control cmosControl
 	data	cmosData
+    bayer   cmosBayer
 }
 
 type hwFreq struct {

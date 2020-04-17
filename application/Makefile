@@ -137,7 +137,7 @@ deploy-dir-cam: distrib
 	cp -r ./scripts/* ./distrib/$(FAMILY)/opt/scripts
 	cp ./init/run.sh ./distrib/$(FAMILY)/opt
 	cp ./init/S99gohisicam ./distrib/$(FAMILY)/etc/init.d/
-	if [ -f ../boards/$(BOARD)/config ]; then cp ../boards/$(BOARD)/config ./distrib/$(FAMILY)/opt/board.config; fi
+	if [ -f ../boards/boards/$(BOARD)/config ]; then cp ../boards/boards/$(BOARD)/config ./distrib/$(FAMILY)/opt/board.config; fi
 	cp ../application/configs/* ./distrib/$(FAMILY)/opt/configs/
 	cp -r ./init/tools ././distrib/$(FAMILY)/opt/ 
 
@@ -146,7 +146,7 @@ deploy-dir-probe: distrib
 	mkdir -p ./distrib/$(FAMILY)/etc/init.d
 	mkdir -p ./distrib/$(FAMILY)/opt
 	cp ./init/S99gohisiprobe ./distrib/$(FAMILY)/etc/init.d/
-	if [ -f ../boards/$(BOARD)/config ]; then cp ../boards/$(BOARD)/config ./distrib/$(FAMILY)/opt/board.config; fi
+	if [ -f ../boards/boards/$(BOARD)/config ]; then cp ../boards/boards/$(BOARD)/config ./distrib/$(FAMILY)/opt/board.config; fi
 	#cp ../application/configs/* ./distrib/$(FAMILY)/opt/configs/
 
 TRIMPATH := $(abspath .) 

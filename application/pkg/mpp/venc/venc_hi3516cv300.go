@@ -161,18 +161,18 @@ int mpp3_venc_delete_encoder(unsigned int *error_code, int channelId) {
 import "C"
 
 import (
-	"application/pkg/mpp/error"
+	//"application/pkg/mpp/error"
 	//"log"
-    "application/pkg/logger"
+    //"application/pkg/logger"
 )
-
+/*
 var (
 	SampleMjpegFrames *frames
 	SampleH264Frames  *frames
 	SampleH264Notify  chan int
 	SampleH264Start   chan int
 )
-
+*/
 /*
 func SampleMjpeg() {
 	var errorCode C.uint
@@ -210,7 +210,7 @@ func SampleH264() {
 	addVenc(0) //add venc to get loop
 }
 */
-
+/*
 func deleteEncoder(encoder Encoder) {
     var errorCode C.uint
     var err C.int
@@ -284,4 +284,4 @@ func createEncoder(encoder Encoder) {
     addVenc(encoder.VencId)
 }
 
-
+*/
