@@ -44,7 +44,7 @@ func StartChannel(channel Channel)  (int, string)  {
 func StopChannel(channelId int)  (int, string)  {
 	channel, channelExists := Channels[channelId]
 	if (!channelExists) {
-		return 1, "Channel does not exist"
+		return -1, "Channel does not exist"
 	}
 
 	DestroyChannel(channel)
@@ -56,12 +56,12 @@ func StopChannel(channelId int)  (int, string)  {
 func SubscribeChannel(channelId int, processingId int, callback unsafe.Pointer)  (int, string)  {
 	channel, channelExists := Channels[channelId]
 	if (!channelExists) {
-		return 1, "Channel does not exist"
+		return -1, "Channel does not exist"
 	}
 
 	_, callbackExists := channel.Clients[processingId]
 	if (callbackExists) {
-		return 1, "Already subscribed"
+		return -1, "Already subscribed"
 	}
 
 	channel.Clients[processingId] = callback
@@ -73,12 +73,12 @@ func SubscribeChannel(channelId int, processingId int, callback unsafe.Pointer) 
 func UnsubscribeChannel(channelId int, processingId int)  (int, string)  {
 	channel, channelExists := Channels[channelId]
 	if (!channelExists) {
-		return 1, "Channel does not exist"
+		return -1, "Channel does not exist"
 	}
 
 	_, callbackExists := channel.Clients[processingId]
 	if (!callbackExists) {
-		return 1, "Not subscribed"
+		return -1, "Not subscribed"
 	}
 
 	delete(channel.Clients, processingId)

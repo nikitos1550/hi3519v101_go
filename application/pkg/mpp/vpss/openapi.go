@@ -84,7 +84,7 @@ func startChannelRequest(w http.ResponseWriter, r *http.Request)  {
 	channel.Clients = make(map[int] unsafe.Pointer)
 
 	err, errorString := StartChannel(channel)
-	if err != 0 {
+	if err < 0 {
 		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: errorString})
 		return
 	}
@@ -99,7 +99,7 @@ func stopChannelRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err, errorString := StopChannel(channelId)
-	if err != 0 {
+	if err < 0 {
 		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: errorString})
 		return
 	}

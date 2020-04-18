@@ -34,14 +34,17 @@ type activeProcessingInfo struct {
 func init() {
     openapi.AddApiRoute("apiDescription", "/processing", "GET", apiDescription)
 
-    openapi.AddApiRoute("listChannels", "/processing/create", "GET", createProcessingRequest)
-    openapi.AddApiRoute("listChannels", "/processing/delete", "GET", deleteProcessingRequest)
+    openapi.AddApiRoute("createProcessing", "/processing/create", "GET", createProcessingRequest)
+    openapi.AddApiRoute("deleteProcessing", "/processing/delete", "GET", deleteProcessingRequest)
 
-    openapi.AddApiRoute("listChannels", "/processing/subscribeChannel", "GET", subscribeChannelRequest)
-    openapi.AddApiRoute("listChannels", "/processing/unsubscribeChannel", "GET", unsubscribeChannelRequest)
+    openapi.AddApiRoute("subscribeChannel", "/processing/subscribeChannel", "GET", subscribeChannelRequest)
+    openapi.AddApiRoute("unsubscribeChannel", "/processing/unsubscribeChannel", "GET", unsubscribeChannelRequest)
 
-    openapi.AddApiRoute("listChannels", "/processing/list", "GET", listProcessingRequest)
-    openapi.AddApiRoute("listChannels", "/processing/listActive", "GET", listActiveProcessingRequest)
+    openapi.AddApiRoute("subscribeProcessing", "/processing/subscribeProcessing", "GET", subscribeProcessingRequest)
+    openapi.AddApiRoute("unsubscribeProcessing", "/processing/unsubscribeProcessing", "GET", unsubscribeProcessingRequest)
+
+    openapi.AddApiRoute("listProcessing", "/processing/list", "GET", listProcessingRequest)
+    openapi.AddApiRoute("listActiveProcessing", "/processing/listActive", "GET", listActiveProcessingRequest)
 }
 
 func apiDescription(w http.ResponseWriter, r *http.Request)  {
@@ -55,7 +58,7 @@ func createProcessingRequest(w http.ResponseWriter, r *http.Request)  {
 	}
 
 	id, errorString := CreateProcessing(processingName)
-	if id <= 0 {
+	if id < 0 {
 		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: errorString})
 		return
 	}
@@ -64,6 +67,18 @@ func createProcessingRequest(w http.ResponseWriter, r *http.Request)  {
 }
 
 func deleteProcessingRequest(w http.ResponseWriter, r *http.Request)  {
+	ok, processingId := openapi.GetIntParameter(w, r, "processingId")
+	if !ok {
+		return
+	}
+
+	id, errorString := DeleteProcessing(processingId)
+	if id < 0 {
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: errorString})
+		return
+	}
+
+	openapi.ResponseSuccessWithDetails(w, processingRecord{Id: id, Message: "Processing was deleted"})
 }
 
 func subscribeChannelRequest(w http.ResponseWriter, r *http.Request)  {
@@ -122,6 +137,46 @@ func unsubscribeChannelRequest(w http.ResponseWriter, r *http.Request)  {
 	ActiveProcessings[processingId] = activeProcessing
 
 	openapi.ResponseSuccessWithDetails(w, responseRecord{Message: "Channel was unsubscribed"})
+}
+
+func subscribeProcessingRequest(w http.ResponseWriter, r *http.Request)  {
+	ok, processingId := openapi.GetIntParameter(w, r, "processingId")
+	if !ok {
+		return
+	}
+
+	ok, subscribeProcessingId := openapi.GetIntParameter(w, r, "subscribeProcessingId")
+	if !ok {
+		return
+	}
+
+	err, errorString := SubscribeProcessingToProcessing(processingId, subscribeProcessingId)
+	if err < 0 {
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: errorString})
+		return
+	}
+
+	openapi.ResponseSuccessWithDetails(w, responseRecord{Message: "Processing was subscribed"})
+}
+
+func unsubscribeProcessingRequest(w http.ResponseWriter, r *http.Request)  {
+	ok, processingId := openapi.GetIntParameter(w, r, "processingId")
+	if !ok {
+		return
+	}
+
+	ok, subscribeProcessingId := openapi.GetIntParameter(w, r, "subscribeProcessingId")
+	if !ok {
+		return
+	}
+
+	err, errorString := UnsubscribeProcessingToProcessing(processingId, subscribeProcessingId)
+	if err < 0 {
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: errorString})
+		return
+	}
+
+	openapi.ResponseSuccessWithDetails(w, responseRecord{Message: "Processing was unsubscribed"})
 }
 
 func listProcessingRequest(w http.ResponseWriter, r *http.Request)  {

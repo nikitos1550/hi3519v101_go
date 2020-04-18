@@ -48,7 +48,7 @@ func RemoveSubscription(encoderId int, ch chan []byte) {
     }
 		
     _, exists := encoder.Channels[ch]
-    if (exists) {
+    if (!exists) {
 		logger.Log.Error().
 			Int("encoderId", encoderId).
 			Msg("Not subscribed")

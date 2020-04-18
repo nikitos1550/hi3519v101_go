@@ -13,7 +13,7 @@ import (
 	"application/pkg/mpp/error"
 )
 
-func DeleteEncoder(encoder ActiveEncoder) {
+func DeleteVencEncoder(encoder ActiveEncoder) {
 	var errorCode C.uint
 	var err C.int
 
@@ -43,7 +43,7 @@ func DeleteEncoder(encoder ActiveEncoder) {
 
 }
 
-func CreateEncoder(encoder ActiveEncoder) {
+func CreateVencEncoder(encoder ActiveEncoder) {
 	var errorCode C.uint
 	var err C.int
 	switch encoder.Format {
