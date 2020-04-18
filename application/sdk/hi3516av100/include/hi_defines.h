@@ -23,7 +23,12 @@ extern "C"{
 #define HI3516A_V100 0x3516A100
 #define HI3516D_V100 0x3516D100
 #define HI3518E_V200 0x3518E200
+#define HI3518E_V201 0x3518E201
 #define HI3519_V100  0x3519100
+#define HI3519_V101  0x35190101
+#define HI3516C_V300 0x3516C300
+#define HI3559_V100  0x35590100
+#define HI3516A_V200 0x3516A200
 #define HI35xx_Vxxx  0x35000000
 
 #ifndef HICHIP
@@ -47,7 +52,7 @@ static inline void InvalidateDcache(unsigned long addr, unsigned long len)
     unsigned long end;
     //TODO: cache refresh need rewrite
     return ;
-    
+
     addr &= LINE_BASE_MASK;
     len >>= LINE_LEN_BIT;
     end   = addr + len*LINE_LEN;
@@ -240,7 +245,7 @@ static inline  void FlushDcache(unsigned long addr, unsigned long len)
 #define AO_DEV_MIN_NUM          0
 #define AO_DEV_MAX_NUM          1
 #define AIO_MAX_NUM             1
-#define AIO_MAX_CHN_NUM         16
+#define AIO_MAX_CHN_NUM         2
 #define AENC_MAX_CHN_NUM        32
 #define ADEC_MAX_CHN_NUM        32
 
@@ -261,7 +266,7 @@ static inline  void FlushDcache(unsigned long addr, unsigned long len)
 #define VPSS_EXTCHN_MAX_IMAGE_HEIGHT     4096
 
 #define VPSS_MAX_ZOOMIN 1
-#define VPSS_MAX_ZOOMOUT 15  
+#define VPSS_MAX_ZOOMOUT 15
 
 #define VPSS_EXT_CHN_MAX_ZOOMIN  16
 #define VPSS_EXT_CHN_MAX_ZOOMOUT  15
@@ -278,6 +283,7 @@ static inline  void FlushDcache(unsigned long addr, unsigned long len)
 
 /* VB size align */
 #define VB_ALIGN_LEN        16
+#define COMMON_VB_REMAP_MODE    VB_REMAP_MODE_NOCACHE
 
 /* VB size calculate for compressed frame.
 	[param input]
@@ -286,7 +292,7 @@ static inline  void FlushDcache(unsigned long addr, unsigned long len)
 		fmt:	pixel format, 0: SP420, 1: SP422
 		z:	compress mode, 0: no compress, 1: default compress
 	[param output]
-		size: vb blk size		
+		size: vb blk size
  */
 #define VB_W_ALIGN		    16
 #define VB_H_ALIGN		    2

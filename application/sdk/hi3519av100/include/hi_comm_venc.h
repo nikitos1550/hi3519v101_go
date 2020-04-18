@@ -105,6 +105,8 @@ typedef enum hiJPEGE_PACK_TYPE_E
     JPEGE_PACK_APP = 6,                            /*APP types*/
     JPEGE_PACK_VDO = 7,                            /*VDO types*/
     JPEGE_PACK_PIC = 8,                            /*PIC types*/
+    JPEGE_PACK_DCF = 9,                            /*DCF types*/
+    JPEGE_PACK_DCF_PIC = 10,                       /*DCF PIC types*/
     JPEGE_PACK_BUTT
 } JPEGE_PACK_TYPE_E;
 
@@ -137,15 +139,15 @@ typedef struct hiVENC_PACK_INFO_S
 typedef struct hiVENC_PACK_S
 {
     HI_U64               u64PhyAddr;                 /* R; the physics address of stream */
-    HI_U8               ATTRIBUTE* pu8Addr;         /* R; the virtual address of stream */
+    HI_U8                ATTRIBUTE* pu8Addr;         /* R; the virtual address of stream */
     HI_U32               ATTRIBUTE u32Len;           /* R; the length of stream */
 
     HI_U64               u64PTS;                     /* R; PTS */
     HI_BOOL              bFrameEnd;                  /* R; frame end */
 
-    VENC_DATA_TYPE_U      DataType;                   /* R; the type of stream */
+    VENC_DATA_TYPE_U     DataType;                   /* R; the type of stream */
     HI_U32               u32Offset;                    /* R; the offset between the Valid data and the start address */
-    HI_U32                 u32DataNum;                    /* R; the  stream packets num */
+    HI_U32               u32DataNum;                    /* R; the  stream packets num */
     VENC_PACK_INFO_S     stPackInfo[8];                /* R; the stream packet Information */
 } VENC_PACK_S;
 
@@ -295,6 +297,25 @@ typedef struct hiVENC_STREAM_S
     };
 } VENC_STREAM_S;
 
+typedef struct hiVENC_STREAM_INFO_S
+{
+    H265E_REF_TYPE_E enRefType;   /*Type of encoded frames in advanced frame skipping reference mode*/
+
+    HI_U32  u32PicBytesNum;      /* the coded picture stream byte number */
+    HI_U32  u32PicCnt;           /*Number of times that channel attributes or parameters (including RC parameters) are set*/
+	HI_U32  u32StartQp;	         /*the start Qp of encoded frames*/
+	HI_U32  u32MeanQp;           /*the mean Qp of encoded frames*/
+    HI_BOOL bPSkip;
+
+    HI_U32 	u32ResidualBitNum;   //residual
+    HI_U32 	u32HeadBitNum;       //head information
+    HI_U32 	u32MadiVal;	         //madi
+    HI_U32 	u32MadpVal;	         //madp
+    HI_U32  u32MseSum;            /* Sum of MSE value */
+    HI_U32  u32MseLcuCnt;         /* Sum of LCU number */
+    HI_DOUBLE dPSNRVal;          //PSNR
+} VENC_STREAM_INFO_S;
+
 
 /*the size of array is 2,that is the maximum*/
 typedef struct hiVENC_MPF_CFG_S
@@ -303,11 +324,20 @@ typedef struct hiVENC_MPF_CFG_S
     SIZE_S  astLargeThumbNailSize[2]; /* RW; The resolution of large ThumbNail*/
 } VENC_MPF_CFG_S;
 
+typedef enum hiVENC_PIC_RECEIVE_MODE_E
+{
+    VENC_PIC_RECEIVE_SINGLE = 0,
+    VENC_PIC_RECEIVE_MULTI,
+
+    VENC_PIC_RECEIVE_BUTT
+}VENC_PIC_RECEIVE_MODE_E;
+
 /*the attribute of jpege*/
 typedef struct hiVENC_ATTR_JPEG_S
 {
-    HI_BOOL         bSupportDCF;       /*RW; Range:[0,1]; support dcf */
-    VENC_MPF_CFG_S  stMPFCfg;           /*RW; Range:[0,1]; config of Mpf*/
+    HI_BOOL                     bSupportDCF;    /*RW; Range:[0,1]; support dcf */
+    VENC_MPF_CFG_S              stMPFCfg;       /*RW; Range:[0,1]; config of Mpf*/
+    VENC_PIC_RECEIVE_MODE_E  	enReceiveMode;  /*RW; */
 } VENC_ATTR_JPEG_S;
 
 /*the attribute of mjpege*/
@@ -490,6 +520,7 @@ typedef struct hiVENC_CHN_STATUS_S
     HI_U32 u32LeftRecvPics;                         /* R; Number of frames to be received. This member is valid after HI_MPI_VENC_StartRecvPicEx is called.*/
     HI_U32 u32LeftEncPics;                          /* R; Number of frames to be encoded. This member is valid after HI_MPI_VENC_StartRecvPicEx is called.*/
     HI_BOOL bJpegSnapEnd;                           /* R; the end of Snap.*/
+    VENC_STREAM_INFO_S stVencStrmInfo;
 } VENC_CHN_STATUS_S;
 
 /* the param of the h264e slice split*/
@@ -716,6 +747,7 @@ typedef struct hiVENC_H265_TRANS_S
 {
     HI_S32  cb_qp_offset;                            /* RW; Range:[-12,12]; see the H.265 protocol for the meaning. */
     HI_S32  cr_qp_offset;                            /* RW; Range:[-12,12]; see the H.265 protocol for the meaning. */
+    HI_BOOL bScalingListEnabled;                     /* RW; Range:[0,1]; If 1, specifies that a scaling list is used.*/
 
     HI_BOOL bScalingListTu4Valid;                   /* RW; Range:[0,1]; If 1, ScalingList4X4 belows will be encoded.*/
     HI_U8   InterScalingList4X4[2][16];             /* RW; Range:[1,255]; Scaling List for inter 4X4 block.*/
@@ -919,11 +951,14 @@ typedef enum hiVENC_SCENE_MODE_E
     SCENE_BUTT
 }VENC_SCENE_MODE_E;
 
+
 typedef struct hiVENC_DEBREATHEFFECT_S
 {
-    HI_BOOL bEnable;                 /*RW; Range:[0,1];default: 0, DeBreathEffect enable */
-    HI_S32  s32Strength;             /*RW; Range:[0,10];The Strength of DeBreathEffect.*/
+    HI_BOOL   bEnable;                 /*RW; Range:[0,1];default: 0, DeBreathEffect enable */
+    HI_S32    s32Strength0;            /*RW; Range:[0,35];The Strength0 of DeBreathEffect.*/
+    HI_S32    s32Strength1;            /*RW; Range:[0,35];The Strength1 of DeBreathEffect.*/
 } VENC_DEBREATHEFFECT_S;
+
 
 typedef struct hiVENC_CU_PREDICTION_S
 {
@@ -961,6 +996,11 @@ typedef struct hiVENC_CHN_POOL_S
     VB_POOL hPicVbPool;     /* RW;  vb pool id for pic buffer */
     VB_POOL hPicInfoVbPool; /* RW;  vb pool id for pic info buffer */
 }VENC_CHN_POOL_S;
+
+typedef struct hiVENC_RC_ADVPARAM_S
+{
+    HI_U32 u32ClearStatAfterSetAttr;
+}VENC_RC_ADVPARAM_S;
 
 
 #ifdef __cplusplus

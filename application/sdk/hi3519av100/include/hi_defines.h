@@ -263,9 +263,11 @@ extern "C"{
  * multiplied by VI_MAX_CHN_NUM, because all VI devices
  * can't work at mode of 4 channles at the same time.
  */
-#define VI_MAX_DEV_NUM            5
-#define VI_MAX_PIPE_NUM        6
-#define VI_MAX_STITCH_GRP_NUM  6
+#define VI_MAX_DEV_NUM              5
+#define VI_MAX_PHY_PIPE_NUM         6
+#define VI_MAX_VIR_PIPE_NUM         0
+#define VI_MAX_PIPE_NUM             (VI_MAX_PHY_PIPE_NUM + VI_MAX_VIR_PIPE_NUM)
+#define VI_MAX_STITCH_GRP_NUM       6
 #define VI_MAX_WDR_NUM            2
 #define VI_MAX_PHY_CHN_NUM        2
 #define VI_MAX_EXT_CHN_NUM        8
@@ -328,11 +330,26 @@ extern "C"{
 #define DIS_MIN_IMAGE_HEIGHT    (720)
 
 /* For VO */
+
+#define VO_MAX_VIRT_DEV_NUM     4       /* max virtual dev num*/
+#define VO_VIRT_DEV_0           2       /* virtual device 0 */
+#define VO_VIRT_DEV_1           3       /* virtual device 1 */
+#define VO_VIRT_DEV_2           4       /* virtual device 2 */
+#define VO_VIRT_DEV_3           5       /* virtual device 3 */
+
+#define VO_VIRT_LAYER_0         3       /* virtual layer 0 */
+#define VO_VIRT_LAYER_1         4       /* virtual layer 1 */
+#define VO_VIRT_LAYER_2         5       /* virtual layer 2 */
+#define VO_VIRT_LAYER_3         6       /* virtual layer 3 */
+
 #define VO_MIN_CHN_WIDTH        32      /* channel minimal width */
 #define VO_MIN_CHN_HEIGHT       32      /* channel minimal height */
 #define VO_MAX_ZOOM_RATIO       1000    /* max zoom ratio, 1000 means 100% scale */
-#define VO_MAX_DEV_NUM          2       /* max dev num */
-#define VO_MAX_LAYER_NUM        3       /* max layer num */
+
+#define VO_MAX_PHY_DEV_NUM      2       /* max physical dev num*/
+
+#define VO_MAX_DEV_NUM          (VO_MAX_PHY_DEV_NUM+VO_MAX_VIRT_DEV_NUM)       /* max dev num */
+#define VO_MAX_LAYER_NUM        (3+VO_MAX_VIRT_DEV_NUM)       /* max layer num */
 #define VO_MAX_PRIORITY         2       /* max layer priority */
 #define VO_MAX_CHN_NUM          36      /* max chn num */
 #define VO_MAX_LAYER_IN_DEV     2       /* max layer num of each dev */
@@ -342,7 +359,7 @@ extern "C"{
 #define VO_MAX_TOLERATE         100000  /* max play toleration 100s */
 
 /* For AVS */
-#define AVS_MAX_GRP_NUM          32       /* max grp num */
+#define AVS_MAX_GRP_NUM          32      /* max grp num */
 #define AVS_PIPE_NUM             4       /* max pipe num */
 #define AVS_MAX_CHN_NUM          2       /* max chn num */
 #define AVS_SPLIT_NUM            2
@@ -449,8 +466,8 @@ extern "C"{
 #define PMF_MIN_IMAGE_WIDTH             480
 #define PMF_MIN_IMAGE_HEIGHT            360
 
-#define ROTATION_EX_MIN_IMAGE_WIDTH    640
-#define ROTATION_EX_MIN_IMAGE_HEIGHT   480
+#define ROTATION_EX_MIN_IMAGE_WIDTH    480
+#define ROTATION_EX_MIN_IMAGE_HEIGHT   360
 
 #define GDC_MAX_IMAGE_WIDTH        8192
 #define GDC_MAX_IMAGE_HEIGHT       8192

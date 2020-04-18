@@ -58,7 +58,8 @@ typedef enum hiVB_UID_E
     VB_UID_AVS       = 19,
     VB_UID_DPU_RECT  = 20,
     VB_UID_DPU_MATCH = 21,
-    VB_UID_BUTT      = 22,
+    VB_UID_MCF       = 22,
+    VB_UID_BUTT      = 23,
 
 } VB_UID_E;
 

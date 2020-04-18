@@ -109,6 +109,9 @@ HI_S32 HI_MPI_SYS_GetScaleCoefLevel(SCALE_RANGE_S *pstScaleRange,SCALE_COEFF_LEV
 HI_S32 HI_MPI_SYS_SetTimeZone(HI_S32 s32TimeZone);
 HI_S32 HI_MPI_SYS_GetTimeZone(HI_S32 *ps32TimeZone);
 
+HI_S32 HI_MPI_SYS_GetCustomCode(HI_U32 *pu32CustomCode);
+HI_S32 HI_MPI_SYS_GetChipId(HI_U32 *pu32ChipId);
+
 #ifdef __cplusplus
 #if __cplusplus
 }

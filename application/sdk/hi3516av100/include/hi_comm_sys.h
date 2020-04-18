@@ -57,13 +57,23 @@ typedef struct hiSYS_VIRMEM_INFO_S
 
 typedef enum hiSCALE_RANGE_E
 {
-    SCALE_RANGE_0 = 0,      /* scale range <  1/4 */
-    SCALE_RANGE_1,          /* scale range >= 1/4 */
-    SCALE_RANGE_2,          /* scale range >= 1/3 */
-    SCALE_RANGE_3,          /* scale range >= 1/2 */
-    SCALE_RANGE_4,          /* scale range >= 3/4 */
-    SCALE_RANGE_5,          /* scale range == 1/1 */
-    SCALE_RANGE_6,          /* scale range >  1   */
+    SCALE_RANGE_0 = 0,      /* scale range <  15/64 */
+    SCALE_RANGE_1,          /* scale range >= 15/64 */
+    SCALE_RANGE_2,          /* scale range >= 19/64 */
+    SCALE_RANGE_3,          /* scale range >= 24/64 */
+    SCALE_RANGE_4,          /* scale range >= 29/64 */
+    SCALE_RANGE_5,          /* scale range >= 33/64 */
+    SCALE_RANGE_6,          /* scale range >= 35/64 */
+    SCALE_RANGE_7,          /* scale range >= 38/64 */
+    SCALE_RANGE_8,          /* scale range >= 42/64 */
+    SCALE_RANGE_9,          /* scale range >= 45/64 */
+    SCALE_RANGE_10,         /* scale range >= 48/64 */
+    SCALE_RANGE_11,         /* scale range >= 51/64 */
+    SCALE_RANGE_12,         /* scale range >= 53/64 */
+    SCALE_RANGE_13,         /* scale range >= 55/64 */
+    SCALE_RANGE_14,         /* scale range >= 57/64 */
+    SCALE_RANGE_15,         /* scale range >= 60/64 */
+    SCALE_RANGE_16,         /* scale range >  1     */
     SCALE_RANGE_BUTT,
 } SCALE_RANGE_E;
 
@@ -76,6 +86,16 @@ typedef enum hiCOEFF_LEVEL_E
     COEFF_LEVEL_4,          /* coefficient level 4 */
     COEFF_LEVEL_5,          /* coefficient level 5 */
     COEFF_LEVEL_6,          /* coefficient level 6 */
+    COEFF_LEVEL_7,          /* coefficient level 7 */
+    COEFF_LEVEL_8,          /* coefficient level 8 */
+    COEFF_LEVEL_9,          /* coefficient level 9 */
+    COEFF_LEVEL_10,         /* coefficient level 10 */
+    COEFF_LEVEL_11,         /* coefficient level 11 */
+    COEFF_LEVEL_12,         /* coefficient level 12 */
+    COEFF_LEVEL_13,         /* coefficient level 13 */
+    COEFF_LEVEL_14,         /* coefficient level 14 */
+    COEFF_LEVEL_15,         /* coefficient level 15 */
+    COEFF_LEVEL_16,         /* coefficient level 16 */
     COEFF_LEVEL_BUTT,
 } COEFF_LEVEL_E;
 

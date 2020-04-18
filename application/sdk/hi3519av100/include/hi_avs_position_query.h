@@ -53,7 +53,7 @@ typedef struct hiAVS_CONFIG_S
 /**
 Generates the lookup table about the position between output image and source image.
 pstAvsConfig:     output image config
-pstPosMeshCfg:    position mesh config
+u64MeshVirAddr:  the virtual address of mesh data to save.
 **/
 HI_S32 HI_AVS_PosMeshGenerate(AVS_CONFIG_S *pstAvsConfig, HI_U64 u64MeshVirAddr[AVS_MAX_INPUT_NUMBER]);
 
@@ -67,6 +67,18 @@ pstSrcPointOut: the output position in source image space.
 **/
 HI_S32 HI_AVS_PosQueryDst2Src(SIZE_S *pstDstSize, HI_U32 u32WindowSize,HI_U64 u64MeshVirAddr,
                                      POINT_S *pstDstPointIn, POINT_S *pstSrcPointOut);
+
+/**
+Query the position in output stitch image space from the source image space
+pstSrcSize:    the resolution of source image;
+u32WindowSize: the windows size of position mesh data, should be same as generating the position mesh.
+u64MeshVirAddr:the virtual address of position mesh data, the memory size should be same as the mesh file.
+pstSrcPointIn: the input position in source image space.
+pstDstPointOut:the output position in destination image space.
+**/
+HI_S32 HI_AVS_PosQuerySrc2Dst(SIZE_S *pstSrcSize, HI_U32 u32WindowSize, HI_U64 u64MeshVirAddr,
+	                          POINT_S *pstSrcPointIn, POINT_S *pstDstPointOut);
+
 
 #ifdef __cplusplus
 }

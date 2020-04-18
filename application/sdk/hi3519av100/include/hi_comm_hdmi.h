@@ -472,6 +472,34 @@ typedef struct hiHDMI_HDR_CAP_S{
     HI_U8                           u8MinLuminance_CV;      /**<Desired Content Min Luminance Data. Real value(in 1cd/m^2) = u8MaxLuminance_CV * (u8MinLuminance_CV/255)^2 / 100 */
 }HI_HDMI_HDR_CAP_S;
 
+/**EDID detailed Timing Info struct*/
+typedef struct hiHDMI_TIMING_INFO_S
+{
+    HI_U32                        u32VFB;          /**<vertical front blank*/
+    HI_U32                        u32VBB;          /**<vertical back blank*/
+    HI_U32                        u32VACT;         /**<vertical active area*/
+    HI_U32                        u32HFB;          /**<horizonal front blank*/
+    HI_U32                        u32HBB;          /**<horizonal back blank*/
+    HI_U32                        u32HACT;         /**<horizonal active area*/
+    HI_U32                        u32VPW;          /**<vertical sync pluse width*/
+    HI_U32                        u32HPW;          /**<horizonal sync pluse width*/
+    HI_BOOL                       bIDV;            /**<flag of data valid signal is needed flip*/
+    HI_BOOL                       bIHS;            /**<flag of horizonal sync pluse is needed flip*/
+    HI_BOOL                       bIVS;            /**<flag of vertical sync pluse is needed flip*/
+    HI_U32                        u32ImageWidth;   /**<image width */
+    HI_U32                        u32ImageHeight;  /**<image height */
+    HI_U32                        u32AspectRatioW; /**<aspect ratio width */
+    HI_U32                        u32AspectRatioH; /**<aspect ratio height */
+    HI_BOOL                       bInterlace;      /**<flag of interlace */
+    HI_S32                        u32PixelClk;     /**<pixelc clk for this timing, unit:KHz */
+} HI_HDMI_TIMING_INFO_S;
+
+typedef struct hiHDMI_DET_TIMING_S
+{
+    HI_U32                      u32DetTimingNum;
+    HI_HDMI_TIMING_INFO_S       astDetTiming[10];
+}HI_HDMI_DET_TIMING_S;
+
 typedef struct hiHDMI_SINK_CAPABILITY_S
 {
     HI_BOOL             bConnected;                                                       /**< Whether the devices are connected. */
@@ -530,6 +558,7 @@ typedef struct hiHDMI_SINK_CAPABILITY_S
     HI_BOOL             bRgbQrangeSelectable;                                           /**<flag of YCC Quantization Range selectable.when HI_TRUE,sink expect full/limited range is selectable;or sink expect default range. */
     HI_BOOL             bHdrSupport;                                                    /**<HDR support flag.When HDR Static Metadata Data Block is indicated,flag HI_TRUE;or,HI_FALSE.*/
     HI_HDMI_HDR_CAP_S   stHdr;                                                          /**<HDR capability*/
+    HI_HDMI_DET_TIMING_S    stDetailedTiming;                                           /**<Detailed timing infomation*/
 } HI_HDMI_SINK_CAPABILITY_S;
 
 typedef struct hiHDMI_ATTR_S
@@ -538,8 +567,8 @@ typedef struct hiHDMI_ATTR_S
 
     HI_BOOL                 bEnableVideo;        /**< Whether to output video.The value must be HI_TRUE.If the value is HI_FALSE, the HDMI is forcibly set to HI_TRUE. */
     HI_HDMI_VIDEO_FMT_E     enVideoFmt;          /**< Video norm. This value of the video norm must be consistent with the norm of the video output. */
-
-    HI_HDMI_VIDEO_MODE_E    enVidOutMode;        /**< HDMI output video output mode.VIDEO_MODE_YCBCR444,VIDEO_MODE_YCBCR422,VIDEO_MODE_RGB444 */
+    HI_HDMI_VIDEO_MODE_E    enVidInMode;        /**< HDMI input video input mode.VIDEO_MODE_YCBCR444,VIDEO_MODE_YCBCR422,VIDEO_MODE_YCBCR420,VIDEO_MODE_RGB444 */
+    HI_HDMI_VIDEO_MODE_E    enVidOutMode;        /**< HDMI output video output mode.VIDEO_MODE_YCBCR444,VIDEO_MODE_YCBCR422,VIDEO_MODE_YCBCR420,VIDEO_MODE_RGB444 */
     HI_HDMI_QUANTIZATION_E  enOutCscQuantization; /**< CSC output quantization range HDMI_QUANTIZATION_RANGE_LIMITED, HDMI_QUANTIZATION_RANGE_FULL>**/
     HI_HDMI_DEEP_COLOR_E    enDeepColorMode;     /**< DeepColor output mode.It is HI_HDMI_DEEP_COLOR_24BIT by default. */
     HI_BOOL                 bxvYCCMode;          /**< Whether to enable the xvYCC output mode.It is HI_FALSE by default. */
@@ -954,6 +983,7 @@ typedef enum hiHDMI_TRACE_LEN_E
 {
     HI_HDMI_TRACE_LEN_0,
     HI_HDMI_TRACE_LEN_1,
+    HI_HDMI_TRACE_LEN_2,
     HI_HDMI_TRACE_LEN_BUTT,
 }HI_HDMI_TRACE_LEN_E;
 

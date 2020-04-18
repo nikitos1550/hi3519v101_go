@@ -56,6 +56,7 @@ typedef enum hiVPSS_NR_TYPE_E
 {
     VPSS_NR_TYPE_VIDEO      = 0,
     VPSS_NR_TYPE_SNAP       = 1,
+    VPSS_NR_TYPE_VIDEO_ENHANCE = 2,
     VPSS_NR_TYPE_BUTT
 }VPSS_NR_TYPE_E;
 
@@ -63,7 +64,6 @@ typedef enum hiNR_MOTION_MODE_E
 {
     NR_MOTION_MODE_NORMAL          = 0,        /* normal */
     NR_MOTION_MODE_COMPENSATE      = 1,        /* motion compensate */
-    NR_MOTION_MODE_COMPENSATE_PART = 2,        /* motion compensate locality */
     NR_MOTION_MODE_BUTT
 }NR_MOTION_MODE_E;
 
@@ -286,56 +286,69 @@ typedef struct hiVPSS_NRX_PARAM_V1_S
 
 typedef struct
 {
-    HI_U8  IES0, IES1, IES2, IES3;
-    HI_U16 IEDZ : 10, _rb_ : 6;
+    HI_U8  IES0, IES1, IES2, IES3;  /* IES0~4 ; Range: [0, 255]; The gains of edge and texture enhancement. 0~3 for different frequency response. */
+    HI_U16 IEDZ : 10, _rb_ : 6;     /* IEDZ   ; Range: [0, 999]; The threshold to control the generated artifacts. */
 } tV500_VPSS_IEy;
 
 typedef struct
 {
-    HI_U8  SPN6 : 3, SFR  : 5;
-    HI_U8  SBN6 : 3, PBR6 : 5;
-    HI_U16 SRT0 : 5, SRT1 : 5, JMODE : 3,  DeIdx : 2,  TriTh : 1;
-    HI_U8  DeRate, SFR6[3];
+    HI_U8  SPN6 : 3, SFR  : 5;      /* SPN6; Range: [0,   5];  The selection of filters to be mixed for NO.6 filter. */
+                                    /* SFR ; Range: [0,  31];  The relative NR strength in the SFi and SFk filter. */
+    HI_U8  SBN6 : 3, PBR6 : 5;      /* SBN6; Range: [0,   5];  The selection of filters to be mixed for NO.6 filter. */
+                                    /* PBR6; Range: [0,  16];  The mix ratio between SPN6 and SBN6. */
+    HI_U16 SRT0 : 5, SRT1 : 5, JMODE : 3,  DeIdx : 3;   /* JMODE;      Range: [0,   4]; The selection modes for the blending of spatial filters */
+                                                        /* STR0, STR1; Range: [0,  16]; The blending ratio of different filters. (Used in serial filtering mode (SFM).) */
+                                                        /* DeIdx;      Range: [3,   6]; The selection number of filters that textures and details will be added to. */
+    HI_U8  DeRate, SFR6[3];                             /* DeRate;     Range: [0, 255]; The enhancement strength for the SFM (When DeRate > 0, the SFM will be activated)*/
+                                                        /* SFR6;       Range: [0,  31]; The relative NR strength for NO.6 filter. (Effective when JMODE = 4)*/
+    HI_U8  SFS1,  SFT1,  SBR1;                          /* SFS1, SFT1, SBR1; Range: [0, 255];  The NR strength parameters for NO.1 filter. */
+    HI_U8  SFS2,  SFT2,  SBR2;                          /* SFS2, SFT2, SBR2; Range: [0, 255];  The NR strength parameters for NO.2 filter. */
+    HI_U8  SFS4,  SFT4,  SBR4;                          /* SFS4, SFT4, SBR4; Range: [0, 255];  The NR strength parameters for NO.3 and NO.4 filters. */
 
-    HI_U8  SFS1,  SFT1,  SBR1;
-    HI_U8  SFS2,  SFT2,  SBR2;
-    HI_U8  SFS4,  SFT4,  SBR4;
-
-    HI_U16 STH1  : 9,  SFN1 : 3, SFN0  : 3, NRyEn : 1;
-    HI_U16 STH2  : 9,  SFN2 : 3, BWSF4 : 1, kMode : 3;
-    HI_U16 STH3  : 9,  SFN3 : 3, _rb0_ : 4;
+    HI_U16 STH1 : 9, SFN1 : 3, SFN0  : 3, NRyEn : 1;    /* STH1~3; Range: [0, 511]; The thresholds for protection of edges from blurring */
+                                                        /* NRyEn ; Range: [0,   1]; The NR switches */
+    HI_U16 STH2 : 9, SFN2 : 3, BWSF4 : 1, kMode : 3;    /* SFN0~3; Range: [0,   6]; Filter selection for different image areas based on STH1~3.*/
+                                                        /* BWSF4 ; Range: [0,   1]; The NR window size for the NO.3 and NO.4 filters.  */
+    HI_U16 STH3 : 9, SFN3 : 3, TriTh : 1, _rb0_ : 3;    /* KMode ; Range: [0,   3]; The denoise mode based on image brightness. */
+                                                        /* Trith ; Range: [0,   1]; The switch to choose 3 STH threshold or 2 STH threshold */
+    HI_U16 SBSk[32], SDSk[32];                          /* SBSk[32], SDSk[32]; Range [0, 8191];  Spatial NR strength based on brightness. */
 } tV500_VPSS_SFy;
 
 typedef struct
 {
-    HI_U16 MADZ0   : 9,  MAI00    : 2,  MAI01  : 2,  MAI02    : 2,  biPath  : 1;
-    HI_U16 MADZ1   : 9,  MAI10    : 2,  MAI11  : 2,  MAI12    : 2,  _rb_ : 1;
-    HI_U8  MABR0[16], MABR1[16];
-
-    HI_U16 MATH0   : 10,  MATE0   : 4,  MATW0  : 2;
-    HI_U16 MATH1   : 10,  MATE1   : 4,  MATW1  : 2;
-    HI_U8  MASW0   :  4,  MASW1   : 4;
-    HI_U8  MABW0   :  4,  MABW1   : 4;
+    HI_U16 MADZ0   : 9,  MAI00    : 2,  MAI01  : 2,  MAI02    : 2,  biPath  : 1;    /* MADZ0, MADZ1;     Range: [0, 511]; The blending ratio between MAI2 and MAI1 based on image statistics. */
+    HI_U16 MADZ1   : 9,  MAI10    : 2,  MAI11  : 2,  MAI12    : 2,  _rb_ : 1;       /* MAI00~02,MAI10~12 Range: [0,   3]; The three blending results between spatial and temporal filtering. */
+    HI_U8  MABR0, MABR1;                                                            /* MABR0, MABR1;  Range: [0, 255]; The blending ratio between MAI2 and MAI1 based on brightness.  */
+                                                                                    /* biPath;           Range: [0,   1]; The switch for single path or dual path. 0: single path; 1: dual path. */
+    HI_U16 MATH0   : 10,  MATE0   : 4,  MATW0  : 2;     /* MATH0,MATH1;   Range: [0, 999]; The theshold for motion detection. */
+    HI_U16 MATH1   : 10,  MATE1   : 4,  MATW1  : 2;     /* MATE0,MATE1;   Range: [0,   8]; The motion index for smooth image area.*/
+                                                        /* MATW0,MATW1;   Range: [0,   3]; The motion index for prevention of motion ghost. */
+    HI_U8  MASW0   :  4,  MASW1   : 4;                  /* MASW0,MASW1;   Range: [0,  15]; The motion index for low-frequency noises. */
+    HI_U8  MABW0   :  4,  MABW1   : 4;                  /* MABW0,MABW1;   Range: [0,   9]; The window size for motion detection. */
 } tV500_VPSS_MDy;
 
 typedef struct
 {
-    HI_U16 TFS0  :  4, TDZ0   : 10, TDX0    : 2;
-    HI_U16 TFS1  :  4, TDZ1   : 10, TDX1    : 2;
-    HI_U16 SDZ0  : 10, STR0   : 5,  DZMode0 : 1;
-    HI_U16 SDZ1  : 10, STR1   : 5,  DZMode1 : 1;
-
-    HI_U8  TFR0[7],    TSS0   : 4,  TSI0    : 4;
-    HI_U8  TFR1[7],    TSS1   : 4,  TSI1    : 4;
-
-    HI_U8  RFI0  : 3, RFI1 : 3, bRfr : 1, bRef  : 1;
-    HI_U8  tEdge : 2, _rb_ : 6;
+    HI_U16 TFS0  :  4, TDZ0   : 10, TDX0    : 2;        /* TFS0,TFS1;        Range: [0,  15]; The NR strength for temporal filtering. */
+    HI_U16 TFS1  :  4, TDZ1   : 10, TDX1    : 2;        /* TDZ0,TDZ1;        Range: [0, 999]; Protection of the weak texture area from temporal filtering.  */
+                                                        /* TDX0,TDX1;        Range: [0,   3]; Not for tuning. */
+    HI_U16 SDZ0  : 10, STR0   : 5,  DZMode0 : 1;        /* SDZ0,SDZ1;        Range: [0, 999]; The threshold of NR control for result MAI1. */
+    HI_U16 SDZ1  : 10, STR1   : 5,  DZMode1 : 1;        /* STR0,STR1;        Range: [0,  31]; The strength of NR control for result MAI1.  */
+                                                        /* DZMode0, DZMode1; Range: [0,   1]; The selection mode for TDZ0 and TDZ1, respectively.  */
+    HI_U8  TFR0[7],    TSS0   : 4,  TSI0    : 4;        /* TFR0,TFR1;        Range: [0,  31]; The temoproal NR strength control for background (static) area. */
+    HI_U8  TFR1[7],    TSS1   : 4,  TSI1    : 4;        /* TSS0,TSS1;        Range: [0,  15]; The ratio for blending spatial NR with the temproal NR results. */
+                                                        /* TSI0,TSI1;        Range: [0,   1]; The selection of blending filter for TSS. */
+    HI_U8  RFI0  : 3,  RFI1   : 3,  tEdge   : 2;        /* tEdge;            Range: [0,   3]; NR strength control mode for the updating background. */
+                                                        /* RFI0,RFI1;        Range: [0,   4]; Reference mode. (used in when NR_MOTION_MODE_COMPENSATE are selected). */
+    HI_U8  bRef  : 1,  _rb_   : 7;                      /* bRef;             Range: [0,   1]; The Switch for temproal filtering.  */
 } tV500_VPSS_TFy;
 
 typedef struct
 {
-    HI_U16 advTH  : 12, advMATH : 1, RFUI : 3;
-    HI_U16 RFDZ   :  9, RFSLP   : 5, bRFU : 1,  _rb_ : 1;
+    HI_U16 advMATH : 1, RFDZ  : 9,    _rb_ : 6;         /* advMATH;        Range: [0,   1]; The Switch for advanced motion dection.  */
+                                                        /* RFUI;           Range: [0,   1]; The modes for updating reference for NRy leve 2, (used in when NR_MOTION_MODE_COMPENSATE are selected). */
+    HI_U8  RFUI    : 3, RFSLP : 5;                      /* RFDZ;           Rnage: [0, 511]; The threshold for RFI0 and RFI1 mode 3 and 4. */
+                                                        /* RFSLP;          Rnage: [0,  31]; The Strength for RFI0 and RFI1 mode 3 and 4. */
 } tV500_VPSS_RFs;
 
 typedef struct
@@ -349,8 +362,9 @@ typedef struct
 
 typedef struct
 {
-    HI_U8  SFC;
-    HI_U16 CTFS : 4, TFC : 6, _rb_ : 6;
+    HI_U8  SFC;                                         /* SFC;    Range: [0, 255]; Spatial NR strength. */
+    HI_U16 CTFS : 4, TFC : 6, _rb_ : 6;                 /* TFC;    Range: [0,  63]; Temporal NR strength relative to Spatial NR. */
+                                                        /* CTFS;   Range: [0,  15]; Absolute temporal NR strength. */
 } tV500_VPSS_pNRc;
 
 typedef struct
@@ -360,12 +374,19 @@ typedef struct
     tV500_VPSS_MDy  MDy[2];
     tV500_VPSS_RFs  RFs;
     tV500_VPSS_TFy  TFy[2];
-    tV500_VPSS_NRc  NRc;
     tV500_VPSS_pNRc pNRc;
-
-    HI_U16  SBSk2[32], SDSk2[32];
-    HI_U16  SBSk3[32], SDSk3[32];
+    tV500_VPSS_NRc  NRc;
 } VPSS_NRX_V2_S;
+
+typedef struct
+{
+    tV500_VPSS_IEy  IEy[6];
+    tV500_VPSS_SFy  SFy[6];
+    tV500_VPSS_MDy  MDy[4];
+    tV500_VPSS_RFs  RFs[2];
+    tV500_VPSS_TFy  TFy[4];
+    tV500_VPSS_pNRc pNRc[2];
+} VPSS_NRT_PARAM_V2_S;
 
 typedef struct hiVPSS_NRX_PARAM_MANUAL_V2_S
 {
@@ -407,6 +428,15 @@ typedef struct hiVPSS_GRP_NRX_PARAM_S
 
 }VPSS_GRP_NRX_PARAM_S;
 
+typedef struct hiVPSS_GRP_NRT_PARAM_S
+{
+    VPSS_NR_VER_E enNRVer;
+    union
+    {
+        VPSS_NRT_PARAM_V2_S stNRTParam_V2;
+    };
+
+} VPSS_GRP_NRT_PARAM_S;
 
 typedef struct hiVPSS_PARAM_MOD_S
 {

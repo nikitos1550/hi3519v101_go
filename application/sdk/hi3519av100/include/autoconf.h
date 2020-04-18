@@ -2,7 +2,7 @@
  * Automatically generated C config: don't edit
  * Busybox version: 
  */
-#define AUTOCONF_TIMESTAMP "2018-09-14 11:39:42 CST"
+#define AUTOCONF_TIMESTAMP "2018-11-15 09:07:56 CST"
 
 
 /*
@@ -39,11 +39,37 @@
  */
 
 /*
+ * media base config
+ */
+#define CONFIG_HI_VB_EXTPOOL_SUPPORT 1
+
+/*
+ * media sys config
+ */
+#define CONFIG_HI_SYS_SUPPORT 1
+#define CONFIG_HI_SYS_SCALE_COEF_SUPPORT 1
+#define CONFIG_HI_SYS_SCALE_COEF_ONLINE_SUPPORT 1
+
+/*
  * media vi config
  */
 #define CONFIG_HI_VI_SUPPORT 1
 #define CONFIG_HI_VI_BT656 1
 #define CONFIG_HI_VI_MIPI 1
+#define CONFIG_HI_ISP_2DOF_DIS_SUPPORT 1
+#define CONFIG_HI_VI_LDCV1_SUPPORT 1
+#define CONFIG_HI_VI_LDCV2_SUPPORT 1
+#define CONFIG_HI_VI_SENDYUV_SUPPORT 1
+#define CONFIG_HI_VI_SRC_SUPPORT 1
+#define CONFIG_HI_VI_STITCH_SUPPORT 1
+#define CONFIG_HI_VI_CHN_EARLY_INT_SUPPORT 1
+#define CONFIG_HI_VI_3DNRX_SUPPORT 1
+#define CONFIG_HI_VI_USERPIC_SUPPORT 1
+#define CONFIG_HI_VI_COVEREX_OVERLAYEX_SUPPORT 1
+#define CONFIG_HI_VI_LUMA_SUPPORT 1
+#define CONFIG_HI_VI_FPN_SUPPORT 1
+#define CONFIG_HI_VI_EXTCHN_SUPPORT 1
+#define CONFIG_HI_SNAP_SUPPORT 1
 
 /*
  * media isp config
@@ -105,6 +131,7 @@
 #define CONFIG_HI_JPEGD_SUPPORT 1
 #define CONFIG_VDEC_ROTATION_SUPPORT 1
 #define CONFIG_VDEC_USERPIC_SUPPORT 1
+#define CONFIG_VDEC_USERDATA_SUPPORT 1
 
 /*
  * media vo config
@@ -113,7 +140,7 @@
 #define CONFIG_HI_VO_HD 1
 #define CONFIG_HI_VO_PLAY_CTL 1
 #define CONFIG_HI_VO_LUMA 1
-#define CONFIG_HI_VO_COVER_OSD 1
+#define CONFIG_HI_VO_COVER_OSD_SUPPORT 1
 #define CONFIG_HI_VO_VGS 1
 #define CONFIG_HI_VO_GRAPH 1
 #define CONFIG_HI_VO_BATCH 1
@@ -143,6 +170,10 @@
  */
 
 /*
+ * media mcf config
+ */
+
+/*
  * Device Driver Setup
  */
 
@@ -154,6 +185,7 @@
 #define CONFIG_INTERDRV 1
 #define CONFIG_CIPHER 1
 #define CONFIG_HIUSER 1
+#define CONFIG_MIPI_TX 1
 #define CONFIG_MIPI_RX 1
 #define CONFIG_HI_IR 1
 #define CONFIG_HI_WDG 1
@@ -180,7 +212,6 @@
 #define CONFIG_HI_SVP_DSP 1
 #define CONFIG_HI_SVP_LITEOS 1
 #define CONFIG_HI_SVP_CNN 1
-#define CONFIG_HI_SVP_RUNTIME 1
 #define CONFIG_HI_SVP_IVE 1
 #define CONFIG_HI_SVP_MD 1
 #define CONFIG_HI_SVP_DPU_RECT 1
@@ -212,10 +243,13 @@
 /*
  * Component tzasc Config
  */
-#define CONFIG_HI_TZASC_SUPPORT 1
 
 /*
  * Component motionfusion config
+ */
+
+/*
+ * Component pm Config
  */
 
 /*
@@ -228,10 +262,13 @@
 #define CONFIG_HISYSLINK 1
 
 /*
- * GDB Config
+ * Debug Config
  */
 #define CONFIG_HI_GDB_NO 1
 #define CONFIG_HI_GDB "n"
+#define CONFIG_HI_LOG_TRACE_SUPPORT 1
+#define CONFIG_HI_LOG_TRACE_ALL 1
+#define CONFIG_HI_LOG_TRACE_LEVEL 7
 
 /*
  * Test Config

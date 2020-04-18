@@ -258,7 +258,8 @@ typedef struct hiVIDEO_SUPPLEMENT_S
     FRAME_FLASH_TYPE_E enFlashType;
     HI_U32   u32JpegDcfPhyAddr;
     HI_VOID* pJpegDcfVirAddr;
-
+    HI_U32   u32LowDelayPhyAddr;
+    HI_VOID* pLowDelayVirAddr;
 } VIDEO_SUPPLEMENT_S;
 
 typedef struct hiVIDEO_FRAME_S

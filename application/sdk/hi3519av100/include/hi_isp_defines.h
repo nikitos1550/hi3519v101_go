@@ -36,14 +36,17 @@ extern "C" {
 #define ISP_MAX_BE_NUM                       (1)
 #define ISP_MAX_STITCH_NUM                   (4)
 
-#define ISP_MAX_PIPE_NUM                     (6)
+#define ISP_MAX_PHY_PIPE_NUM         (6)
+#define ISP_MAX_VIR_PIPE_NUM         (2)
+#define ISP_MAX_PIPE_NUM             (ISP_MAX_PHY_PIPE_NUM + ISP_MAX_VIR_PIPE_NUM)
+
 #define ISP_STRIPING_OVERLAP_DEFAULT         (256)
 
 #define ISP_WDR_CHN_MAX                      (2)
 #define ISP_SUPPORT_DE_MODULE                (0)
 
-#define ISP_RES_WIDTH_MAX  8192,8192,8192,8192,8192,8192
-#define ISP_RES_HEIGHT_MAX 8192,8192,8192,8192,8192,8192
+#define ISP_RES_WIDTH_MAX  8192,8192,8192,8192,8192,8192,8192,8192
+#define ISP_RES_HEIGHT_MAX 8192,8192,8192,8192,8192,8192,8192,8192
 
 extern HI_U16 g_au16ResWMax[ISP_MAX_PIPE_NUM];
 extern HI_U16 g_au16ResHMax[ISP_MAX_PIPE_NUM];
@@ -72,8 +75,8 @@ extern HI_U16 g_au16ResHMax[ISP_MAX_PIPE_NUM];
 #define ISP_SPECAWB_BUF_SIZE                 (110832)
 
 #define AWB_ZONE_BIN                         (4)
-#define AWB_LIB_NUM                          (6)
-#define AE_LIB_NUM                           (6)
+#define AWB_LIB_NUM                          (ISP_MAX_PIPE_NUM)
+#define AE_LIB_NUM                           (ISP_MAX_PIPE_NUM)
 
 #define HI_ISP_SHARPEN_RGAIN                 (32)
 #define HI_ISP_SHARPEN_BGAIN                 (32)
@@ -132,4 +135,3 @@ extern HI_U16 g_au16ResHMax[ISP_MAX_PIPE_NUM];
 #endif /* End of #ifdef __cplusplus */
 
 #endif /* __HI_ISP_DEFINES_H__ */
-

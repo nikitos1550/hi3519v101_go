@@ -118,7 +118,7 @@ typedef struct hiFISHEYE_ATTR_S
 typedef struct hiSPREAD_ATTR_S
 {
     HI_BOOL                 bEnable;            /* RW; whether enable spread or not */
-    HI_U32                  u32SpreadCoef;      /* RW; Range: [0, 18],strength coefficient of spread correction */
+    HI_U32                  u32SpreadCoef;      /* RW; Range: [0, 18],strength coefficient of spread correction,When spread on,ldc DistortionRatio range should be [0, 500] */
     SIZE_S                  stDestSize;         /* RW; dest size of spread*/
 } SPREAD_ATTR_S;
 

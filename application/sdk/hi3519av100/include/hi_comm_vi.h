@@ -435,8 +435,8 @@ typedef struct hiVI_DEV_ATTR_S
 /* Information of pipe binded to device */
 typedef struct hiVI_DEV_BIND_PIPE_S
 {
-    HI_U32  u32Num;                                     /* RW;Range [1,VI_MAX_PIPE_NUM] */
-    VI_PIPE PipeId[VI_MAX_PIPE_NUM];                    /* RW;Array of pipe ID */
+    HI_U32  u32Num;                                     /* RW;Range [1,VI_MAX_PHY_PIPE_NUM] */
+    VI_PIPE PipeId[VI_MAX_PHY_PIPE_NUM];                /* RW;Array of pipe ID */
 } VI_DEV_BIND_PIPE_S;
 
 /* Source of 3DNR reference frame */

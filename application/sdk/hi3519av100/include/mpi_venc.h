@@ -159,6 +159,9 @@ HI_S32 HI_MPI_VENC_GetDeBreathEffect(VENC_CHN VeChn, VENC_DEBREATHEFFECT_S * pst
 HI_S32 HI_MPI_VENC_SetHierarchicalQp(VENC_CHN VeChn, const VENC_HIERARCHICAL_QP_S * pstHierarchicalQp);
 HI_S32 HI_MPI_VENC_GetHierarchicalQp(VENC_CHN VeChn, VENC_HIERARCHICAL_QP_S * pstHierarchicalQp);
 
+HI_S32 HI_MPI_VENC_SetRcAdvParam(VENC_CHN VeChn, const VENC_RC_ADVPARAM_S *pstRcAdvParam);
+HI_S32 HI_MPI_VENC_GetRcAdvParam(VENC_CHN VeChn, VENC_RC_ADVPARAM_S *pstRcAdvParam);
+
 #ifdef __cplusplus
 #if __cplusplus
 }

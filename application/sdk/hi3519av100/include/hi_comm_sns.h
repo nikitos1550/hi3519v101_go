@@ -60,9 +60,9 @@ typedef struct hiISP_CMOS_BAYERNR_S
     HI_BOOL  bNrLscEnable;
     HI_U8    u8NrLscRatio;
     HI_U8    au8LutFineStr[ISP_AUTO_ISO_STRENGTH_NUM];
-    HI_U8    au8ChromaStr[BAYER_PATT_NUM][ISP_AUTO_ISO_STRENGTH_NUM];
-    HI_U8    au8WDRFrameStr[WDR_MAX_FRAME];
-    HI_U16   au16CoarseStr[BAYER_PATT_NUM][ISP_AUTO_ISO_STRENGTH_NUM];             //u10.0
+    HI_U8    au8ChromaStr[ISP_BAYER_CHN_NUM][ISP_AUTO_ISO_STRENGTH_NUM];
+    HI_U8    au8WDRFrameStr[WDR_MAX_FRAME_NUM];
+    HI_U16   au16CoarseStr[ISP_BAYER_CHN_NUM][ISP_AUTO_ISO_STRENGTH_NUM];             //u10.0
     HI_U16   au16LutCoringWgt[ISP_AUTO_ISO_STRENGTH_NUM];
     HI_U16   au16LutCoringRatio[HI_ISP_BAYERNR_LUT_LENGTH];
 } ISP_CMOS_BAYERNR_S;
@@ -72,7 +72,6 @@ typedef struct hiISP_CMOS_NOISE_CALIBRATION_S
     HI_U16   u16CalibrationLutNum;
     HI_FLOAT afCalibrationCoef[BAYER_CALIBTAION_MAX_NUM][3];
 } ISP_CMOS_NOISE_CALIBRATION_S;
-
 
 typedef struct hiISP_CMOS_SHARPEN_S
 {
@@ -162,8 +161,6 @@ typedef struct hiISP_CMOS_WDR_S
     HI_U8    u8FullMdtSigGWgt;
     HI_U8    u8FullMdtSigRBWgt;
     HI_U8    au8NoiseFloor[NoiseSet_EleNum];
-
-
 } ISP_CMOS_WDR_S;
 
 typedef struct hiISP_CMOS_PREGAMMA_S

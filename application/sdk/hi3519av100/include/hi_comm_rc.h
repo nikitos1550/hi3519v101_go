@@ -31,6 +31,7 @@ typedef enum hiVENC_RC_MODE_E
     VENC_RC_MODE_H264CBR = 1,
     VENC_RC_MODE_H264VBR,
     VENC_RC_MODE_H264AVBR,
+    VENC_RC_MODE_H264QVBR,
     VENC_RC_MODE_H264FIXQP,
     VENC_RC_MODE_H264QPMAP,
 
@@ -41,6 +42,7 @@ typedef enum hiVENC_RC_MODE_E
     VENC_RC_MODE_H265CBR,
     VENC_RC_MODE_H265VBR,
     VENC_RC_MODE_H265AVBR,
+    VENC_RC_MODE_H265QVBR,
     VENC_RC_MODE_H265FIXQP,
     VENC_RC_MODE_H265QPMAP,
 
@@ -110,6 +112,17 @@ typedef struct hiVENC_H264_QPMAP_S
     HI_FR32     fr32DstFrameRate ;        /* RW; Range:[0.015625, u32SrcFrmRate]; the target frame rate of the venc chnnel */
 }VENC_H264_QPMAP_S;
 
+
+typedef struct hiVENC_H264_QVBR_S
+{
+    HI_U32      u32Gop;                   /*the interval of ISLICE. */
+    HI_U32      u32StatTime;              /* the rate statistic time, the unit is senconds(s) */
+    HI_U32      u32SrcFrameRate;          /* the input frame rate of the venc chnnel */
+    HI_FR32     fr32DstFrameRate ;        /* the target frame rate of the venc chnnel */
+    HI_U32      u32TargetBitRate;         /* the target bitrate */
+}VENC_H264_QVBR_S;
+
+
 /* the attribute of h265e qpmap*/
 typedef struct hiVENC_H265_QPMAP_S
 {
@@ -122,8 +135,9 @@ typedef struct hiVENC_H265_QPMAP_S
 
 typedef struct hiVENC_H264_CBR_S   VENC_H265_CBR_S;
 typedef struct hiVENC_H264_VBR_S   VENC_H265_VBR_S;
-typedef struct hiVENC_H264_AVBR_S   VENC_H265_AVBR_S;
+typedef struct hiVENC_H264_AVBR_S  VENC_H265_AVBR_S;
 typedef struct hiVENC_H264_FIXQP_S VENC_H265_FIXQP_S;
+typedef struct hiVENC_H264_QVBR_S  VENC_H265_QVBR_S;
 
 
 /* the attribute of mjpege fixqp*/
@@ -161,6 +175,7 @@ typedef struct hiVENC_RC_ATTR_S
         VENC_H264_CBR_S    stH264Cbr;
         VENC_H264_VBR_S    stH264Vbr;
         VENC_H264_AVBR_S   stH264AVbr;
+        VENC_H264_QVBR_S   stH264QVbr;
         VENC_H264_FIXQP_S  stH264FixQp;
         VENC_H264_QPMAP_S  stH264QpMap;
 
@@ -171,6 +186,7 @@ typedef struct hiVENC_RC_ATTR_S
         VENC_H265_CBR_S    stH265Cbr;
         VENC_H265_VBR_S    stH265Vbr;
         VENC_H265_AVBR_S   stH265AVbr;
+        VENC_H265_QVBR_S   stH265QVbr;
         VENC_H265_FIXQP_S  stH265FixQp;
         VENC_H265_QPMAP_S  stH265QpMap;
     };
@@ -232,10 +248,27 @@ typedef struct hiVENC_PARAM_H264_AVBR_S
     HI_U32  u32MinQp;                   /* RW; Range:[0, 51]; the min P B qp */
     HI_U32  u32MaxIQp;                  /* RW; Range:(MinIQp, 51]; the max I qp */
     HI_U32  u32MinIQp;                  /* RW; Range:[0, 51]; the min I qp */
-
+    HI_U32  u32MinQpDelta;              /* RW; Range:[0, 4];Difference between FrameLevelMinQp and MinQp, FrameLevelMinQp = MinQp(or MinIQp) + MinQpDelta  */
     HI_U32  u32MotionSensitivity;       /* RW; Range:[0, 100]; Motion Sensitivity */
 } VENC_PARAM_H264_AVBR_S;
 
+typedef struct hiVENC_PARAM_H264_QVBR_S
+{
+    HI_U32  u32MinIprop;                /* the min ratio of i frame and p frame */
+    HI_U32  u32MaxIprop;                /* the max ratio of i frame and p frame */
+    HI_S32  s32MaxReEncodeTimes;        /* max number of re-encode times [0, 3]*/
+    HI_BOOL bQpMapEn;
+
+    HI_U32  u32MaxQp;                   /* the max P B qp */
+    HI_U32  u32MinQp;                   /* the min P B qp */
+    HI_U32  u32MaxIQp;                  /* the max I qp */
+    HI_U32  u32MinIQp;                  /* the min I qp */
+
+    HI_S32  s32BitPercentUL;           /*Indicate the ratio of bitrate  upper limit*/
+    HI_S32  s32BitPercentLL;           /*Indicate the ratio of bitrate  lower limit*/
+    HI_S32  s32PsnrFluctuateUL;        /*Reduce the target bitrate when the value of psnr approch the upper limit*/
+    HI_S32  s32PsnrFluctuateLL;        /*Increase the target bitrate when the value of psnr approch the lower limit */
+} VENC_PARAM_H264_QVBR_S;
 
 /* The param of mjpege cbr*/
 typedef struct hiVENC_PARAM_MJPEG_CBR_S
@@ -302,11 +335,32 @@ typedef struct hiVENC_PARAM_H265_AVBR_S
     HI_U32  u32MaxIQp;                  /* RW; Range:(MinIQp, 51];the max I qp */
     HI_U32  u32MinIQp;                  /* RW; Range:[1, 51];the min I qp */
 
+    HI_U32  u32MinQpDelta;              /* RW; Range:[0, 4];Difference between FrameLevelMinQp and MinQp, FrameLevelMinQp = MinQp(or MinIQp) + MinQpDelta  */
     HI_U32  u32MotionSensitivity;       /* RW; Range:[0, 100]; Motion Sensitivity */
 
     HI_BOOL bQpMapEn;                   /* RW; Range:[0, 1]; enable qpmap.*/
     VENC_RC_QPMAP_MODE_E enQpMapMode;   /* RW; Qpmap Mode*/
 } VENC_PARAM_H265_AVBR_S;
+
+typedef struct hiVENC_PARAM_H265_QVBR_S
+{
+    HI_U32  u32MinIprop;                /* the min ratio of i frame and p frame */
+    HI_U32  u32MaxIprop;                /* the max ratio of i frame and p frame */
+    HI_S32  s32MaxReEncodeTimes;        /* max number of re-encode times [0, 3]*/
+
+    HI_BOOL bQpMapEn;
+    VENC_RC_QPMAP_MODE_E enQpMapMode;
+
+    HI_U32  u32MaxQp;                   /* the max P B qp */
+    HI_U32  u32MinQp;                   /* the min P B qp */
+    HI_U32  u32MaxIQp;                  /* the max I qp */
+    HI_U32  u32MinIQp;                  /* the min I qp */
+
+    HI_S32  s32BitPercentUL;            /* Indicate the ratio of bitrate  upper limit*/
+    HI_S32  s32BitPercentLL;            /* Indicate the ratio of bitrate  lower limit*/
+    HI_S32  s32PsnrFluctuateUL;         /* Reduce the target bitrate when the value of psnr approch the upper limit*/
+    HI_S32  s32PsnrFluctuateLL;         /* Increase the target bitrate when the value of psnr approch the lower limit */
+} VENC_PARAM_H265_QVBR_S;
 
 
 /* The param of rc*/
@@ -322,10 +376,12 @@ typedef struct hiVENC_RC_PARAM_S
     {
         VENC_PARAM_H264_CBR_S     stParamH264Cbr;
         VENC_PARAM_H264_VBR_S     stParamH264Vbr;
-        VENC_PARAM_H264_AVBR_S     stParamH264AVbr;
+        VENC_PARAM_H264_AVBR_S    stParamH264AVbr;
+        VENC_PARAM_H264_QVBR_S    stParamH264QVbr;
         VENC_PARAM_H265_CBR_S     stParamH265Cbr;
         VENC_PARAM_H265_VBR_S     stParamH265Vbr;
-        VENC_PARAM_H265_AVBR_S     stParamH265AVbr;
+        VENC_PARAM_H265_AVBR_S    stParamH265AVbr;
+        VENC_PARAM_H265_QVBR_S    stParamH265QVbr;
         VENC_PARAM_MJPEG_CBR_S    stParamMjpegCbr;
         VENC_PARAM_MJPEG_VBR_S    stParamMjpegVbr;
     };

@@ -1111,8 +1111,8 @@ typedef struct hiISP_AE_ROUTE_EX_S
 
 typedef struct hiISP_EXP_INFO_S
 {
-    HI_U32 u32ExpTime;              /* RO, Range: (0x0, 0xFFFFFFFF] */  
-    HI_U32 u32LongExpTime;          /* RO, Range: (0x0, 0xFFFFFFFF] */
+    HI_U32 u32ExpTime;              /* RO, Range: [0x0, 0xFFFFFFFF] */  
+    HI_U32 u32LongExpTime;          /* RO, Range: [0x0, 0xFFFFFFFF] */
     HI_U32 u32AGain;                /* RO, Range: [0x400, 0xFFFFFFFF] */                
     HI_U32 u32DGain;                /* RO, Range: [0x400, 0xFFFFFFFF] */            
     HI_U32 u32ISPDGain;             /* RO, Range: [0x400, 0xFFFFFFFF] */            

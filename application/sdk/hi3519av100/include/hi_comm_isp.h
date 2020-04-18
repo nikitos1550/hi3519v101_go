@@ -58,32 +58,29 @@ extern "C" {
 #define MAX_AE_LIB_NUM                  (AE_LIB_NUM)
 
 #define GAMMA_NODE_NUM                  (1025)
-#define GAMMA_FE0_NODE_NUM              (33)
-#define GAMMA_FE1_NODE_NUM              (257)
 #define PREGAMMA_NODE_NUM               (257)
 #define PREGAMMA_SEG_NUM                (8)
 
+#define LCAC_STRENGTH_NUM               (16)
 
 #define ISP_AUTO_ISO_STRENGTH_NUM       (16)
-#define ISP_SHARPEN_IN_OUT_LEN          (2)
 #define ISP_SHARPEN_LUMA_NUM            (32)
 #define ISP_SHARPEN_GAIN_NUM            (32)
 
 #define ISP_MAX_SNS_REGS                (32)
 
-#define HI_ISP_RLSC_POINTS              (129)
-#define HI_ISP_RLSC_DEFAULT_RADIAL_STR  (4096)
-#define HI_ISP_RLSC_DEFAULT_SCALE       (3)
+#define HI_ISP_RLSC_POINTS                (129)
+#define HI_ISP_RLSC_DEFAULT_RADIAL_STR    (4096)
+#define HI_ISP_RLSC_DEFAULT_SCALE         (3)
 #define HI_ISP_RLSC_DEFAULT_MANUAL_WEIGHT (256)
-#define HI_ISP_RLSC_DEFAULT_WBGAIN      (256)
-#define HI_ISP_RLSC_DEFAULT_LIGHT       (0)
-#define HI_ISP_RLSC_WEIGHT_Q_BITS       (8)
+#define HI_ISP_RLSC_DEFAULT_WBGAIN        (256)
+#define HI_ISP_RLSC_DEFAULT_LIGHT         (0)
+#define HI_ISP_RLSC_WEIGHT_Q_BITS         (8)
 
 #define ISP_VREG_SIZE_BIN               (0x20000)
 #define ALG_LIB_VREG_SIZE_BIN           (0x1000)
 #define WDR_MAX_FRAME_NUM               (4)
 
-#define BAYER_PATT_NUM                  (4)
 #define BAYER_CALIBTAION_MAX_NUM        (50)
 #define HI_ISP_BAYERNR_STRENGTH_DIVISOR (100)
 #define HI_ISP_BAYERNR_CORINGLOW_STRENGTH_DIVISOR (10000)
@@ -444,7 +441,7 @@ typedef struct hiISP_FSWDR_AUTO_ATTR_S
 typedef struct hiISP_MDT_ATTR_S
 {
     HI_BOOL bShortExpoChk;     /* RW;Range:[0x0,0x1];Format:1.0;*/
-    HI_U16  u16ShortCheckThd;   /* RW;Range:[0x0,0xFF];Format:8.0*/
+    HI_U16  u16ShortCheckThd;   /* RW;Range:[0x0,0xFFF];Format:12.0*/
     HI_BOOL bMDRefFlicker;
     HI_U8   u8MdtStillThd;     /* RW;Range:[0x0,0xFE];Format:8.0*/
     HI_U8   u8MdtFullThd;      /* RW;Range:[0x0,0xFE];Format:8.0,Only used for Hi3559AV100*/
@@ -732,9 +729,9 @@ typedef struct hiISP_DP_STATIC_ATTR_S
     HI_U16  u16BrightCount;         /* RW; Range:Hi3559AV100 = [0, 8192] | Hi3519AV100 = [0, 8192];Format 14.0;limited Range: [0, STATIC_DP_COUNT_NORMAL*BlkNum],When used as input(W), indicate the number of static bright defect pixels; As output(R),indicate the number of static bright and dark defect pixels */
     HI_U16  u16DarkCount;           /* RW; Range:Hi3559AV100 = [0, 8192] | Hi3519AV100 = [0, 8192];Format 14.0;limited Range: [0, STATIC_DP_COUNT_NORMAL*BlkNum],When used as input(W), indicate the number of static dark defect pixels; As output(R), invalid value 0 */
     HI_U32  au32BrightTable[STATIC_DP_COUNT_MAX];   /* RW; Range: [0x0, 0x1FFF1FFF];Format 29.0;0~12 bits represents the X coordinate of the defect pixel, 16~28 bits represent the Y coordinate of the defect pixel
-                                                       Notice : When used as input(W), indicate static bright defect pixels table;  As output(R), indicate static bright and dark defect pixels table */
+                                                       Notice : When used as input(W), indicate static bright defect pixels table;  As output(R), indicate static bright and dark defect pixels table*/
     HI_U32  au32DarkTable[STATIC_DP_COUNT_MAX];     /* RW; Range: [0x0, 0x1FFF1FFF];Format 29.0;0~12 bits represents the X coordinate of the defect pixel, 16~28 bits represent the Y coordinate of the defect pixel
-                                                       Notice : When used as input(W), indicate static dark defect pixels table;  As output(R), invalid value */
+                                                       Notice : When used as input(W), indicate static dark defect pixels table;  As output(R), invalid value*/
     HI_BOOL bShow;                  /*RW; Range: [0, 1];Format 1.0;RW;highlight static defect pixel*/
 } ISP_DP_STATIC_ATTR_S;
 
@@ -742,7 +739,6 @@ typedef struct hiISP_DP_DYNAMIC_MANUAL_ATTR_S
 {
     HI_U16  u16Strength;          /* RW; Range: [0, 255];Format:8.0;Dynamic DPC strength. */
     HI_U16  u16BlendRatio;        /* RW; Range: [0, 128];Format:9.0;Blending ratio required for DPC*/
-
 } ISP_DP_DYNAMIC_MANUAL_ATTR_S;
 
 typedef struct hiISP_DP_DYNAMIC_AUTO_ATTR_S
@@ -864,18 +860,18 @@ typedef struct hiISP_RADIAL_SHADING_LUT_ATTR_S
 
 typedef struct hiISP_NR_MANUAL_ATTR_S
 {
-    HI_U8   au8ChromaStr[BAYER_PATT_NUM];   /*RW;Range:[0x0,0x3];Format:2.0;Strength of Chrmoa noise reduction for R/Gr/Gb/B channel*/
-    HI_U8   u8FineStr;                      /*RW;Range:[0x0,0x80];Format:8.0;Strength of Luma noise reduction*/
-    HI_U16  u16CoringWgt;                   /*RW;Range:[0x0,0xc80];Format:12.0;Strength of reserving the random noise*/
-    HI_U16  au16CoarseStr[BAYER_PATT_NUM];  /*RW;Range:[0x0,0x360];Format:10.0; Coarse Strength of noise reduction*/
+    HI_U8   au8ChromaStr[ISP_BAYER_CHN_NUM];   /*RW;Range:[0x0,0x3];Format:2.0;Strength of Chrmoa noise reduction for R/Gr/Gb/B channel*/
+    HI_U8   u8FineStr;                         /*RW;Range:[0x0,0x80];Format:8.0;Strength of Luma noise reduction*/
+    HI_U16  u16CoringWgt;                      /*RW;Range:[0x0,0xc80];Format:12.0;Strength of reserving the random noise*/
+    HI_U16  au16CoarseStr[ISP_BAYER_CHN_NUM];  /*RW;Range:[0x0,0x360];Format:10.0; Coarse Strength of noise reduction*/
 } ISP_NR_MANUAL_ATTR_S;
 
 typedef struct hiISP_NR_AUTO_ATTR_S
 {
-    HI_U8   au8ChromaStr[BAYER_PATT_NUM][ISP_AUTO_ISO_STRENGTH_NUM];  /*RW;Range:[0x0,0x3];Format:2.0; Strength of chrmoa noise reduction for R/Gr/Gb/B channel*/
-    HI_U8   au8FineStr[ISP_AUTO_ISO_STRENGTH_NUM];                    /*RW;Range:[0x0,0x80];Format:8.0; Strength of luma noise reduction*/
-    HI_U16  au16CoringWgt[ISP_AUTO_ISO_STRENGTH_NUM];                 /*RW;Range:[0x0,0xc80];Format:12.0; Strength of reserving the random noise*/
-    HI_U16  au16CoarseStr[BAYER_PATT_NUM][ISP_AUTO_ISO_STRENGTH_NUM]; /*RW;Range:[0x0,0x360];Format:10.0; Coarse Strength of noise reduction*/
+    HI_U8   au8ChromaStr[ISP_BAYER_CHN_NUM][ISP_AUTO_ISO_STRENGTH_NUM];  /*RW;Range:[0x0,0x3];Format:2.0; Strength of chrmoa noise reduction for R/Gr/Gb/B channel*/
+    HI_U8   au8FineStr[ISP_AUTO_ISO_STRENGTH_NUM];                       /*RW;Range:[0x0,0x80];Format:8.0; Strength of luma noise reduction*/
+    HI_U16  au16CoringWgt[ISP_AUTO_ISO_STRENGTH_NUM];                    /*RW;Range:[0x0,0xc80];Format:12.0; Strength of reserving the random noise*/
+    HI_U16  au16CoarseStr[ISP_BAYER_CHN_NUM][ISP_AUTO_ISO_STRENGTH_NUM]; /*RW;Range:[0x0,0x360];Format:10.0; Coarse Strength of noise reduction*/
 } ISP_NR_AUTO_ATTR_S;
 
 typedef struct hiISP_NR_WDR_ATTR_S
@@ -889,7 +885,7 @@ typedef struct hiISP_NR_ATTR_S
     HI_BOOL  bEnable;                                     /*RW;Range:[0x0,0x1];Format:1.0; Nr Enable*/
     HI_BOOL  bLowPowerEnable;                             /*RW;Range:[0x0,0x1];Format:1.0; Nr Low Power Enable*/
     HI_BOOL  bNrLscEnable;                                /*RW;Range:[0x0,0x1];Format:1.0; HI_TRUE: Noise reduction refers to lens shading; HI_FALSE: Noise reduction not refers to lens shading;*/
-    HI_U8    u8NrLscRatio;                                /*RW;Range:[0x0,0xff];Format:8.0; Strength of reserving the random noise according to luma*/
+    HI_U8    u8NrLscRatio;                                /*RW;Range:[0x0,0xff];Format:8.0; Ratio of referring to lens shading*/
     HI_U8    u8BnrLscMaxGain;                             /*RW;Range:[0x0,0xff];Format:2.6; Max gain for referring to lens shading;  not support*/
     HI_U16   u16BnrLscCmpStrength;                        /*RW;Range:[0x0,0x100];Format:1.8; Compare strength for referring to lens shading;  not support*/
     HI_U16   au16CoringRatio[HI_ISP_BAYERNR_LUT_LENGTH];  /*RW;Range:[0x0,0x3ff];Format:12.0; Strength of reserving the random noise according to luma*/
@@ -926,7 +922,6 @@ typedef struct hiISP_DE_ATTR_S
     ISP_OP_TYPE_E        enOpType;
     ISP_DE_AUTO_ATTR_S   stAuto;
     ISP_DE_MANUAL_ATTR_S stManual;
-
 } ISP_DE_ATTR_S;
 
 /*
@@ -1588,7 +1583,6 @@ typedef struct hiISP_WB_STITCH_STATISTICS_S
     HI_U16  au16ZoneAvgG[AWB_ZONE_STITCH_MAX];          /*R; Range: [0x0, 0xFFFF];Zone Average G  for Stitich mode*/
     HI_U16  au16ZoneAvgB[AWB_ZONE_STITCH_MAX];          /*R; Range: [0x0, 0xFFFF];Zone Average B  for Stitich mode*/
     HI_U16  au16ZoneCountAll[AWB_ZONE_STITCH_MAX];      /*R; Range: [0x0, 0xFFFF];normalized number of Gray points  for Stitich mode*/
-
 } ISP_WB_STITCH_STATISTICS_S;
 
 typedef struct hiISP_WB_STATISTICS_S
@@ -1602,7 +1596,6 @@ typedef struct hiISP_WB_STATISTICS_S
     HI_U16 au16ZoneAvgG[AWB_ZONE_NUM];            /*R; Range: [0x0, 0xFFFF];Zone Average G */
     HI_U16 au16ZoneAvgB[AWB_ZONE_NUM];            /*R; Range: [0x0, 0xFFFF];Zone Average B */
     HI_U16 au16ZoneCountAll[AWB_ZONE_NUM];        /*R; Range: [0x0, 0xFFFF];normalized number of Gray points */
-
 } ISP_WB_STATISTICS_S;
 
 typedef struct hiISP_FOCUS_ZONE_S
@@ -1937,8 +1930,8 @@ Defines the ISP FSWDR operating mode
 */
 typedef enum hiISP_FSWDR_MODE_E
 {
-    ISP_FSWDR_NORMAL_MODE = 0x0,
-    ISP_FSWDR_LONG_FRAME_MODE = 0x1,
+    ISP_FSWDR_NORMAL_MODE          = 0x0,
+    ISP_FSWDR_LONG_FRAME_MODE      = 0x1,
     ISP_FSWDR_AUTO_LONG_FRAME_MODE = 0x2,/*Auto long frame mode, only effective in LINE_WDR, When running in this mode, normal WDR and long frame mode would auto switch*/
     ISP_FSWDR_MODE_BUTT
 } ISP_FSWDR_MODE_E;
@@ -2368,7 +2361,7 @@ typedef struct hiISP_COLORMATRIX_PARAM_S
 typedef struct hiISP_COLORMATRIX_AUTO_S
 {
     HI_BOOL bISOActEn;                     /*RW; Range: [0, 1]; Format:1.0; if enabled, CCM will bypass in low light*/
-    HI_BOOL bTempActEn;                    /*RW; Range: [0, 1]; Format:1.0; if enabled, CCM will bypass when color temperature is larger than 10K or less than 2500K*/
+    HI_BOOL bTempActEn;                    /*RW; Range: [0, 1]; Format:1.0; if enabled, CCM will bypass when color temperature is larger than 8000K or less than 2500K*/
     HI_U16  u16CCMTabNum;                  /*RW; Range: [0x3, 0x7]; Format:16.0; The number of CCM matrixes*/
     ISP_COLORMATRIX_PARAM_S astCCMTab[CCM_MATRIX_NUM];
 } ISP_COLORMATRIX_AUTO_S;

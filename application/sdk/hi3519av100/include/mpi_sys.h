@@ -111,6 +111,9 @@ HI_S32 HI_MPI_SYS_GetVIVPSSMode(VI_VPSS_MODE_S* pstVIVPSSMode);
 HI_S32 HI_MPI_LOG_SetLevelConf(LOG_LEVEL_CONF_S *pstConf);
 HI_S32 HI_MPI_LOG_GetLevelConf(LOG_LEVEL_CONF_S *pstConf);
 
+HI_S32 HI_MPI_SYS_SetRawFrameCompressParam(const RAW_FRAME_COMPRESS_PARAM_S *pstCompressParam);
+HI_S32 HI_MPI_SYS_GetRawFrameCompressParam(RAW_FRAME_COMPRESS_PARAM_S *pstCompressParam);
+
 HI_S32 HI_MPI_LOG_SetWaitFlag(HI_BOOL bWait);
 
 HI_S32 HI_MPI_LOG_Read(HI_CHAR *pBuf, HI_U32 u32Size);

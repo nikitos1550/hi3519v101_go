@@ -527,7 +527,7 @@ typedef struct hiLDC_ATTR_S
     HI_S32     s32XYRatio;                /* RW; Range: [0, 100], field angle ration of  all,valid when bAspect=1.*/
     HI_S32 s32CenterXOffset;        /* RW; Range: [-511, 511], horizontal offset of the image distortion center relative to image center.*/
     HI_S32 s32CenterYOffset;        /* RW; Range: [-511, 511], vertical offset of the image distortion center relative to image center.*/
-    HI_S32 s32DistortionRatio;        /* RW; Range: [-300, 500], LDC Distortion ratio.*/
+    HI_S32 s32DistortionRatio;        /* RW; Range: [-300, 500], LDC Distortion ratio.When spread on,s32DistortionRatio range should be [0, 500]*/
 } LDC_ATTR_S;
 
 

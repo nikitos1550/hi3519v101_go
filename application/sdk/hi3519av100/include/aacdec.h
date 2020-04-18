@@ -78,7 +78,39 @@ typedef enum
     ERR_AAC_RAWBLOCK_PARAMS               = -22,        /**<invalid RawBlock params*/
     ERR_AAC_PS_INIT                       = -23,        /**<PS init error*/
     ERR_AAC_CH_MAPPING                    = -24,
-    ERR_UNKNOWN               = -9999                   /**<reserved*/
+    ERR_UNKNOWN                           = -9999,      /**<reserved*/
+    ERR_AAC_OUT_OF_MEMORY                 = 2,          /*!< Heap returned NULL pointer. Output buffer is invalid. */
+    ERR_AAC_UNKNOWN                       = 5,          /*!< Error condition is of unknown reason, or from a another module. Output buffer is invalid. */
+    ERR_AAC_TRANSPORT_SYNC_ERROR          = 4097,       /*!< The transport decoder had syncronisation problems. Do not exit decoding. Just feed new bitstream data. */
+    ERR_AAC_NOT_ENOUGH_BITS               = 4098,       /*!< The input buffer ran out of bits. */
+    ERR_AAC_TRANSPORT_FATAL_ERROR         = 4099,       /*!< The transport decoder occut fatal error. Reset Tranport */
+    ERR_AAC_INVALID_HANDLE                = 8193,       /*!< The handle passed to the function call was invalid (NULL). */
+    ERR_AAC_UNSUPPORTED_AOT               = 8194,       /*!< The AOT found in the configuration is not supported. */
+    ERR_AAC_UNSUPPORTED_FORMAT            = 8195,       /*!< The bitstream format is not supported.  */
+    ERR_AAC_UNSUPPORTED_ER_FORMAT         = 8196,       /*!< The error resilience tool format is not supported. */
+    ERR_AAC_UNSUPPORTED_EPCONFIG          = 8197,       /*!< The error protection format is not supported. */
+    ERR_AAC_UNSUPPORTED_MULTILAYER        = 8198,       /*!< More than one layer for AAC scalable is not supported. */
+    ERR_AAC_UNSUPPORTED_CHANNELCONFIG     = 8199,       /*!< The channel configuration (either number or arrangement) is not supported. */
+    ERR_AAC_UNSUPPORTED_SAMPLINGRATE      = 8200,       /*!< The sample rate specified in the configuration is not supported. */
+    ERR_AAC_INVALID_SBR_CONFIG            = 8201,       /*!< The SBR configuration is not supported. */
+    ERR_AAC_SET_PARAM_FAIL                = 8202,       /*!< The parameter could not be set. Either the value was out of range or the parameter does not exist. */
+    ERR_AAC_NEED_TO_RESTART               = 8203,       /*!< The decoder needs to be restarted, since the requiered configuration change cannot be performed. */
+    ERR_AAC_TRANSPORT_ERROR               = 16385,      /*!< The transport decoder encountered an unexpected error. */
+    ERR_AAC_PARSE_ERROR                   = 16386,      /*!< Error while parsing the bitstream. Most probably it is corrupted, or the system crashed. */
+    ERR_AAC_UNSUPPORTED_EXTENSION_PAYLOAD = 16387,      /*!< Error while parsing the extension payload of the bitstream. The extension payload type found is not supported. */
+    ERR_AAC_DECODE_FRAME_ERROR            = 16388,      /*!< The parsed bitstream value is out of range. Most probably the bitstream is corrupt, or the system crashed. */
+    ERR_AAC_CRC_ERROR                     = 16389,      /*!< The embedded CRC did not match. */
+    ERR_AAC_INVALID_CODE_BOOK             = 16390,      /*!< An invalid codebook was signalled. Most probably the bitstream is corrupt, or the system crashed. */
+    ERR_AAC_UNSUPPORTED_PREDICTION        = 16391,      /*!< Predictor found, but not supported in the AAC Low Complexity profile. Most probably the bitstream is corrupt, or has a wrong format. */
+    ERR_AAC_UNSUPPORTED_CCE               = 16392,      /*!< A CCE element was found which is not supported. Most probably the bitstream is corrupt, or has a wrong format. */
+    ERR_AAC_UNSUPPORTED_LFE               = 16393,      /*!< A LFE element was found which is not supported. Most probably the bitstream is corrupt, or has a wrong format. */
+    ERR_AAC_UNSUPPORTED_GAIN_CONTROL_DATA = 16394,      /*!< Gain control data found but not supported. Most probably the bitstream is corrupt, or has a wrong format. */
+    ERR_AAC_UNSUPPORTED_SBA               = 16395,      /*!< SBA found, but currently not supported in the BSAC profile. */
+    ERR_AAC_TNS_READ_ERROR                = 16396,      /*!< Error while reading TNS data. Most probably the bitstream is corrupt or the system crashed. */
+    ERR_AAC_RVLC_ERROR                    = 16397,      /*!< Error while decoding error resillient data. */
+    ERR_AAC_ANC_DATA_ERROR                = 32769,      /*!< Non severe error concerning the ancillary data handling. */
+    ERR_AAC_TOO_SMALL_ANC_BUFFER          = 32770,      /*!< The registered ancillary data buffer is too small to receive the parsed data. */
+    ERR_AAC_TOO_MANY_ANC_ELEMENTS         = 32771,      /*!< More than the allowed number of ancillary data elements should be written to buffer. */
 } HI_AACDEC_ERR_E;
 
 typedef struct _AACFrameInfo

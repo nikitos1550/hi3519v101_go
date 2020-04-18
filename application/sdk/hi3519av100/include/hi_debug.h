@@ -86,7 +86,7 @@ typedef struct hiLOG_LEVEL_CONF_S
 
 extern HI_S32 HI_ChkLogLevel(HI_S32 s32Levle, MOD_ID_E enModId);
 
-int HI_LOG(HI_S32 level, MOD_ID_E enModId,const char *fmt, ...);
+int HI_LOG(HI_S32 level, MOD_ID_E enModId,const char *fmt, ...) __attribute__((format(printf,3,4)));
 
 /* #ifdef HI_DEBUG */
 #if 1

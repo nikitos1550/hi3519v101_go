@@ -150,6 +150,8 @@ HI_S32 HI_MPI_VPSS_GetGrpNRBParam(VPSS_GRP VpssGrp, VPSS_GRP_NRB_PARAM_S *pstNRB
 HI_S32 HI_MPI_VPSS_SetModParam(VPSS_MOD_PARAM_S *pstModParam);
 HI_S32 HI_MPI_VPSS_GetModParam(VPSS_MOD_PARAM_S *pstModParam);
 
+HI_S32 HI_MPI_VPSS_GetChnFd(VPSS_GRP VpssGrp, VPSS_CHN VpssChn);
+HI_S32 HI_MPI_VPSS_CloseFd(HI_VOID);
 
 #ifdef __cplusplus
 #if __cplusplus

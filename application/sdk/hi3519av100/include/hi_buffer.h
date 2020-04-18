@@ -184,18 +184,30 @@ __inline static HI_U32 COMMON_GetPicBufferSize(HI_U32 u32Width, HI_U32 u32Height
     return stCalConfig.u32VBSize;
 }
 
-
-
-
-
-__inline static HI_U32 VI_GetRawBufferSize(HI_U32 u32Width, HI_U32 u32Height,
-                PIXEL_FORMAT_E enPixelFormat, COMPRESS_MODE_E enCmpMode, HI_U32 u32Align)
+__inline static HI_U32 VI_GetRawBufferSizeEx(HI_U32 u32Width, HI_U32 u32Height,
+                PIXEL_FORMAT_E enPixelFormat, COMPRESS_MODE_E enCmpMode, HI_U32 u32CmpRatio, HI_U32 u32Align)
 {
     HI_U32 u32BitWidth;
     HI_U32 u32Size = 0;
     HI_U32 u32Stride = 0;
-    HI_U32 u32CmpRatioLine  = 1600;
-    HI_U32 u32CmpRatioFrame = 2000;
+    HI_U32 u32RawCmpRatio = 1600;
+
+    if(COMPRESS_MODE_LINE == enCmpMode)
+    {
+        u32RawCmpRatio = 1600;
+
+    }
+    else if(COMPRESS_MODE_FRAME == enCmpMode)
+    {
+        if(0 == u32CmpRatio)
+        {
+            u32RawCmpRatio = 2000;
+        }
+        else
+        {
+            u32RawCmpRatio = u32CmpRatio;
+        }
+    }
 
     /* u32Align: 0 is automatic mode, alignment size following system. Non-0 for specified alignment size */
     if(0 == u32Align)
@@ -258,14 +270,24 @@ __inline static HI_U32 VI_GetRawBufferSize(HI_U32 u32Width, HI_U32 u32Height,
     else if(COMPRESS_MODE_LINE == enCmpMode)
     {
         HI_U32 u32Tmp;
-        u32Tmp    = ALIGN_UP( (16 + u32Width*u32BitWidth*1000ULL/u32CmpRatioLine + 8192 + 127)/128, 2);
+        u32Tmp    = ALIGN_UP( (16 + u32Width*u32BitWidth*1000ULL/u32RawCmpRatio + 8192 + 127)/128, 2);
         u32Stride = ALIGN_UP(u32Tmp * 16, u32Align);
         u32Size   = u32Stride * u32Height;
     }
     else if(COMPRESS_MODE_FRAME == enCmpMode)
     {
-        u32Size = ALIGN_UP(u32Height*u32Width*u32BitWidth*1000ULL/(u32CmpRatioFrame*8), u32Align);
+        u32Size = ALIGN_UP(u32Height*u32Width*u32BitWidth*1000ULL/(u32RawCmpRatio*8), u32Align);
     }
+
+    return u32Size;
+}
+
+__inline static HI_U32 VI_GetRawBufferSize(HI_U32 u32Width, HI_U32 u32Height,
+                PIXEL_FORMAT_E enPixelFormat, COMPRESS_MODE_E enCmpMode, HI_U32 u32Align)
+{
+    HI_U32 u32Size = 0;
+
+    u32Size = VI_GetRawBufferSizeEx(u32Width, u32Height, enPixelFormat, enCmpMode, 0, u32Align);
 
     return u32Size;
 }

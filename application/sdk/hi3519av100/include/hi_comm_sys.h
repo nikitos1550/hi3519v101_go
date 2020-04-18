@@ -23,7 +23,7 @@ extern "C" {
 #endif
 #endif /* End of #ifdef __cplusplus */
 
-#define BIND_DEST_MAXNUM 64
+#define BIND_DEST_MAXNUM 128
 
 #define HI_TRACE_SYS(level, fmt, ...)\
 do{ \
@@ -156,6 +156,13 @@ typedef struct hiVI_VPSS_MODE_S
 {
     VI_VPSS_MODE_E aenMode[VI_MAX_PIPE_NUM];
 }VI_VPSS_MODE_S;
+
+typedef struct hiRAW_FRAME_COMPRESS_PARAM_S
+{
+    HI_U32 u32CompRatio_10Bit;/* RW, Range[1000, 4470]; compression ratio of 10 bit */
+    HI_U32 u32CompRatio_12Bit;/* RW, Range[1000, 3700]; compression ratio of 12 bit */
+    HI_U32 u32CompRatio_14Bit;/* RW, Range[1000, 3300]; compression ratio of 14 bit */
+} RAW_FRAME_COMPRESS_PARAM_S;
 
 #define HI_ERR_SYS_NULL_PTR         HI_DEF_ERR(HI_ID_SYS, EN_ERR_LEVEL_ERROR, EN_ERR_NULL_PTR)
 #define HI_ERR_SYS_NOTREADY         HI_DEF_ERR(HI_ID_SYS, EN_ERR_LEVEL_ERROR, EN_ERR_SYS_NOTREADY)

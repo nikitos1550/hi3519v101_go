@@ -108,14 +108,16 @@ typedef struct hiVGS_ADD_OSD_S
     HI_U32                    u32FgAlpha;           /* RW; Range: [0,255]; Foreground alpha of osd */
     HI_BOOL                   bOsdRevert;           /* RW; Enable osd color revert */
     VGS_OSD_REVERT_S          stOsdRevert;          /* Osd color revert information */
+    HI_U16                    u16ColorLUT[2];
 } VGS_ADD_OSD_S;
 
 typedef enum hiVGS_SCLCOEF_MODE_E
 {
     VGS_SCLCOEF_NORMAL   = 0,    /* normal scale coefficient*/
-    VGS_SCLCOEF_TAP4     = 1,    /* scale coefficient of 4 tap */
-    VGS_SCLCOEF_TAP6     = 2,    /* scale coefficient of 6 tap */
-    VGS_SCLCOEF_TAP8     = 3,    /* scale coefficient of 8 tap */
+    VGS_SCLCOEF_TAP2     = 1,    /* scale coefficient of 2 tap */
+    VGS_SCLCOEF_TAP4     = 2,    /* scale coefficient of 4 tap */
+    VGS_SCLCOEF_TAP6     = 3,    /* scale coefficient of 6 tap */
+    VGS_SCLCOEF_TAP8     = 4,    /* scale coefficient of 8 tap */
     VGS_SCLCOEF_BUTT
 } VGS_SCLCOEF_MODE_E;
 

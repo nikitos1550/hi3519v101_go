@@ -20,6 +20,8 @@ typedef struct hiVDEC_EXPORT_CALLBACK_S
 {
     void  (*pfnVdecNotify) (int module_id, int channel, int event_type, void* args);
     int  (*pfnVdecSetscheduler_Dec) (void);
+    int  (*pfnVdecSetscheduler_Stm) (void);
+    int  (*pfnVdecSetscheduler_Syn) (void);
 } VDEC_EXPORT_CALLBACK_S;
 
 typedef HI_S32 FN_VDEC_RegisterExpCallback(VDEC_EXPORT_CALLBACK_S *pstExpCallback);

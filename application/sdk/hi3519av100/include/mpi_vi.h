@@ -83,9 +83,6 @@ HI_S32 HI_MPI_VI_SendPipeYUV(VI_PIPE ViPipe, const VIDEO_FRAME_INFO_S *pstVideoF
 HI_S32 HI_MPI_VI_SendPipeRaw(HI_U32 u32PipeNum, VI_PIPE PipeId[], const VIDEO_FRAME_INFO_S *pstVideoFrame[],
                                     HI_S32 s32MilliSec);
 
-HI_S32 HI_MPI_VI_SetPipeSharpenAttr(VI_PIPE ViPipe, const VI_PIPE_SHARPEN_ATTR_S *pstSharpenAttr);
-HI_S32 HI_MPI_VI_GetPipeSharpenAttr(VI_PIPE ViPipe, VI_PIPE_SHARPEN_ATTR_S *pstSharpenAttr);
-
 HI_S32 HI_MPI_VI_SetPipeNRXParam(VI_PIPE ViPipe, const VI_PIPE_NRX_PARAM_S *pstNrXParam);
 HI_S32 HI_MPI_VI_GetPipeNRXParam(VI_PIPE ViPipe, VI_PIPE_NRX_PARAM_S *pstNrXParam);
 

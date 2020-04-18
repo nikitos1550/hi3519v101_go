@@ -246,7 +246,7 @@ typedef enum hiVO_INTF_SYNC_E
     VO_OUTPUT_800x600_50,            /* For LCD     at 50 Hz (24bit) */
     VO_OUTPUT_720x1280_60,           /* For MIPI DSI Tx 720 x1280 at 60 Hz */
     VO_OUTPUT_1080x1920_60,          /* For MIPI DSI Tx 1080x1920 at 60 Hz */
-    VO_OUTPUT_7680x4320_30,          /* For HDMI2.0 at 30 Hz         */
+    VO_OUTPUT_7680x4320_30,          /* For HDMI2.1 at 30 Hz         */
     VO_OUTPUT_USER,                  /* User timing. */
 
     VO_OUTPUT_BUTT
@@ -456,6 +456,7 @@ typedef struct hiVO_MOD_PARAM_S
     HI_BOOL       bTransparentTransmit;    /* RW, Range: [0, 1];  YC(Luminance and Chrominance) changes or not when passing through VO */
     HI_BOOL       bExitDev;
     HI_BOOL       bWbcBgBlackEn;
+    HI_BOOL       bDevClkExtEn;
 } VO_MOD_PARAM_S;
 
 typedef enum hiVO_CLK_SOURCE_E
@@ -489,6 +490,7 @@ typedef struct hiVO_USER_INTFSYNC_ATTR_S
 typedef struct hiVO_USER_INTFSYNC_INFO_S
 {
     VO_USER_INTFSYNC_ATTR_S stUserIntfSyncAttr;
+    HI_U32                  u32PreDiv;
     HI_U32                  u32DevDiv;
     HI_BOOL                 bClkReverse;
 } VO_USER_INTFSYNC_INFO_S;
