@@ -28,6 +28,7 @@ type predefinedEncoderInfo struct {
 
 type activeEncoderInfo struct {
     EncoderId int 
+	ProcessingId int 
     Format string 
     Width int 
     Height int 
@@ -85,6 +86,18 @@ func createEncoderRequest(w http.ResponseWriter, r *http.Request)  {
 }
 
 func deleteEncoderRequest(w http.ResponseWriter, r *http.Request)  {
+	ok, encoderId := openapi.GetIntParameter(w, r, "encoderId")
+	if !ok {
+		return
+	}
+
+	err, errorString := DeleteEncoder(encoderId)
+	if err != 0 {
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: errorString})
+		return
+	}
+
+	openapi.ResponseSuccessWithDetails(w, responseRecord{Message: "Encoder was deleted"})
 }
 
 func subscribeProcessingRequest(w http.ResponseWriter, r *http.Request)  {
@@ -98,16 +111,49 @@ func subscribeProcessingRequest(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
-	err, errorString := processing.SubscribeProcessing(processingId, encoderId)
+	encoder, encoderExists := ActiveEncoders[encoderId]
+	if (!encoderExists) {
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: "Failed to find encoder"})
+		return
+	}
+
+	err, errorString := processing.SubscribeEncoderToProcessing(processingId, encoderId)
 	if err != 0 {
 		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: errorString})
 		return
 	}
+	encoder.ProcessingId = processingId
+	ActiveEncoders[encoderId] = encoder
 
 	openapi.ResponseSuccessWithDetails(w, responseRecord{Message: "Processing was subscribed"})
 }
 
 func unsubscribeProcessingRequest(w http.ResponseWriter, r *http.Request)  {
+	ok, processingId := openapi.GetIntParameter(w, r, "processingId")
+	if !ok {
+		return
+	}
+
+	ok, encoderId := openapi.GetIntParameter(w, r, "encoderId")
+	if !ok {
+		return
+	}
+
+	encoder, encoderExists := ActiveEncoders[encoderId]
+	if (!encoderExists) {
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: "Failed to find encoder"})
+		return
+	}
+
+	err, errorString := processing.UnsubscribeEncoderToProcessing(processingId, encoderId)
+	if err < 0 {
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: errorString})
+		return
+	}
+	encoder.ProcessingId = -1
+	ActiveEncoders[encoderId] = encoder
+
+	openapi.ResponseSuccessWithDetails(w, responseRecord{Message: "Processing was unsubscribed"})
 }
 
 func listEncodersRequest(w http.ResponseWriter, r *http.Request)  {
@@ -115,6 +161,7 @@ func listEncodersRequest(w http.ResponseWriter, r *http.Request)  {
     for id, encoder := range ActiveEncoders {
             info := activeEncoderInfo{
                     EncoderId: id,
+					ProcessingId: encoder.ProcessingId,
                     Format: encoder.Format,
                     Width: encoder.Width,
                     Height: encoder.Height,

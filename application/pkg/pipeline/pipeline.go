@@ -63,10 +63,13 @@ func CreatePipeline(encoderName string)  (int, string)  {
 	processing.ActiveProcessings[processingId] = activeProcessing
 	logger.Log.Info().Int("channelId", channelId).Int("processingId", processingId).Msg("Subscribed to channel")
 
-	errId, err = processing.SubscribeProcessing(processingId, encoderId)
+	errId, err = processing.SubscribeEncoderToProcessing(processingId, encoderId)
 	if errId < 0 {
 		return errId, err
 	}
+	activeEncoder, _ := venc.ActiveEncoders[encoderId]
+	activeEncoder.ProcessingId = processingId
+	venc.ActiveEncoders[encoderId] = activeEncoder
 	logger.Log.Info().Int("processingId", processingId).Int("encoderId", encoderId).Msg("Subscribed to processing")
 
 	return encoderId, ""

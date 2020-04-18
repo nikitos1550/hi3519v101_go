@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
+
+    "application/pkg/processing"
 )
 
 type PredefinedEncoder struct {
@@ -15,6 +17,7 @@ type PredefinedEncoder struct {
 
 type ActiveEncoder struct {
     VencId int 
+	ProcessingId int 
     Format string 
     Width int 
     Height int 
@@ -55,6 +58,7 @@ func CreatePredefinedEncoder(encoderName string) (int, string)  {
 	lastEncoderId++
 	activeEncoder := ActiveEncoder{
 		VencId: lastEncoderId, 
+		ProcessingId: -1,
 		Format: encoder.Format,
 		Width: encoder.Width,
 		Height: encoder.Height,
@@ -62,9 +66,28 @@ func CreatePredefinedEncoder(encoderName string) (int, string)  {
 		Channels: make(map[chan []byte]bool),
 	}
 
-	CreateEncoder(activeEncoder)
+	CreateVencEncoder(activeEncoder)
 
 	ActiveEncoders[lastEncoderId] = activeEncoder
 
 	return lastEncoderId, ""
+}
+
+func DeleteEncoder(encoderId int) (int, string) {
+	encoder, encoderExists := ActiveEncoders[encoderId]
+	if (!encoderExists) {
+		return -1, "Failed to find encoder"
+	}
+
+	if (encoder.ProcessingId != -1){
+		err, errorString := processing.UnsubscribeEncoderToProcessing(encoder.ProcessingId, encoderId)
+		if err < 0 {
+			return err, errorString
+		}
+	}
+
+	DeleteVencEncoder(encoder)
+	delete(ActiveEncoders, encoderId)
+
+	return 0, ""
 }
