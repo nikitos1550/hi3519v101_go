@@ -64,7 +64,7 @@ br-hihisim-prepare:
 boards/boards: submodules
 	ln -s ../br-hisicam/br-ext-hisicam/board boards/boards
 
-prepare: $(BUILDROOT_DIR) submodules br-hihisim-prepare boards/boards/
+prepare: $(BUILDROOT_DIR) submodules br-hihisim-prepare boards/boards
 	@echo "All prepared"
 
 $(BUILDROOT_DIR):
