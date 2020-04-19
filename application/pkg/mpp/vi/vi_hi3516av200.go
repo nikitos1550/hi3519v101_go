@@ -55,16 +55,18 @@ static int hi3516av200_vi_init(error_in *err, hi3516av200_vi_init_in * in) {
 
     mpp_error_code = HI_MPI_VI_SetDevAttr(0, &stViDevAttr);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_VI(LOGGER_ERROR, "HI_MPI_VI_SetDevAttr");
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_VI(LOGGER_ERROR, "HI_MPI_VI_SetDevAttr");
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VI_SetDevAttr, mpp_error_code);
     }
 
     mpp_error_code = HI_MPI_VI_EnableDev(0);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_VI(LOGGER_ERROR, "HI_MPI_VI_EnableDev")
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_VI(LOGGER_ERROR, "HI_MPI_VI_EnableDev")
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VI_EnableDev, mpp_error_code);
     }
 
     RECT_S stCapRect;
@@ -85,14 +87,14 @@ static int hi3516av200_vi_init(error_in *err, hi3516av200_vi_init_in * in) {
     stChnAttr.enPixFormat           = PIXEL_FORMAT_YUV_SEMIPLANAR_420;   // sp420 or sp422
     
     if (in->mirror == 1) {
-        GO_LOG_VI(LOGGER_TRACE, "VI mirror on")
+        GO_LOG_VI(LOGGER_TRACE, "VI mirror on");
         stChnAttr.bMirror               = HI_TRUE;
     } else {
         stChnAttr.bMirror               = HI_FALSE;
     }
 
     if (in->flip == 1) {
-        GO_LOG_VI(LOGGER_TRACE, "VI flip on")
+        GO_LOG_VI(LOGGER_TRACE, "VI flip on");
         stChnAttr.bFlip                 = HI_TRUE;
     } else {
         stChnAttr.bFlip                 = HI_FALSE;
@@ -117,9 +119,10 @@ static int hi3516av200_vi_init(error_in *err, hi3516av200_vi_init_in * in) {
 
     mpp_error_code = HI_MPI_VI_SetChnAttr(0, &stChnAttr);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_VI(LOGGER_ERROR, "HI_MPI_VI_SetChnAttr")   
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_VI(LOGGER_ERROR, "HI_MPI_VI_SetChnAttr")   
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VI_SetChnAttr, mpp_error_code);
     }
 
     if (in->ldc == 1) {
@@ -135,9 +138,10 @@ static int hi3516av200_vi_init(error_in *err, hi3516av200_vi_init_in * in) {
     
         mpp_error_code = HI_MPI_VI_SetLDCAttr(0, &stLDCAttr);
         if (mpp_error_code != HI_SUCCESS) {
-            GO_LOG_VI(LOGGER_ERROR, "HI_MPI_VI_SetLDCAttr")
-            err->mpp = mpp_error_code;
-            return ERR_MPP;
+            //GO_LOG_VI(LOGGER_ERROR, "HI_MPI_VI_SetLDCAttr")
+            //err->mpp = mpp_error_code;
+            //return ERR_MPP;
+            RETURN_ERR_MPP(ERR_F_HI_MPI_VI_SetLDCAttr, mpp_error_code);
         }
         //Obtain LDC attributes.
         //s32Ret = HI_MPI_VI_GetLDCAttr (0, &stLDCAttr);
@@ -149,9 +153,10 @@ static int hi3516av200_vi_init(error_in *err, hi3516av200_vi_init_in * in) {
 
     mpp_error_code = HI_MPI_VI_EnableChn(0);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_VI(LOGGER_ERROR, "HI_MPI_VI_EnableChn")
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_VI(LOGGER_ERROR, "HI_MPI_VI_EnableChn")
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VI_EnableChn, mpp_error_code);
     }
 
     return ERR_NONE;
@@ -240,7 +245,7 @@ func initFamily() error {
     err := C.hi3516av200_vi_init(&inErr, &in)
 
     if err != 0 {
-        return errmpp.New(100, uint(inErr.mpp))
+        return errmpp.New(uint(inErr.f), uint(inErr.mpp))
     }
 
     return nil

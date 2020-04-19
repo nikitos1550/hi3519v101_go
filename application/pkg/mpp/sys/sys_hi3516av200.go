@@ -22,18 +22,20 @@ static int hi3516av200_sys_init(error_in *err, hi3516av200_sys_init_int *in) {
 
     mpp_error_code = HI_MPI_SYS_Exit();
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_SYS_Exit")    
-        err->f = ERR_F_HI_MPI_SYS_Exit;
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_SYS_Exit")    
+        //err->f = ERR_F_HI_MPI_SYS_Exit;
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_SYS_Exit, mpp_error_code);
     }
 
     mpp_error_code = HI_MPI_VB_Exit();
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_VB_Exit")   
-        err->f = ERR_F_HI_MPI_VB_Exit;
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_VB_Exit")   
+        //err->f = ERR_F_HI_MPI_VB_Exit;
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VB_Exit, mpp_error_code);
     }
 
     VB_CONF_S stVbConf;
@@ -45,18 +47,20 @@ static int hi3516av200_sys_init(error_in *err, hi3516av200_sys_init_int *in) {
 
     mpp_error_code = HI_MPI_VB_SetConf(&stVbConf);
     if(mpp_error_code != HI_SUCCESS) {
-        GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_VB_SetConf") 
-        err->f = ERR_F_HI_MPI_VB_SetConf;
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_VB_SetConf") 
+        //err->f = ERR_F_HI_MPI_VB_SetConf;
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VB_SetConf, mpp_error_code);
     }
 
     mpp_error_code = HI_MPI_VB_Init();
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_VB_Init")
-        err->f = ERR_F_HI_MPI_VB_Init;
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_VB_Init")
+        //err->f = ERR_F_HI_MPI_VB_Init;
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VB_Init, mpp_error_code);
     }
     
     MPP_SYS_CONF_S stSysConf;
@@ -66,18 +70,20 @@ static int hi3516av200_sys_init(error_in *err, hi3516av200_sys_init_int *in) {
 
     mpp_error_code = HI_MPI_SYS_SetConf(&stSysConf);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_SYS_SetConf")
-        err->f = ERR_F_HI_MPI_SYS_SetConf;
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_SYS_SetConf")
+        //err->f = ERR_F_HI_MPI_SYS_SetConf;
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_SYS_SetConf, mpp_error_code);
     }
 
     mpp_error_code = HI_MPI_SYS_Init();
     if(mpp_error_code != HI_SUCCESS) {
-        GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_SYS_Init")   
-        err->f = ERR_F_HI_MPI_SYS_Init;
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_SYS_Init")   
+        //err->f = ERR_F_HI_MPI_SYS_Init;
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_SYS_Init, mpp_error_code);
     }
 
     return ERR_NONE;

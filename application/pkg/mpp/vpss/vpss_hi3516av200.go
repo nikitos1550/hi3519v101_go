@@ -38,10 +38,10 @@ static int hi3516av200_vpss_init(error_in *err, hi3516av200_vpss_init_in *in) {
     stVpssGrpAttr.bStitchBlendEn    = HI_FALSE;                         
     
     if (in->nr == 1) {
-        GO_LOG_VPSS(LOGGER_TRACE, "VPSS NR on")
+        GO_LOG_VPSS(LOGGER_TRACE, "VPSS NR on");
         stVpssGrpAttr.bNrEn = HI_TRUE;
     } else {
-        GO_LOG_VPSS(LOGGER_TRACE, "VPSS NR off")
+        GO_LOG_VPSS(LOGGER_TRACE, "VPSS NR off");
         stVpssGrpAttr.bNrEn = HI_FALSE;
     }
 
@@ -64,16 +64,18 @@ static int hi3516av200_vpss_init(error_in *err, hi3516av200_vpss_init_in *in) {
     
     mpp_error_code = HI_MPI_VPSS_CreateGrp(0, &stVpssGrpAttr);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_CreateGrp")
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_CreateGrp")
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VPSS_CreateGrp, mpp_error_code);
     }
 
     mpp_error_code = HI_MPI_VPSS_StartGrp(0);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_StartGrp")   
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_StartGrp")   
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VPSS_StartGrp, mpp_error_code);
     }
 
     MPP_CHN_S stSrcChn;
@@ -89,9 +91,10 @@ static int hi3516av200_vpss_init(error_in *err, hi3516av200_vpss_init_in *in) {
 
     mpp_error_code = HI_MPI_SYS_Bind(&stSrcChn, &stDestChn);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_SYS_Bind")   
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_SYS_Bind")   
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_SYS_Bind, mpp_error_code);
     }
 
     return ERR_NONE;
@@ -138,31 +141,35 @@ static int hi3516av200_vpss_create_channel(error_in *err, hi3516av200_vpss_creat
 
     mpp_error_code = (uint64_t)HI_MPI_VPSS_SetChnAttr(0, in->channel_id, &stVpssChnAttr);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_SetChnAttr")   
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_SetChnAttr")   
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VPSS_SetChnAttr, mpp_error_code);
     }
 
     mpp_error_code = HI_MPI_VPSS_SetChnMode(0, in->channel_id, &stVpssChnMode);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_SetChnMode")   
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_SetChnMode")   
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VPSS_SetChnMode, mpp_error_code);
     }
 
  	HI_U32 u32Depth = 1; //TODO
  	mpp_error_code = HI_MPI_VPSS_SetDepth(0, in->channel_id, u32Depth);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_SetDepth")
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_SetDepth")
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VPSS_SetDepth, mpp_error_code);
     }
 
     mpp_error_code = HI_MPI_VPSS_EnableChn(0, in->channel_id);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_EnableChn")   
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_EnableChn")   
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VPSS_EnableChn, mpp_error_code);
     }
 
     return ERR_NONE;
@@ -177,9 +184,10 @@ static int hi3516av200_vpss_destroy_channel(error_in * err, hi3516av200_vpss_des
 
     mpp_error_code = HI_MPI_VPSS_DisableChn(0, in->channel_id);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_DisableChn")   
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_DisableChn")   
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VPSS_DisableChn, mpp_error_code);
     }
 
     return ERR_NONE;
@@ -195,9 +203,10 @@ static int hi3516av200_receive_frame(error_in *err, unsigned int channel_id) {
     mpp_error_code = HI_MPI_VPSS_GetChnFrame(0, channel_id, &channelFrames[channel_id], -1); //blocking mode call
 
  	if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_GetChnFrame")
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_GetChnFrame")
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VPSS_GetChnFrame, mpp_error_code);
  	}
 
  	return ERR_NONE;
@@ -209,9 +218,10 @@ static int hi3516av200_release_frame(error_in *err, unsigned int channel_id) {
  	mpp_error_code = HI_MPI_VPSS_ReleaseChnFrame(0, channel_id, &channelFrames[channel_id]);
 
  	if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_ReleaseChnFrame")
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_ReleaseChnFrame")
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VPSS_ReleaseChnFrame, mpp_error_code);
  	}
 
  	return ERR_NONE;
@@ -276,7 +286,7 @@ func initFamily() error {
     err := C.hi3516av200_vpss_init(&inErr, &in)
 
     if err != 0 {
-        return errmpp.New(100, uint(inErr.mpp))
+        return errmpp.New(uint(inErr.f), uint(inErr.mpp))
     }
 
     return nil
@@ -304,7 +314,7 @@ func createChannel(channel Channel) { //TODO return error
     
     if err != 0 {
         logger.Log.Fatal(). //log temporary, should generate and return error
-            Str("error", errmpp.New(100, uint(inErr.mpp)).Error()).
+            Str("error", errmpp.New(uint(inErr.f), uint(inErr.mpp)).Error()).
             Msg("VPSS")
     }
 
@@ -325,7 +335,7 @@ func destroyChannel(channel Channel) { //TODO return error
 
     if err != 0 {
         logger.Log.Fatal(). //log temporary, should generate and return error
-            Str("error", errmpp.New(100, uint(inErr.mpp)).Error()).
+            Str("error", errmpp.New(uint(inErr.f), uint(inErr.mpp)).Error()).
             Msg("VPSS")
     }
 
@@ -350,7 +360,7 @@ func sendDataToClients(channel Channel) {
 		if err != C.ERR_NONE {
 			logger.Log.Warn().
 				Int("channelId", channel.ChannelId).
-				Str("error", errmpp.New(100, uint(inErr.mpp)).Error()).
+				Str("error", errmpp.New(uint(inErr.f), uint(inErr.mpp)).Error()).
 				Msg("VPSS failed receive frame")
 			continue
 		}
@@ -363,7 +373,7 @@ func sendDataToClients(channel Channel) {
 		if err != C.ERR_NONE {
 			logger.Log.Error().
 				Int("channelId", channel.ChannelId).
-                Str("error", errmpp.New(100, uint(inErr.mpp)).Error()).
+                Str("error", errmpp.New(uint(inErr.f), uint(inErr.mpp)).Error()).
                 Msg("VPSS failed release frame")
 		}
 	}

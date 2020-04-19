@@ -50,6 +50,44 @@ func resolveFunc(f uint) string {
         return "HI_MPI_ISP_SetImageAttr"
     case C.ERR_F_HI_MPI_ISP_SetInputTiming:
         return "HI_MPI_ISP_SetInputTiming"
+    case C.ERR_F_HI_MPI_VI_SetDevAttr:
+        return "HI_MPI_VI_SetDevAttr"
+    case C.ERR_F_HI_MPI_VI_EnableDev:
+        return "HI_MPI_VI_EnableDev"
+    case C.ERR_F_HI_MPI_VI_SetChnAttr:
+        return "HI_MPI_VI_SetChnAttr"
+    case C.ERR_F_HI_MPI_VI_SetLDCAttr:
+        return "HI_MPI_VI_SetLDCAttr"
+    case C.ERR_F_HI_MPI_VI_EnableChn:
+        return "HI_MPI_VI_EnableChn"
+    case C.ERR_F_HI_MPI_VPSS_CreateGrp:
+        return "HI_MPI_VPSS_CreateGrp"
+    case C.ERR_F_HI_MPI_VPSS_StartGrp:
+        return "HI_MPI_VPSS_StartGrp"
+    case C.ERR_F_HI_MPI_SYS_Bind:
+        return "HI_MPI_SYS_Bind"
+    case C.ERR_F_HI_MPI_VPSS_SetChnAttr:
+        return "HI_MPI_VPSS_SetChnAttr"
+    case C.ERR_F_HI_MPI_VPSS_SetChnMode:
+        return "HI_MPI_VPSS_SetChnMode"
+    case C.ERR_F_HI_MPI_VPSS_SetDepth:
+        return "HI_MPI_VPSS_SetDepth"
+    case C.ERR_F_HI_MPI_VPSS_EnableChn:
+        return "HI_MPI_VPSS_EnableChn"
+    case C.ERR_F_HI_MPI_VPSS_DisableChn:
+        return "HI_MPI_VPSS_DisableChn"
+    case C.ERR_F_HI_MPI_VPSS_GetChnFrame:
+        return "HI_MPI_VPSS_GetChnFrame"
+    case C.ERR_F_HI_MPI_VPSS_ReleaseChnFrame:
+        return "HI_MPI_VPSS_ReleaseChnFrame"
+    case C.ERR_F_HI_MPI_VENC_CreateChn:
+        return "HI_MPI_VENC_CreateChn"
+    case C.ERR_F_HI_MPI_VENC_StartRecvPic:
+        return "HI_MPI_VENC_StartRecvPic"
+    case C.ERR_F_HI_MPI_VENC_DestroyChn:
+        return "HI_MPI_VENC_DestroyChn"
+    case C.ERR_F_HI_MPI_VENC_StopRecvPic:
+        return "HI_MPI_VENC_StopRecvPic"
     default:
         logger.Log.Warn().
             Uint("func", f).

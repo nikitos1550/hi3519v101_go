@@ -24,7 +24,7 @@ static int hi3516av200_mipi_init(error_in *err, hi3516av200_mipi_init_in * in) {
 
     fd = open("/dev/hi_mipi", O_RDWR);
     if (fd < 0) {
-        GO_LOG_MIPI(LOGGER_ERROR, "open /dev/hi_mipi")
+        GO_LOG_MIPI(LOGGER_ERROR, "open /dev/hi_mipi");
         err->general = fd;    
         return ERR_GENERAL;
     }
@@ -36,7 +36,7 @@ static int hi3516av200_mipi_init(error_in *err, hi3516av200_mipi_init_in * in) {
 
     general_error_code = ioctl(fd, HI_MIPI_RESET_MIPI, &stcomboDevAttr.devno);
     if (general_error_code != 0){
-        GO_LOG_MIPI(LOGGER_ERROR, "ioctl HI_MIPI_RESET_MIPI")
+        GO_LOG_MIPI(LOGGER_ERROR, "ioctl HI_MIPI_RESET_MIPI");
         close(fd);
         err->general = general_error_code;
         return ERR_GENERAL;
@@ -44,7 +44,7 @@ static int hi3516av200_mipi_init(error_in *err, hi3516av200_mipi_init_in * in) {
 
     general_error_code = ioctl(fd, HI_MIPI_RESET_SENSOR, &stcomboDevAttr.devno); 
     if (general_error_code != 0) {
-        GO_LOG_MIPI(LOGGER_ERROR, "ioctl HI_MIPI_RESET_SENSOR")
+        GO_LOG_MIPI(LOGGER_ERROR, "ioctl HI_MIPI_RESET_SENSOR");
         close(fd);
         err->general = general_error_code;
         return ERR_GENERAL;
@@ -52,7 +52,7 @@ static int hi3516av200_mipi_init(error_in *err, hi3516av200_mipi_init_in * in) {
 
     general_error_code = ioctl(fd, HI_MIPI_SET_DEV_ATTR, &stcomboDevAttr);
     if (general_error_code != 0) {
-		GO_LOG_MIPI(LOGGER_ERROR, "ioctl HI_MIPI_SET_DEV_ATTR")
+		GO_LOG_MIPI(LOGGER_ERROR, "ioctl HI_MIPI_SET_DEV_ATTR");
         close(fd);
         err->general = general_error_code;
         return ERR_GENERAL;
@@ -60,7 +60,7 @@ static int hi3516av200_mipi_init(error_in *err, hi3516av200_mipi_init_in * in) {
 
     general_error_code = ioctl(fd, HI_MIPI_UNRESET_MIPI, &stcomboDevAttr.devno);
     if (general_error_code != 0) {
-		GO_LOG_MIPI(LOGGER_ERROR, "ioctl HI_MIPI_UNRESET_MIPI")
+		GO_LOG_MIPI(LOGGER_ERROR, "ioctl HI_MIPI_UNRESET_MIPI");
         close(fd);
         err->general = general_error_code;
         return ERR_GENERAL;
@@ -68,7 +68,7 @@ static int hi3516av200_mipi_init(error_in *err, hi3516av200_mipi_init_in * in) {
 
     general_error_code = ioctl(fd, HI_MIPI_UNRESET_SENSOR, &stcomboDevAttr.devno); 
     if (general_error_code != 0) {
-		GO_LOG_MIPI(LOGGER_ERROR, "ioctl HI_MIPI_UNRESET_SENSOR")
+		GO_LOG_MIPI(LOGGER_ERROR, "ioctl HI_MIPI_UNRESET_SENSOR");
         close(fd);
         err->general = general_error_code;
         return ERR_GENERAL;

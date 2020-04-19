@@ -51,16 +51,18 @@ static int hi3516av200_venc_sample_mjpeg(error_in *err, hi3516av200_venc_create_
 
     mpp_error_code = HI_MPI_VENC_CreateChn(in->venc_id, &stVencChnAttr);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_VENC(LOGGER_ERROR, "HI_MPI_VENC_CreateChn")
-        err->mpp = mpp_error_code;
-		return ERR_MPP;
+        //GO_LOG_VENC(LOGGER_ERROR, "HI_MPI_VENC_CreateChn")
+        //err->mpp = mpp_error_code;
+		//return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VENC_CreateChn, mpp_error_code);
 	}
 
     mpp_error_code = HI_MPI_VENC_StartRecvPic(in->venc_id);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_VENC(LOGGER_ERROR, "HI_MPI_VENC_StartRecvPic")
-        err->mpp = mpp_error_code;
-		return ERR_MPP;
+        //GO_LOG_VENC(LOGGER_ERROR, "HI_MPI_VENC_StartRecvPic")
+        //err->mpp = mpp_error_code;
+		//return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VENC_StartRecvPic, mpp_error_code);
 	}
 
     return ERR_NONE;
@@ -111,16 +113,18 @@ static int hi3516av200_venc_create_h264(error_in *err, hi3516av200_venc_create_h
 
     mpp_error_code = HI_MPI_VENC_CreateChn(in->venc_id, &stVencChnAttr);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_VENC(LOGGER_ERROR, "HI_MPI_VENC_CreateChn")
-        err->mpp = mpp_error_code;    
-        return ERR_MPP;
+        //GO_LOG_VENC(LOGGER_ERROR, "HI_MPI_VENC_CreateChn")
+        //err->mpp = mpp_error_code;    
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VENC_CreateChn, mpp_error_code);
     }
 
     mpp_error_code = HI_MPI_VENC_StartRecvPic(in->venc_id);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_VENC(LOGGER_ERROR, "HI_MPI_VENC_StartRecvPic")
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_VENC(LOGGER_ERROR, "HI_MPI_VENC_StartRecvPic")
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VENC_StartRecvPic, mpp_error_code);
     }
 
     return ERR_NONE;
@@ -169,16 +173,18 @@ static int hi3516av200_venc_create_h265(error_in *err, hi3516av200_venc_create_h
 
     mpp_error_code = HI_MPI_VENC_CreateChn(in->venc_id, &stVencChnAttr);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_VENC(LOGGER_ERROR, "HI_MPI_VENC_CreateChn")
-        err->mpp = mpp_error_code;        
-        return ERR_MPP;
+        //GO_LOG_VENC(LOGGER_ERROR, "HI_MPI_VENC_CreateChn")
+        //err->mpp = mpp_error_code;        
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VENC_CreateChn, mpp_error_code);
     }
 
     mpp_error_code = HI_MPI_VENC_StartRecvPic(in->venc_id);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_VENC(LOGGER_ERROR, "HI_MPI_VENC_StartRecvPic")
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_VENC(LOGGER_ERROR, "HI_MPI_VENC_StartRecvPic")
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VENC_StartRecvPic, mpp_error_code);
     }
 
     return ERR_NONE;
@@ -189,16 +195,18 @@ static int hi3516av200_venc_delete_encoder(error_in *err, unsigned int venc_id) 
 
     mpp_error_code = HI_MPI_VENC_StopRecvPic(venc_id);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_VENC(LOGGER_ERROR, "HI_MPI_VENC_StopRecvPic")
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_VENC(LOGGER_ERROR, "HI_MPI_VENC_StopRecvPic")
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VENC_StopRecvPic, mpp_error_code);
     }
 
 	mpp_error_code = HI_MPI_VENC_DestroyChn(venc_id);
 	if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_VENC(LOGGER_ERROR, "HI_MPI_VENC_DestroyChn")
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_VENC(LOGGER_ERROR, "HI_MPI_VENC_DestroyChn")
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VENC_DestroyChn, mpp_error_code);
     }
 
 	return ERR_NONE;
@@ -252,7 +260,7 @@ func createVencEncoder(encoder ActiveEncoder) error {
     }
 
     if err != C.ERR_NONE {
-        return errmpp.New(100, uint(inErr.mpp))
+        return errmpp.New(uint(inErr.f), uint(inErr.mpp))
         //logger.Log.Fatal(). //log temporary, should generate and return error
         //    Str("error", errmpp.New("funcname", uint(inErr.mpp)).Error()).
         //    Msg("VENC")
@@ -272,7 +280,7 @@ func deleteVencEncoder(encoder ActiveEncoder) error {
     err = C.hi3516av200_venc_delete_encoder(&inErr, C.uint(encoder.VencId))
 
     if err != C.ERR_NONE {
-        return errmpp.New(100, uint(inErr.mpp))
+        return errmpp.New(uint(inErr.f), uint(inErr.mpp))
         //logger.Log.Fatal(). //log temporary, should generate and return error
         //    Str("error", errmpp.New("funcname", uint(inErr.mpp)).Error()).
         //    Msg("VENC")

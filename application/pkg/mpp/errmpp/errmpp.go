@@ -1,7 +1,7 @@
 package errmpp
 
 import (
-    "strconv"
+    //"strconv"
 )
 
 type errorMpp struct {
@@ -22,5 +22,5 @@ func New(f uint, c uint) errorMpp {
 
 func (e errorMpp) Error() string {
     name, desc := resolveCode(e.c)
-    return resolveFunc(e.f) + ": 0x" + strconv.FormatInt(int64(e.c), 16) + " " + name + " (" + desc + ")"
+    return resolveFunc(e.f) + " " + name + " (" + desc + ")"
 }

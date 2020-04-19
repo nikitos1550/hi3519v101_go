@@ -18,6 +18,10 @@ typedef int error_general;
 //HI_MPI_VB_Exit
 //#define MPP_F_
 
+#define RETURN_ERR_MPP(x, y) \
+    err->f = x; \
+    err->mpp = y; \
+    return ERR_MPP
 
 #define ERR_F_HI_MPI_SYS_Init                   1
 #define ERR_F_HI_MPI_SYS_Exit                   2
@@ -40,6 +44,28 @@ typedef int error_general;
 #define ERR_F_HI_MPI_ISP_SetImageAttr           18
 #define ERR_F_HI_MPI_ISP_SetInputTiming         19
 
+#define ERR_F_HI_MPI_VI_SetDevAttr              20
+#define ERR_F_HI_MPI_VI_EnableDev               21
+#define ERR_F_HI_MPI_VI_SetChnAttr              22
+#define ERR_F_HI_MPI_VI_SetLDCAttr              23
+#define ERR_F_HI_MPI_VI_EnableChn               24
 
+#define ERR_F_HI_MPI_VPSS_CreateGrp             25
+#define ERR_F_HI_MPI_VPSS_StartGrp              26
+
+#define ERR_F_HI_MPI_SYS_Bind                   27
+
+#define ERR_F_HI_MPI_VPSS_SetChnAttr            280
+#define ERR_F_HI_MPI_VPSS_SetChnMode            28
+#define ERR_F_HI_MPI_VPSS_SetDepth              29
+#define ERR_F_HI_MPI_VPSS_EnableChn             30
+#define ERR_F_HI_MPI_VPSS_DisableChn            31
+#define ERR_F_HI_MPI_VPSS_GetChnFrame           32
+#define ERR_F_HI_MPI_VPSS_ReleaseChnFrame       33
+
+#define ERR_F_HI_MPI_VENC_CreateChn             34
+#define ERR_F_HI_MPI_VENC_StartRecvPic          35
+#define ERR_F_HI_MPI_VENC_DestroyChn            36
+#define ERR_F_HI_MPI_VENC_StopRecvPic           37
 
 #endif // ERROR_H_

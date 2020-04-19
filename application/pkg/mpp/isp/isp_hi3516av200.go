@@ -15,9 +15,9 @@ static pthread_t hi3516av200_isp_thread_pid;
 
 static void* hi3516av200_isp_thread(HI_VOID *param){
     int error_code = 0;
-    GO_LOG_ISP(LOGGER_TRACE, "HI_MPI_ISP_Run")
+    GO_LOG_ISP(LOGGER_TRACE, "HI_MPI_ISP_Run");
     error_code = HI_MPI_ISP_Run(0);
-    GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_ISP_Run failed")
+    GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_ISP_Run failed");
 }
 
 typedef struct hi3516av200_isp_init_in_struct {
@@ -43,10 +43,11 @@ static int hi3516av200_isp_init(error_in *err, hi3516av200_isp_init_in *in) {
 
     mpp_error_code = HI_MPI_AE_Register(0, &stLib);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_AE_Register")        
-        err->f = ERR_F_HI_MPI_AE_Register;
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_AE_Register")        
+        //err->f = ERR_F_HI_MPI_AE_Register;
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_AE_Register, mpp_error_code);
     }
 
     ALG_LIB_S stAwbLib;
@@ -57,10 +58,11 @@ static int hi3516av200_isp_init(error_in *err, hi3516av200_isp_init_in *in) {
 
     mpp_error_code = HI_MPI_AWB_Register(0, &stLib);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_AWB_Register")
-        err->f = ERR_F_HI_MPI_AWB_Register;
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_AWB_Register")
+        //err->f = ERR_F_HI_MPI_AWB_Register;
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_AWB_Register, mpp_error_code);
     }
 
     ALG_LIB_S stAfLib;
@@ -72,18 +74,20 @@ static int hi3516av200_isp_init(error_in *err, hi3516av200_isp_init_in *in) {
 
     mpp_error_code = HI_MPI_AF_Register(0, &stLib);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_AF_Register")
-        err->f = ERR_F_HI_MPI_AF_Register;
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_AF_Register")
+        //err->f = ERR_F_HI_MPI_AF_Register;
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_AF_Register, mpp_error_code);
     }
 
     mpp_error_code = HI_MPI_ISP_MemInit(0);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_ISP_MemInit")
-        err->f = ERR_F_HI_MPI_ISP_MemInit;
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_ISP_MemInit")
+        //err->f = ERR_F_HI_MPI_ISP_MemInit;
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_ISP_MemInit, mpp_error_code);
     }
 
     ISP_WDR_MODE_S stWdrMode;
@@ -95,10 +99,11 @@ static int hi3516av200_isp_init(error_in *err, hi3516av200_isp_init_in *in) {
 
     mpp_error_code = HI_MPI_ISP_SetWDRMode(0, &stWdrMode);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_ISP_SetWDRMode")
-        err->f = ERR_F_HI_MPI_ISP_SetWDRMode;
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_ISP_SetWDRMode")
+        //err->f = ERR_F_HI_MPI_ISP_SetWDRMode;
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_ISP_SetWDRMode, mpp_error_code);
     }
 
     ISP_PUB_ATTR_S stPubAttr;
@@ -115,23 +120,25 @@ static int hi3516av200_isp_init(error_in *err, hi3516av200_isp_init_in *in) {
 
     mpp_error_code = HI_MPI_ISP_SetPubAttr(0, &stPubAttr);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_ISP_SetPubAttr")
-        err->f = ERR_F_HI_MPI_ISP_SetPubAttr;
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_ISP_SetPubAttr")
+        //err->f = ERR_F_HI_MPI_ISP_SetPubAttr;
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_ISP_Init, mpp_error_code);
     }
 
     mpp_error_code = HI_MPI_ISP_Init(0);
     if (mpp_error_code != HI_SUCCESS) {
-        GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_ISP_Init")
-        err->f = ERR_F_HI_MPI_ISP_Init;
-        err->mpp = mpp_error_code;
-        return ERR_MPP;
+        //GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_ISP_Init")
+        //err->f = ERR_F_HI_MPI_ISP_Init;
+        //err->mpp = mpp_error_code;
+        //return ERR_MPP;
+        RETURN_ERR_MPP(ERR_F_HI_MPI_ISP_Init, mpp_error_code);
     }
 
     general_error_code = pthread_create(&hi3516av200_isp_thread_pid, 0, (void* (*)(void*))hi3516av200_isp_thread, NULL);
     if (general_error_code != 0) {
-        GO_LOG_ISP(LOGGER_ERROR, "pthread_create")
+        GO_LOG_ISP(LOGGER_ERROR, "pthread_create");
         err->general = general_error_code;
         return ERR_GENERAL;
     }
