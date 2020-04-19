@@ -44,6 +44,7 @@ static int hi3516av200_isp_init(error_in *err, hi3516av200_isp_init_in *in) {
     mpp_error_code = HI_MPI_AE_Register(0, &stLib);
     if (mpp_error_code != HI_SUCCESS) {
         GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_AE_Register")        
+        err->f = ERR_F_HI_MPI_AE_Register;
         err->mpp = mpp_error_code;
         return ERR_MPP;
     }
@@ -57,6 +58,7 @@ static int hi3516av200_isp_init(error_in *err, hi3516av200_isp_init_in *in) {
     mpp_error_code = HI_MPI_AWB_Register(0, &stLib);
     if (mpp_error_code != HI_SUCCESS) {
         GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_AWB_Register")
+        err->f = ERR_F_HI_MPI_AWB_Register;
         err->mpp = mpp_error_code;
         return ERR_MPP;
     }
@@ -71,6 +73,7 @@ static int hi3516av200_isp_init(error_in *err, hi3516av200_isp_init_in *in) {
     mpp_error_code = HI_MPI_AF_Register(0, &stLib);
     if (mpp_error_code != HI_SUCCESS) {
         GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_AF_Register")
+        err->f = ERR_F_HI_MPI_AF_Register;
         err->mpp = mpp_error_code;
         return ERR_MPP;
     }
@@ -78,6 +81,7 @@ static int hi3516av200_isp_init(error_in *err, hi3516av200_isp_init_in *in) {
     mpp_error_code = HI_MPI_ISP_MemInit(0);
     if (mpp_error_code != HI_SUCCESS) {
         GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_ISP_MemInit")
+        err->f = ERR_F_HI_MPI_ISP_MemInit;
         err->mpp = mpp_error_code;
         return ERR_MPP;
     }
@@ -92,6 +96,7 @@ static int hi3516av200_isp_init(error_in *err, hi3516av200_isp_init_in *in) {
     mpp_error_code = HI_MPI_ISP_SetWDRMode(0, &stWdrMode);
     if (mpp_error_code != HI_SUCCESS) {
         GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_ISP_SetWDRMode")
+        err->f = ERR_F_HI_MPI_ISP_SetWDRMode;
         err->mpp = mpp_error_code;
         return ERR_MPP;
     }
@@ -111,6 +116,7 @@ static int hi3516av200_isp_init(error_in *err, hi3516av200_isp_init_in *in) {
     mpp_error_code = HI_MPI_ISP_SetPubAttr(0, &stPubAttr);
     if (mpp_error_code != HI_SUCCESS) {
         GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_ISP_SetPubAttr")
+        err->f = ERR_F_HI_MPI_ISP_SetPubAttr;
         err->mpp = mpp_error_code;
         return ERR_MPP;
     }
@@ -118,6 +124,7 @@ static int hi3516av200_isp_init(error_in *err, hi3516av200_isp_init_in *in) {
     mpp_error_code = HI_MPI_ISP_Init(0);
     if (mpp_error_code != HI_SUCCESS) {
         GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_ISP_Init")
+        err->f = ERR_F_HI_MPI_ISP_Init;
         err->mpp = mpp_error_code;
         return ERR_MPP;
     }
@@ -186,7 +193,7 @@ func initFamily() error {
     err := C.hi3516av200_isp_init(&inErr, &in)
     switch err {
         case C.ERR_MPP:
-            return errmpp.New("funcname", uint(inErr.mpp))
+            return errmpp.New(uint(inErr.f), uint(inErr.mpp))
         case C.ERR_GENERAL:
             return errors.New("ISP error TODO")
         default:

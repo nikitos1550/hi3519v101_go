@@ -23,6 +23,7 @@ static int hi3516av200_sys_init(error_in *err, hi3516av200_sys_init_int *in) {
     mpp_error_code = HI_MPI_SYS_Exit();
     if (mpp_error_code != HI_SUCCESS) {
         GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_SYS_Exit")    
+        err->f = ERR_F_HI_MPI_SYS_Exit;
         err->mpp = mpp_error_code;
         return ERR_MPP;
     }
@@ -30,6 +31,7 @@ static int hi3516av200_sys_init(error_in *err, hi3516av200_sys_init_int *in) {
     mpp_error_code = HI_MPI_VB_Exit();
     if (mpp_error_code != HI_SUCCESS) {
         GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_VB_Exit")   
+        err->f = ERR_F_HI_MPI_VB_Exit;
         err->mpp = mpp_error_code;
         return ERR_MPP;
     }
@@ -43,7 +45,8 @@ static int hi3516av200_sys_init(error_in *err, hi3516av200_sys_init_int *in) {
 
     mpp_error_code = HI_MPI_VB_SetConf(&stVbConf);
     if(mpp_error_code != HI_SUCCESS) {
-        GO_LOG_SYS(LOGGER_ERROR, " HI_MPI_VB_SetConf") 
+        GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_VB_SetConf") 
+        err->f = ERR_F_HI_MPI_VB_SetConf;
         err->mpp = mpp_error_code;
         return ERR_MPP;
     }
@@ -51,6 +54,7 @@ static int hi3516av200_sys_init(error_in *err, hi3516av200_sys_init_int *in) {
     mpp_error_code = HI_MPI_VB_Init();
     if (mpp_error_code != HI_SUCCESS) {
         GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_VB_Init")
+        err->f = ERR_F_HI_MPI_VB_Init;
         err->mpp = mpp_error_code;
         return ERR_MPP;
     }
@@ -63,6 +67,7 @@ static int hi3516av200_sys_init(error_in *err, hi3516av200_sys_init_int *in) {
     mpp_error_code = HI_MPI_SYS_SetConf(&stSysConf);
     if (mpp_error_code != HI_SUCCESS) {
         GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_SYS_SetConf")
+        err->f = ERR_F_HI_MPI_SYS_SetConf;
         err->mpp = mpp_error_code;
         return ERR_MPP;
     }
@@ -70,6 +75,7 @@ static int hi3516av200_sys_init(error_in *err, hi3516av200_sys_init_int *in) {
     mpp_error_code = HI_MPI_SYS_Init();
     if(mpp_error_code != HI_SUCCESS) {
         GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_SYS_Init")   
+        err->f = ERR_F_HI_MPI_SYS_Init;
         err->mpp = mpp_error_code;
         return ERR_MPP;
     }
@@ -100,7 +106,7 @@ func initFamily() error {
 
     err := C.hi3516av200_sys_init(&inErr, &in)
     if err != C.ERR_NONE {
-        return errmpp.New("funcname", uint(inErr.mpp))
+        return errmpp.New(uint(inErr.f), uint(inErr.mpp))
     }
 
     return nil

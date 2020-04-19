@@ -66,7 +66,7 @@ func CreatePredefinedEncoder(encoderName string) (int, string)  {
 		Channels: make(map[chan []byte]bool),
 	}
 
-	CreateVencEncoder(activeEncoder)
+	createVencEncoder(activeEncoder)
 
 	ActiveEncoders[lastEncoderId] = activeEncoder
 
@@ -86,7 +86,7 @@ func DeleteEncoder(encoderId int) (int, string) {
 		}
 	}
 
-	DeleteVencEncoder(encoder)
+	deleteVencEncoder(encoder)
 	delete(ActiveEncoders, encoderId)
 
 	return 0, ""

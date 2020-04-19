@@ -4,11 +4,7 @@
 
 package errmpp
 
-//import (
-//	"strconv"
-//)
-
-func resolve(code uint) (string, string) {
+func resolveCode(code uint) (string, string) {
 	switch code {
 	case 0xA0028003:
 		return "HI_ERR_SYS_ILLEGAL_PARAM", "The parameter configuration is invalid"

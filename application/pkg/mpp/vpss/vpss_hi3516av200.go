@@ -276,7 +276,7 @@ func initFamily() error {
     err := C.hi3516av200_vpss_init(&inErr, &in)
 
     if err != 0 {
-        return errmpp.New("funcname", uint(inErr.mpp))
+        return errmpp.New(100, uint(inErr.mpp))
     }
 
     return nil
@@ -304,7 +304,7 @@ func createChannel(channel Channel) { //TODO return error
     
     if err != 0 {
         logger.Log.Fatal(). //log temporary, should generate and return error
-            Str("error", errmpp.New("funcname", uint(inErr.mpp)).Error()).
+            Str("error", errmpp.New(100, uint(inErr.mpp)).Error()).
             Msg("VPSS")
     }
 
@@ -325,7 +325,7 @@ func destroyChannel(channel Channel) { //TODO return error
 
     if err != 0 {
         logger.Log.Fatal(). //log temporary, should generate and return error
-            Str("error", errmpp.New("funcname", uint(inErr.mpp)).Error()).
+            Str("error", errmpp.New(100, uint(inErr.mpp)).Error()).
             Msg("VPSS")
     }
 
@@ -350,7 +350,7 @@ func sendDataToClients(channel Channel) {
 		if err != C.ERR_NONE {
 			logger.Log.Warn().
 				Int("channelId", channel.ChannelId).
-				Str("error", errmpp.New("funcname", uint(inErr.mpp)).Error()).
+				Str("error", errmpp.New(100, uint(inErr.mpp)).Error()).
 				Msg("VPSS failed receive frame")
 			continue
 		}
@@ -363,7 +363,7 @@ func sendDataToClients(channel Channel) {
 		if err != C.ERR_NONE {
 			logger.Log.Error().
 				Int("channelId", channel.ChannelId).
-                Str("error", errmpp.New("funcname", uint(inErr.mpp)).Error()).
+                Str("error", errmpp.New(100, uint(inErr.mpp)).Error()).
                 Msg("VPSS failed release frame")
 		}
 	}

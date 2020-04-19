@@ -5,22 +5,22 @@ import (
 )
 
 type errorMpp struct {
-    method string
-    code uint
+    f uint
+    c uint
     //name string
     //desc string
 }
 
-func New(m string, c uint) errorMpp {
+func New(f uint, c uint) errorMpp {
     var e errorMpp
 
-    e.method = m
-    e.code = c
+    e.f = f
+    e.c = c
 
     return e
 }
 
 func (e errorMpp) Error() string {
-    name, desc := resolve(e.code)
-    return e.method + ": 0x" + strconv.FormatInt(int64(e.code), 16) + " " + name + " (" + desc + ")"
+    name, desc := resolveCode(e.c)
+    return resolveFunc(e.f) + ": 0x" + strconv.FormatInt(int64(e.c), 16) + " " + name + " (" + desc + ")"
 }

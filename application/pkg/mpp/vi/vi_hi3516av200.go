@@ -240,7 +240,7 @@ func initFamily() error {
     err := C.hi3516av200_vi_init(&inErr, &in)
 
     if err != 0 {
-        return errmpp.New("funcname", uint(inErr.mpp))
+        return errmpp.New(100, uint(inErr.mpp))
     }
 
     return nil

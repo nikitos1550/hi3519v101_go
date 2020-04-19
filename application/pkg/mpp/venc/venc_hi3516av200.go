@@ -207,11 +207,12 @@ static int hi3516av200_venc_delete_encoder(error_in *err, unsigned int venc_id) 
 import "C"
 
 import (
+    "errors"
     "application/pkg/logger"
     "application/pkg/mpp/errmpp"
 )
 
-func CreateVencEncoder(encoder ActiveEncoder) {
+func createVencEncoder(encoder ActiveEncoder) error {
     var inErr C.error_in
     var err C.int
 
@@ -244,22 +245,25 @@ func CreateVencEncoder(encoder ActiveEncoder) {
 
         err = C.hi3516av200_venc_sample_mjpeg(&inErr, &in)
     default:
-        logger.Log.Error().
+        logger.Log.Fatal().
             Str("codec", encoder.Format).
             Msg("VENC unknown codec")
-        return
+        return errors.New("VENC unknown codec")
     }
 
     if err != C.ERR_NONE {
-        logger.Log.Fatal(). //log temporary, should generate and return error
-            Str("error", errmpp.New("funcname", uint(inErr.mpp)).Error()).
-            Msg("VENC")
+        return errmpp.New(100, uint(inErr.mpp))
+        //logger.Log.Fatal(). //log temporary, should generate and return error
+        //    Str("error", errmpp.New("funcname", uint(inErr.mpp)).Error()).
+        //    Msg("VENC")
     }
 
     addVenc(encoder.VencId)
+
+    return nil
 }
 
-func DeleteVencEncoder(encoder ActiveEncoder) {
+func deleteVencEncoder(encoder ActiveEncoder) error {
     var inErr C.error_in
     var err C.int
 
@@ -268,10 +272,12 @@ func DeleteVencEncoder(encoder ActiveEncoder) {
     err = C.hi3516av200_venc_delete_encoder(&inErr, C.uint(encoder.VencId))
 
     if err != C.ERR_NONE {
-        logger.Log.Fatal(). //log temporary, should generate and return error
-            Str("error", errmpp.New("funcname", uint(inErr.mpp)).Error()).
-            Msg("VENC")
+        return errmpp.New(100, uint(inErr.mpp))
+        //logger.Log.Fatal(). //log temporary, should generate and return error
+        //    Str("error", errmpp.New("funcname", uint(inErr.mpp)).Error()).
+        //    Msg("VENC")
     }
 
+    return nil
 }
 
