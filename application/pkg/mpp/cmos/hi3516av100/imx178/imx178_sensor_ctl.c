@@ -23,6 +23,7 @@
 #include <unistd.h>
 
 #include "hi_comm_video.h"
+#include "hi_math.h"
 
 #ifdef HI_GPIO_I2C
 #include "gpioi2c_ex.h"
@@ -43,7 +44,7 @@ int sensor_i2c_init(void)
     if (g_fd >= 0)
     {
         return 0;
-    }    
+    }
 #ifdef HI_GPIO_I2C
     int ret;
 
@@ -87,8 +88,8 @@ int sensor_i2c_exit(void)
 
 int sensor_read_register(int addr)
 {
-    // TODO: 
-    
+    // TODO:
+
     return 0;
 }
 
@@ -157,11 +158,11 @@ int sensor_write_register(int addr, int data)
     return 0;
 }
 
-static void delay_ms(int ms) { 
-    usleep(ms*1000);
+static void delay_ms(int ms) {
+    hi_usleep(ms*1000);
 }
 
-void sensor_prog(int* rom) 
+void sensor_prog(int* rom)
 {
     int i = 0;
     while (1) {
@@ -184,7 +185,7 @@ void sensor_init_1080p60();
 void sensor_init()
 {
     sensor_i2c_init();
-    
+
     if (1 == gu8SensorImageMode)    /* SENSOR_5M_30FPS_MODE */
     {
         sensor_init_5M30();
@@ -210,24 +211,24 @@ void sensor_exit()
 
 void sensor_init_5M30()
 {
-    /* imx178 5M@30fps */    
+    /* imx178 5M@30fps */
     sensor_write_register (0x3000, 0x07); /* standby */
-    
+
     sensor_write_register (0x300E, 0x00); /* MODE, Window cropping 5.0M (4:3) */
     sensor_write_register (0x300F, 0x10); /* WINMODE, Window cropping 5.0M (4:3) */
     sensor_write_register (0x3010, 0x00); /* TCYCLE */
     sensor_write_register (0x3066, 0x06); /* VNDMY */
     sensor_write_register (0x302C, 0xF4);
     sensor_write_register (0x302D, 0x08); /* VMAX */
-    sensor_write_register (0x302F, 0xE9); 
+    sensor_write_register (0x302F, 0xE9);
     sensor_write_register (0x3030, 0x03); /* HMAX */
     sensor_write_register (0x300D, 0x05); /* ADBIT, ADBITFREQ  (ADC 12-bit) */
     sensor_write_register (0x3059, 0x31); /* ODBIT, OPORTSEL   (12-BIT) */
-    sensor_write_register (0x3004, 0x03); /* STBLVDS, 4CH ACTIVE */ 
-    
+    sensor_write_register (0x3004, 0x03); /* STBLVDS, 4CH ACTIVE */
+
     /* register setting details */
     sensor_write_register (0x3101, 0x30); /* FREQ[1:0] */
-    
+
     /* FREQ setting (INCK=27MHz) */
     sensor_write_register (0x310C, 0x00);
     sensor_write_register (0x33BE, 0x21);
@@ -237,46 +238,46 @@ void sensor_init_5M30()
     sensor_write_register (0x33C2, 0x21);
     sensor_write_register (0x33C3, 0x2C);
     sensor_write_register (0x33C4, 0x2C);
-    sensor_write_register (0x33C5, 0x00);  
-    sensor_write_register (0x311C, 0x34); 
-    sensor_write_register (0x311D, 0x28); 
-    sensor_write_register (0x311E, 0xAB); 
-    sensor_write_register (0x311F, 0x00); 
-    sensor_write_register (0x3120, 0x95); 
-    sensor_write_register (0x3121, 0x00); 
-    sensor_write_register (0x3122, 0xB4); 
-    sensor_write_register (0x3123, 0x00); 
-    sensor_write_register (0x3124, 0x8c); 
-    sensor_write_register (0x3125, 0x02); 
-    sensor_write_register (0x312D, 0x03); 
-    sensor_write_register (0x312E, 0x0C); 
-    sensor_write_register (0x312F, 0x28); 
-    sensor_write_register (0x3131, 0x2D); 
-    sensor_write_register (0x3132, 0x00); 
-    sensor_write_register (0x3133, 0xB4); 
-    sensor_write_register (0x3134, 0x00); 
-    sensor_write_register (0x3137, 0x50); 
-    sensor_write_register (0x3138, 0x08); 
-    sensor_write_register (0x3139, 0x00); 
-    sensor_write_register (0x313A, 0x07); 
-    sensor_write_register (0x313D, 0x05); 
-    sensor_write_register (0x3140, 0x06); 
-    sensor_write_register (0x3220, 0x8B); 
-    sensor_write_register (0x3221, 0x00); 
-    sensor_write_register (0x3222, 0x74); 
-    sensor_write_register (0x3223, 0x00); 
-    sensor_write_register (0x3226, 0xC2); 
-    sensor_write_register (0x3227, 0x00); 
-    sensor_write_register (0x32A9, 0x1B); 
-    sensor_write_register (0x32AA, 0x00); 
-    sensor_write_register (0x32B3, 0x0E); 
-    sensor_write_register (0x32B4, 0x00); 
-    sensor_write_register (0x33D6, 0x16); 
-    sensor_write_register (0x33D7, 0x15); 
-    sensor_write_register (0x33D8, 0x14); 
-    sensor_write_register (0x33D9, 0x10); 
-    sensor_write_register (0x33DA, 0x08); 
-    
+    sensor_write_register (0x33C5, 0x00);
+    sensor_write_register (0x311C, 0x34);
+    sensor_write_register (0x311D, 0x28);
+    sensor_write_register (0x311E, 0xAB);
+    sensor_write_register (0x311F, 0x00);
+    sensor_write_register (0x3120, 0x95);
+    sensor_write_register (0x3121, 0x00);
+    sensor_write_register (0x3122, 0xB4);
+    sensor_write_register (0x3123, 0x00);
+    sensor_write_register (0x3124, 0x8c);
+    sensor_write_register (0x3125, 0x02);
+    sensor_write_register (0x312D, 0x03);
+    sensor_write_register (0x312E, 0x0C);
+    sensor_write_register (0x312F, 0x28);
+    sensor_write_register (0x3131, 0x2D);
+    sensor_write_register (0x3132, 0x00);
+    sensor_write_register (0x3133, 0xB4);
+    sensor_write_register (0x3134, 0x00);
+    sensor_write_register (0x3137, 0x50);
+    sensor_write_register (0x3138, 0x08);
+    sensor_write_register (0x3139, 0x00);
+    sensor_write_register (0x313A, 0x07);
+    sensor_write_register (0x313D, 0x05);
+    sensor_write_register (0x3140, 0x06);
+    sensor_write_register (0x3220, 0x8B);
+    sensor_write_register (0x3221, 0x00);
+    sensor_write_register (0x3222, 0x74);
+    sensor_write_register (0x3223, 0x00);
+    sensor_write_register (0x3226, 0xC2);
+    sensor_write_register (0x3227, 0x00);
+    sensor_write_register (0x32A9, 0x1B);
+    sensor_write_register (0x32AA, 0x00);
+    sensor_write_register (0x32B3, 0x0E);
+    sensor_write_register (0x32B4, 0x00);
+    sensor_write_register (0x33D6, 0x16);
+    sensor_write_register (0x33D7, 0x15);
+    sensor_write_register (0x33D8, 0x14);
+    sensor_write_register (0x33D9, 0x10);
+    sensor_write_register (0x33DA, 0x08);
+
     /* registers must be changed */
     sensor_write_register (0x3011, 0x00);
     sensor_write_register (0x301B, 0x00);
@@ -319,40 +320,40 @@ void sensor_init_5M30()
     sensor_write_register (0x33B9, 0x00);
 
     /*shutter and gain */
-    sensor_write_register (0x3034, 0x08); 
+    sensor_write_register (0x3034, 0x08);
     sensor_write_register (0x3035, 0x00); /* SHS1 */
-    sensor_write_register (0x301F, 0xA0);  
-    sensor_write_register (0x3020, 0x00); /* GAIN */                                                                       
+    sensor_write_register (0x301F, 0xA0);
+    sensor_write_register (0x3020, 0x00); /* GAIN */
 
-    sensor_write_register (0x3000, 0x00); /* standby */    
+    sensor_write_register (0x3000, 0x00); /* standby */
     sensor_write_register (0x3008, 0x00); /* master mode start */
     sensor_write_register (0x305E, 0x0A); /* XVSOUTSEL XHSOUTSEL */
     sensor_write_register (0x3015, 0xC8); /* BLKLEVEL */
-    
+
     printf("-------Sony IMX178 Sensor 5M30fps Initial OK!-------\n");
 
 }
 
 void sensor_init_1080p60()
 {
-    /* imx178 1080@60fps */    
+    /* imx178 1080@60fps */
     sensor_write_register (0x3000, 0x07); /* standby */
-    
+
     sensor_write_register (0x300E, 0x01); /* MODE, Window cropping 5.0M (4:3) */
     sensor_write_register (0x300F, 0x00); /* WINMODE, Window cropping 5.0M (4:3) */
     sensor_write_register (0x3010, 0x00); /* TCYCLE */
     sensor_write_register (0x3066, 0x03); /* VNDMY */
     sensor_write_register (0x302C, 0xF8);
     sensor_write_register (0x302D, 0x05); /* VMAX */
-    sensor_write_register (0x302F, 0xEE); 
+    sensor_write_register (0x302F, 0xEE);
     sensor_write_register (0x3030, 0x02); /* HMAX */
     sensor_write_register (0x300D, 0x05); /* ADBIT, ADBITFREQ  (ADC 12-bit) */
     sensor_write_register (0x3059, 0x31); /* ODBIT, OPORTSEL   (12-BIT) */
-    sensor_write_register (0x3004, 0x03); /* STBLVDS, 4CH ACTIVE */ 
-    
+    sensor_write_register (0x3004, 0x03); /* STBLVDS, 4CH ACTIVE */
+
     /* register setting details */
     sensor_write_register (0x3101, 0x30); /* FREQ[1:0] */
-    
+
     /* FREQ setting (INCK=37.125MHz) */
     sensor_write_register (0x310C, 0x00);
     sensor_write_register (0x33BE, 0x21);
@@ -362,46 +363,46 @@ void sensor_init_1080p60()
     sensor_write_register (0x33C2, 0x21);
     sensor_write_register (0x33C3, 0x2C);
     sensor_write_register (0x33C4, 0x2C);
-    sensor_write_register (0x33C5, 0x00);  
-    sensor_write_register (0x311C, 0x34); 
-    sensor_write_register (0x311D, 0x28); 
-    sensor_write_register (0x311E, 0xAB); 
-    sensor_write_register (0x311F, 0x00); 
-    sensor_write_register (0x3120, 0x95); 
-    sensor_write_register (0x3121, 0x00); 
-    sensor_write_register (0x3122, 0xB4); 
-    sensor_write_register (0x3123, 0x00); 
-    sensor_write_register (0x3124, 0x8c); 
-    sensor_write_register (0x3125, 0x02); 
-    sensor_write_register (0x312D, 0x03); 
-    sensor_write_register (0x312E, 0x0C); 
-    sensor_write_register (0x312F, 0x28); 
-    sensor_write_register (0x3131, 0x2D); 
-    sensor_write_register (0x3132, 0x00); 
-    sensor_write_register (0x3133, 0xB4); 
-    sensor_write_register (0x3134, 0x00); 
-    sensor_write_register (0x3137, 0x50); 
-    sensor_write_register (0x3138, 0x08); 
-    sensor_write_register (0x3139, 0x00); 
-    sensor_write_register (0x313A, 0x07); 
-    sensor_write_register (0x313D, 0x05); 
-    sensor_write_register (0x3140, 0x06); 
-    sensor_write_register (0x3220, 0x8B); 
-    sensor_write_register (0x3221, 0x00); 
-    sensor_write_register (0x3222, 0x74); 
-    sensor_write_register (0x3223, 0x00); 
-    sensor_write_register (0x3226, 0xC2); 
-    sensor_write_register (0x3227, 0x00); 
-    sensor_write_register (0x32A9, 0x1B); 
-    sensor_write_register (0x32AA, 0x00); 
-    sensor_write_register (0x32B3, 0x0E); 
-    sensor_write_register (0x32B4, 0x00); 
-    sensor_write_register (0x33D6, 0x16); 
-    sensor_write_register (0x33D7, 0x15); 
-    sensor_write_register (0x33D8, 0x14); 
-    sensor_write_register (0x33D9, 0x10); 
-    sensor_write_register (0x33DA, 0x08); 
-    
+    sensor_write_register (0x33C5, 0x00);
+    sensor_write_register (0x311C, 0x34);
+    sensor_write_register (0x311D, 0x28);
+    sensor_write_register (0x311E, 0xAB);
+    sensor_write_register (0x311F, 0x00);
+    sensor_write_register (0x3120, 0x95);
+    sensor_write_register (0x3121, 0x00);
+    sensor_write_register (0x3122, 0xB4);
+    sensor_write_register (0x3123, 0x00);
+    sensor_write_register (0x3124, 0x8c);
+    sensor_write_register (0x3125, 0x02);
+    sensor_write_register (0x312D, 0x03);
+    sensor_write_register (0x312E, 0x0C);
+    sensor_write_register (0x312F, 0x28);
+    sensor_write_register (0x3131, 0x2D);
+    sensor_write_register (0x3132, 0x00);
+    sensor_write_register (0x3133, 0xB4);
+    sensor_write_register (0x3134, 0x00);
+    sensor_write_register (0x3137, 0x50);
+    sensor_write_register (0x3138, 0x08);
+    sensor_write_register (0x3139, 0x00);
+    sensor_write_register (0x313A, 0x07);
+    sensor_write_register (0x313D, 0x05);
+    sensor_write_register (0x3140, 0x06);
+    sensor_write_register (0x3220, 0x8B);
+    sensor_write_register (0x3221, 0x00);
+    sensor_write_register (0x3222, 0x74);
+    sensor_write_register (0x3223, 0x00);
+    sensor_write_register (0x3226, 0xC2);
+    sensor_write_register (0x3227, 0x00);
+    sensor_write_register (0x32A9, 0x1B);
+    sensor_write_register (0x32AA, 0x00);
+    sensor_write_register (0x32B3, 0x0E);
+    sensor_write_register (0x32B4, 0x00);
+    sensor_write_register (0x33D6, 0x16);
+    sensor_write_register (0x33D7, 0x15);
+    sensor_write_register (0x33D8, 0x14);
+    sensor_write_register (0x33D9, 0x10);
+    sensor_write_register (0x33DA, 0x08);
+
     /* registers must be changed */
     sensor_write_register (0x3011, 0x00);
     sensor_write_register (0x301B, 0x00);
@@ -444,16 +445,16 @@ void sensor_init_1080p60()
     sensor_write_register (0x33B9, 0x00);
 
     /*shutter and gain */
-    sensor_write_register (0x3034, 0x08); 
+    sensor_write_register (0x3034, 0x08);
     sensor_write_register (0x3035, 0x00); /* SHS1 */
-    sensor_write_register (0x301F, 0xA0);  
-    sensor_write_register (0x3020, 0x00); /* GAIN */                                                                       
+    sensor_write_register (0x301F, 0xA0);
+    sensor_write_register (0x3020, 0x00); /* GAIN */
 
-    sensor_write_register (0x3000, 0x00); /* standby */    
+    sensor_write_register (0x3000, 0x00); /* standby */
     sensor_write_register (0x3008, 0x00); /* master mode start */
     sensor_write_register (0x305E, 0x0A); /* XVSOUTSEL XHSOUTSEL */
     sensor_write_register (0x3015, 0xC8); /* BLKLEVEL */
-    
+
     printf("-------Sony IMX178 Sensor 1080p60fps Initial OK!-------\n");
 
 }

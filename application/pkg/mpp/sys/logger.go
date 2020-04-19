@@ -12,7 +12,7 @@ import (
 
 //export go_logger_sys
 func go_logger_sys(level C.int, msgC *C.char) {
-        logger.CLogger("sys", int(level), C.GoString(msgC))
+        logger.CLogger("SYS", int(level), C.GoString(msgC))
 }
 
 

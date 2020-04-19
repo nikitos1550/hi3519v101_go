@@ -38,7 +38,7 @@ import (
 
 	"application/pkg/ko"
     "application/pkg/utils"
-    "application/pkg/mpp/error"
+    //"application/pkg/mpp/errmpp"
 
     "application/pkg/mpp/cmos"
     "application/pkg/utils/regs"
@@ -57,24 +57,31 @@ func systemInit(devInfo DeviceInfo) {
 
     if _, err := os.Stat("/dev/sys"); err == nil { 
         var errorCode C.int
+        /*
+        err := C.mpp3_sys_exit(&errorCode)
+        if err != nil {
+            logger.Log.Fatal().
+                Msg("TODO")
+
+        }
+        */
+        
         switch err := C.mpp3_sys_exit(&errorCode); err {
         case C.ERR_NONE:
-            //log.Println("C.mpp3_sys_exit() ok")
-	    logger.Log.Debug().
-	    	Msg("C.mpp3_sys_exit() ok")
+	        logger.Log.Debug().
+	    	    Msg("C.mpp3_sys_exit() ok")
         case C.ERR_MPP:
-            //log.Fatal("C.mpp3_sys_exit() HI_MPI_SYS_Exit() error ", error.Resolve(int64(errorCode)))
-	    logger.Log.Fatal().
-	    	Str("func", "HI_MPI_SYS_Exit()").
-		Int("error", int(errorCode)).
-		Str("error_desc", error.Resolve(int64(errorCode))).
-		Msg("C.mpp3_sys_exit() error")
+	        logger.Log.Fatal().
+	    	    Str("func", "HI_MPI_SYS_Exit()").
+		        Int("error", int(errorCode)).
+		        //Str("error_desc", error.Resolve(int64(errorCode))).
+		        Msg("C.mpp3_sys_exit() error")
         default:
-            //log.Fatal("Unexpected return ", err , " of C.mpp3_sys_exit()")
-	    logger.Log.Fatal().
-	    	Int("error", int(err)).
-		Msg("Unexpected return of C.mpp3_sys_exit()")
+	        logger.Log.Fatal().
+	    	    Int("error", int(err)).
+		        Msg("Unexpected return of C.mpp3_sys_exit()")
         } 
+        
     }
 
     /*if _, err := os.Stat("/dev/isp_dev"); err == nil { //kernel panic !?
@@ -101,7 +108,7 @@ func systemInit(devInfo DeviceInfo) {
 	    logger.Log.Fatal().
 	    	Str("func", "HI_MPI_VB_Exit()").
 	    	Int("error", int(errorCode)).
-		Str("error_desc", error.Resolve(int64(errorCode))).
+		//Str("error_desc", error.Resolve(int64(errorCode))).
 		Msg("C.mpp3_vb_exit() error")
         default:
             //log.Fatal("Unexpected return ", err , " of C.mpp3_vb_exit()")
@@ -223,7 +230,7 @@ func systemInit(devInfo DeviceInfo) {
     ko.Params.Add("mem_mpp_size").Uint64(devInfo.MemMppSize/(1024*1024)).Str("M")
     ko.Params.Add("mem_total_size").Uint64(devInfo.MemTotalSize/(1024*1024))
     ko.Params.Add("vi_vpss_online").Bool(devInfo.ViVpssOnline)
-    ko.Params.Add("cmos").Str(cmos.Model())
+    ko.Params.Add("cmos").Str(cmos.S.Model())
 	ko.Params.Add("proc_param").Uint64(30)
     ko.Params.Add("detect_err_frame").Uint64(10)
     ko.Params.Add("save_power").Uint64(1)
@@ -231,7 +238,7 @@ func systemInit(devInfo DeviceInfo) {
 	ko.LoadAll()
 
 
-		switch cmos.Model() {
+		switch cmos.S.Model() {
             case "imx326":
                 utils.WriteDevMem32(0x1201004c, 0x00094c21)
                 utils.WriteDevMem32(0x12010054, 0x0004041)
@@ -244,25 +251,25 @@ func systemInit(devInfo DeviceInfo) {
                 utils.WriteDevMem32(0x12010054, 0x0004041)
 			default:
                 logger.Log.Fatal().
-                    Str("name", cmos.Model()).
+                    Str("name", cmos.S.Model()).
                     Msg("CMOS is not supported")
 		}
 
 
-		switch cmos.Clock() {
+		switch cmos.S.Clock() {
 			case 24:
 				utils.WriteDevMem32(0x12010040, 0x14) //           # sensor0 clk_en, 24MHz
 			case 72:
 				utils.WriteDevMem32(0x12010040, 0x11);       //sensor0 clk_en, 72MHz
 			default:
 				logger.Log.Fatal().
-					Float32("clock", cmos.Clock()).
+					Float32("clock", cmos.S.Clock()).
 					Msg("CMOS clock is not supported")
 		}
 
-		switch cmos.BusType() {
+		switch cmos.S.BusType() {
 		case cmos.I2C:
-			if cmos.BusNum() == 0 {
+			if cmos.S.BusNum() == 0 {
 				//i2c0_pin_mux()
         			utils.WriteDevMem32(0x12040190, 0x2)    //;  #I2C0_SDA
         			utils.WriteDevMem32(0x1204018c, 0x2)    //;  #I2C0_SCL
@@ -273,11 +280,11 @@ func systemInit(devInfo DeviceInfo) {
 
 			} else {
 				logger.Log.Fatal().
-                    Uint("bus", cmos.BusNum()).
+                    Uint("bus", cmos.S.BusNum()).
                     Msg("CMOS bus num not supported")
 			}
-		case cmos.Spi4Wire:
-			if cmos.BusNum() == 0 {
+		case cmos.SPI:
+			if cmos.S.BusNum() == 0 {
 			    //spi0_4wire_pin_mux;
 			    //pinmux
 			    utils.WriteDevMem32(0x1204018c, 0x1); //  #SPI0_SCLK
@@ -293,12 +300,12 @@ func systemInit(devInfo DeviceInfo) {
 
 			} else {
                 logger.Log.Fatal().
-                    Uint("bus", cmos.BusNum()).
+                    Uint("bus", cmos.S.BusNum()).
                     Msg("CMOS bus num not supported")
 			}
 		default:
 			logger.Log.Fatal().
-				Int("type", int(cmos.BusType())).
+				Int("type", int(cmos.S.BusType())).
 				Msg("unrecognized cmos bus type")
 	}
 

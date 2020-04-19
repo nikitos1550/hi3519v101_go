@@ -7,7 +7,22 @@ start() {
     echo "S99 GoHisiCam"
     . /opt/board.config
     dmesg -n 1 # for details see dmesg
-    /opt/gohisicam -mem-total=$RAM_SIZE -mem-linux=$RAM_LINUX_SIZE -mem-mpp=$RAM_MPP_SIZE -chip=$CHIP &
+
+    LDC="-vi-ldc=false -vi-ldc-offset-x=0 -vi-ldc-offset-y=0 -vi-ldc-k=0"
+
+    /opt/gohisicam -logger-level=-1 \
+        -mem-total=$RAM_SIZE \
+        -mem-linux=$RAM_LINUX_SIZE \
+        -mem-mpp=$RAM_MPP_SIZE \
+        -vi-flip-x=false \
+        -vi-flip-y=false \
+        -vi-x0=0 \
+        -vi-y0=0 \
+        -vi-width=3840 \
+        -vi-height=2160 \
+        -vi-fps=30 \
+        $LDC \
+        -chip=$CHIP &
 }
 
 stop() {

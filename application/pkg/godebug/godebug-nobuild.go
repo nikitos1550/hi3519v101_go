@@ -1,4 +1,4 @@
 //+build !debug
 
-package debug
+package godebug
 

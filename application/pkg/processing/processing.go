@@ -25,6 +25,8 @@ import (
 	"application/pkg/mpp/vpss"
 )
 
+func Init() {}
+
 type ActiveProcessing struct {
 	Name string
 	InputChannel int
@@ -44,9 +46,6 @@ var (
 	ActiveProcessings map[int] ActiveProcessing
 	lastProcessingId int
 )
-
-func Init() {
-}
 
 func init() {
 	Processings = make(map[string] Processing)

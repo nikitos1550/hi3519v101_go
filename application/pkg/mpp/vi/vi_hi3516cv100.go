@@ -4,8 +4,9 @@
 package vi
 
 /*
+#include "../include/mpp.h"
+#include "../../logger/logger.h"
 
-#include "../include/mpp_v1.h"
 #include <string.h>
 
 //imx122 DC 12bitÊäÈë

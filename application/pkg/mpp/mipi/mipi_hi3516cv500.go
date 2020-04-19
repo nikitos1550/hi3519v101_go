@@ -4,7 +4,8 @@
 package mipi
 
 /*
-#include "../include/mpp_v4.h"
+#include "../include/mpp.h"
+#include "../../logger/logger.h"
 
 #include <string.h>
 #include <fcntl.h>
@@ -14,116 +15,107 @@ package mipi
 #define ERR_NONE    0
 #define ERR_GENERAL 1
 
+typedef struct hi3516cv500_mipi_init_in_struct {
+    void *mipi;
+} hi3516cv500_mipi_init_in;
 
-int mpp4_mipi_init(int *error_code, void *mipi) {
+static int hi3516cv500_mipi_init(int *error_code, hi3516cv500_mipi_init_in *in) {
     *error_code = 0;
 
-     VI_VPSS_MODE_S      stVIVPSSMode;
-
-    *error_code = HI_MPI_SYS_GetVIVPSSMode(&stVIVPSSMode);
-    if (*error_code != HI_SUCCESS) return ERR_GENERAL;
-
-    stVIVPSSMode.aenMode[0] = VI_OFFLINE_VPSS_OFFLINE;
-
-    *error_code = HI_MPI_SYS_SetVIVPSSMode(&stVIVPSSMode);
-    if (*error_code != HI_SUCCESS) return ERR_GENERAL; 
-    
-    //ISP_CTRL_PARAM_S    stIspCtrlParam;
-    //HI_U32              u32FrameRate;
-
-    //*error_code = HI_MPI_ISP_GetCtrlParam(0, &stIspCtrlParam);
-    //if (*error_code != HI_SUCCESS) return ERR_GENERAL; 
-
-    //u32FrameRate = 30;
-    //stIspCtrlParam.u32StatIntvl  = u32FrameRate/30;
-
-    //*error_code = HI_MPI_ISP_SetCtrlParam(0, &stIspCtrlParam);
-    //if (*error_code != HI_SUCCESS) return ERR_GENERAL; 
-
-    //VI_StartMIPI
-    lane_divide_mode_t lane_divide_mode = LANE_DIVIDE_MODE_0;
-
     int fd;
-    #define MIPI_DEV_NODE       "/dev/hi_mipi"
-    fd = open(MIPI_DEV_NODE, O_RDWR);
-    if (fd < 0) return ERR_GENERAL;
+    
+    fd = open( "/dev/hi_mipi", O_RDWR);
+    if (fd < 0) {
+         GO_LOG_MIPI(LOGGER_ERROR, "open /dev/hi_mipi")     
+        *error_code = fd;
+        return ERR_GENERAL;
+    }
+
+    lane_divide_mode_t lane_divide_mode = LANE_DIVIDE_MODE_0;
 
     *error_code = ioctl(fd, HI_MIPI_SET_HS_MODE, &lane_divide_mode);
     if (*error_code != HI_SUCCESS) {
+        GO_LOG_MIPI(LOGGER_ERROR, "ioctl HI_MIPI_SET_HS_MODE")
         close(fd);  
         return ERR_GENERAL; 
     }
 
     combo_dev_t devno = 0;
+
     *error_code = ioctl(fd, HI_MIPI_ENABLE_MIPI_CLOCK, &devno);
     if (*error_code != HI_SUCCESS) {
+        GO_LOG_MIPI(LOGGER_ERROR, "ioctl HI_MIPI_ENABLE_MIPI_CLOCK")
         close(fd);
         return ERR_GENERAL; 
     }
 
     *error_code = ioctl(fd, HI_MIPI_RESET_MIPI, &devno);
     if (*error_code != HI_SUCCESS) {
+        GO_LOG_MIPI(LOGGER_ERROR, "ioctl HI_MIPI_RESET_MIPI")
         close(fd);
         return ERR_GENERAL; 
     }
 
-    sns_clk_source_t       SnsDev = 0;
+    sns_clk_source_t SnsDev = 0;
+
     *error_code = ioctl(fd, HI_MIPI_ENABLE_SENSOR_CLOCK, &SnsDev);
     if (*error_code != HI_SUCCESS) {
+        GO_LOG_MIPI(LOGGER_ERROR, "ioctl HI_MIPI_ENABLE_SENSOR_CLOCK")
         close(fd);
         return ERR_GENERAL; 
     }
 
     *error_code = ioctl(fd, HI_MIPI_RESET_SENSOR, &SnsDev);
     if (*error_code != HI_SUCCESS) {
+        GO_LOG_MIPI(LOGGER_ERROR, "ioctl HI_MIPI_RESET_SENSOR")
 		close(fd);
 		return ERR_GENERAL; 
     }
 
-    *error_code = ioctl(fd, HI_MIPI_SET_DEV_ATTR, mipi); //&MIPI_4lane_CHN0_SENSOR_IMX327_12BIT_2M_NOWDR_ATTR);
+    *error_code = ioctl(fd, HI_MIPI_SET_DEV_ATTR, in->mipi);
 	if (*error_code != HI_SUCCESS) {
+        GO_LOG_MIPI(LOGGER_ERROR, "ioctl HI_MIPI_SET_DEV_ATTR")
 		close(fd);
 		return ERR_GENERAL; 
 	}
 
     *error_code = ioctl(fd, HI_MIPI_UNRESET_MIPI, &devno);
 	if (*error_code != HI_SUCCESS) {
+        GO_LOG_MIPI(LOGGER_ERROR, "ioctl HI_MIPI_UNRESET_MIPI")
 		close(fd);
 		return ERR_GENERAL; 
 	}
 
     *error_code = ioctl(fd, HI_MIPI_UNRESET_SENSOR, &SnsDev);
 	if (*error_code != HI_SUCCESS) {
+        GO_LOG_MIPI(LOGGER_ERROR, "ioctl HI_MIPI_UNRESET_SENSOR")
 		close(fd);
 		return ERR_GENERAL; 
 	}
 
     close(fd);
-	return ERR_NONE;
 
+	return ERR_NONE;
 }
 
 */
 import "C"
 
 import (
-        "application/pkg/logger"
-
-        "application/pkg/mpp/cmos"
+    "errors"
 )
 
-func Init() {
+func initFamily() error {
     var errorCode C.int
+    var in C.hi3516cv500_mipi_init_in
 
-    switch err := C.mpp4_mipi_init(&errorCode, cmos.Mipi() ); err {
-    case C.ERR_NONE:
-        logger.Log.Debug().
-                Msg("C.mpp4_mipi_init() ok")
-    default:
-        logger.Log.Fatal().
-                Int("error", int(err)).
-                Msg("Unexpected return of C.mpp4_mipi_init()")
+    in.mipi = mipi
+
+    err := C.hi3516cv500_mipi_init(&errorCode, &in)
+    if err != C.ERR_NONE {
+        return errors.New("MIPI error TODO")
     }
 
+    return nil
 }
 

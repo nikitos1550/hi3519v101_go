@@ -3,4 +3,6 @@
 
 package mipi
 
-func Init() {}
+func initFamily() error {
+    return nil
+}

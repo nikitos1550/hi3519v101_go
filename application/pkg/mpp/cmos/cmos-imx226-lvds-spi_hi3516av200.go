@@ -1,6 +1,6 @@
 //+build arm
 //+build hi3516av200
-//+build imx226,cmos_data_lvds,cmos_control_spi4wire,cmos_bus_0
+//+build imx226,cmos_data_lvds,cmos_control_spi,cmos_bus_0
 
 package cmos
 
@@ -412,13 +412,15 @@ var (
 				mipi: unsafe.Pointer(&C.LVDS_8lane_SENSOR_IMX226_12BIT_8M_NOWDR_ATTR),
                 viDev: unsafe.Pointer(&C.DEV_ATTR_LVDS_BASE),
                 clock: 72,
-                description: "TODO",
+                wdr: WDRNone,
+                description: "normal",
 			},
 		},
         control: cmosControl {
-            bus: Spi4Wire,
+            bus: SPI,
             busNum: 0,
         },
         data: LVDS,
+        bayer: RGGB,
 	}
 )

@@ -4,49 +4,75 @@
 package sys
 
 /*
-#include "../include/mpp_v3.h"
+#include "../include/mpp.h"
+#include "../errmpp/error.h"
+#include "../../logger/logger.h"
 
+#include <stdint.h>
 #include <string.h>
 
-#define ERR_NONE                0
-#define ERR_HI_MPI_SYS_Exit     2
-#define ERR_HI_MPI_VB_Exit      3
-#define ERR_HI_MPI_VB_SetConf   4
-#define ERR_HI_MPI_VB_Init      5
-#define ERR_HI_MPI_SYS_SetConf  6
-#define ERR_HI_MPI_SYS_Init     7
+typedef struct hi3516av200_sys_init_in_struct {
+    unsigned int width;
+    unsigned int height;
+    unsigned int cnt;
+} hi3516av200_sys_init_int;
 
-int mpp3_sys_init(unsigned int *error_code) {
-    *error_code = 0;
+static int hi3516av200_sys_init(error_in *err, hi3516av200_sys_init_int *in) {
+    unsigned int mpp_error_code = 0;
 
-    *error_code = HI_MPI_SYS_Exit();
-    if (*error_code != HI_SUCCESS) return ERR_HI_MPI_SYS_Exit;
+    mpp_error_code = HI_MPI_SYS_Exit();
+    if (mpp_error_code != HI_SUCCESS) {
+        GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_SYS_Exit")    
+        err->mpp = mpp_error_code;
+        return ERR_MPP;
+    }
 
-    *error_code = HI_MPI_VB_Exit();
-    if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VB_Exit;
+    mpp_error_code = HI_MPI_VB_Exit();
+    if (mpp_error_code != HI_SUCCESS) {
+        GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_VB_Exit")   
+        err->mpp = mpp_error_code;
+        return ERR_MPP;
+    }
 
     VB_CONF_S stVbConf;
 
     memset(&stVbConf, 0, sizeof(VB_CONF_S));
     stVbConf.u32MaxPoolCnt                  = 128;
-    stVbConf.astCommPool[0].u32BlkSize      = (CEILING_2_POWER(3840, 64) * CEILING_2_POWER(2160, 64) * 1.5);
-    stVbConf.astCommPool[0].u32BlkCnt       = 10;
+    stVbConf.astCommPool[0].u32BlkSize      = (CEILING_2_POWER(in->width, 64) * CEILING_2_POWER(in->height, 64) * 1.5);
+    stVbConf.astCommPool[0].u32BlkCnt       = in->cnt;
 
-    *error_code = HI_MPI_VB_SetConf(&stVbConf);
-    if(*error_code != HI_SUCCESS) return ERR_HI_MPI_VB_SetConf;
+    mpp_error_code = HI_MPI_VB_SetConf(&stVbConf);
+    if(mpp_error_code != HI_SUCCESS) {
+        GO_LOG_SYS(LOGGER_ERROR, " HI_MPI_VB_SetConf") 
+        err->mpp = mpp_error_code;
+        return ERR_MPP;
+    }
 
-    *error_code = HI_MPI_VB_Init();
-    if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VB_Init;
+    mpp_error_code = HI_MPI_VB_Init();
+    if (mpp_error_code != HI_SUCCESS) {
+        GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_VB_Init")
+        err->mpp = mpp_error_code;
+        return ERR_MPP;
+    }
     
     MPP_SYS_CONF_S stSysConf;
 
+    memset(&stSysConf, 0, sizeof(MPP_SYS_CONF_S));
     stSysConf.u32AlignWidth = 64;
 
-    *error_code = HI_MPI_SYS_SetConf(&stSysConf);
-    if (*error_code != HI_SUCCESS) return ERR_HI_MPI_SYS_SetConf;
+    mpp_error_code = HI_MPI_SYS_SetConf(&stSysConf);
+    if (mpp_error_code != HI_SUCCESS) {
+        GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_SYS_SetConf")
+        err->mpp = mpp_error_code;
+        return ERR_MPP;
+    }
 
-    *error_code = HI_MPI_SYS_Init();
-    if(*error_code != HI_SUCCESS) return ERR_HI_MPI_SYS_Init;
+    mpp_error_code = HI_MPI_SYS_Init();
+    if(mpp_error_code != HI_SUCCESS) {
+        GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_SYS_Init")   
+        err->mpp = mpp_error_code;
+        return ERR_MPP;
+    }
 
     return ERR_NONE;
 }
@@ -54,67 +80,28 @@ int mpp3_sys_init(unsigned int *error_code) {
 import "C"
 
 import (
-    //"log"
-    "application/pkg/mpp/error"
+    "application/pkg/mpp/errmpp"
     "application/pkg/logger"
 )
 
-func Init() {
-    var errorCode C.uint
-    
-    switch err := C.mpp3_sys_init(&errorCode); err {
-    case C.ERR_NONE:
-        //log.Println("C.mpp3_sys_init ok")
-	logger.Log.Debug().
-		Msg("C.mpp3_sys_init ok")
-    case C.ERR_HI_MPI_SYS_Exit:
-        //log.Fatal("C.mpp3_sys_init() HI_MPI_SYS_Exit() error ", error.Resolve(int64(errorCode)))
-	logger.Log.Fatal().
-		Str("func", "HI_MPI_SYS_Exit()").
-		Int("error", int(errorCode)).
-		Str("error_desc", error.Resolve(int64(errorCode))).
-		Msg("C.mpp3_sys_init() error")
-    case C.ERR_HI_MPI_VB_Exit:
-        //log.Fatal("C.mpp3_sys_init() HI_MPI_VB_Exit() error ", error.Resolve(int64(errorCode)))
-	logger.Log.Fatal().        
-                Str("func", "HI_MPI_VB_Exit()"). 
-                Int("error", int(errorCode)).
-                Str("error_desc", error.Resolve(int64(errorCode))).
-                Msg("C.mpp3_sys_init() error")
+func initFamily() error {
+    var inErr C.error_in
+    var in C.hi3516av200_sys_init_int
 
-    case C.ERR_HI_MPI_VB_SetConf:
-        //log.Fatal("C.mpp3_sys_init() HI_MPI_VB_SetConf() error ", error.Resolve(int64(errorCode)))
-	 logger.Log.Fatal().        
-                Str("func", "HI_MPI_VB_SetConf()"). 
-                Int("error", int(errorCode)).
-                Str("error_desc", error.Resolve(int64(errorCode))).
-                Msg("C.mpp3_sys_init() error")
+    in.width = C.uint(width)
+    in.height = C.uint(height)
+    in.cnt = C.uint(cnt)
 
-    case C.ERR_HI_MPI_VB_Init:
-        //log.Fatal("C.mpp3_sys_init() HI_MPI_VB_Init() error ", error.Resolve(int64(errorCode)))
-	logger.Log.Fatal().
-                Str("func", "HI_MPI_VB_Init()").
-                Int("error", int(errorCode)).
-                Str("error_desc", error.Resolve(int64(errorCode))).
-                Msg("C.mpp3_sys_init() error")
-    case C.ERR_HI_MPI_SYS_SetConf:
-        //log.Fatal("C.mpp3_sys_init() HI_MPI_SYS_SetConf() error ", error.Resolve(int64(errorCode)))
-	logger.Log.Fatal().
-                Str("func", "HI_MPI_SYS_SetConf()").
-                Int("error", int(errorCode)).
-                Str("error_desc", error.Resolve(int64(errorCode))).
-                Msg("C.mpp3_sys_init() error")
-    case C.ERR_HI_MPI_SYS_Init:
-        //log.Fatal("C.mpp3_sys_init() HI_MPI_SYS_Init() error ", error.Resolve(int64(errorCode)))
-	logger.Log.Fatal().
-		Str("func", "HI_MPI_SYS_Init()").
-                Int("error", int(errorCode)).
-                Str("error_desc", error.Resolve(int64(errorCode))).
-                Msg("C.mpp3_sys_init() error")
-    default:
-        //log.Fatal("Unexpected return ", err , " of C.mpp3_sys_init()")
-	logger.Log.Fatal().
-		Int("error", int(err)).
-		Msg("Unexpected return of C.mpp3_sys_init()")
+    logger.Log.Trace().
+        Uint("width", uint(in.width)).
+        Uint("height", uint(in.height)).
+        Uint("cnt", uint(in.cnt)).
+        Msg("SYS params")
+
+    err := C.hi3516av200_sys_init(&inErr, &in)
+    if err != C.ERR_NONE {
+        return errmpp.New("funcname", uint(inErr.mpp))
     }
+
+    return nil
 }

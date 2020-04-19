@@ -8,7 +8,7 @@
 	#include "../include/hi3516ev200_mpp.h"
 #endif
 #ifdef HI3519AV100 //Family includes
-	//TODO
+    #include "../include/hi3519av100.h"
 #endif
 
 #endif //MPP_V4_H_

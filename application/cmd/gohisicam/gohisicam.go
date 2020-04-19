@@ -1,11 +1,16 @@
 package main
 
+//#include <unistd.h>
+import "C"
+
 import (
 	"flag"
 	"fmt"
 	//"io/ioutil"
 	//"log"
 	"os"
+    "os/signal"
+    "syscall"
 	//"regexp"
 	//"strings"
 	//"strconv"
@@ -23,7 +28,7 @@ import (
 
 	"application/pkg/streamer"
 
-	_ "application/pkg/debug"
+	_ "application/pkg/godebug"
 	//"application/pkg/ko"
 	_ "application/pkg/utils/chip"
 	_ "application/pkg/utils/temperature"
@@ -42,7 +47,10 @@ func main() {
 	memMpp	 := flag.String("mem-mpp", "12M", "RAM size passed to MPP") //ko.MemMpp
 
 	chip	 := flag.String("chip", buildinfo.Family, "Chip app will be running on")
-	
+
+    //cmosInfo := flag.Bool("cmos-info", false, "Show avalible CMOSes and modes info")
+
+
 	flag.Parse()
 
 	logger.Init()
@@ -54,6 +62,8 @@ func main() {
     devInfo.MemMppSize = memparse.Str(*memMpp)
 
     devInfo.Chip = *chip
+
+    println(C.sysconf(C._SC_PHYS_PAGES)*C.sysconf(C._SC_PAGE_SIZE), " bytes")
 
     logger.Info().
         Uint64("mem-total", devInfo.MemTotalSize).
@@ -67,7 +77,7 @@ func main() {
         Str("gcc", buildinfo.GccVersion).
         Str("date", buildinfo.BuildDateTime).
         Str("tags", buildinfo.BuildTags).
-        Str("branch", buildinfo.BuildBranch).
+        Str("commit", buildinfo.BuildCommit).
         Str("sdk", buildinfo.SDK).
         Str("cmos", buildinfo.CmosProfile).
         Msg("build info")
@@ -117,13 +127,28 @@ func main() {
 	scripts.Start()
 	openapi.Start()
 
-	//log.Println("daemon init done")
+    closeHandler()
+
 	logger.Log.Info().Msg("GoHisiCam started")
 	select {} //pause this routine forever
 }
 
+func closeHandler() {
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+        logger.Log.Info().
+            Msg("SIGTERM received")
+		//DeleteFiles()
+		os.Exit(0)
+	}()
+}
+
 func usage() {
 	fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
+
+    fmt.Println("TODO CMOS info")
 	//printVersion()
 	//openapi.PrintInfo()
 	//cmos.PrintInfo()

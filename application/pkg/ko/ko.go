@@ -78,6 +78,9 @@ func LoadAll() {
 	copy(tmpModules, ModulesList[:])
 
 	load(tmpModules[:])
+
+    logger.Log.Debug().
+        Msg("KO loaded")
 }
 
 //TODO create list by names (order by orig)
@@ -101,20 +104,20 @@ func unload(modules [][2]string) {
 		err := unix.DeleteModule(rmname, 0)
 		if err != nil {
 			if err.Error() != "no such file or directory" { //TODO comapre code!
-				logger.Log.Warn().
-				Str("name", modules[i][0]).
-				Str("error", err.Error()).
-				Msg("ko module removing error")
+				logger.Log.Error().
+				    Str("module", modules[i][0]).
+				    Str("desc", err.Error()).
+				    Msg("KO")
 			} else {
-                                logger.Log.Trace().
-                                Str("name", modules[i][0]).
-                                Str("error", err.Error()).
-                                Msg("ko module removing error")
+                logger.Log.Trace().
+                    Str("module", modules[i][0]).
+                    Str("desc", err.Error()).
+                    Msg("KO")
 			}
 		} else {
 			logger.Log.Trace().
-				Str("name", modules[i][0]).
-				Msg("ko module removed")
+				Str("module", modules[i][0]).
+				Msg("KO removed")
 		}
 		//time.Sleep(1 * time.Second)
 	}
@@ -128,9 +131,9 @@ func load(modules [][2]string) {
 		data, err := Asset(modules[i][0])
 		if err != nil {
 			logger.Log.Error().
-				Str("name", modules[i][0]).
-				Str("error", err.Error()).
-				Msg("ko module asset")
+				Str("module", modules[i][0]).
+				Str("desc", err.Error()).
+				Msg("KO")
 			continue
 		}
 
@@ -139,16 +142,16 @@ func load(modules [][2]string) {
 		err2 := unix.InitModule(data, modules[i][1])
 		if err2 != nil {
 			logger.Log.Error().
-				Str("name", modules[i][0]).
+				Str("module", modules[i][0]).
 				Str("params", modules[i][1]).
-				Str("error", err2.Error()).
-				Msg("ko module load error")
+				Str("desc", err2.Error()).
+				Msg("KO")
 			//return
 		} else {
 			logger.Log.Trace().
-				Str("name", modules[i][0]).
+				Str("module", modules[i][0]).
 				Str("params", modules[i][1]).
-				Msg("ko module loaded")
+				Msg("KO loaded")
 		}
 		//time.Sleep(1 * time.Second)
 	}
@@ -188,7 +191,7 @@ func setupParams(modules [][2]string) {
                         logger.Log.Warn().
                                 Str("module", modules[i][0]).
                                 Str("params", modules[i][1]).
-                                Msg("Not all vars are setuped")
+                                Msg("KO params")
                 }
 
 	}

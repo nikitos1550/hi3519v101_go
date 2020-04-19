@@ -1,8 +1,8 @@
 //+build arm
-//+build hi3516cv300
+//+build hi3516cv100
 //+build debug
 
-package error
+package errmpp
 
 import (
 	"strconv"
@@ -16,5 +16,3 @@ func Resolve(code int64) string {
 		return out
 	}
 }
-
-

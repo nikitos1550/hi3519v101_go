@@ -12,7 +12,6 @@ import (
 
 //export go_logger_vpss
 func go_logger_vpss(level C.int, msgC *C.char) {
-        logger.CLogger("venc", int(level), C.GoString(msgC))
+        logger.CLogger("VPSS", int(level), C.GoString(msgC))
 }
-
 

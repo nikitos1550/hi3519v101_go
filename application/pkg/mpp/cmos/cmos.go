@@ -10,33 +10,34 @@ import (
 )
 
 var (
+    S * cmos
     //cmos        string
 	mode	    uint
     //data        string
     //control     string
     //controlN    uint
-	testmod     bool
 )
 
 func init() {
         //flag.StrVar(&cmos, "cmos", "unknown", "CMOS model") //TODO one package multiple CMOSes support
-
-        flag.UintVar(&mode, "cmos-mode", 0, "CMOS mode") 
         //flag.StrVar(&data, "cmos-data", "LVDS", "CMOS data connection type [LVDS, MIPI, DC]")
         //flag.StrVar(&control, "cmos-control", "i2c", "CMOS control connection type [i2c, spi4wire]")
         //flag.UintVar(&controlN, "cmos-control-bus", 0, "CMOS control bus number")
 
-        flag.BoolVar(&testmod, "cmos-info", false, "Show supported CMOS modes")
+
+    flag.UintVar(&mode, "cmos-mode", 0, "CMOS mode") 
 }
 
-type cmosWdr struct {
-    enabled bool
-}
+type cmosWdr uint
+const (
+    WDRNone cmosWdr = 1
+    WDR2TO1 cmosWdr = 2
+)
 
 type cmosMode struct {
-	width uint
-	height uint
-	fps	uint
+	width int
+	height int
+	fps	int
 
     mipi	unsafe.Pointer
     viDev   unsafe.Pointer
@@ -49,9 +50,11 @@ type cmosMode struct {
         24 Mhz
     */
     clock   float32
+    //clock   uint //TODO
+    
     //SDK config:     IVE:396M,  GDC:475M,  VGS:500M,  VEDU:600M,   VPSS:300M 
     //      #os08a10:       viu0: 600M, isp0:300M, viu1:300M,isp1:300M
-    hw  hwFreq
+    //hw  hwFreq
 
     description string
 }
@@ -60,8 +63,7 @@ type busType uint
 
 const (
    I2C		busType = 1
-   Spi4Wire	busType = 2
-   SPI      busType = 3
+   SPI      busType = 2
 )
 
 type cmosControl struct {
@@ -79,16 +81,17 @@ const (
 
 type cmosBayer uint8
 const (
-    RGGB    = 1
-    GRBG    = 2
-    GBRG    = 3
-    BGGR    = 4
+    RGGB    cmosBayer   = 1
+    GRBG    cmosBayer   = 2
+    GBRG    cmosBayer   = 3
+    BGGR    cmosBayer   = 4
 )
 
 type cmos struct {
 	vendor	string
 	model	string
 
+    mode    uint
 	modes   []cmosMode
 
     control cmosControl
@@ -110,18 +113,21 @@ type hwFreq struct {
 }
 
 func Init() {
-
+    //mode = 1
     if mode >= uint(len(cmosItem.modes)) {
         logger.Log.Fatal().
             Int("mode", int(mode)).
-            Msg("Cmod mode not found")
+            Msg("Cmos mode not found")
     }
-//}
-//func Setup() {
-	var errorCode C.int
-	//err := C.mpp_cmos_init(&errorCode)
 
-	switch err := C.mpp_cmos_init(&errorCode); err {
+    S = &cmosItem
+    S.mode = mode
+}
+
+func Register() {
+    var errorCode C.int
+
+    switch err := C.mpp_cmos_init(&errorCode); err {
     case C.ERR_NONE:
         logger.Log.Debug().
                 Msg("C.mpp_cmos_init() ok")
@@ -136,44 +142,54 @@ func Init() {
                 Msg("Unexpected return of C.mpp_cmos_init()")
         }
 
+
 }
 
-func Model() string {
-    return cmosItem.model
+func (c * cmos) Model() string {
+    return c.model
 }
 
-func Mipi() unsafe.Pointer {
-	return cmosItem.modes[mode].mipi
+func (c * cmos) Mipi() unsafe.Pointer {
+	return c.modes[c.mode].mipi
 }
 
-func ViDev() unsafe.Pointer {
-	return cmosItem.modes[mode].viDev
+func (c * cmos) ViDev() unsafe.Pointer {
+	return c.modes[c.mode].viDev
 }
 
-func Width() uint {
-    return cmosItem.modes[mode].width
+func (c * cmos) Width() int {
+    return c.modes[c.mode].width
 }
 
-func Height() uint {
-	return cmosItem.modes[mode].height
+func (c * cmos) Height() int {
+	return c.modes[c.mode].height
 }
 
-func Fps() uint {
-    return cmosItem.modes[mode].fps
+func (c * cmos) Fps() int {
+    return c.modes[c.mode].fps
 }
 
-func Clock() float32 {
-	return cmosItem.modes[mode].clock
+func (c * cmos) Clock() float32 {
+	return c.modes[c.mode].clock
 }
 
-func BusType() busType {
-	return cmosItem.control.bus
+func (c * cmos) BusType() busType {
+	return c.control.bus
 }
 
-func BusNum() uint{
-	return cmosItem.control.busNum
+func (c * cmos) BusNum() uint{
+	return c.control.busNum
 }
 
-func Data() cmosData {
-    return cmosItem.data
+func (c * cmos) Data() cmosData {
+    return c.data
+}
+
+func (c * cmos) Bayer() cmosBayer {
+    return c.bayer
+}
+
+func (c * cmos) Wdr() cmosWdr {
+    return c.modes[c.mode].wdr
+
 }

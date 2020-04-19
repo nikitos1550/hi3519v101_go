@@ -1,6 +1,6 @@
 //+build debug
 
-package debug
+package godebug
 
 import (
     "expvar"

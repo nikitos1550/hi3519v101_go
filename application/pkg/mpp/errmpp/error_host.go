@@ -2,7 +2,7 @@
 //+build host
 //+build debug
 
-package error
+package errmpp
 
 //import (
 //        "strconv"

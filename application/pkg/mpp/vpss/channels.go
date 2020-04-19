@@ -5,6 +5,9 @@ package vpss
 import (
     "sync"
 	"unsafe"
+    //"errors"
+
+    "application/pkg/logger"
 )
 
 type Channel struct {
@@ -12,13 +15,14 @@ type Channel struct {
 	Width int
 	Height int
 	Fps int
-	CropX int
-	CropY int
-	CropWidth int
-	CropHeight int
-    Mutex sync.RWMutex
-	Started bool
-	Clients map[int] unsafe.Pointer
+	CropX int                           //Not used
+	CropY int                           //Not used
+	CropWidth int                       //Not used
+	CropHeight int                      //Not used
+    Mutex sync.RWMutex                  //Not used
+	Started bool                        //is channel active
+	Clients map[int] unsafe.Pointer     //int - id processing, callback processing
+    Clients2 map[int] chan unsafe.Pointer
 }
 
 var (
@@ -29,13 +33,26 @@ func init() {
 	Channels = make(map[int] Channel)
 }
 
+func Init() {
+    err := initFamily()
+    if err != nil {
+        logger.Log.Fatal().
+            Str("error", err.Error()).
+            Msg("VPSS")
+    }
+    logger.Log.Debug().
+        Msg("VPSS inited")
+
+}
+
 func StartChannel(channel Channel)  (int, string)  {
 	_, channelExists := Channels[channel.ChannelId]
 	if (channelExists) {
+        //return -1, errors.New("Channel already exists")
 		return -1, "Channel already exists"
 	}
 
-	CreateChannel(channel)
+	createChannel(channel)
 
 	Channels[channel.ChannelId] = channel
 	return channel.ChannelId, ""
@@ -47,7 +64,7 @@ func StopChannel(channelId int)  (int, string)  {
 		return -1, "Channel does not exist"
 	}
 
-	DestroyChannel(channel)
+	destroyChannel(channel)
 
 	delete(Channels, channelId)
 	return 0, ""

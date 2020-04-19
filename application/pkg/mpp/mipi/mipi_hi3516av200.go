@@ -4,51 +4,73 @@
 package mipi
 
 /*
-#include "../include/mpp_v3.h"
+#include "../include/mpp.h"
+#include "../errmpp/error.h"
+#include "../../logger/logger.h"
 
 #include <string.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#define ERR_NONE    0
-#define ERR_GENERAL 1
+typedef struct hi3516av200_mipi_init_in_struct {
+    void *mipi;
+} hi3516av200_mipi_init_in;
 
-int mpp3_mipi_init(int *error_code, void *mipi) {
-    *error_code = 0;
+static int hi3516av200_mipi_init(error_in *err, hi3516av200_mipi_init_in * in) {
+    int general_error_code = 0;
     
     int fd;
+
     fd = open("/dev/hi_mipi", O_RDWR);
-    if (fd < 0) return ERR_GENERAL;
+    if (fd < 0) {
+        GO_LOG_MIPI(LOGGER_ERROR, "open /dev/hi_mipi")
+        err->general = fd;    
+        return ERR_GENERAL;
+    }
 
     combo_dev_attr_t stcomboDevAttr;
 
-    memcpy(&stcomboDevAttr, mipi, sizeof(combo_dev_attr_t));
-
+    memcpy(&stcomboDevAttr, in->mipi, sizeof(combo_dev_attr_t));
     stcomboDevAttr.devno = 0;
 
-    if(ioctl(fd, HI_MIPI_RESET_MIPI, &stcomboDevAttr.devno)) {
+    general_error_code = ioctl(fd, HI_MIPI_RESET_MIPI, &stcomboDevAttr.devno);
+    if (general_error_code != 0){
+        GO_LOG_MIPI(LOGGER_ERROR, "ioctl HI_MIPI_RESET_MIPI")
         close(fd);
+        err->general = general_error_code;
         return ERR_GENERAL;
     }
 
-    if(ioctl(fd, HI_MIPI_RESET_SENSOR, &stcomboDevAttr.devno)) {
+    general_error_code = ioctl(fd, HI_MIPI_RESET_SENSOR, &stcomboDevAttr.devno); 
+    if (general_error_code != 0) {
+        GO_LOG_MIPI(LOGGER_ERROR, "ioctl HI_MIPI_RESET_SENSOR")
         close(fd);
+        err->general = general_error_code;
         return ERR_GENERAL;
     }
 
-    if (ioctl(fd, HI_MIPI_SET_DEV_ATTR, &stcomboDevAttr)) {
+    general_error_code = ioctl(fd, HI_MIPI_SET_DEV_ATTR, &stcomboDevAttr);
+    if (general_error_code != 0) {
+		GO_LOG_MIPI(LOGGER_ERROR, "ioctl HI_MIPI_SET_DEV_ATTR")
         close(fd);
+        err->general = general_error_code;
         return ERR_GENERAL;
     }
 
-    if(ioctl(fd, HI_MIPI_UNRESET_MIPI, &stcomboDevAttr.devno)) {
+    general_error_code = ioctl(fd, HI_MIPI_UNRESET_MIPI, &stcomboDevAttr.devno);
+    if (general_error_code != 0) {
+		GO_LOG_MIPI(LOGGER_ERROR, "ioctl HI_MIPI_UNRESET_MIPI")
         close(fd);
+        err->general = general_error_code;
         return ERR_GENERAL;
     }
 
-    if(ioctl(fd, HI_MIPI_UNRESET_SENSOR, &stcomboDevAttr.devno)) {
+    general_error_code = ioctl(fd, HI_MIPI_UNRESET_SENSOR, &stcomboDevAttr.devno); 
+    if (general_error_code != 0) {
+		GO_LOG_MIPI(LOGGER_ERROR, "ioctl HI_MIPI_UNRESET_SENSOR")
         close(fd);
+        err->general = general_error_code;
         return ERR_GENERAL;
     }
 
@@ -60,23 +82,20 @@ int mpp3_mipi_init(int *error_code, void *mipi) {
 import "C"
 
 import (
-    //"log"
-	"application/pkg/logger"
-
-	"application/pkg/mpp/cmos"
+    "errors"
 )
 
-func Init() {
-    var errorCode C.int
+func initFamily() error {
+    var inErr C.error_in
+    var in C.hi3516av200_mipi_init_in
 
-    switch err := C.mpp3_mipi_init(&errorCode, cmos.Mipi() ); err {
-    case C.ERR_NONE:
-	    logger.Log.Debug().
-		    Msg("C.mpp3_mipi_init() ok")
-    default:
-	    logger.Log.Fatal().
-		    Int("error", int(err)).
-		    Msg("Unexpected return of C.mpp3_mipi_init()")
+    in.mipi = mipi
+
+    err := C.hi3516av200_mipi_init(&inErr, &in)
+    if err != C.ERR_NONE {
+        return errors.New("MIPI error TODO")
     }
+
+    return nil
 }
 

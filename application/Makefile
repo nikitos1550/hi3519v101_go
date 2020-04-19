@@ -36,7 +36,8 @@ endif
 CMOS_TAGS		:= $(CMOS) cmos_data_$(CMOS_DATA) cmos_control_$(CMOS_CONTROL) cmos_bus_$(CMOS_BUS)
 
 GOTAGS_PROBE    := gohisiprobe $(FAMILY) netgo nethttpomithttp2
-GOTAGS_CAM      := gohisicam $(FAMILY) $(CHIP) $(CMOS_TAGS) netgo nethttpomithttp2 openapi debug processing streamerJpeg streamerFile streamerRtsp streamerPipe
+#GOTAGS_CAM      := gohisicam $(FAMILY) $(CHIP) $(CMOS_TAGS) netgo nethttpomithttp2 openapi debug processing streamerJpeg streamerFile streamerRtsp streamerPipe
+GOTAGS_CAM      := gohisicam $(FAMILY) $(CHIP) $(CMOS_TAGS) netgo nethttpomithttp2 openapi debug processing streamerJpeg
 GOTAGS := $(GOTAGS_$(shell echo '$(APP)' | tr '[:lower:]' '[:upper:]'))
 
 ifneq ($(wildcard ../hisilicon/$(FAMILY)/Makefile.params),) 
@@ -50,7 +51,9 @@ CGOPARAMS := CGO_CFLAGS='$(CFLAGS) $(CGO_CFLAGS)' CGO_CFLAGS_ALLOW='.*' CGO_ENAB
 ifneq ($(strip $(shell git status --porcelain 2>/dev/null)),)
 	GIT_TREE_STATE=(dirty)
 endif
-GIT	:= $(shell git branch | grep \* | cut -d " " -f2) $(GIT_TREE_STATE)
+
+GIT_BRANCH	:= $(shell git branch | grep \* | cut -d " " -f2) $(GIT_TREE_STATE)
+GIT_COMMIT  := $(shell git log --format="%H" -n 1) $(GIT_TREE_STATE)
 
 SDKV 	:= $(HISDK_ARCHIVE) $(HISDK)
 
@@ -60,9 +63,9 @@ EMBEDDVARS :=   -X 'application/pkg/buildinfo.BuildDateTime=$(shell date --utc "
                 -X 'application/pkg/buildinfo.GoVersion=$(shell $(GOENV) $(GO) version)' \
                 -X 'application/pkg/buildinfo.GccVersion=$(shell $(GOCC) --version | head -n 1)' \
                 -X 'application/pkg/buildinfo.BuildTags=$(GOTAGS)' \
-                -X 'application/pkg/buildinfo.BuildBranch=$(GIT)' \
+                -X 'application/pkg/buildinfo.BuildCommit=$(GIT_COMMIT)' \
                 -X 'application/pkg/buildinfo.Family=$(FAMILY)' \
-		-X 'application/pkg/buildinfo.SDK=$(SDKV)' \
+				-X 'application/pkg/buildinfo.SDK=$(SDKV)' \
                 -X 'application/pkg/buildinfo.CmosProfile=$(CMOS)'  
 
 #NO DEBUG SYMBOLS, COMMENT IF WANT TO TURN ON DEBUG

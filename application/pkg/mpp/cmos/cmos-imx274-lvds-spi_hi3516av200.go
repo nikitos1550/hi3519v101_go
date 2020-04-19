@@ -1,6 +1,6 @@
 //+build arm
 //+build hi3516av200
-//+build imx274,cmos_data_lvds,cmos_control_spi4wire,cmos_bus_0
+//+build imx274,cmos_data_lvds,cmos_control_spi,cmos_bus_0
 
 package cmos
 
@@ -86,6 +86,80 @@ combo_dev_attr_t LVDS_6lane_SENSOR_IMX274_12BIT_8M_NOWDR_ATTR =
     }
 };
 
+// 10lane 30fps
+combo_dev_attr_t LVDS_10lane_SENSOR_IMX274_10BIT_8M_2WDR1_ATTR =
+{
+    .devno = 0,
+    // input mode
+    .input_mode = INPUT_MODE_LVDS,
+    .phy_clk_share = PHY_CLK_SHARE_PHY0,
+    .img_rect = {12, 40, 3840, 2160},
+
+    .lvds_attr = 
+    {
+        .raw_data_type    = RAW_DATA_10BIT,
+        .wdr_mode         = HI_WDR_MODE_DOL_2F,
+        .sync_mode        = LVDS_SYNC_MODE_SAV,
+        .vsync_type       = {LVDS_VSYNC_NORMAL, 0, 0},
+        .fid_type         = {LVDS_FID_IN_SAV, HI_TRUE},
+        .data_endian      = LVDS_ENDIAN_BIG,
+        .sync_code_endian = LVDS_ENDIAN_BIG,
+        .lane_id = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, -1, -1},
+        .sync_code = 
+        {
+            {{0x2ac,0x2d8,0x201,0x275},      // lane 0
+                {0x2ac,0x2d8,0x202,0x276},  
+                {0x2ac,0x2d8,0x201,0x275}, 
+                {0x2ac,0x2d8,0x202,0x276}},
+         
+            {{0x2ac,0x2d8,0x201,0x275},      // lane 1   
+                {0x2ac,0x2d8,0x202,0x276},    
+                {0x2ac,0x2d8,0x201,0x275},    
+                {0x2ac,0x2d8,0x202,0x276}},   
+
+            {{0x2ac,0x2d8,0x201,0x275},      // lane 2   
+                {0x2ac,0x2d8,0x202,0x276},    
+                {0x2ac,0x2d8,0x201,0x275},    
+                {0x2ac,0x2d8,0x202,0x276}},   
+
+            {{0x2ac,0x2d8,0x201,0x275},      // lane 3  
+                {0x2ac,0x2d8,0x202,0x276},    
+                {0x2ac,0x2d8,0x201,0x275},    
+                {0x2ac,0x2d8,0x202,0x276}},   
+
+            {{0x2ac,0x2d8,0x201,0x275},      // lane 4  
+                {0x2ac,0x2d8,0x202,0x276},    
+                {0x2ac,0x2d8,0x201,0x275},    
+                {0x2ac,0x2d8,0x202,0x276}},   
+
+            {{0x2ac,0x2d8,0x201,0x275},      // lane 5
+                {0x2ac,0x2d8,0x202,0x276}, 
+                {0x2ac,0x2d8,0x201,0x275}, 
+                {0x2ac,0x2d8,0x202,0x276}},
+
+             {{0x2ac,0x2d8,0x201,0x275},      // lane 6
+                {0x2ac,0x2d8,0x202,0x276}, 
+                {0x2ac,0x2d8,0x201,0x275}, 
+                {0x2ac,0x2d8,0x202,0x276}},
+
+             {{0x2ac,0x2d8,0x201,0x275},      // lane 7
+                {0x2ac,0x2d8,0x202,0x276}, 
+                {0x2ac,0x2d8,0x201,0x275}, 
+                {0x2ac,0x2d8,0x202,0x276}},
+
+             {{0x2ac,0x2d8,0x201,0x275},      // lane 8
+                {0x2ac,0x2d8,0x202,0x276}, 
+                {0x2ac,0x2d8,0x201,0x275}, 
+                {0x2ac,0x2d8,0x202,0x276}},
+
+             {{0x2ac,0x2d8,0x201,0x275},      // lane 9
+                {0x2ac,0x2d8,0x202,0x276}, 
+                {0x2ac,0x2d8,0x201,0x275}, 
+                {0x2ac,0x2d8,0x202,0x276}},
+        }
+    }
+};
+
 VI_DEV_ATTR_S DEV_ATTR_LVDS_BASE =
 {
     // interface mode
@@ -156,12 +230,25 @@ var (
 				mipi: unsafe.Pointer(&C.LVDS_6lane_SENSOR_IMX274_12BIT_8M_NOWDR_ATTR),
                 viDev: unsafe.Pointer(&C.DEV_ATTR_LVDS_BASE),
                 clock: 72,
+                wdr: WDRNone,
+                description: "normal",
 			},
+            cmosMode {
+                width: 3840,
+                height: 2160,
+                fps: 30,
+                mipi: unsafe.Pointer(&C.LVDS_10lane_SENSOR_IMX274_10BIT_8M_2WDR1_ATTR),
+                viDev: unsafe.Pointer(&C.DEV_ATTR_LVDS_BASE),
+                clock: 72,
+                wdr: WDR2TO1,
+                description: "wdr",
+            },
 		},
         control: cmosControl {
-            bus: Spi4Wire,
+            bus: SPI,
             busNum: 0,
         },
         data: LVDS,
+        bayer: RGGB,
 	}
 )

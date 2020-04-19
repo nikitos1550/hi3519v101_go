@@ -4,64 +4,77 @@
 package vpss
 
 /*
-#include "../include/mpp_v3.h"
-
+#include "../include/mpp.h"
+#include "../errmpp/error.h"
 #include "../../logger/logger.h"
 
+#include <stdint.h>
 #include <string.h>
 
-#define ERR_NONE                    0
-#define ERR_MPP                     2
-#define ERR_HI_MPI_VPSS_CreateGrp   3
-#define ERR_HI_MPI_VPSS_StartGrp    4
-#define ERR_HI_MPI_SYS_Bind         5
-
-#define MAX_CHANNELS 10
+#define MAX_CHANNELS VPSS_MAX_PHY_CHN_NUM
 VIDEO_FRAME_INFO_S channelFrames[MAX_CHANNELS];
 
 typedef void (*callbackFunc) (unsigned int, VIDEO_FRAME_INFO_S*);
 
-int mpp3_vpss_init(unsigned int *error_code) {
-    *error_code = 0;
+typedef struct hi3516av200_vpss_init_in_struct {
+    unsigned int width;
+    unsigned int height;
+    unsigned char nr;
+    unsigned char nr_frames;
+} hi3516av200_vpss_init_in;
 
-    //go_logger_vpss(1, "this is test message from mpp3_vpss_init");
+static int hi3516av200_vpss_init(error_in *err, hi3516av200_vpss_init_in *in) {
+    unsigned int mpp_error_code = 0;
 
     VPSS_GRP_ATTR_S stVpssGrpAttr;
 
-    stVpssGrpAttr.u32MaxW           = 3840;
-    stVpssGrpAttr.u32MaxH           = 2160;
-    stVpssGrpAttr.bIeEn             = HI_FALSE;
-    stVpssGrpAttr.bNrEn             = HI_TRUE;
-    stVpssGrpAttr.bHistEn           = HI_FALSE;
-    stVpssGrpAttr.bDciEn            = HI_FALSE;
-    stVpssGrpAttr.enDieMode         = VPSS_DIE_MODE_NODIE;
-    stVpssGrpAttr.enPixFmt          = PIXEL_FORMAT_YUV_SEMIPLANAR_420;//SAMPLE_PIXEL_FORMAT;
-    #ifdef HI3516AV200
-    stVpssGrpAttr.bStitchBlendEn    = HI_FALSE;
-    #endif
-
-    #ifdef HI3516AV200
-    stVpssGrpAttr.stNrAttr.enNrType                         = VPSS_NR_TYPE_VIDEO;
-    stVpssGrpAttr.stNrAttr.stNrVideoAttr.enNrRefSource      = VPSS_NR_REF_FROM_RFR;//VPSS_NR_REF_FROM_CHN0, VPSS_NR_REF_FROM_SRC
-    stVpssGrpAttr.stNrAttr.stNrVideoAttr.enNrOutputMode     = VPSS_NR_OUTPUT_NORMAL;//VPSS_NR_OUTPUT_DELAY NORMAL
-    stVpssGrpAttr.stNrAttr.u32RefFrameNum                   = 2;
-    #endif
+    stVpssGrpAttr.u32MaxW           = in->width;
+    stVpssGrpAttr.u32MaxH           = in->height;
+    stVpssGrpAttr.bIeEn             = HI_FALSE;                         //reserved
+    stVpssGrpAttr.bHistEn           = HI_FALSE;                         //reserved
+    stVpssGrpAttr.bDciEn            = HI_FALSE;                         //reserved
+    stVpssGrpAttr.enDieMode         = VPSS_DIE_MODE_NODIE;              //reserved
+    stVpssGrpAttr.enPixFmt          = PIXEL_FORMAT_YUV_SEMIPLANAR_420;  //yuv420 or yuv422
+    stVpssGrpAttr.bStitchBlendEn    = HI_FALSE;                         
     
-    //    stVpssGrpAttr.u32MaxW = global_width;
-    //    stVpssGrpAttr.u32MaxH = global_height;
-    //    stVpssGrpAttr.bIeEn = HI_FALSE;
-    //    stVpssGrpAttr.bNrEn = HI_TRUE;//HI_FALSE;//HI_TRUE;
-    //    stVpssGrpAttr.bHistEn = HI_FALSE;
-    //    stVpssGrpAttr.bSharpenEn = HI_FALSE;//HI_TRUE;
-    //    stVpssGrpAttr.enDieMode = VPSS_DIE_MODE_NODIE;
-    //    stVpssGrpAttr.enPixFmt = PIXEL_FORMAT_YUV_SEMIPLANAR_420;
+    if (in->nr == 1) {
+        GO_LOG_VPSS(LOGGER_TRACE, "VPSS NR on")
+        stVpssGrpAttr.bNrEn = HI_TRUE;
+    } else {
+        GO_LOG_VPSS(LOGGER_TRACE, "VPSS NR off")
+        stVpssGrpAttr.bNrEn = HI_FALSE;
+    }
+
+    stVpssGrpAttr.stNrAttr.enNrType                         = VPSS_NR_TYPE_VIDEO;       //video or snapshot, we use video (i don`t know anything about snapshot mode)
+
+    //VPSS_NR_REF_FROM_RFR Reconstruction frame as the reference frame
+    //VPSS_NR_REF_FROM_CHN0 Channel 0 output as the reference frame
+    //VPSS_NR_REF_FROM_SRC Input source picture as the reference frame
+    stVpssGrpAttr.stNrAttr.stNrVideoAttr.enNrRefSource      = VPSS_NR_REF_FROM_RFR;
+
+    //VPSS_NR_OUTPUT_NORMAL Normal output mode. There is no delay.
+    //VPSS_NR_OUTPUT_DELAY Delay output mode. The output is one-frame delayed.
+    //Only Hi3519 V101 supports this data structure. TODO what about hi3516av200 chip?
+    //In delay output mode, the number of reference frames cannot be set to 1, the single component is not supported, and the large stream cannot be used as the reference frame.
+
+    stVpssGrpAttr.stNrAttr.stNrVideoAttr.enNrOutputMode     = VPSS_NR_OUTPUT_NORMAL;
     
+    //1 or 2 for video mode
+    stVpssGrpAttr.stNrAttr.u32RefFrameNum                   = in->nr_frames; //2;
+    
+    mpp_error_code = HI_MPI_VPSS_CreateGrp(0, &stVpssGrpAttr);
+    if (mpp_error_code != HI_SUCCESS) {
+        GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_CreateGrp")
+        err->mpp = mpp_error_code;
+        return ERR_MPP;
+    }
 
-    *error_code = HI_MPI_VPSS_CreateGrp(0, &stVpssGrpAttr);
-    if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VPSS_CreateGrp;
-
-    *error_code = HI_MPI_VPSS_StartGrp(0);
-    if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VPSS_StartGrp;
+    mpp_error_code = HI_MPI_VPSS_StartGrp(0);
+    if (mpp_error_code != HI_SUCCESS) {
+        GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_StartGrp")   
+        err->mpp = mpp_error_code;
+        return ERR_MPP;
+    }
 
     MPP_CHN_S stSrcChn;
     MPP_CHN_S stDestChn;
@@ -74,80 +87,137 @@ int mpp3_vpss_init(unsigned int *error_code) {
     stDestChn.s32DevId = 0;
     stDestChn.s32ChnId = 0;
 
-    *error_code = HI_MPI_SYS_Bind(&stSrcChn, &stDestChn);
-    if (*error_code != HI_SUCCESS) return ERR_HI_MPI_SYS_Bind;
+    mpp_error_code = HI_MPI_SYS_Bind(&stSrcChn, &stDestChn);
+    if (mpp_error_code != HI_SUCCESS) {
+        GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_SYS_Bind")   
+        err->mpp = mpp_error_code;
+        return ERR_MPP;
+    }
 
     return ERR_NONE;
 }
 
-int mpp3_vpss_sample_channel(
-        unsigned int channelId,
-        unsigned int width,
-        unsigned int height,
-        unsigned int fps,
-        unsigned int *error_code) {
-    *error_code = 0;
+typedef struct hi3516av200_vpss_create_channel_in_struct {
+    unsigned int channel_id;
+    unsigned int width;
+    unsigned int height;
+    unsigned int vi_fps;
+    unsigned int fps;
+} hi3516av200_vpss_create_channel_in;
 
-    VPSS_CHN_ATTR_S stVpssChnAttr;
+static int hi3516av200_vpss_create_channel(error_in *err, hi3516av200_vpss_create_channel_in * in) {
+    unsigned int mpp_error_code = 0;
+
     VPSS_CHN_MODE_S stVpssChnMode;
 
     stVpssChnMode.enChnMode      = VPSS_CHN_MODE_USER;
     stVpssChnMode.bDouble        = HI_FALSE;
     stVpssChnMode.enPixelFormat  = PIXEL_FORMAT_YUV_SEMIPLANAR_420;
-    stVpssChnMode.u32Width       = width;
-    stVpssChnMode.u32Height      = height;
+    stVpssChnMode.u32Width       = in->width;
+    stVpssChnMode.u32Height      = in->height;
     stVpssChnMode.enCompressMode = COMPRESS_MODE_NONE; //COMPRESS_MODE_SEG;
+
+    VPSS_CHN_ATTR_S stVpssChnAttr;
 
     memset(&stVpssChnAttr, 0, sizeof(stVpssChnAttr));
 
-    stVpssChnAttr.s32SrcFrameRate = 30;
-    stVpssChnAttr.s32DstFrameRate = fps;
+    //typedef struct hiVPSS_CHN_ATTR_S
+    //{
+    //    HI_BOOL bSpEn;            //SP enable. It must be set to HI_FALSE.
+    //    HI_BOOL bBorderEn;        //Border enable. It must be set to HI_FALSE.
+    //    HI_BOOL bMirror;
+    //    HI_BOOL bFlip;
+    //    HI_S32 s32SrcFrameRate;
+    //    HI_S32 s32DstFrameRate;
+    //    BORDER_S
+    //    stBorder;
+    //}VPSS_CHN_ATTR_S;
 
-    *error_code = HI_MPI_VPSS_SetChnAttr(0, channelId, &stVpssChnAttr);
-    if (*error_code != HI_SUCCESS) return ERR_MPP;
+    stVpssChnAttr.s32SrcFrameRate = in->vi_fps;
+    stVpssChnAttr.s32DstFrameRate = in->fps;
 
-    *error_code = HI_MPI_VPSS_SetChnMode(0, channelId, &stVpssChnMode);
-    if (*error_code != HI_SUCCESS) return ERR_MPP;
+    mpp_error_code = (uint64_t)HI_MPI_VPSS_SetChnAttr(0, in->channel_id, &stVpssChnAttr);
+    if (mpp_error_code != HI_SUCCESS) {
+        GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_SetChnAttr")   
+        err->mpp = mpp_error_code;
+        return ERR_MPP;
+    }
 
- 	HI_U32 u32Depth = 1;
- 	*error_code = HI_MPI_VPSS_SetDepth(0, channelId, u32Depth);
-    if (*error_code != HI_SUCCESS) return ERR_MPP;
+    mpp_error_code = HI_MPI_VPSS_SetChnMode(0, in->channel_id, &stVpssChnMode);
+    if (mpp_error_code != HI_SUCCESS) {
+        GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_SetChnMode")   
+        err->mpp = mpp_error_code;
+        return ERR_MPP;
+    }
 
-    *error_code = HI_MPI_VPSS_EnableChn(0, channelId);
-    if (*error_code != HI_SUCCESS) return ERR_MPP;
+ 	HI_U32 u32Depth = 1; //TODO
+ 	mpp_error_code = HI_MPI_VPSS_SetDepth(0, in->channel_id, u32Depth);
+    if (mpp_error_code != HI_SUCCESS) {
+        GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_SetDepth")
+        err->mpp = mpp_error_code;
+        return ERR_MPP;
+    }
+
+    mpp_error_code = HI_MPI_VPSS_EnableChn(0, in->channel_id);
+    if (mpp_error_code != HI_SUCCESS) {
+        GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_EnableChn")   
+        err->mpp = mpp_error_code;
+        return ERR_MPP;
+    }
 
     return ERR_NONE;
 }
 
-int mpp3_destroy_vpss_sample_channel(unsigned int channelId, unsigned int *error_code) {
-    *error_code = 0;
-    *error_code = HI_MPI_VPSS_DisableChn(0, channelId);
-    if (*error_code != HI_SUCCESS) return ERR_MPP;
+typedef struct hi3516av200_vpss_destroy_channel_in_struct {
+    unsigned int channel_id;
+} hi3516av200_vpss_destroy_channel_in;
+
+static int hi3516av200_vpss_destroy_channel(error_in * err, hi3516av200_vpss_destroy_channel_in *in) {
+    unsigned int mpp_error_code = 0;
+
+    mpp_error_code = HI_MPI_VPSS_DisableChn(0, in->channel_id);
+    if (mpp_error_code != HI_SUCCESS) {
+        GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_DisableChn")   
+        err->mpp = mpp_error_code;
+        return ERR_MPP;
+    }
 
     return ERR_NONE;
 }
 
-int mpp3_receive_frame(unsigned int channelId) {
- 	int s32Ret = HI_MPI_VPSS_GetChnFrame(0, channelId, &channelFrames[channelId], -1);
+typedef struct hi3516av200_receive_frame_out_struct {
 
- 	if (HI_SUCCESS != s32Ret) {
- 		printf("HI_MPI_VPSS_GetChnFrame failed with %#x!\n", s32Ret);
+} hi3516av200_receive_frame_out;
+
+static int hi3516av200_receive_frame(error_in *err, unsigned int channel_id) {
+    unsigned int mpp_error_code;
+
+    mpp_error_code = HI_MPI_VPSS_GetChnFrame(0, channel_id, &channelFrames[channel_id], -1); //blocking mode call
+
+ 	if (mpp_error_code != HI_SUCCESS) {
+        GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_GetChnFrame")
+        err->mpp = mpp_error_code;
+        return ERR_MPP;
  	}
 
- 	return s32Ret;
+ 	return ERR_NONE;
 }
 
-int mpp3_release_frame(unsigned int channelId) {
- 	int s32Ret = HI_MPI_VPSS_ReleaseChnFrame(0, channelId, &channelFrames[channelId]);
+static int hi3516av200_release_frame(error_in *err, unsigned int channel_id) {
+    unsigned int mpp_error_code;
 
- 	if (HI_SUCCESS != s32Ret) {
- 		printf("HI_MPI_VPSS_ReleaseChnFrame failed with %#x!\n", s32Ret);
+ 	mpp_error_code = HI_MPI_VPSS_ReleaseChnFrame(0, channel_id, &channelFrames[channel_id]);
+
+ 	if (mpp_error_code != HI_SUCCESS) {
+        GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_ReleaseChnFrame")
+        err->mpp = mpp_error_code;
+        return ERR_MPP;
  	}
 
- 	return s32Ret;
+ 	return ERR_NONE;
 }
 
-void mpp3_send_frame_to_clients(unsigned int channelId, unsigned int processingId, void* callback) {
+void mpp3_send_frame_to_clients(unsigned int channelId, unsigned int processingId, void* callback) { //TODO move to go space
 	callbackFunc func = callback;
 	func(processingId, &channelFrames[channelId]);
 }
@@ -156,109 +226,132 @@ void mpp3_send_frame_to_clients(unsigned int channelId, unsigned int processingI
 import "C"
 
 import (
-    "application/pkg/mpp/error"
-
+    "flag"
+    "application/pkg/mpp/vi"
+    "application/pkg/mpp/errmpp"
     "application/pkg/logger"
 )
 
-func Init() {
-    var errorCode C.uint
-
-    switch err := C.mpp3_vpss_init(&errorCode); err {
-    case C.ERR_NONE:
-        //log.Println("C.mpp3_vpss_init() ok")
-	logger.Log.Debug().
-		Msg("C.mpp3_vpss_init() ok")
-    case C.ERR_HI_MPI_VPSS_CreateGrp:
-        //log.Fatal("C.mpp3_vpss_init() HI_MPI_VPSS_CreateGrp() error ", error.Resolve(int64(errorCode)))
-	logger.Log.Fatal().
-		Str("func", "HI_MPI_VPSS_CreateGrp()").
-		Int("error", int(errorCode)).
-		Str("error_desc", error.Resolve(int64(errorCode))).
-		Msg("C.mpp3_vpss_init() error")
-    case C.ERR_HI_MPI_VPSS_StartGrp:
-        //log.Fatal("C.mpp3_vpss_init() HI_MPI_VPSS_StartGrp() error ", error.Resolve(int64(errorCode)))
-	logger.Log.Fatal().
-		Str("func", "HI_MPI_VPSS_StartGrp()").
-		Int("error", int(errorCode)).
-		Str("error_desc", error.Resolve(int64(errorCode))).
-		Msg("C.mpp3_vpss_init() error")
-    case C.ERR_HI_MPI_SYS_Bind:
-        //log.Fatal("C.mpp3_vpss_init() HI_MPI_SYS_Bind() error ", error.Resolve(int64(errorCode)))
-	logger.Log.Fatal().
-		Str("func", "HI_MPI_SYS_Bind()").
-                Int("error", int(errorCode)).
-                Str("error_desc", error.Resolve(int64(errorCode))).
-                Msg("C.mpp3_vpss_init() error")
-    default:
-        //log.Fatal("Unexpected return ", err , " of C.mpp3_vpss_init()")
-	logger.Log.Fatal().
-		Int("error", int(err)).
-		Msg("C.mpp3_vpss_init() Unexpected return")
-    }
+var (
+    nr bool
+    nrFrmNum uint
+)
+func init() {
+    flag.BoolVar(&nr, "vpss-nr", true, "Noise remove enable")
+    flag.UintVar(&nrFrmNum, "vpss-nr-frames", 2, "Noise remove reference frames number [1;2]")
 }
-func CreateChannel(channel Channel) {
-    var errorCode C.uint
 
-    switch err := C.mpp3_vpss_sample_channel(C.uint(channel.ChannelId), C.uint(channel.Width), C.uint(channel.Height), C.uint(channel.Fps), &errorCode); err {
-    case C.ERR_NONE:
-        //log.Println("C.mpp3_vpss_sample_channel() ok")
-	logger.Log.Debug().
-		Msg("C.mpp3_vpss_sample_channel() ok")
-    case C.ERR_MPP:
-        //log.Fatal("C.mpp3_vpss_sample_channel() MPP error ", error.Resolve(int64(errorCode)))
-	logger.Log.Fatal().
-                Int("error", int(errorCode)). 
-                Str("error_desc", error.Resolve(int64(errorCode))).
-                Msg("C.mpp3_vpss_sample_channel() MPP error")
-    default:
-        //log.Fatal("Unexpected return ", err , " of C.mpp3_vpss_sample_channel()")
-	logger.Log.Fatal().
-                Int("error", int(err)).
-                Msg("C.mpp3_vpss_sample_channel() Unexpected return")
+func maxChannels() uint {
+    return uint(C.VPSS_MAX_PHY_CHN_NUM)
+}
+
+func initFamily() error {
+    var inErr C.error_in
+    var in C.hi3516av200_vpss_init_in
+
+    in.width = C.uint(vi.Width())
+    in.height = C.uint(vi.Height())
+
+    if nr == true {
+
+        if nrFrmNum < 1 || nrFrmNum > 2 {
+            logger.Log.Fatal().
+                Uint("vpss-nr-frames", nrFrmNum).
+                Msg("vpss-nr-frames shoud be 1 or 2")
+        }
+        in.nr_frames = C.uchar(nrFrmNum)
+        in.nr = 1
+    } else {
+        in.nr = 0
+    }
+
+    logger.Log.Trace().
+        Uint("width", uint(in.width)).
+        Uint("height", uint(in.height)).
+        Uint("nr", uint(in.nr)).
+        Uint("nr_frames", uint(in.nr_frames)).
+        Msg("VPSS params")
+
+
+    err := C.hi3516av200_vpss_init(&inErr, &in)
+
+    if err != 0 {
+        return errmpp.New("funcname", uint(inErr.mpp))
+    }
+
+    return nil
+}
+
+func createChannel(channel Channel) { //TODO return error
+    var inErr C.error_in
+    var in C.hi3516av200_vpss_create_channel_in
+
+    in.channel_id = C.uint(channel.ChannelId)
+    in.width = C.uint(channel.Width)
+    in.height = C.uint(channel.Height)
+    in.vi_fps = C.uint(vi.Fps())
+    in.fps = C.uint(channel.Fps)
+
+    logger.Log.Trace().
+        Int("channelId", channel.ChannelId).
+        Uint("width", uint(in.width)).
+        Uint("height", uint(in.height)).
+        Uint("vi_fps", uint(in.vi_fps)).
+        Uint("fps", uint(in.fps)).
+        Msg("VPSS channel params")
+
+    err := C.hi3516av200_vpss_create_channel(&inErr, &in)
+    
+    if err != 0 {
+        logger.Log.Fatal(). //log temporary, should generate and return error
+            Str("error", errmpp.New("funcname", uint(inErr.mpp)).Error()).
+            Msg("VPSS")
     }
 
     go func() {
 		sendDataToClients(channel)
     }()
+
+    //return nil
 }
 
-func DestroyChannel(channel Channel) {
-    var errorCode C.uint
+func destroyChannel(channel Channel) { //TODO return error
+    var inErr C.error_in
+    var in C.hi3516av200_vpss_destroy_channel_in
 
-    switch err := C.mpp3_destroy_vpss_sample_channel(C.uint(channel.ChannelId), &errorCode); err {
-    case C.ERR_NONE:
-        //log.Println("C.mpp3_destroy_vpss_sample_channel() ok")
-	logger.Log.Debug().
-		Msg("C.mpp3_destroy_vpss_sample_channel() ok")
-    case C.ERR_MPP:
-        //log.Fatal("C.mpp3_destroy_vpss_sample_channel() MPP error ", error.Resolve(int64(errorCode)))
-	logger.Log.Fatal().
-                Int("error", int(errorCode)). 
-                Str("error_desc", error.Resolve(int64(errorCode))).
-                Msg("C.mpp3_destroy_vpss_sample_channel() MPP error")
-    default:
-        //log.Fatal("Unexpected return ", err , " of C.mpp3_destroy_vpss_sample_channel()")
-	logger.Log.Fatal().
-                Int("error", int(err)).
-                Msg("C.mpp3_destroy_vpss_sample_channel() Unexpected return")
+    in.channel_id = C.uint(channel.ChannelId)
+
+    err := C.hi3516av200_vpss_destroy_channel(&inErr, &in)
+
+    if err != 0 {
+        logger.Log.Fatal(). //log temporary, should generate and return error
+            Str("error", errmpp.New("funcname", uint(inErr.mpp)).Error()).
+            Msg("VPSS")
     }
+
+    //return nil
 }
 
 func sendDataToClients(channel Channel) {
-	for{
+    logger.Log.Trace().
+        Int("channelId", channel.ChannelId).
+        Str("name", "sendDataToClients").
+        Msg("VPSS rutine started")
+
+	for {
 		if (!channel.Started){
 			break
 		}
 
-		err := C.mpp3_receive_frame(C.uint(channel.ChannelId));
-		if (err != 0){
-			//log.Println("Failed receive frame", channel.ChannelId, error.Resolve(int64(err)))
+        var err C.int
+        var inErr C.error_in
+
+		err = C.hi3516av200_receive_frame(&inErr, C.uint(channel.ChannelId));
+		if err != C.ERR_NONE {
 			logger.Log.Warn().
 				Int("channelId", channel.ChannelId).
-				Int("error", int(err)).
-				Str("error_desc", error.Resolve(int64(err))).
-				Msg("Failed receive frame")
+				Str("error", errmpp.New("funcname", uint(inErr.mpp)).Error()).
+				Msg("VPSS failed receive frame")
 			continue
 		}
 
@@ -266,14 +359,17 @@ func sendDataToClients(channel Channel) {
 			C.mpp3_send_frame_to_clients(C.uint(channel.ChannelId), C.uint(processingId), callback);
 		}
 
-		err = C.mpp3_release_frame(C.uint(channel.ChannelId));
-		if (err != 0){
-			//log.Println("Failed release frame", channel.ChannelId, error.Resolve(int64(err)))
-			logger.Log.Warn().
+		err = C.hi3516av200_release_frame(&inErr, C.uint(channel.ChannelId));
+		if err != C.ERR_NONE {
+			logger.Log.Error().
 				Int("channelId", channel.ChannelId).
-                                Int("error", int(err)).
-                                Str("error_desc", error.Resolve(int64(err))).
-                                Msg("Failed receive frame")
+                Str("error", errmpp.New("funcname", uint(inErr.mpp)).Error()).
+                Msg("VPSS failed release frame")
 		}
 	}
+
+    logger.Log.Trace().        
+        Int("channelId", channel.ChannelId).    
+        Str("name", "sendDataToClients").
+        Msg("VPSS rutine stopped")
 }

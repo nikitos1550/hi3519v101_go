@@ -9,73 +9,48 @@ package sys
 #include <string.h>
 
 #define ERR_NONE                0
-#define ERR_HI_MPI_SYS_Exit     2
-#define ERR_HI_MPI_VB_Exit      3
-#define ERR_HI_MPI_VB_SetConfig 4
-#define ERR_HI_MPI_VB_Init      5
-#define ERR_HI_MPI_SYS_SetConf  6
-#define ERR_HI_MPI_SYS_Init     7
+#define ERR_MPP                 1
+#define ERR_GENERAL             2
 
-int mpp4_sys_init(unsigned int *error_code) {
+typedef struct hi3516ev200_sys_init_in_struct {
+    unsigned int width;
+    unsigned int height;
+    unsigned int cnt;
+} hi3516ev200_sys_init_in;
+
+static int hi3516ev200_sys_init(unsigned int *error_code, hi3516ev200_sys_init_in *in) {
     *error_code = 0;
 
-
-    return ERR_NONE;
+    return ERR_GENERAL;
 }
 */
 import "C"
 
 import (
-	"application/pkg/mpp/error"
-	"application/pkg/logger"
+    "application/pkg/mpp/errmpp"   
+    "application/pkg/logger"
 )
-func Init() {
-        var errorCode C.uint
 
-        switch err := C.mpp4_sys_init(&errorCode); err {
-        case C.ERR_NONE:
-                logger.Log.Debug().
-                        Msg("C.mpp4_sys_init ok")
-        case C.ERR_HI_MPI_SYS_Exit:
-                logger.Log.Fatal().
-                        Str("func", "HI_MPI_SYS_Exit()").
-                        Int("error", int(errorCode)).
-                        Str("error_desc", error.Resolve(int64(errorCode))).
-                        Msg("C.mpp4_sys_init() error")
-        case C.ERR_HI_MPI_VB_Exit:
-                logger.Log.Fatal().
-                        Str("func", "HI_MPI_VB_Exit()").
-                        Int("error", int(errorCode)).
-                        Str("error_desc", error.Resolve(int64(errorCode))).
-                        Msg("C.mpp4_sys_init() error")
-        case C.ERR_HI_MPI_VB_SetConfig:
-                logger.Log.Fatal().
-                        Str("func", "HI_MPI_VB_SetConfig()").
-                        Int("error", int(errorCode)).
-                        Str("error_desc", error.Resolve(int64(errorCode))).
-                        Msg("C.mpp4_sys_init() error")
-        case C.ERR_HI_MPI_VB_Init:
-                logger.Log.Fatal().
-                        Str("func", "HI_MPI_VB_Init()").
-                        Int("error", int(errorCode)).
-                        Str("error_desc", error.Resolve(int64(errorCode))).
-                        Msg("C.mpp4_sys_init() error")
-        case C.ERR_HI_MPI_SYS_SetConf:
-                logger.Log.Fatal().
-                        Str("func", "HI_MPI_SYS_SetConf()").
-                        Int("error", int(errorCode)).
-                        Str("error_desc", error.Resolve(int64(errorCode))).
-                        Msg("C.mpp4_sys_init() error")
-        case C.ERR_HI_MPI_SYS_Init:
-                logger.Log.Fatal().
-                        Str("func", "HI_MPI_SYS_Init()").
-                        Int("error", int(errorCode)).
-                        Str("error_desc", error.Resolve(int64(errorCode))).
-                        Msg("C.mpp4_sys_init() error")
-        default:
-                logger.Log.Fatal().
-                        Int("error", int(err)).
-                        Msg("C.mpp4_sys_init() Unexpected return")
-        }
+func initFamily() error {
+    var errorCode C.uint
+    var in C.hi3516ev200_sys_init_int
+
+    in.width = C.uint(width)
+    in.height = C.uint(height)
+    in.cnt = C.uint(cnt)
+
+    logger.Log.Trace().
+        Uint("width", uint(in.width)).
+        Uint("height", uint(in.height)).
+        Uint("cnt", uint(in.cnt)).
+        Msg("SYS params")
+  
+    err := C.hi3516ev200_sys_init(&errorCode, &in)
+    if err != C.ERR_NONE {
+        return errors.New("SYS error TOD")
+    }
+
+    return nil
 }
+
 

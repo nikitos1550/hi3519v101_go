@@ -4,8 +4,9 @@
 package vi
 
 /*
+#include "../include/mpp.h"
+#include "../../logger/logger.h"
 
-#include "../include/mpp_v4.h"
 #include <string.h>
 
 #define ERR_NONE                    0

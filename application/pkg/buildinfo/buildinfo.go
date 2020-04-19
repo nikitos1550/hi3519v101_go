@@ -10,8 +10,8 @@ var (
 	BuildTags     string
 
 	//BuildUser   string
-	//BuildCommit string
-	BuildBranch string
+	BuildCommit string
+	//BuildBranch string
 
 	//BoardProfile string
 	//BoardVendor  string
@@ -35,8 +35,8 @@ type Info struct {
 	BuildDateTime 	string	`json:"builddatetime"`
 	BuildTags     	string	`json:"buildtags"`
 	//BuildUser   	string	`json:"builduser"`
-	//BuildCommit 	string	`json:"buildcommit"`
-	BuildBranch 	string	`json:"buildbranch"`
+	BuildCommit 	string	`json:"buildcommit"`
+	//BuildBranch 	string	`json:"buildbranch"`
 	//BoardProfile 	string	`json:"boardprofile"`
 	//BoardVendor  	string	`json:"boardvendor"`
 	//BoardModel   	string	`json:"boardmodel"`
@@ -57,8 +57,8 @@ func CopyAll(out *Info) {
 	out.BuildTags = BuildTags
 
 	//out.BuildUser = BuildUser
-	//out.BuildCommit = BuildCommit
-	out.BuildBranch = BuildBranch
+	out.BuildCommit = BuildCommit
+	//out.BuildBranch = BuildBranch
 
 	//out.BoardProfile = BoardProfile
 	//out.BoardVendor = BoardVendor

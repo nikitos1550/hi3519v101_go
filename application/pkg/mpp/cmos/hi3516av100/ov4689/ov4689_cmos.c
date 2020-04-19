@@ -61,11 +61,11 @@ extern unsigned int sensor_data_byte;
 HI_U8 gu8SensorImageMode = SENSOR_4M_30FPS_MODE;
 WDR_MODE_E genSensorMode = WDR_MODE_NONE;
 
-static HI_U32 gu32FullLinesStd = 1632; 
+static HI_U32 gu32FullLinesStd = 1632;
 static HI_U32 gu32FullLines = 1632;
 static HI_U32 gu32PreFullLines = 1632;
 static HI_BOOL bInit = HI_FALSE;
-HI_BOOL bSensorInit = HI_FALSE; 
+HI_BOOL bSensorInit = HI_FALSE;
 static ISP_FSWDR_MODE_E genFSWDRMode = ISP_FSWDR_NORMAL_MODE;
 static HI_U32 gu32MaxTimeGetCnt = 0;
 
@@ -88,7 +88,7 @@ static HI_S32 cmos_get_ae_default(AE_SENSOR_DEFAULT_S *pstAeSnsDft)
         printf("null pointer when get ae default value!\n");
         return -1;
     }
-    
+
     pstAeSnsDft->u32LinesPer500ms = gu32FullLinesStd*30/2;
     pstAeSnsDft->u32FullLinesStd = gu32FullLinesStd;
     pstAeSnsDft->u32FlickerFreq = 0;
@@ -103,7 +103,7 @@ static HI_S32 cmos_get_ae_default(AE_SENSOR_DEFAULT_S *pstAeSnsDft)
 
     pstAeSnsDft->stDgainAccu.enAccuType = AE_ACCURACY_LINEAR;
     pstAeSnsDft->stDgainAccu.f32Accuracy = 1;
-    
+
     switch(genSensorMode)
      {
          default:
@@ -112,56 +112,56 @@ static HI_S32 cmos_get_ae_default(AE_SENSOR_DEFAULT_S *pstAeSnsDft)
              pstAeSnsDft->au8HistThresh[1] = 0x28;
              pstAeSnsDft->au8HistThresh[2] = 0x60;
              pstAeSnsDft->au8HistThresh[3] = 0x80;
-             
+
              pstAeSnsDft->u8AeCompensation = g_AeDft[0].u8AeCompensation;
-             
+
              pstAeSnsDft->u32MaxIntTime = gu32FullLinesStd - 4;
              pstAeSnsDft->u32MinIntTime = 2;
              pstAeSnsDft->u32MaxIntTimeTarget = g_AeDft[0].u32MaxIntTimeTarget;
              pstAeSnsDft->u32MinIntTimeTarget = g_AeDft[0].u32MinIntTimeTarget;
-             
-             pstAeSnsDft->u32MaxAgain = 16384; 
+
+             pstAeSnsDft->u32MaxAgain = 16384;
              pstAeSnsDft->u32MinAgain = 1024;
              pstAeSnsDft->u32MaxAgainTarget = g_AeDft[0].u32MaxAgainTarget;
              pstAeSnsDft->u32MinAgainTarget = g_AeDft[0].u32MinAgainTarget;
-             
-             pstAeSnsDft->u32MaxDgain = 1;  
+
+             pstAeSnsDft->u32MaxDgain = 1;
              pstAeSnsDft->u32MinDgain = 1;
              pstAeSnsDft->u32MaxDgainTarget = g_AeDft[0].u32MaxDgainTarget;
              pstAeSnsDft->u32MinDgainTarget = g_AeDft[0].u32MinDgainTarget;
-    
+
              pstAeSnsDft->u32ISPDgainShift = g_AeDft[0].u32ISPDgainShift;
              pstAeSnsDft->u32MinISPDgainTarget = g_AeDft[0].u32MinISPDgainTarget;
-             pstAeSnsDft->u32MaxISPDgainTarget = g_AeDft[0].u32MaxISPDgainTarget;                  
+             pstAeSnsDft->u32MaxISPDgainTarget = g_AeDft[0].u32MaxISPDgainTarget;
         break;
         case WDR_MODE_2To1_FRAME:
-        case WDR_MODE_2To1_FRAME_FULL_RATE: 
+        case WDR_MODE_2To1_FRAME_FULL_RATE:
             pstAeSnsDft->au8HistThresh[0] = 0xC;
             pstAeSnsDft->au8HistThresh[1] = 0x18;
             pstAeSnsDft->au8HistThresh[2] = 0x60;
             pstAeSnsDft->au8HistThresh[3] = 0x80;
-           
+
             pstAeSnsDft->u8AeCompensation = g_AeDft[2].u8AeCompensation;
-            
+
             pstAeSnsDft->u32MaxIntTime = gu32FullLinesStd - 4;
             pstAeSnsDft->u32MinIntTime = 2;
             pstAeSnsDft->u32MaxIntTimeTarget = g_AeDft[2].u32MaxIntTimeTarget;
             pstAeSnsDft->u32MinIntTimeTarget = g_AeDft[2].u32MinIntTimeTarget;
-            
+
             pstAeSnsDft->u32MaxAgain = 16384;
             pstAeSnsDft->u32MinAgain = 1024;
             pstAeSnsDft->u32MaxAgainTarget = g_AeDft[2].u32MaxAgainTarget;
             pstAeSnsDft->u32MinAgainTarget = g_AeDft[2].u32MinAgainTarget;
-            
-            pstAeSnsDft->u32MaxDgain = 1;  
+
+            pstAeSnsDft->u32MaxDgain = 1;
             pstAeSnsDft->u32MinDgain = 1;
             pstAeSnsDft->u32MaxDgainTarget = g_AeDft[2].u32MaxDgainTarget;
             pstAeSnsDft->u32MinDgainTarget = g_AeDft[2].u32MinDgainTarget;
 
             pstAeSnsDft->u32ISPDgainShift = g_AeDft[2].u32ISPDgainShift;
             pstAeSnsDft->u32MinISPDgainTarget = g_AeDft[2].u32MinISPDgainTarget;
-            pstAeSnsDft->u32MaxISPDgainTarget = g_AeDft[2].u32MaxISPDgainTarget;            
-        break; 
+            pstAeSnsDft->u32MaxISPDgainTarget = g_AeDft[2].u32MaxISPDgainTarget;
+        break;
         case WDR_MODE_2To1_LINE:
             pstAeSnsDft->au8HistThresh[0] = 0xC;
             pstAeSnsDft->au8HistThresh[1] = 0x18;
@@ -170,7 +170,7 @@ static HI_S32 cmos_get_ae_default(AE_SENSOR_DEFAULT_S *pstAeSnsDft)
 
             pstAeSnsDft->u8AeCompensation = g_AeDft[1].u8AeCompensation;
 
-            pstAeSnsDft->u32MaxIntTime = gu32FullLinesStd - 4;  
+            pstAeSnsDft->u32MaxIntTime = gu32FullLinesStd - 4;
             pstAeSnsDft->u32MinIntTime = 2;
             pstAeSnsDft->u32MaxIntTimeTarget = g_AeDft[1].u32MaxIntTimeTarget;
             pstAeSnsDft->u32MinIntTimeTarget = g_AeDft[1].u32MinIntTimeTarget;
@@ -187,11 +187,11 @@ static HI_S32 cmos_get_ae_default(AE_SENSOR_DEFAULT_S *pstAeSnsDft)
 
             pstAeSnsDft->u32ISPDgainShift = g_AeDft[1].u32ISPDgainShift;
             pstAeSnsDft->u32MinISPDgainTarget = g_AeDft[1].u32MinISPDgainTarget;
-            pstAeSnsDft->u32MaxISPDgainTarget = g_AeDft[1].u32MaxISPDgainTarget;     
+            pstAeSnsDft->u32MaxISPDgainTarget = g_AeDft[1].u32MaxISPDgainTarget;
         break;
      }
-    
-    
+
+
     return 0;
 }
 
@@ -204,7 +204,7 @@ static HI_S32 cmos_get_ae_default(AE_SENSOR_DEFAULT_S *pstAeSnsDft)
         printf("null pointer when get ae default value!\n");
         return -1;
     }
-    
+
     pstAeSnsDft->u32LinesPer500ms = gu32FullLinesStd*30/2;
     pstAeSnsDft->u32FullLinesStd = gu32FullLinesStd;
     pstAeSnsDft->u32FlickerFreq = 0;
@@ -219,22 +219,22 @@ static HI_S32 cmos_get_ae_default(AE_SENSOR_DEFAULT_S *pstAeSnsDft)
 
     pstAeSnsDft->stDgainAccu.enAccuType = AE_ACCURACY_LINEAR;
     pstAeSnsDft->stDgainAccu.f32Accuracy = 1;
-    
+
     pstAeSnsDft->u32ISPDgainShift = 8;
     pstAeSnsDft->u32MinISPDgainTarget = 1 << pstAeSnsDft->u32ISPDgainShift;
-    pstAeSnsDft->u32MaxISPDgainTarget = 16 << pstAeSnsDft->u32ISPDgainShift; 
-    
+    pstAeSnsDft->u32MaxISPDgainTarget = 16 << pstAeSnsDft->u32ISPDgainShift;
+
     pstAeSnsDft->u32MaxIntTime = gu32FullLinesStd - 4;
     pstAeSnsDft->u32MinIntTime = 2;
     pstAeSnsDft->u32MaxIntTimeTarget = 65535;
     pstAeSnsDft->u32MinIntTimeTarget = 2;
 
-    pstAeSnsDft->u32MaxAgain = 16832;  
+    pstAeSnsDft->u32MaxAgain = 16832;
     pstAeSnsDft->u32MinAgain = 1024;
     pstAeSnsDft->u32MaxAgainTarget = pstAeSnsDft->u32MaxAgain;
     pstAeSnsDft->u32MinAgainTarget = pstAeSnsDft->u32MinAgain;
 
-    pstAeSnsDft->u32MaxDgain = 1;  
+    pstAeSnsDft->u32MaxDgain = 1;
     pstAeSnsDft->u32MinDgain = 1;
     pstAeSnsDft->u32MaxDgainTarget = pstAeSnsDft->u32MaxDgain;
     pstAeSnsDft->u32MinDgainTarget = pstAeSnsDft->u32MinDgain;
@@ -254,7 +254,7 @@ static HI_S32 cmos_get_ae_default(AE_SENSOR_DEFAULT_S *pstAeSnsDft)
             pstAeSnsDft->au8HistThresh[1] = 0x28;
             pstAeSnsDft->au8HistThresh[2] = 0x60;
             pstAeSnsDft->au8HistThresh[3] = 0x80;
-            
+
             pstAeSnsDft->u8AeCompensation = 0x38;
         break;
 
@@ -264,16 +264,16 @@ static HI_S32 cmos_get_ae_default(AE_SENSOR_DEFAULT_S *pstAeSnsDft)
             pstAeSnsDft->au8HistThresh[1] = 0x18;
             pstAeSnsDft->au8HistThresh[2] = 0x60;
             pstAeSnsDft->au8HistThresh[3] = 0x80;
-           
+
             pstAeSnsDft->u8AeCompensation = 0x38;
         break;
-  
+
         case WDR_MODE_2To1_LINE:
             pstAeSnsDft->au8HistThresh[0] = 0xC;
             pstAeSnsDft->au8HistThresh[1] = 0x18;
             pstAeSnsDft->au8HistThresh[2] = 0x60;
             pstAeSnsDft->au8HistThresh[3] = 0x80;
-           
+
             if(ISP_FSWDR_LONG_FRAME_MODE == genFSWDRMode)
             {
                 pstAeSnsDft->u8AeCompensation = 0x64;
@@ -284,21 +284,21 @@ static HI_S32 cmos_get_ae_default(AE_SENSOR_DEFAULT_S *pstAeSnsDft)
             }
         break;
     }
-    
+
     switch(gu8SensorImageMode)
     {
         case 1:
             pstAeSnsDft->u32LinesPer500ms = gu32FullLinesStd*60/2;
         break;
-        
+
         case 5:
             pstAeSnsDft->u32LinesPer500ms = gu32FullLinesStd*120/2;
         break;
-            
+
         case 6:
             pstAeSnsDft->u32LinesPer500ms = gu32FullLinesStd*180/2;
         break;
-        
+
         default:
             pstAeSnsDft->u32LinesPer500ms = gu32FullLinesStd*30/2;
         break;
@@ -338,9 +338,9 @@ static HI_VOID cmos_fps_set(HI_FLOAT f32Fps, AE_SENSOR_DEFAULT_S *pstAeSnsDft)
                     return;
                 }
             }
-            
+
         break;
-        
+
         case SENSOR_2304_1296_30FPS_MODE:
             if ((f32Fps <= 30) && (f32Fps >= 1.5))
             {
@@ -359,7 +359,7 @@ static HI_VOID cmos_fps_set(HI_FLOAT f32Fps, AE_SENSOR_DEFAULT_S *pstAeSnsDft)
                 return;
             }
         break;
-        
+
         case SENSOR_2048_1520_30FPS_MODE:
             if ((f32Fps <= 30) && (f32Fps >= 1.5))
             {
@@ -379,7 +379,7 @@ static HI_VOID cmos_fps_set(HI_FLOAT f32Fps, AE_SENSOR_DEFAULT_S *pstAeSnsDft)
             }
 
         break;
-        
+
         case SENSOR_1080P_60FPS_MODE:
             if(WDR_MODE_2To1_LINE == genSensorMode)
             {
@@ -391,7 +391,7 @@ static HI_VOID cmos_fps_set(HI_FLOAT f32Fps, AE_SENSOR_DEFAULT_S *pstAeSnsDft)
                 {
                     printf("Not support Fps: %f\n", f32Fps);
                     return;
-                }   
+                }
             }
             else
             {
@@ -403,7 +403,7 @@ static HI_VOID cmos_fps_set(HI_FLOAT f32Fps, AE_SENSOR_DEFAULT_S *pstAeSnsDft)
                 {
                     printf("Not support Fps: %f\n", f32Fps);
                     return;
-                }   
+                }
             }
         break;
 
@@ -416,13 +416,13 @@ static HI_VOID cmos_fps_set(HI_FLOAT f32Fps, AE_SENSOR_DEFAULT_S *pstAeSnsDft)
             {
                 printf("Not support Fps: %f\n", f32Fps);
                 return;
-            }            
+            }
         break;
 
         default:
         break;
     }
-    
+
     gu32FullLinesStd = gu32FullLinesStd > FULL_LINES_MAX ? FULL_LINES_MAX : gu32FullLinesStd;
 
     if (WDR_MODE_NONE == genSensorMode)
@@ -465,7 +465,7 @@ static HI_VOID cmos_slow_framerate_set(HI_U32 u32FullLines,
     }
 
     pstAeSnsDft->u32MaxIntTime = gu32FullLines - 4;
-    
+
     return;
 }
 
@@ -501,7 +501,7 @@ static HI_VOID cmos_inttime_update(HI_U32 u32IntTime)
             g_stSnsRegsInfo.astI2cData[1].u32Data = (u32IntTime & 0xFF0) >> 4;
             g_stSnsRegsInfo.astI2cData[2].u32Data = (u32IntTime & 0xF) << 4;
             bFirst = HI_FALSE;
-            
+
         }
         else /* long exposure */
         {
@@ -575,7 +575,7 @@ static HI_VOID cmos_again_calc_table(HI_U32 *pu32AgainLin, HI_U32 *pu32AgainDb)
          *pu32AgainDb = 519;
          return ;
     }
-    
+
     for (i = 1; i < 520; i++)
     {
         if (*pu32AgainLin < gain_table[i])
@@ -586,7 +586,7 @@ static HI_VOID cmos_again_calc_table(HI_U32 *pu32AgainLin, HI_U32 *pu32AgainDb)
         }
     }
 
-    
+
     return;
 }
 
@@ -616,8 +616,8 @@ static HI_VOID cmos_gains_update(HI_U32 u32Again, HI_U32 u32Dgain)
     }
 
     g_stSnsRegsInfo.astI2cData[3].u32Data = u32AGainReg;
-    g_stSnsRegsInfo.astI2cData[4].u32Data = u32Again; 
-    
+    g_stSnsRegsInfo.astI2cData[4].u32Data = u32Again;
+
     if (WDR_MODE_2To1_LINE == genSensorMode)
     {
         g_stSnsRegsInfo.astI2cData[8].u32Data = g_stSnsRegsInfo.astI2cData[3].u32Data;
@@ -631,7 +631,7 @@ static HI_VOID cmos_gains_update(HI_U32 u32Again, HI_U32 u32Dgain)
 static HI_VOID cmos_get_inttime_max(HI_U32 u32Ratio, HI_U32 *pu32IntTimeMax)
 {
     HI_U32 u32IntTimeMaxTmp;
-    
+
     if(HI_NULL == pu32IntTimeMax)
     {
         printf("null pointer when get ae sensor IntTimeMax value!\n");
@@ -663,7 +663,7 @@ static HI_VOID cmos_get_inttime_max(HI_U32 u32Ratio, HI_U32 *pu32IntTimeMax)
         {
             /* PreShort + Long < 1PreVMax - 4  */
             /* PreShort + Long < 1V - 4  */
-            /* Short + Long < 1V - 4; 
+            /* Short + Long < 1V - 4;
                Ratio = Long * 0x40 / Short */
             u32IntTimeMaxTmp = ((gu32PreFullLines - 50 - au32WDRIntTime[0]) << 6) / DIV_0_TO_1(u32Ratio);
             *pu32IntTimeMax = (gu32FullLines - 50) * 0x40 / (u32Ratio + 0x40);
@@ -678,7 +678,7 @@ static HI_VOID cmos_get_inttime_max(HI_U32 u32Ratio, HI_U32 *pu32IntTimeMax)
             *pu32IntTimeMax = (u32IntTimeMaxTmp < *pu32IntTimeMax) ? u32IntTimeMaxTmp : *pu32IntTimeMax;
         }
     }
-    
+
     return;
 }
 
@@ -697,7 +697,7 @@ HI_S32 cmos_init_ae_exp_function(AE_SENSOR_EXP_FUNC_S *pstExpFuncs)
 
     pstExpFuncs->pfn_cmos_get_ae_default    = cmos_get_ae_default;
     pstExpFuncs->pfn_cmos_fps_set           = cmos_fps_set;
-    pstExpFuncs->pfn_cmos_slow_framerate_set= cmos_slow_framerate_set;    
+    pstExpFuncs->pfn_cmos_slow_framerate_set= cmos_slow_framerate_set;
     pstExpFuncs->pfn_cmos_inttime_update    = cmos_inttime_update;
     pstExpFuncs->pfn_cmos_gains_update      = cmos_gains_update;
     pstExpFuncs->pfn_cmos_again_calc_table  = cmos_again_calc_table;
@@ -715,7 +715,7 @@ HI_S32 cmos_init_ae_exp_function(AE_SENSOR_EXP_FUNC_S *pstExpFuncs)
 static HI_S32 cmos_get_awb_default(AWB_SENSOR_DEFAULT_S *pstAwbSnsDft)
 {
     HI_U8 i;
-    
+
     if (HI_NULL == pstAwbSnsDft)
     {
         printf("null pointer when get awb default value!\n");
@@ -726,19 +726,19 @@ static HI_S32 cmos_get_awb_default(AWB_SENSOR_DEFAULT_S *pstAwbSnsDft)
     switch (genSensorMode)
     {
         default:
-        case WDR_MODE_NONE:            
+        case WDR_MODE_NONE:
             pstAwbSnsDft->u16WbRefTemp = g_AwbDft[0].u16WbRefTemp;
             for(i= 0; i < 4; i++)
             {
                 pstAwbSnsDft->au16GainOffset[i] = g_AwbDft[0].au16GainOffset[i];
             }
-           
+
             for(i= 0; i < 6; i++)
             {
                 pstAwbSnsDft->as32WbPara[i] = g_AwbDft[0].as32WbPara[i];
             }
 
-            memcpy(&pstAwbSnsDft->stCcm, &g_AwbDft[0].stCcm, sizeof(AWB_CCM_S));            
+            memcpy(&pstAwbSnsDft->stCcm, &g_AwbDft[0].stCcm, sizeof(AWB_CCM_S));
             memcpy(&pstAwbSnsDft->stAgcTbl, &g_AwbDft[0].stAgcTbl, sizeof(AWB_AGC_TABLE_S));
         break;
         case WDR_MODE_2To1_LINE:
@@ -749,17 +749,17 @@ static HI_S32 cmos_get_awb_default(AWB_SENSOR_DEFAULT_S *pstAwbSnsDft)
             {
                 pstAwbSnsDft->au16GainOffset[i] = g_AwbDft[1].au16GainOffset[i];
             }
-           
+
             for(i= 0; i < 6; i++)
             {
                 pstAwbSnsDft->as32WbPara[i] = g_AwbDft[1].as32WbPara[i];
             }
 
-            memcpy(&pstAwbSnsDft->stCcm, &g_AwbDft[1].stCcm, sizeof(AWB_CCM_S));            
+            memcpy(&pstAwbSnsDft->stCcm, &g_AwbDft[1].stCcm, sizeof(AWB_CCM_S));
             memcpy(&pstAwbSnsDft->stAgcTbl, &g_AwbDft[1].stAgcTbl, sizeof(AWB_AGC_TABLE_S));
         break;
     }
-    
+
     return 0;
 }
 
@@ -773,16 +773,16 @@ static AWB_CCM_S g_stAwbCcm =
         0x804e, 0x01a8, 0x805a,
         0x0010, 0x80ee, 0x01dc
    },
-   
+
    3100,
    {
         0x01b7, 0x807c, 0x803a,
         0x807e, 0x01c0, 0x8042,
         0x001c, 0x813c, 0x021f
    },
-   
+
    2450,
-   {     
+   {
         0x0183, 0x8078, 0x800a,
         0x8073, 0x0186, 0x8013,
         0x0010, 0x820a, 0x02fa
@@ -794,7 +794,7 @@ static AWB_AGC_TABLE_S g_stAwbAgcTable =
     /* bvalid */
     1,
 
-    /* saturation */ 
+    /* saturation */
     {0x80,0x80,0x7e,0x72,0x68,0x60,0x58,0x50,0x48,0x40,0x38,0x38,0x38,0x38,0x38,0x38}
 };
 
@@ -803,7 +803,7 @@ static AWB_AGC_TABLE_S g_stAwbAgcTableFSWDR =
     /* bvalid */
     1,
 
-    /* saturation */ 
+    /* saturation */
     {0x80,0x80,0x80,0x78,0x70,0x68,0x58,0x48,0x40,0x38,0x38,0x38,0x38,0x38,0x38,0x38}
 };
 
@@ -865,7 +865,7 @@ HI_S32 cmos_init_awb_exp_function(AWB_SENSOR_EXP_FUNC_S *pstExpFuncs)
 #ifdef INIFILE_CONFIG_MODE
 
 HI_U32 cmos_get_isp_default(ISP_CMOS_DEFAULT_S *pstDef)
-{   
+{
     if (HI_NULL == pstDef)
     {
         printf("null pointer when get isp default value!\n");
@@ -879,18 +879,18 @@ HI_U32 cmos_get_isp_default(ISP_CMOS_DEFAULT_S *pstDef)
         case WDR_MODE_NONE:
             memcpy(&pstDef->stDrc, &g_IspDft[0].stDrc, sizeof(ISP_CMOS_DRC_S));
             memcpy(&pstDef->stAgcTbl, &g_IspDft[0].stAgcTbl, sizeof(ISP_CMOS_AGC_TABLE_S));
-            memcpy(&pstDef->stNoiseTbl, &g_IspDft[0].stNoiseTbl, sizeof(ISP_CMOS_NOISE_TABLE_S));            
+            memcpy(&pstDef->stNoiseTbl, &g_IspDft[0].stNoiseTbl, sizeof(ISP_CMOS_NOISE_TABLE_S));
             memcpy(&pstDef->stDemosaic, &g_IspDft[0].stDemosaic, sizeof(ISP_CMOS_DEMOSAIC_S));
             memcpy(&pstDef->stRgbSharpen, &g_IspDft[0].stRgbSharpen, sizeof(ISP_CMOS_RGBSHARPEN_S));
             memcpy(&pstDef->stGamma, &g_IspDft[0].stGamma, sizeof(ISP_CMOS_GAMMA_S));
             break;
-            
+
         case WDR_MODE_2To1_LINE:
         case WDR_MODE_2To1_FRAME:
         case WDR_MODE_2To1_FRAME_FULL_RATE:
             memcpy(&pstDef->stDrc, &g_IspDft[1].stDrc, sizeof(ISP_CMOS_DRC_S));
             memcpy(&pstDef->stAgcTbl, &g_IspDft[1].stAgcTbl, sizeof(ISP_CMOS_AGC_TABLE_S));
-            memcpy(&pstDef->stNoiseTbl, &g_IspDft[1].stNoiseTbl, sizeof(ISP_CMOS_NOISE_TABLE_S));            
+            memcpy(&pstDef->stNoiseTbl, &g_IspDft[1].stNoiseTbl, sizeof(ISP_CMOS_NOISE_TABLE_S));
             memcpy(&pstDef->stDemosaic, &g_IspDft[1].stDemosaic, sizeof(ISP_CMOS_DEMOSAIC_S));
             memcpy(&pstDef->stRgbSharpen, &g_IspDft[1].stRgbSharpen, sizeof(ISP_CMOS_RGBSHARPEN_S));
             memcpy(&pstDef->stGamma, &g_IspDft[1].stGamma, sizeof(ISP_CMOS_GAMMA_S));
@@ -910,24 +910,24 @@ static ISP_CMOS_AGC_TABLE_S g_stIspAgcTable =
 {
     /* bvalid */
     1,
-    
+
     /* 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200, 102400, 204800, 409600, 819200, 1638400, 3276800 */
 
     /* sharpen_alt_d */
     {0x3a,0x3a,0x38,0x34,0x30,0x2e,0x28,0x24,0x20,0x1b,0x18,0x14,0x12,0x10,0x10,0x10},
-        
+
     /* sharpen_alt_ud */
     {0x60,0x60,0x58,0x50,0x48,0x40,0x38,0x28,0x20,0x20,0x18,0x12,0x10,0x10,0x10,0x10},
-        
+
     /* snr_thresh Max=0x54 */
     {0x08,0x0a,0x0f,0x12,0x16,0x1a,0x22,0x28,0x2e,0x36,0x3a,0x40,0x40,0x40,0x40,0x40},
-        
+
     /* demosaic_lum_thresh */
     {0x50,0x50,0x4e,0x49,0x45,0x45,0x40,0x3a,0x3a,0x30,0x30,0x2a,0x20,0x20,0x20,0x20},
-        
+
     /* demosaic_np_offset */
     {0x00,0x0a,0x12,0x1a,0x20,0x28,0x30,0x32,0x34,0x36,0x38,0x38,0x38,0x38,0x38,0x38},
-        
+
     /* ge_strength */
     {0x55,0x55,0x55,0x55,0x55,0x55,0x37,0x37,0x37,0x35,0x35,0x35,0x35,0x35,0x35,0x35},
 
@@ -941,25 +941,25 @@ static ISP_CMOS_NOISE_TABLE_S g_stIspNoiseTable =
     1,
 
     /* nosie_profile_weight_lut */
-    {0x0, 0x0, 0x8, 0xF, 0x13, 0x16, 0x19, 0x1A, 0x1C, 0x1D, 0x1F, 0x20, 0x21, 0x22, 0x23, 0x23, 0x25, 
-    0x25, 0x26, 0x27, 0x27, 0x27, 0x28, 0x29, 0x29, 0x2A, 0x2A, 0x2B, 0x2B, 0x2C, 0x2C, 0x2C, 0x2D, 
-    0x2D, 0x2D, 0x2E, 0x2E, 0x2E, 0x2F, 0x2F, 0x2F, 0x30, 0x30, 0x30, 0x30, 0x31, 0x31, 0x31, 0x31, 
-    0x32, 0x32, 0x32, 0x32, 0x33, 0x33, 0x33, 0x33, 0x33, 0x34, 0x34, 0x34, 0x34, 0x34, 0x35, 0x35, 0x35, 
+    {0x0, 0x0, 0x8, 0xF, 0x13, 0x16, 0x19, 0x1A, 0x1C, 0x1D, 0x1F, 0x20, 0x21, 0x22, 0x23, 0x23, 0x25,
+    0x25, 0x26, 0x27, 0x27, 0x27, 0x28, 0x29, 0x29, 0x2A, 0x2A, 0x2B, 0x2B, 0x2C, 0x2C, 0x2C, 0x2D,
+    0x2D, 0x2D, 0x2E, 0x2E, 0x2E, 0x2F, 0x2F, 0x2F, 0x30, 0x30, 0x30, 0x30, 0x31, 0x31, 0x31, 0x31,
+    0x32, 0x32, 0x32, 0x32, 0x33, 0x33, 0x33, 0x33, 0x33, 0x34, 0x34, 0x34, 0x34, 0x34, 0x35, 0x35, 0x35,
     0x35, 0x35, 0x35, 0x36, 0x36, 0x36, 0x36, 0x36, 0x36, 0x37, 0x37, 0x37, 0x37, 0x37, 0x37, 0x37, 0x38,
-    0x38, 0x38, 0x38, 0x38, 0x38, 0x38, 0x39, 0x39, 0x39, 0x39, 0x39, 0x39, 0x39, 0x39, 0x3A, 0x3A, 
-    0x3A, 0x3A, 0x3A, 0x3A, 0x3A, 0x3A, 0x3A, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 
-    0x3C, 0x3C, 0x3C, 0x3C, 0x3C, 0x3C, 0x3C, 0x3C, 0x3C, 0x3C, 0x3C, 0x3D, 0x3D},   
+    0x38, 0x38, 0x38, 0x38, 0x38, 0x38, 0x39, 0x39, 0x39, 0x39, 0x39, 0x39, 0x39, 0x39, 0x3A, 0x3A,
+    0x3A, 0x3A, 0x3A, 0x3A, 0x3A, 0x3A, 0x3A, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B,
+    0x3C, 0x3C, 0x3C, 0x3C, 0x3C, 0x3C, 0x3C, 0x3C, 0x3C, 0x3C, 0x3C, 0x3D, 0x3D},
 
     /* demosaic_weight_lut */
-    {0x8, 0xF, 0x13, 0x16, 0x19, 0x1A, 0x1C, 0x1D, 0x1F, 0x20, 0x21, 0x22, 0x23, 0x23, 0x25, 0x25, 0x26, 
-    0x27, 0x27, 0x27, 0x28, 0x29, 0x29, 0x2A, 0x2A, 0x2B, 0x2B, 0x2C, 0x2C, 0x2C, 0x2D, 0x2D, 0x2D, 
-    0x2E, 0x2E, 0x2E, 0x2F, 0x2F, 0x2F, 0x30, 0x30, 0x30, 0x30, 0x31, 0x31, 0x31, 0x31, 0x32, 0x32, 
-    0x32, 0x32, 0x33, 0x33, 0x33, 0x33, 0x33, 0x34, 0x34, 0x34, 0x34, 0x34, 0x35, 0x35, 0x35, 0x35, 0x35, 
-    0x35, 0x36, 0x36, 0x36, 0x36, 0x36, 0x36, 0x37, 0x37, 0x37, 0x37, 0x37, 0x37, 0x37, 0x38, 0x38, 0x38, 
-    0x38, 0x38, 0x38, 0x38, 0x39, 0x39, 0x39, 0x39, 0x39, 0x39, 0x39, 0x39, 0x3A, 0x3A, 0x3A, 0x3A, 
-    0x3A, 0x3A, 0x3A, 0x3A, 0x3A, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3C, 0x3C, 
-    0x3C, 0x3C, 0x3C, 0x3C, 0x3C, 0x3C, 0x3C, 0x3C, 0x3C, 0x3D, 0x3D, 0x3D, 0x3D}        
-    
+    {0x8, 0xF, 0x13, 0x16, 0x19, 0x1A, 0x1C, 0x1D, 0x1F, 0x20, 0x21, 0x22, 0x23, 0x23, 0x25, 0x25, 0x26,
+    0x27, 0x27, 0x27, 0x28, 0x29, 0x29, 0x2A, 0x2A, 0x2B, 0x2B, 0x2C, 0x2C, 0x2C, 0x2D, 0x2D, 0x2D,
+    0x2E, 0x2E, 0x2E, 0x2F, 0x2F, 0x2F, 0x30, 0x30, 0x30, 0x30, 0x31, 0x31, 0x31, 0x31, 0x32, 0x32,
+    0x32, 0x32, 0x33, 0x33, 0x33, 0x33, 0x33, 0x34, 0x34, 0x34, 0x34, 0x34, 0x35, 0x35, 0x35, 0x35, 0x35,
+    0x35, 0x36, 0x36, 0x36, 0x36, 0x36, 0x36, 0x37, 0x37, 0x37, 0x37, 0x37, 0x37, 0x37, 0x38, 0x38, 0x38,
+    0x38, 0x38, 0x38, 0x38, 0x39, 0x39, 0x39, 0x39, 0x39, 0x39, 0x39, 0x39, 0x3A, 0x3A, 0x3A, 0x3A,
+    0x3A, 0x3A, 0x3A, 0x3A, 0x3A, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3B, 0x3C, 0x3C,
+    0x3C, 0x3C, 0x3C, 0x3C, 0x3C, 0x3C, 0x3C, 0x3C, 0x3C, 0x3D, 0x3D, 0x3D, 0x3D}
+
 };
 
 static ISP_CMOS_NOISE_TABLE_S g_stIspNoiseTable_FSWDR =
@@ -968,29 +968,29 @@ static ISP_CMOS_NOISE_TABLE_S g_stIspNoiseTable_FSWDR =
     1,
 
     /* nosie_profile_weight_lut */
-    {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 
-        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 
-        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 
+    {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
         0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 
-        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x2D},   
+        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x2D},
 
     /* demosaic_weight_lut */
-    {0x3, 0xA, 0xF, 0x12, 0x14, 0x17, 0x18, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x22, 0x23, 0x24, 0x24, 
-        0x25, 0x25, 0x26, 0x26, 0x27, 0x27, 0x28, 0x28, 0x28, 0x29, 0x29, 0x2A, 0x2A, 0x2A, 0x2B, 0x2B, 0x2B, 0x2C, 0x2C, 0x2C, 
+    {0x3, 0xA, 0xF, 0x12, 0x14, 0x17, 0x18, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x22, 0x23, 0x24, 0x24,
+        0x25, 0x25, 0x26, 0x26, 0x27, 0x27, 0x28, 0x28, 0x28, 0x29, 0x29, 0x2A, 0x2A, 0x2A, 0x2B, 0x2B, 0x2B, 0x2C, 0x2C, 0x2C,
         0x2C, 0x2D, 0x2D, 0x2D, 0x2D, 0x2E, 0x2E, 0x2E, 0x2E, 0x2F, 0x2F, 0x2F, 0x2F, 0x30, 0x30, 0x30, 0x30, 0x30, 0x31, 0x31,
-        0x31, 0x31, 0x31, 0x32, 0x32, 0x32, 0x32, 0x32, 0x32, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x34, 0x34, 0x34, 0x34, 0x34, 
-        0x34, 0x34, 0x35, 0x35, 0x35, 0x35, 0x35, 0x35, 0x35, 0x36, 0x36, 0x36, 0x36, 0x36, 0x36, 0x36, 0x36, 0x37, 0x37, 
-        0x37, 0x37, 0x37, 0x37, 0x37, 0x37, 0x37, 0x38, 0x38, 0x38, 0x38, 0x38, 0x38, 0x38, 0x38, 0x38, 0x38, 0x39, 0x39, 
-        0x39, 0x39, 0x39, 0x39, 0x39, 0x39, 0x39, 0x39, 0x39}        
-    
+        0x31, 0x31, 0x31, 0x32, 0x32, 0x32, 0x32, 0x32, 0x32, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x34, 0x34, 0x34, 0x34, 0x34,
+        0x34, 0x34, 0x35, 0x35, 0x35, 0x35, 0x35, 0x35, 0x35, 0x36, 0x36, 0x36, 0x36, 0x36, 0x36, 0x36, 0x36, 0x37, 0x37,
+        0x37, 0x37, 0x37, 0x37, 0x37, 0x37, 0x37, 0x38, 0x38, 0x38, 0x38, 0x38, 0x38, 0x38, 0x38, 0x38, 0x38, 0x39, 0x39,
+        0x39, 0x39, 0x39, 0x39, 0x39, 0x39, 0x39, 0x39, 0x39}
+
 };
 
 static ISP_CMOS_DEMOSAIC_S g_stIspDemosaic =
 {
     /* bvalid */
     1,
-    
+
     /*vh_slope*/
     0xbb,
 
@@ -1008,7 +1008,7 @@ static ISP_CMOS_DEMOSAIC_S g_stIspDemosaic =
 
     /*ac_slope*/
     0xa0,
-    
+
     /*fc_slope*/
     0x8a,
 
@@ -1032,26 +1032,26 @@ static ISP_CMOS_DEMOSAIC_S g_stIspDemosaic =
 };
 
 static ISP_CMOS_RGBSHARPEN_S g_stIspRgbSharpen =
-{   
-    /* bvalid */   
-    1,   
-    
-    /*lut_core*/   
-    192,  
-    
-    /*lut_strength*/  
-    127, 
-    
-    /*lut_magnitude*/   
-    6      
+{
+    /* bvalid */
+    1,
+
+    /*lut_core*/
+    192,
+
+    /*lut_strength*/
+    127,
+
+    /*lut_magnitude*/
+    6
 };
 
 static ISP_CMOS_GAMMA_S g_stIspGamma =
 {
     /* bvalid */
     1,
-    
-#if 1 /* Normal mode */   
+
+#if 1 /* Normal mode */
     {  0, 180, 320, 426, 516, 590, 660, 730, 786, 844, 896, 946, 994, 1040, 1090, 1130, 1170, 1210, 1248,
     1296, 1336, 1372, 1416, 1452, 1486, 1516, 1546, 1580, 1616, 1652, 1678, 1714, 1742, 1776, 1798, 1830,
     1862, 1886, 1912, 1940, 1968, 1992, 2010, 2038, 2062, 2090, 2114, 2134, 2158, 2178, 2202, 2222, 2246,
@@ -1086,7 +1086,7 @@ static ISP_CMOS_GAMMA_S g_stIspGamma =
     3940, 3944, 3948, 3952, 3956, 3960, 3964, 3968, 3972, 3972, 3976, 3980, 3984, 3988,
     3992, 3996, 4000, 4004, 4008, 4012, 4016, 4020, 4024, 4028, 4032, 4032, 4036, 4040,
     4044, 4048, 4052, 4056, 4056, 4060, 4064, 4068, 4072, 4072, 4076, 4080, 4084, 4086,
-    4088, 4092, 4095} 
+    4088, 4092, 4095}
 #endif
 };
 
@@ -1094,8 +1094,8 @@ static ISP_CMOS_GAMMA_S g_stIspGammaFSWDR =
 {
     /* bvalid */
     1,
-    
-#if 0    
+
+#if 0
     {
         0,   1,   2,   4,   8,  12,  17,  23,  30,  38,  47,  57,  68,  79,  92, 105, 120, 133, 147, 161,
         176, 192, 209, 226, 243, 260, 278, 296, 315, 333, 351, 370, 390, 410, 431, 453, 474, 494, 515,
@@ -1133,7 +1133,7 @@ static ISP_CMOS_GAMMA_S g_stIspGammaFSWDR =
 #endif
 };
 
-static ISP_CMOS_GAMMAFE_S g_stGammafeFSWDR = 
+static ISP_CMOS_GAMMAFE_S g_stGammafeFSWDR =
 {
     /* bvalid */
     1,
@@ -1151,7 +1151,7 @@ static ISP_CMOS_GAMMAFE_S g_stGammafeFSWDR =
 
 
 HI_U32 cmos_get_isp_default(ISP_CMOS_DEFAULT_S *pstDef)
-{   
+{
     if (HI_NULL == pstDef)
     {
         printf("null pointer when get isp default value!\n");
@@ -1159,14 +1159,14 @@ HI_U32 cmos_get_isp_default(ISP_CMOS_DEFAULT_S *pstDef)
     }
 
     memset(pstDef, 0, sizeof(ISP_CMOS_DEFAULT_S));
-    
+
     switch (genSensorMode)
     {
         default:
-        case WDR_MODE_NONE:     
+        case WDR_MODE_NONE:
             pstDef->stDrc.bEnable               = HI_FALSE;
             pstDef->stDrc.u32BlackLevel         = 0x00;
-            pstDef->stDrc.u32WhiteLevel         = 0x4FF; 
+            pstDef->stDrc.u32WhiteLevel         = 0x4FF;
             pstDef->stDrc.u32SlopeMax           = 0x30;
             pstDef->stDrc.u32SlopeMin           = 0x00;
             pstDef->stDrc.u32VarianceSpace      = 0x04;
@@ -1174,7 +1174,7 @@ HI_U32 cmos_get_isp_default(ISP_CMOS_DEFAULT_S *pstDef)
             pstDef->stDrc.u32Asymmetry          = 0x14;
             pstDef->stDrc.u32BrightEnhance      = 0xC8;
 
-            memcpy(&pstDef->stNoiseTbl, &g_stIspNoiseTable, sizeof(ISP_CMOS_NOISE_TABLE_S));            
+            memcpy(&pstDef->stNoiseTbl, &g_stIspNoiseTable, sizeof(ISP_CMOS_NOISE_TABLE_S));
             memcpy(&pstDef->stAgcTbl, &g_stIspAgcTable, sizeof(ISP_CMOS_AGC_TABLE_S));
             memcpy(&pstDef->stDemosaic, &g_stIspDemosaic, sizeof(ISP_CMOS_DEMOSAIC_S));
             memcpy(&pstDef->stGamma, &g_stIspGamma, sizeof(ISP_CMOS_GAMMA_S));
@@ -1182,10 +1182,10 @@ HI_U32 cmos_get_isp_default(ISP_CMOS_DEFAULT_S *pstDef)
         break;
         case WDR_MODE_2To1_LINE:
         case WDR_MODE_2To1_FRAME:
-        case WDR_MODE_2To1_FRAME_FULL_RATE:   
+        case WDR_MODE_2To1_FRAME_FULL_RATE:
             pstDef->stDrc.bEnable               = HI_TRUE;
             pstDef->stDrc.u32BlackLevel         = 0x00;
-            pstDef->stDrc.u32WhiteLevel         = 0xFFF; 
+            pstDef->stDrc.u32WhiteLevel         = 0xFFF;
             pstDef->stDrc.u32SlopeMax           = 0x38;
             pstDef->stDrc.u32SlopeMin           = 0xC0;
             pstDef->stDrc.u32VarianceSpace      = 0x0A;
@@ -1193,19 +1193,19 @@ HI_U32 cmos_get_isp_default(ISP_CMOS_DEFAULT_S *pstDef)
             pstDef->stDrc.u32Asymmetry          = 0x14;
             pstDef->stDrc.u32BrightEnhance      = 0xC8;
 
-            memcpy(&pstDef->stNoiseTbl, &g_stIspNoiseTable_FSWDR, sizeof(ISP_CMOS_NOISE_TABLE_S));            
+            memcpy(&pstDef->stNoiseTbl, &g_stIspNoiseTable_FSWDR, sizeof(ISP_CMOS_NOISE_TABLE_S));
             memcpy(&pstDef->stAgcTbl, &g_stIspAgcTable, sizeof(ISP_CMOS_AGC_TABLE_S));
             memcpy(&pstDef->stDemosaic, &g_stIspDemosaic, sizeof(ISP_CMOS_DEMOSAIC_S));
-            memcpy(&pstDef->stRgbSharpen, &g_stIspRgbSharpen, sizeof(ISP_CMOS_RGBSHARPEN_S));        
+            memcpy(&pstDef->stRgbSharpen, &g_stIspRgbSharpen, sizeof(ISP_CMOS_RGBSHARPEN_S));
             memcpy(&pstDef->stGamma, &g_stIspGammaFSWDR, sizeof(ISP_CMOS_GAMMA_S));
             memcpy(&pstDef->stGammafe, &g_stGammafeFSWDR, sizeof(ISP_CMOS_GAMMAFE_S));
         break;
 
     }
-    
+
     pstDef->stSensorMaxResolution.u32MaxWidth  = 2592;
     pstDef->stSensorMaxResolution.u32MaxHeight = 1520;
-    
+
     return 0;
 }
 #endif
@@ -1213,7 +1213,7 @@ HI_U32 cmos_get_isp_default(ISP_CMOS_DEFAULT_S *pstDef)
 HI_U32 cmos_get_isp_black_level(ISP_CMOS_BLACK_LEVEL_S *pstBlackLevel)
 {
     HI_S32  i;
-    
+
     if (HI_NULL == pstBlackLevel)
     {
         printf("null pointer when get isp black level value!\n");
@@ -1222,21 +1222,21 @@ HI_U32 cmos_get_isp_black_level(ISP_CMOS_BLACK_LEVEL_S *pstBlackLevel)
 
     /* Don't need to update black level when iso change */
     pstBlackLevel->bUpdate = HI_FALSE;
-          
+
     for (i=0; i<4; i++)
     {
         pstBlackLevel->au16BlackLevel[i] = 0x40; /*12bit,0x40 */
     }
 
-    return 0;    
+    return 0;
 }
 
 HI_VOID cmos_set_pixel_detect(HI_BOOL bEnable)
 {
     HI_U32 u32FullLines_5Fps, u32MaxIntTime_5Fps;
-    
+
     if (WDR_MODE_2To1_LINE == genSensorMode)
-    {   
+    {
         return;
     }
     else
@@ -1272,19 +1272,19 @@ HI_VOID cmos_set_pixel_detect(HI_BOOL bEnable)
 
     if (bEnable) /* setup for ISP pixel calibration mode */
     {
-        sensor_write_register (0x380F, u32FullLines_5Fps & 0xFF); 
-        sensor_write_register (0x380E, (u32FullLines_5Fps & 0x7F00) >> 8); 
+        sensor_write_register (0x380F, u32FullLines_5Fps & 0xFF);
+        sensor_write_register (0x380E, (u32FullLines_5Fps & 0x7F00) >> 8);
         sensor_write_register(0x3500, (u32MaxIntTime_5Fps>>12));
         sensor_write_register(0x3501, ((u32MaxIntTime_5Fps & 0xFF0) >> 4));
         sensor_write_register(0x3502, ((u32MaxIntTime_5Fps & 0xF) << 4));
-        
+
         sensor_write_register(0x3508, 0x00);
-        sensor_write_register(0x3509, 0x80);            
+        sensor_write_register(0x3509, 0x80);
     }
     else /* setup for ISP 'normal mode' */
     {
-        sensor_write_register (0x380F, gu32FullLinesStd& 0xFF); 
-        sensor_write_register (0x380E, (gu32FullLinesStd & 0x7F00) >> 8); 
+        sensor_write_register (0x380F, gu32FullLinesStd& 0xFF);
+        sensor_write_register (0x380E, (gu32FullLinesStd & 0x7F00) >> 8);
         bInit = HI_FALSE;
     }
 
@@ -1294,7 +1294,7 @@ HI_VOID cmos_set_pixel_detect(HI_BOOL bEnable)
 HI_VOID cmos_set_wdr_mode(HI_U8 u8Mode)
 {
     bInit = HI_FALSE;
-    
+
     switch(u8Mode)
     {
         case WDR_MODE_NONE:
@@ -1314,7 +1314,7 @@ HI_VOID cmos_set_wdr_mode(HI_U8 u8Mode)
         case WDR_MODE_2To1_FRAME_FULL_RATE:
             genSensorMode = WDR_MODE_2To1_FRAME_FULL_RATE;
         break;
-        
+
         default:
             printf("NOT support this mode!\n");
             return;
@@ -1322,16 +1322,16 @@ HI_VOID cmos_set_wdr_mode(HI_U8 u8Mode)
     }
 
     memset(au32WDRIntTime, 0, sizeof(au32WDRIntTime));
-    
+
     return;
 }
 
 static HI_S32 cmos_set_image_mode(ISP_CMOS_SENSOR_IMAGE_MODE_S *pstSensorImageMode)
 {
-    HI_U8 u8SensorImageMode = gu8SensorImageMode;
+    HI_U8 u8SensorImageMode;
     HI_U8 u8MaxFrameRate = 30;
     bInit = HI_FALSE;
-    
+
     if (HI_NULL == pstSensorImageMode )
     {
         printf("null pointer when set image mode\n");
@@ -1345,8 +1345,8 @@ static HI_S32 cmos_set_image_mode(ISP_CMOS_SENSOR_IMAGE_MODE_S *pstSensorImageMo
         }
         else
         {
-            printf("Not support! Width:%d, Height:%d, Fps:%f\n", 
-            pstSensorImageMode->u16Width, 
+            printf("Not support! Width:%d, Height:%d, Fps:%f\n",
+            pstSensorImageMode->u16Width,
             pstSensorImageMode->u16Height,
             pstSensorImageMode->f32Fps);
             return -1;
@@ -1360,8 +1360,8 @@ static HI_S32 cmos_set_image_mode(ISP_CMOS_SENSOR_IMAGE_MODE_S *pstSensorImageMo
         }
         else
         {
-            printf("Not support! Width:%d, Height:%d, Fps:%f\n", 
-            pstSensorImageMode->u16Width, 
+            printf("Not support! Width:%d, Height:%d, Fps:%f\n",
+            pstSensorImageMode->u16Width,
             pstSensorImageMode->u16Height,
             pstSensorImageMode->f32Fps);
             return -1;
@@ -1375,8 +1375,8 @@ static HI_S32 cmos_set_image_mode(ISP_CMOS_SENSOR_IMAGE_MODE_S *pstSensorImageMo
         }
         else
         {
-            printf("Not support! Width:%d, Height:%d, Fps:%f\n", 
-            pstSensorImageMode->u16Width, 
+            printf("Not support! Width:%d, Height:%d, Fps:%f\n",
+            pstSensorImageMode->u16Width,
             pstSensorImageMode->u16Height,
             pstSensorImageMode->f32Fps);
             return -1;
@@ -1390,8 +1390,8 @@ static HI_S32 cmos_set_image_mode(ISP_CMOS_SENSOR_IMAGE_MODE_S *pstSensorImageMo
         }
         else
         {
-            printf("Not support! Width:%d, Height:%d, Fps:%f\n", 
-            pstSensorImageMode->u16Width, 
+            printf("Not support! Width:%d, Height:%d, Fps:%f\n",
+            pstSensorImageMode->u16Width,
             pstSensorImageMode->u16Height,
             pstSensorImageMode->f32Fps);
             return -1;
@@ -1413,8 +1413,8 @@ static HI_S32 cmos_set_image_mode(ISP_CMOS_SENSOR_IMAGE_MODE_S *pstSensorImageMo
         }
         else
         {
-            printf("Not support! Width:%d, Height:%d, Fps:%f\n", 
-            pstSensorImageMode->u16Width, 
+            printf("Not support! Width:%d, Height:%d, Fps:%f\n",
+            pstSensorImageMode->u16Width,
             pstSensorImageMode->u16Height,
             pstSensorImageMode->f32Fps);
             return -1;
@@ -1422,8 +1422,8 @@ static HI_S32 cmos_set_image_mode(ISP_CMOS_SENSOR_IMAGE_MODE_S *pstSensorImageMo
     }
     else
     {
-        printf("Not support! Width:%d, Height:%d, Fps:%f\n", 
-        pstSensorImageMode->u16Width, 
+        printf("Not support! Width:%d, Height:%d, Fps:%f\n",
+        pstSensorImageMode->u16Width,
         pstSensorImageMode->u16Height,
         pstSensorImageMode->f32Fps);
         return -1;
@@ -1447,7 +1447,7 @@ static HI_S32 cmos_set_image_mode(ISP_CMOS_SENSOR_IMAGE_MODE_S *pstSensorImageMo
     memset(au32WDRIntTime, 0, sizeof(au32WDRIntTime));
 
     return 0;
-    
+
 }
 
 HI_U32 cmos_get_sns_regs_info(ISP_SNS_REGS_INFO_S *pstSnsRegsInfo)
@@ -1456,30 +1456,30 @@ HI_U32 cmos_get_sns_regs_info(ISP_SNS_REGS_INFO_S *pstSnsRegsInfo)
     if (HI_FALSE == bInit)
     {
         g_stSnsRegsInfo.enSnsType = ISP_SNS_I2C_TYPE;
-        g_stSnsRegsInfo.u8Cfg2ValidDelayMax = 2;        
+        g_stSnsRegsInfo.u8Cfg2ValidDelayMax = 2;
         g_stSnsRegsInfo.u32RegNum = 7;
-        
+
         if ((WDR_MODE_2To1_LINE == genSensorMode) || (WDR_MODE_2To1_FRAME == genSensorMode) || (WDR_MODE_2To1_FRAME_FULL_RATE == genSensorMode))
         {
-            g_stSnsRegsInfo.u32RegNum += 5; 
+            g_stSnsRegsInfo.u32RegNum += 5;
         }
-        
+
         for (i=0; i<g_stSnsRegsInfo.u32RegNum; i++)
         {
             g_stSnsRegsInfo.astI2cData[i].bUpdate = HI_TRUE;
             g_stSnsRegsInfo.astI2cData[i].u8DevAddr = sensor_i2c_addr;
             g_stSnsRegsInfo.astI2cData[i].u32AddrByteNum = sensor_addr_byte;
             g_stSnsRegsInfo.astI2cData[i].u32DataByteNum = sensor_data_byte;
-        }        
-        g_stSnsRegsInfo.astI2cData[0].u8DelayFrmNum = 0; 
-        g_stSnsRegsInfo.astI2cData[0].u32RegAddr = 0x3500;        // Long shutter   
+        }
+        g_stSnsRegsInfo.astI2cData[0].u8DelayFrmNum = 0;
+        g_stSnsRegsInfo.astI2cData[0].u32RegAddr = 0x3500;        // Long shutter
         g_stSnsRegsInfo.astI2cData[1].u8DelayFrmNum = 0;
-        g_stSnsRegsInfo.astI2cData[1].u32RegAddr = 0x3501;        // Long shutter 
+        g_stSnsRegsInfo.astI2cData[1].u32RegAddr = 0x3501;        // Long shutter
         g_stSnsRegsInfo.astI2cData[2].u8DelayFrmNum = 0;
-        g_stSnsRegsInfo.astI2cData[2].u32RegAddr = 0x3502;        // Long shutter   
+        g_stSnsRegsInfo.astI2cData[2].u32RegAddr = 0x3502;        // Long shutter
         g_stSnsRegsInfo.astI2cData[3].u8DelayFrmNum = 1;
         g_stSnsRegsInfo.astI2cData[3].u32RegAddr = 0x3508;        // Again
-        g_stSnsRegsInfo.astI2cData[4].u8DelayFrmNum = 1; 
+        g_stSnsRegsInfo.astI2cData[4].u8DelayFrmNum = 1;
         g_stSnsRegsInfo.astI2cData[4].u32RegAddr = 0x3509;        // Again
         g_stSnsRegsInfo.astI2cData[5].u8DelayFrmNum = 0;
         g_stSnsRegsInfo.astI2cData[5].u32RegAddr = 0x380F;        // Vmax
@@ -1488,20 +1488,20 @@ HI_U32 cmos_get_sns_regs_info(ISP_SNS_REGS_INFO_S *pstSnsRegsInfo)
         if (WDR_MODE_2To1_LINE == genSensorMode )
         {
             g_stSnsRegsInfo.astI2cData[5].u8DelayFrmNum = 0;
-            g_stSnsRegsInfo.astI2cData[5].u32RegAddr = 0x350A;     // Short shutter   
+            g_stSnsRegsInfo.astI2cData[5].u32RegAddr = 0x350A;     // Short shutter
             g_stSnsRegsInfo.astI2cData[6].u8DelayFrmNum = 0;
             g_stSnsRegsInfo.astI2cData[6].u32RegAddr = 0x350B;     // Short shutter
             g_stSnsRegsInfo.astI2cData[7].u8DelayFrmNum = 0;
             g_stSnsRegsInfo.astI2cData[7].u32RegAddr = 0x350C;     // Short shutter
             g_stSnsRegsInfo.astI2cData[8].u8DelayFrmNum = 1;
-            g_stSnsRegsInfo.astI2cData[8].u32RegAddr = 0x350E;     // Again 
+            g_stSnsRegsInfo.astI2cData[8].u32RegAddr = 0x350E;     // Again
             g_stSnsRegsInfo.astI2cData[9].u8DelayFrmNum = 1;
             g_stSnsRegsInfo.astI2cData[9].u32RegAddr = 0x350F;     // Again
             g_stSnsRegsInfo.astI2cData[10].u8DelayFrmNum = 2;
             g_stSnsRegsInfo.astI2cData[10].u32RegAddr = 0x380F;    // Vmax
             g_stSnsRegsInfo.astI2cData[11].u8DelayFrmNum = 2;
             g_stSnsRegsInfo.astI2cData[11].u32RegAddr = 0x380E;    // Vmax
-        }    
+        }
         else if ((WDR_MODE_2To1_FRAME == genSensorMode) || (WDR_MODE_2To1_FRAME_FULL_RATE == genSensorMode))
         {
             g_stSnsRegsInfo.astI2cData[5].u8DelayFrmNum = 1;
@@ -1517,7 +1517,7 @@ HI_U32 cmos_get_sns_regs_info(ISP_SNS_REGS_INFO_S *pstSnsRegsInfo)
             g_stSnsRegsInfo.astI2cData[10].u8DelayFrmNum = 0;
             g_stSnsRegsInfo.astI2cData[10].u32RegAddr = 0x380F;
             g_stSnsRegsInfo.astI2cData[11].u8DelayFrmNum = 0;
-            g_stSnsRegsInfo.astI2cData[11].u32RegAddr = 0x380E;            
+            g_stSnsRegsInfo.astI2cData[11].u32RegAddr = 0x380E;
         }
         bInit = HI_TRUE;
     }
@@ -1545,7 +1545,7 @@ HI_U32 cmos_get_sns_regs_info(ISP_SNS_REGS_INFO_S *pstSnsRegsInfo)
             g_stSnsRegsInfo.astI2cData[7].bUpdate = HI_TRUE;
         }
     }
-    
+
     if (HI_NULL == pstSnsRegsInfo)
     {
         printf("null pointer when get sns reg info!\n");
@@ -1569,9 +1569,9 @@ HI_U32 cmos_get_sns_regs_info(ISP_SNS_REGS_INFO_S *pstSnsRegsInfo)
             //do nothing
         }
     }
-    
-    memcpy(pstSnsRegsInfo, &g_stSnsRegsInfo, sizeof(ISP_SNS_REGS_INFO_S)); 
-    memcpy(&g_stPreSnsRegsInfo, &g_stSnsRegsInfo, sizeof(ISP_SNS_REGS_INFO_S)); 
+
+    memcpy(pstSnsRegsInfo, &g_stSnsRegsInfo, sizeof(ISP_SNS_REGS_INFO_S));
+    memcpy(&g_stPreSnsRegsInfo, &g_stSnsRegsInfo, sizeof(ISP_SNS_REGS_INFO_S));
 
     gu32PreFullLines = gu32FullLines;
 
@@ -1581,9 +1581,9 @@ HI_U32 cmos_get_sns_regs_info(ISP_SNS_REGS_INFO_S *pstSnsRegsInfo)
 int  sensor_set_inifile_path(const char *pcPath)
 {
     memset(pcName, 0, sizeof(pcName));
-        
+
     if (HI_NULL == pcPath)
-    {        
+    {
         strncat(pcName, "configs/", strlen("configs/"));
         strncat(pcName, CMOS_CFG_INI, sizeof(CMOS_CFG_INI));
     }
@@ -1592,40 +1592,40 @@ int  sensor_set_inifile_path(const char *pcPath)
         if(strlen(pcPath) > (PATHLEN_MAX - 30))
         {
             printf("Set inifile path is larger PATHLEN_MAX!\n");
-            return -1;        
+            return -1;
         }
-        
+
         strncat(pcName, pcPath, strlen(pcPath));
         strncat(pcName, CMOS_CFG_INI, sizeof(CMOS_CFG_INI));
     }
-    
+
     return 0;
 }
 
 HI_VOID sensor_global_init()
-{   
+{
     gu8SensorImageMode = SENSOR_4M_30FPS_MODE;
     genSensorMode = WDR_MODE_NONE;
-    gu32FullLinesStd = 1632; 
+    gu32FullLinesStd = 1632;
     gu32FullLines = 1632;
     gu32PreFullLines = 1632;
     bInit = HI_FALSE;
-    bSensorInit = HI_FALSE; 
+    bSensorInit = HI_FALSE;
     genFSWDRMode = ISP_FSWDR_NORMAL_MODE;
 
     memset(&g_stSnsRegsInfo, 0, sizeof(ISP_SNS_REGS_INFO_S));
     memset(&g_stPreSnsRegsInfo, 0, sizeof(ISP_SNS_REGS_INFO_S));
-    
-#ifdef INIFILE_CONFIG_MODE 
+
+#ifdef INIFILE_CONFIG_MODE
     HI_S32 s32Ret = HI_SUCCESS;
     s32Ret = Cmos_LoadINIPara(pcName);
     if (HI_SUCCESS != s32Ret)
     {
         printf("Cmos_LoadINIPara failed!!!!!!\n");
-    }   
+    }
 #else
 
-#endif    
+#endif
 }
 
 HI_S32 cmos_init_sensor_exp_function(ISP_SENSOR_EXP_FUNC_S *pstSensorExpFunc)
@@ -1637,7 +1637,7 @@ HI_S32 cmos_init_sensor_exp_function(ISP_SENSOR_EXP_FUNC_S *pstSensorExpFunc)
     pstSensorExpFunc->pfn_cmos_sensor_global_init = sensor_global_init;
     pstSensorExpFunc->pfn_cmos_set_image_mode = cmos_set_image_mode;
     pstSensorExpFunc->pfn_cmos_set_wdr_mode = cmos_set_wdr_mode;
-    
+
     pstSensorExpFunc->pfn_cmos_get_isp_default = cmos_get_isp_default;
     pstSensorExpFunc->pfn_cmos_get_isp_black_level = cmos_get_isp_black_level;
     pstSensorExpFunc->pfn_cmos_set_pixel_detect = cmos_set_pixel_detect;
@@ -1666,7 +1666,7 @@ int sensor_register_callback(void)
         printf("sensor register callback function failed!\n");
         return s32Ret;
     }
-    
+
     stLib.s32Id = 0;
     strncpy(stLib.acLibName, HI_AE_LIB_NAME, sizeof(HI_AE_LIB_NAME));
     cmos_init_ae_exp_function(&stAeRegister.stSnsExp);
@@ -1686,7 +1686,7 @@ int sensor_register_callback(void)
         printf("sensor register callback function to ae lib failed!\n");
         return s32Ret;
     }
-    
+
     return 0;
 }
 
@@ -1702,7 +1702,7 @@ int sensor_unregister_callback(void)
         printf("sensor unregister callback function failed!\n");
         return s32Ret;
     }
-    
+
     stLib.s32Id = 0;
     strncpy(stLib.acLibName, HI_AE_LIB_NAME, sizeof(HI_AE_LIB_NAME));
     s32Ret = HI_MPI_AE_SensorUnRegCallBack(IspDev, &stLib, OV4689_ID);
@@ -1720,7 +1720,7 @@ int sensor_unregister_callback(void)
         printf("sensor unregister callback function to ae lib failed!\n");
         return s32Ret;
     }
-    
+
     return 0;
 }
 
@@ -1730,4 +1730,4 @@ int sensor_unregister_callback(void)
 #endif
 #endif /* End of #ifdef __cplusplus */
 
-#endif 
+#endif

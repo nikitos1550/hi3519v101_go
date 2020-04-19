@@ -33,4 +33,23 @@ func systemInit(devInfo DeviceInfo) {
     ko.Params.Add("g_cmos_yuv_flag").Uint64(0) // 0 -- raw, 1 --DC, 3 --bt656
 
 	ko.LoadAll()
+
+    /*
+         VI_VPSS_MODE_S      stVIVPSSMode;
+
+    *error_code = HI_MPI_SYS_GetVIVPSSMode(&stVIVPSSMode);
+    if (*error_code != HI_SUCCESS) {
+        
+        return ERR_GENERAL;
+    }   
+
+    stVIVPSSMode.aenMode[0] = VI_OFFLINE_VPSS_OFFLINE;
+
+    *error_code = HI_MPI_SYS_SetVIVPSSMode(&stVIVPSSMode);
+    if (*error_code != HI_SUCCESS) {
+        
+        return ERR_GENERAL; 
+    }   
+
+    */
 }

@@ -80,8 +80,8 @@ func startChannelRequest(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
-	channel.Started = true
-	channel.Clients = make(map[int] unsafe.Pointer)
+	channel.Started = true                              //Should be done only after successfull channel start
+	channel.Clients = make(map[int] unsafe.Pointer)     //Most probably same issue as above
 
 	err, errorString := StartChannel(channel)
 	if err < 0 {

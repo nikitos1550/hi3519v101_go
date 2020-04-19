@@ -3,4 +3,6 @@
 
 package sys
 
-func Init() {}
+func initFamily() error {
+    return nil
+}

@@ -16,7 +16,7 @@ func CLogger(packageName string, level int, msg string) {
                 Msg(msg)
         default:
                 Log.WithLevel(zerolog.Level(level)).
-                Str("package", "venc").
+                Str("package", packageName).
                 Msg(msg)
         }
 

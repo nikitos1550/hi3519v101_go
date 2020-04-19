@@ -2,7 +2,7 @@
 //+build hi3516ev200
 //+build debug
 
-package error
+package errmpp
 
 import (
 	"strconv"

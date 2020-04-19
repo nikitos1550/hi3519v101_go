@@ -9,65 +9,71 @@ package sys
 #include <string.h>
 
 #define ERR_NONE                0
-#define ERR_HI_MPI_SYS_Exit     2
-#define ERR_HI_MPI_VB_Exit      3
-#define ERR_HI_MPI_VB_SetConfig 4
-#define ERR_HI_MPI_VB_Init      5
-#define ERR_HI_MPI_SYS_SetConf  6
-#define ERR_HI_MPI_SYS_Init     7
+#define ERR_MPP                 1
 
-int mpp4_sys_init(unsigned int *error_code) {
+typedef struct hi3516cv500_sys_init_in_struct {
+    unsigned int width; 
+    unsigned int height;
+    unsigned int cnt;
+} hi3516cv500_sys_init_in;
+
+static int hi3516cv500_sys_init(unsigned int *error_code, hi3516cv500_sys_init_in *in) {
     *error_code = 0;
 
+    *error_code = HI_MPI_SYS_Exit();
+    if (*error_code != HI_SUCCESS) {
+        GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_SYS_Exit")                       
+        return ERR_MPP;        
+    }
+
+    *error_code = HI_MPI_VB_Exit();
+    if (*error_code != HI_SUCCESS) {
+        GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_VB_Exit")
+        return ERR_MPP;       
+    }
+
+
     VB_CONFIG_S        stVbConf;
-    HI_U32             u32BlkSize;
 
-    hi_memset(&stVbConf, sizeof(VB_CONFIG_S), 0, sizeof(VB_CONFIG_S));
-
+    //hi_memset(&stVbConf, sizeof(VB_CONFIG_S), 0, sizeof(VB_CONFIG_S));   
+    memset(&stVbConf,0,sizeof(VB_CONFIG_S));
     stVbConf.u32MaxPoolCnt              = 2;
+    stVbConf.astCommPool[0].u64BlkSize = COMMON_GetPicBufferSize(   in->width, 
+                                                                    in->height, 
+                                                                    PIXEL_FORMAT_YVU_SEMIPLANAR_420, 
+                                                                    DATA_BITWIDTH_8, 
+                                                                    COMPRESS_MODE_SEG, 
+                                                                    DEFAULT_ALIGN);
+    stVbConf.astCommPool[0].u32BlkCnt = in->cnt;
 
+    *error_code = HI_MPI_VB_SetConfig(&stVbConf);
+	if (*error_code != HI_SUCCESS) {
+        GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_VB_SetConfig")
+        return ERR_MPP;
+    }
 
-    u32BlkSize = COMMON_GetPicBufferSize(   2592, 
-                                            1944, 
-                                            PIXEL_FORMAT_YVU_SEMIPLANAR_420, 
-                                            DATA_BITWIDTH_8, 
-                                            COMPRESS_MODE_SEG, 
-                                            DEFAULT_ALIGN);
-    stVbConf.astCommPool[0].u64BlkSize  = u32BlkSize;
-    stVbConf.astCommPool[0].u32BlkCnt   = 5;
+    *error_code = HI_MPI_VB_Init();
+	if (*error_code != HI_SUCCESS) {
+        GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_VB_Init")
+        return ERR_MPP;
+    }
 
-    
-//    u32BlkSize = VI_GetRawBufferSize(       1920, 
-//                                            1080, 
-//                                            PIXEL_FORMAT_RGB_BAYER_16BPP, 
-//                                            COMPRESS_MODE_NONE, 
-//                                            DEFAULT_ALIGN);
-//    stVbConf.astCommPool[1].u64BlkSize  = u32BlkSize;
-//    stVbConf.astCommPool[1].u32BlkCnt   = 4;
+    MPP_SYS_CONF_S stSysConf;
 
-        *error_code = HI_MPI_SYS_Exit();
-	if (*error_code != HI_SUCCESS) return ERR_HI_MPI_SYS_Exit;
+    memset(&stSysConf, 0, sizeof(MPP_SYS_CONF_S));
+    stSysConf.u32AlignWidth = 64;
 
-        *error_code = HI_MPI_VB_Exit();
-	if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VB_Exit;
+    *error_code = HI_MPI_SYS_SetConf(&stSysConf);
+    if (*error_code != HI_SUCCESS) {
+        GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_SYS_SetConf")
+        return ERR_MPP;
+    }
 
-        *error_code = HI_MPI_VB_SetConfig(&stVbConf);
-	if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VB_SetConfig;
-
-        *error_code = HI_MPI_VB_Init();
-	if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VB_Init;
-	    
-//        stSysConf.u32AlignWidth = 64;
-//
-//        ret = HI_MPI_SYS_SetConf(&stSysConf);
-//        if (ret != HI_SUCCESS) {
-//                fprintf(stderr, "HI_MPI_SYS_SetConf failed: ");
-//                //resolve_mppv2_errors(ret);
-//                return 1;
-//        }
-
-        *error_code = HI_MPI_SYS_Init();
-	if (*error_code != HI_SUCCESS) return ERR_HI_MPI_SYS_Init;
+    *error_code = HI_MPI_SYS_Init();
+	if (*error_code != HI_SUCCESS) {
+        GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_SYS_Init")
+        return ERR_MPP;
+    }
 
     return ERR_NONE;
 }
@@ -75,56 +81,29 @@ int mpp4_sys_init(unsigned int *error_code) {
 import "C"
 
 import (
-	"application/pkg/mpp/error"
-	"application/pkg/logger"
+    "application/pkg/mpp/errmpp"
+    "application/pkg/logger"
 )
-func Init() {
-        var errorCode C.uint
 
-        switch err := C.mpp4_sys_init(&errorCode); err {
-        case C.ERR_NONE:
-                logger.Log.Debug().
-                        Msg("C.mpp4_sys_init ok")
-        case C.ERR_HI_MPI_SYS_Exit:
-                logger.Log.Fatal().
-                        Str("func", "HI_MPI_SYS_Exit()").
-                        Int("error", int(errorCode)).
-                        Str("error_desc", error.Resolve(int64(errorCode))).
-                        Msg("C.mpp4_sys_init() error")
-        case C.ERR_HI_MPI_VB_Exit:
-                logger.Log.Fatal().
-                        Str("func", "HI_MPI_VB_Exit()").
-                        Int("error", int(errorCode)).
-                        Str("error_desc", error.Resolve(int64(errorCode))).
-                        Msg("C.mpp4_sys_init() error")
-        case C.ERR_HI_MPI_VB_SetConfig:
-                logger.Log.Fatal().
-                        Str("func", "HI_MPI_VB_SetConfig()").
-                        Int("error", int(errorCode)).
-                        Str("error_desc", error.Resolve(int64(errorCode))).
-                        Msg("C.mpp4_sys_init() error")
-        case C.ERR_HI_MPI_VB_Init:
-                logger.Log.Fatal().
-                        Str("func", "HI_MPI_VB_Init()").
-                        Int("error", int(errorCode)).
-                        Str("error_desc", error.Resolve(int64(errorCode))).
-                        Msg("C.mpp4_sys_init() error")
-        case C.ERR_HI_MPI_SYS_SetConf:
-                logger.Log.Fatal().
-                        Str("func", "HI_MPI_SYS_SetConf()").
-                        Int("error", int(errorCode)).
-                        Str("error_desc", error.Resolve(int64(errorCode))).
-                        Msg("C.mpp4_sys_init() error")
-        case C.ERR_HI_MPI_SYS_Init:
-                logger.Log.Fatal().
-                        Str("func", "HI_MPI_SYS_Init()").
-                        Int("error", int(errorCode)).
-                        Str("error_desc", error.Resolve(int64(errorCode))).
-                        Msg("C.mpp4_sys_init() error")
-        default:
-                logger.Log.Fatal().
-                        Int("error", int(err)).
-                        Msg("C.mpp4_sys_init() Unexpected return")
-        }
+func initFamily() error {
+    var errorCode C.uint
+    var in C.hi3516cv500_sys_init_int
+
+    in.width = C.uint(width)
+    in.height = C.uint(height)
+    in.cnt = C.uint(cnt)
+
+    logger.Log.Trace().
+        Uint("width", uint(in.width)).
+        Uint("height", uint(in.height)).
+        Uint("cnt", uint(in.cnt)).
+        Msg("SYS params")
+
+    err := C.hi3516cv500_sys_init(&errorCode, &in)
+    if err != C.ERR_NONE {
+        return errmpp.New("funcname", int64(errorCode))
+    }
+
+    return nil
 }
 

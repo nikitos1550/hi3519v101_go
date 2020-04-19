@@ -4,42 +4,45 @@
 package mipi
 
 /*
-#include "../include/mpp_v2.h"
+#include "../include/mpp.h"
+#include "../../logger/logger.h"
 
 #include <string.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-
 #define ERR_NONE    0
 #define ERR_GENERAL 1
 
-int mpp2_mipi_init(int *error_code, void *mipi) {
+typedef struct hi3516av100_mipi_init_in_struct {
+    void *mipi;
+} hi3516av100_mipi_init_in;
+
+static int hi3516av100_mipi_init(int *error_code, hi3516av100_mipi_init_in *in) {
     *error_code = 0;
 
-
     int fd;
-    combo_dev_attr_t *pstcomboDevAttr;
 
-    // mipi reset unrest
     fd = open("/dev/hi_mipi", O_RDWR);
-    if (fd < 0)
-    {
-        //printf("warning: open hi_mipi dev failed\n");
+    if (fd < 0) {
+        GO_LOG_MIPI(LOGGER_ERROR, "open /dev/hi_mipi")
+        *error_code = fd;
         return ERR_GENERAL;
     }
 
-    pstcomboDevAttr = mipi; //&LVDS_4lane_SENSOR_IMX178_12BIT_5M_NOWDR_ATTR;
+    combo_dev_attr_t stcomboDevAttr;
 
-    if (ioctl(fd, HI_MIPI_SET_DEV_ATTR, pstcomboDevAttr))
-    {
-        //printf("set mipi attr failed\n");
+    memcpy(&stcomboDevAttr, in->mipi, sizeof(combo_dev_attr_t));
+
+    *error_code = ioctl(fd, HI_MIPI_SET_DEV_ATTR, &stcomboDevAttr);
+    if (*error_code != 0) {
+        GO_LOG_MIPI(LOGGER_ERROR, "ioctl HI_MIPI_SET_DEV_ATTR")        
         close(fd);
         return ERR_GENERAL;
     }
-    close(fd);
 
+    close(fd);
 
     return ERR_NONE;
 }
@@ -47,22 +50,20 @@ int mpp2_mipi_init(int *error_code, void *mipi) {
 import "C"
 
 import (
-	"application/pkg/logger"
-
-    "application/pkg/mpp/cmos"
+    "errors"
 )
 
-func Init() {
+func initFamily() error {
     var errorCode C.int
+    var in C.hi3516av100_mipi_init_in
 
-    switch err := C.mpp2_mipi_init(&errorCode, cmos.Mipi()); err {
-    case C.ERR_NONE:
-        logger.Log.Debug().
-                Msg("C.mpp2_mipi_init() ok")
-    default:
-        logger.Log.Fatal().
-                Int("error", int(err)).
-                Msg("Unexpected return of C.mpp2_mipi_init()")
+    in.mipi = mipi
+
+    err := C.hi3516av100_mipi_init(&errorCode, &in)
+    if err != C.ERR_NONE {
+        return errors.New("MIPI error TODO")
     }
 
+    return nil
 }
+

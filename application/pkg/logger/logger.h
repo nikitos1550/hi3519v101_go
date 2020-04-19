@@ -11,6 +11,8 @@
 
 #ifdef LOGGER_C
 
+//#define GO_LOG(level, msg) go_logger(level, msg);
+
 #define GO_LOG_AI(level, msg) go_logger_ai(level, msg);
 #define GO_LOG_VI(level, msg) go_logger_vi(level, msg);
 #define GO_LOG_ISP(level, msg) go_logger_isp(level, msg);
@@ -21,6 +23,8 @@
 
 #else
 
+//#define GO_LOG(level, msg) ;;;
+
 #define GO_LOG_AI(level, msg) ;;;
 #define GO_LOG_VI(level, msg) ;;;
 #define GO_LOG_ISP(level, msg) ;;;
@@ -30,6 +34,8 @@
 #define GO_LOG_VPSS(level, msg) ;;;
 
 #endif
+
+//void go_logger(int level, char * msg);
 
 void go_logger_ai(int level, char * msg);
 void go_logger_vi(int level, char * msg);
