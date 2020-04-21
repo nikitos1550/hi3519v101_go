@@ -130,8 +130,14 @@ $(FAMILY_OUTDIR)/kernel:
 	make -C $(FAMILY_ROOT) FAMILY=$(FAMILY) kernel
 
 # Example: make CAMERA=1 BOARD=jvt_s274h19v-l29_hi3519v101_imx274 PROG=1 test_dump_tmp
+#
+ic_probe:
+	../scripts/power2.py --num $(CAMERA) off
+	flashrom -p serprog:dev=/dev/ttyPROG$(PROG):2000000 -V
+	../scripts/power2.py --num $(CAMERA) on
+
 test_dump_tmp:
-	../burner/power2.py --num $(CAMERA) off
+	../scripts/power2.py --num $(CAMERA) off
 	rm -f $(BOARD_DIR)/dumps/orig.bin
 	flashrom -p serprog:dev=/dev/ttyPROG$(PROG):2000000 -c $(shell cat $(BOARD_DIR)/dumps/orig.ic) -r $(BOARD_DIR)/dumps/orig.bin
 	flashrom -p serprog:dev=/dev/ttyPROG$(PROG):2000000 -c $(shell cat $(BOARD_DIR)/dumps/orig.ic) -v $(BOARD_DIR)/dumps/orig.bin

@@ -26,6 +26,7 @@
 |19|unknown|unknown|hi3518ev200|unknown|-|
 |20|unknown|unknown|hi3518ev201|unknown|-|
 |..|...|...|...|...|...|
+|22|YI|YHS-113-IR|hi3518ev201|unknown|-|
 |23|XM|IPG-53H13PL-S|hi3518cv100|AR0130|k4b1g164...|
 |..|...|...|...|...|...|
 |31|HISILICON|DEMB|hi3516dv300|imx327|official dev board|

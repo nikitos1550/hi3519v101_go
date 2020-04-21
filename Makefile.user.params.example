@@ -107,6 +107,10 @@ THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 #BAORD    ?= unknown_unknown_hi3518ev201_unknown
 #PROG     ?= no
 
+#CAMERA   ?= 22
+#BOARD   ?=yi_yhs-113-ir_hi3518ev201_ov9732
+#PROG    ?=22
+
 #CAMERA   ?= 23
 #BOARD    ?= xm_ipg-53h13pl-s_hi3518cv100_ar0130
 #PROG	  ?= no
