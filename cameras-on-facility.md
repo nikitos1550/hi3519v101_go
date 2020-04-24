@@ -24,10 +24,12 @@
 |17|SSQVISION|unknown|hi3519v101|imx326|-|
 |18|SSQVISION|ON290H16D|hi3516dv100|imx290|rev.2|
 |19|unknown|unknown|hi3518ev200|unknown|-|
-|20|unknown|unknown|hi3518ev201|unknown|-|
+|20|unknown|unknown|hi3518ev201|unknown|soih65|
 |..|...|...|...|...|...|
 |22|YI|YHS-113-IR|hi3518ev201|unknown|-|
 |23|XM|IPG-53H13PL-S|hi3518cv100|AR0130|k4b1g164...|
+|..|...|...|...|...|...|
+|27|unknown|unknown|hi3516dv100|it6801fn|-|
 |..|...|...|...|...|...|
 |31|HISILICON|DEMB|hi3516dv300|imx327|official dev board|
 |32|HISILICON|DEMBVERC|hi3559av100|imx334|official dev board|
