@@ -98,6 +98,10 @@ THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 #BOARD    ?= xm_ipg-53h13pl-s_hi3518cv100_ar0130
 #PROG	  ?= no
 
+#CAMERA   ?= 26
+#BOARD    ?= unknown_unknown_xm530_unknown
+#PROG     ?= no
+
 #CAMERA   ?= 27
 #BOARD    ?= unknown_unknown_hi3516dv100_unknown
 #PROG     ?= no
