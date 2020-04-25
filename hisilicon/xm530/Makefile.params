@@ -19,12 +19,13 @@ SWIG    := $(TOOLCHAIN_DIR)/bin/swig
 CFLAGS  :=  -std=gnu11 \
             -fPIC \
             -mcpu=cortex-a7 \
-            -mfloat-abi=softfp \
-            -mfpu=neon-vfpv4 \
-            -mno-unaligned-access \
-            -fno-aggressive-loop-optimizations \
             -O2 \
             -fno-common -ffunction-sections
+
+#????
+#            -mno-unaligned-access \
+#            -fno-aggressive-loop-optimizations \
+
 
 GOARCH    := arm
 GOARM     := 7

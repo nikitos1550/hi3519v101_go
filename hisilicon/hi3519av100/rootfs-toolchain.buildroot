@@ -13,6 +13,6 @@ BR2_TOOLCHAIN_EXTERNAL_GCC_7=y
 BR2_TOOLCHAIN_EXTERNAL_HEADERS_4_9=y
 BR2_TOOLCHAIN_EXTERNAL_CUSTOM_GLIBC=y
 # BR2_TOOLCHAIN_EXTERNAL_HAS_SSP_STRONG is not set
-BR2_TARGET_OPTIMIZATION="-mcpu=cortex-a53 -mfloat-abi=softfp -mfpu=neon-vfpv4 -fno-aggressive-loop-optimizations"
+BR2_TARGET_OPTIMIZATION="-mcpu=cortex-a53 -fno-aggressive-loop-optimizations"
 # All above is toolchain related settings
 

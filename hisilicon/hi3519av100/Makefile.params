@@ -19,8 +19,6 @@ SWIG    := $(TOOLCHAIN_DIR)/bin/swig
 CFLAGS  :=  -std=gnu11 \
             -fPIC \
             -mcpu=cortex-a53 \
-            -mfloat-abi=softfp \
-            -mfpu=neon-vfpv4 \
             -mno-unaligned-access \
             -fno-aggressive-loop-optimizations \
             -O2 \
