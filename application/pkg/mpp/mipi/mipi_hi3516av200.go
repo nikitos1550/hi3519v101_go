@@ -5,7 +5,7 @@ package mipi
 
 /*
 #include "../include/mpp.h"
-#include "../errmpp/error.h"
+#include "../errmpp/errmpp.h"
 #include "../../logger/logger.h"
 
 #include <string.h>

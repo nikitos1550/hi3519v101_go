@@ -11,10 +11,15 @@ var (
     cnt int
 )
 
-func Init() {
+func Init(chip string) {
     width = cmos.S.Width()
     height = cmos.S.Height()
-    cnt = 10
+
+    if chip == "hi3516ev100" { //TODO calc mem smart, now 32MB mpp ram only for hi3516ev100
+        cnt = 5
+    } else {
+        cnt = 10
+    }
 
     err := initFamily()
     if err != nil {

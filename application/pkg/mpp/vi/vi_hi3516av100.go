@@ -32,7 +32,7 @@ typedef struct hi3516av100_vi_init_in_struct {
 } hi3516av100_vi_init_in;
 
 static int hi3516av100_vi_init(int *error_code, hi3516av100_vi_init_in *in) {
-    *error_code = 0;
+    unsigned int mpp_error_code = 0;
 
     VI_DEV_ATTR_S  stViDevAttr;
 
@@ -43,16 +43,14 @@ static int hi3516av100_vi_init(int *error_code, hi3516av100_vi_init_in *in) {
     stViDevAttr.stDevRect.u32Width  = in->width;
     stViDevAttr.stDevRect.u32Height = in->height;
 
-    *error_code = HI_MPI_VI_SetDevAttr(0, &stViDevAttr);
-    if (*error_code != HI_SUCCESS) {
-        GO_LOG_VI(LOGGER_ERROR, "HI_MPI_VI_SetDevAttr");
-        return ERR_MPP;
+    mpp_error_code = HI_MPI_VI_SetDevAttr(0, &stViDevAttr);
+    if (mpp_error_code != HI_SUCCESS) {
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VI_SetDevAttr, mpp_error_code);
     }
 
-    *error_code = HI_MPI_VI_EnableDev(0);
-    if (*error_code != HI_SUCCESS) {
-        GO_LOG_VI(LOGGER_ERROR, "HI_MPI_VI_EnableDev");
-        return ERR_MPP;
+    mpp_error_code = HI_MPI_VI_EnableDev(0);
+    if (mpp_error_code != HI_SUCCESS) {
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VI_EnableDev, mpp_error_code);
     }
 
     RECT_S stCapRect;
@@ -86,18 +84,16 @@ static int hi3516av100_vi_init(int *error_code, hi3516av100_vi_init_in *in) {
     stChnAttr.s32DstFrameRate = in->fps;
 
     stChnAttr.enCompressMode = COMPRESS_MODE_NONE;
-    /* //TODO check family mpp datasheet
-    if (in->ldc == 1) {
-        stChnAttr.enCompressMode        = COMPRESS_MODE_NONE;
-    } else {
-        stChnAttr.enCompressMode        = COMPRESS_MODE_SEG;
-    }
-    */
+    //TODO check family mpp datasheet
+    //if (in->ldc == 1) {
+    //    stChnAttr.enCompressMode        = COMPRESS_MODE_NONE;
+    //} else {
+    //    stChnAttr.enCompressMode        = COMPRESS_MODE_SEG;
+    //}
 
-    *error_code = HI_MPI_VI_SetChnAttr(0, &stChnAttr);
-    if (*error_code != HI_SUCCESS) {
-        GO_LOG_VI(LOGGER_ERROR, "HI_MPI_VI_SetChnAttr");
-        return ERR_MPP;
+    mpp_error_code = HI_MPI_VI_SetChnAttr(0, &stChnAttr);
+    if (mpp_error_code != HI_SUCCESS) {
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VI_SetChnAttr, mpp_error_code);
     }
 
     if (in.ldc == 1) {
@@ -110,9 +106,9 @@ static int hi3516av100_vi_init(int *error_code, hi3516av100_vi_init_in *in) {
         stLDCAttr.stAttr.s32CenterYOffset = ldc_offset_y;
         stLDCAttr.stAttr.s32Ratio = ldc_k;
 
-        *error_code = HI_MPI_VI_SetLDCAttr(0, &stLDCAttr);
-        if (HI_SUCCESS != s32ret) {
-            return s32Ret;
+        mpp_error_code = HI_MPI_VI_SetLDCAttr(0, &stLDCAttr);
+        if (mpp_error_code != HI_SUCCESS) {
+            RETURN_ERR_MPP(ERR_F_HI_MPI_VI_SetLDCAttr, mpp_error_code);
         }
 
         //s32Ret = HI_MPI_VI_GetLDCAttr (ViChn, &stLDCAttr);
@@ -123,10 +119,9 @@ static int hi3516av100_vi_init(int *error_code, hi3516av100_vi_init_in *in) {
         //}
     }
 
-    *error_code = HI_MPI_VI_EnableChn(0);
-    if (*error_code != HI_SUCCESS) {
-        GO_LOG_VI(LOGGER_ERROR, "HI_MPI_VI_EnableChn");
-        return ERR_MPP;
+    mpp_error_code = HI_MPI_VI_EnableChn(0);
+    if (mpp_error_code != HI_SUCCESS) {
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VI_EnableChn, mpp_error_code);
     }
 
 	return ERR_NONE;
@@ -219,15 +214,6 @@ func initFamily() error {
         Int("ldc-offset-y", int(in.ldc_offset_y)).
         Int("ldc-k", int(in.ldc_k)).
         Msg("VI params")
-
-    /*
-    logger.Log.Trace().
-        Uint("width", uint(in.width)).
-        Uint("height", uint(in.height)).
-        Uint("cmos_fps", uint(in.cmos_fps)).
-        Uint("fps", uint(in.fps)).
-        Msg("VI params")
-    */
 
     err := C.hi3516av100_vi_init(&errorCode, &in)
 

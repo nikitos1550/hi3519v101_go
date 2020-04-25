@@ -5,15 +5,10 @@ package vi
 
 /*
 #include "../include/mpp.h"
+#include "../errmpp/errmpp.h"
 #include "../../logger/logger.h"
 
 #include <string.h>
-
-#define ERR_NONE                    0
-#define ERR_HI_MPI_VI_SetDevAttr        2
-#define ERR_HI_MPI_VI_EnableDev     3
-#define ERR_HI_MPI_VI_SetChnAttr    4
-#define ERR_HI_MPI_VI_EnableChn     5
 
 static VI_PIPE_ATTR_S PIPE_ATTR_2592x1944_RAW12_420_3DNR_RFR =
 {

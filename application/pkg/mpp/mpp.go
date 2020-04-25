@@ -24,7 +24,7 @@ func Init(devInfo DeviceInfo) {
     logger.Log.Debug().
         Msg("OS and chip inited")
 
-    sys.Init()
+    sys.Init(devInfo.Chip)
 
     if (buildinfo.Family != "hi3516cv100") {
         mipi.Init()

@@ -4,7 +4,7 @@
 package errmpp
 
 /*
-#include "error.h"
+#include "errmpp.h"
 */
 import "C"
 

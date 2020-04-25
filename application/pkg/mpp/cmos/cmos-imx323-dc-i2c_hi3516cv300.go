@@ -12,11 +12,11 @@ package cmos
 
 #include <string.h>
 
-int mpp_cmos_init(int *error_code) {
-    *error_code = 0;
-
-    return ERR_NONE;
-}
+//int mpp_cmos_init(int *error_code) {
+//    *error_code = 0;
+//
+//    return ERR_NONE;
+//}
 
 combo_dev_attr_t MIPI_CMOS323_ATTR = 
 {
@@ -64,7 +64,6 @@ VI_DEV_ATTR_S DEV_ATTR_MIPI_BASE_IMX323 =
     HI_FALSE,
     // DEV CROP
     {200, 20, 1920, 1080}
-    //{0, 0, 1920, 1080}
 };
 
 */
@@ -86,6 +85,8 @@ var (
                 mipi: unsafe.Pointer(&C.MIPI_CMOS323_ATTR),
                 viDev: unsafe.Pointer(&C.DEV_ATTR_MIPI_BASE_IMX323),
                 clock: 37.125,
+                wdr: WDRNone,
+                description: "normal",                
             },
         },
         control: cmosControl {
@@ -93,6 +94,7 @@ var (
             busNum: 0,
         },
         data: DC,
+        bayer: RGGB,
     }
 )
 

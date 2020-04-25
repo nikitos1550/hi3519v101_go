@@ -5,6 +5,7 @@ package mipi
 
 /*
 #include "../include/mpp.h"
+#include "../errmpp/errmpp.h"
 #include "../../logger/logger.h"
 
 #include <string.h>
@@ -19,15 +20,15 @@ typedef struct hi3516av100_mipi_init_in_struct {
     void *mipi;
 } hi3516av100_mipi_init_in;
 
-static int hi3516av100_mipi_init(int *error_code, hi3516av100_mipi_init_in *in) {
-    *error_code = 0;
+static int hi3516av100_mipi_init(error_in *err, hi3516av100_mipi_init_in *in) {
+    int general_error_code = 0;
 
     int fd;
 
     fd = open("/dev/hi_mipi", O_RDWR);
     if (fd < 0) {
         GO_LOG_MIPI(LOGGER_ERROR, "open /dev/hi_mipi")
-        *error_code = fd;
+         err->general = fd;
         return ERR_GENERAL;
     }
 
@@ -39,6 +40,7 @@ static int hi3516av100_mipi_init(int *error_code, hi3516av100_mipi_init_in *in) 
     if (*error_code != 0) {
         GO_LOG_MIPI(LOGGER_ERROR, "ioctl HI_MIPI_SET_DEV_ATTR")        
         close(fd);
+        err->general = general_error_code;
         return ERR_GENERAL;
     }
 
@@ -54,12 +56,12 @@ import (
 )
 
 func initFamily() error {
-    var errorCode C.int
+    var inErr C.error_in
     var in C.hi3516av100_mipi_init_in
 
     in.mipi = mipi
 
-    err := C.hi3516av100_mipi_init(&errorCode, &in)
+    err := C.hi3516av100_mipi_init(&inErr, &in)
     if err != C.ERR_NONE {
         return errors.New("MIPI error TODO")
     }

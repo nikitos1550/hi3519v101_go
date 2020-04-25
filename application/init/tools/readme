@@ -1,0 +1,2 @@
+http://192.168.10.110/api/pipeline/create?encoderName=MGPEG_1920_1080
+http://192.168.10.110/jpeg/image.jpg?encoderId=1

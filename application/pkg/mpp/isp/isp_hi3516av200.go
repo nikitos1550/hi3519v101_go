@@ -5,7 +5,7 @@ package isp
 
 /*
 #include "../include/mpp.h"
-#include "../errmpp/error.h"
+#include "../errmpp/errmpp.h"
 #include "../../logger/logger.h"
 
 #include <string.h>
@@ -43,10 +43,6 @@ static int hi3516av200_isp_init(error_in *err, hi3516av200_isp_init_in *in) {
 
     mpp_error_code = HI_MPI_AE_Register(0, &stLib);
     if (mpp_error_code != HI_SUCCESS) {
-        //GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_AE_Register")        
-        //err->f = ERR_F_HI_MPI_AE_Register;
-        //err->mpp = mpp_error_code;
-        //return ERR_MPP;
         RETURN_ERR_MPP(ERR_F_HI_MPI_AE_Register, mpp_error_code);
     }
 
@@ -58,10 +54,6 @@ static int hi3516av200_isp_init(error_in *err, hi3516av200_isp_init_in *in) {
 
     mpp_error_code = HI_MPI_AWB_Register(0, &stLib);
     if (mpp_error_code != HI_SUCCESS) {
-        //GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_AWB_Register")
-        //err->f = ERR_F_HI_MPI_AWB_Register;
-        //err->mpp = mpp_error_code;
-        //return ERR_MPP;
         RETURN_ERR_MPP(ERR_F_HI_MPI_AWB_Register, mpp_error_code);
     }
 
@@ -74,35 +66,21 @@ static int hi3516av200_isp_init(error_in *err, hi3516av200_isp_init_in *in) {
 
     mpp_error_code = HI_MPI_AF_Register(0, &stLib);
     if (mpp_error_code != HI_SUCCESS) {
-        //GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_AF_Register")
-        //err->f = ERR_F_HI_MPI_AF_Register;
-        //err->mpp = mpp_error_code;
-        //return ERR_MPP;
         RETURN_ERR_MPP(ERR_F_HI_MPI_AF_Register, mpp_error_code);
     }
 
     mpp_error_code = HI_MPI_ISP_MemInit(0);
     if (mpp_error_code != HI_SUCCESS) {
-        //GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_ISP_MemInit")
-        //err->f = ERR_F_HI_MPI_ISP_MemInit;
-        //err->mpp = mpp_error_code;
-        //return ERR_MPP;
         RETURN_ERR_MPP(ERR_F_HI_MPI_ISP_MemInit, mpp_error_code);
     }
 
     ISP_WDR_MODE_S stWdrMode;
 
+    //WDR_MODE_NONE or WDR_MODE_2To1_LINE
     stWdrMode.enWDRMode  = in->wdr;
-    //stWdrMode.enWDRMode  = WDR_MODE_2To1_LINE;
-    //stWdrMode.enWDRMode  = WDR_MODE_NONE;
-
 
     mpp_error_code = HI_MPI_ISP_SetWDRMode(0, &stWdrMode);
     if (mpp_error_code != HI_SUCCESS) {
-        //GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_ISP_SetWDRMode")
-        //err->f = ERR_F_HI_MPI_ISP_SetWDRMode;
-        //err->mpp = mpp_error_code;
-        //return ERR_MPP;
         RETURN_ERR_MPP(ERR_F_HI_MPI_ISP_SetWDRMode, mpp_error_code);
     }
 
@@ -120,19 +98,11 @@ static int hi3516av200_isp_init(error_in *err, hi3516av200_isp_init_in *in) {
 
     mpp_error_code = HI_MPI_ISP_SetPubAttr(0, &stPubAttr);
     if (mpp_error_code != HI_SUCCESS) {
-        //GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_ISP_SetPubAttr")
-        //err->f = ERR_F_HI_MPI_ISP_SetPubAttr;
-        //err->mpp = mpp_error_code;
-        //return ERR_MPP;
         RETURN_ERR_MPP(ERR_F_HI_MPI_ISP_Init, mpp_error_code);
     }
 
     mpp_error_code = HI_MPI_ISP_Init(0);
     if (mpp_error_code != HI_SUCCESS) {
-        //GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_ISP_Init")
-        //err->f = ERR_F_HI_MPI_ISP_Init;
-        //err->mpp = mpp_error_code;
-        //return ERR_MPP;
         RETURN_ERR_MPP(ERR_F_HI_MPI_ISP_Init, mpp_error_code);
     }
 

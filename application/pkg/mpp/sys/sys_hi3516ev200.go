@@ -4,13 +4,10 @@
 package sys
 
 /*
-#include "../include/mpp_v4.h"
+#include "../include/mpp.h"
+#include "../errmpp/errmpp.h"
 
 #include <string.h>
-
-#define ERR_NONE                0
-#define ERR_MPP                 1
-#define ERR_GENERAL             2
 
 typedef struct hi3516ev200_sys_init_in_struct {
     unsigned int width;
@@ -18,8 +15,8 @@ typedef struct hi3516ev200_sys_init_in_struct {
     unsigned int cnt;
 } hi3516ev200_sys_init_in;
 
-static int hi3516ev200_sys_init(unsigned int *error_code, hi3516ev200_sys_init_in *in) {
-    *error_code = 0;
+static int hi3516ev200_sys_init(error_in *err, hi3516ev200_sys_init_in *in) {
+    unsigned int mpp_error_code = 0;
 
     return ERR_GENERAL;
 }
@@ -32,7 +29,7 @@ import (
 )
 
 func initFamily() error {
-    var errorCode C.uint
+    var inErr C.error_in
     var in C.hi3516ev200_sys_init_int
 
     in.width = C.uint(width)
@@ -47,7 +44,7 @@ func initFamily() error {
   
     err := C.hi3516ev200_sys_init(&errorCode, &in)
     if err != C.ERR_NONE {
-        return errors.New("SYS error TOD")
+        return errmpp.New(uint(inErr.f), uint(inErr.mpp))
     }
 
     return nil

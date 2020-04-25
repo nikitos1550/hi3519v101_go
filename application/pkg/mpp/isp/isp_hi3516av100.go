@@ -4,90 +4,96 @@
 package isp
 
 /*
-#include "../include/mpp_v2.h"
+#include "../include/mpp.h"
+#include "../errmpp/errmpp.h"
+#include "../../logger/logger.h"
 
 #include <string.h>
 #include <pthread.h>
 
-#define ERR_NONE    0
-#define ERR_GENERAL 1
-#define ERR_MPP     2
+static pthread_t hi3516av100_isp_thread_pid;
 
-static pthread_t mpp2_isp_thread_pid;
-
-HI_VOID* mpp2_isp_thread(HI_VOID *param){
+static void* hi3516av100_isp_thread(HI_VOID *param){
     int error_code = 0;
-    printf("C DEBUG: starting HI_MPI_ISP_Run...\n");
+    GO_LOG_ISP(LOGGER_TRACE, "HI_MPI_ISP_Run");
     error_code = HI_MPI_ISP_Run(0);
-    printf("C DEBUG: HI_MPI_ISP_Run %d\n", error_code);
-    //return error_code;
+    GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_ISP_Run failed");
 }
 
-int mpp2_isp_init(int *error_code,
-            unsigned int width,
-            unsigned int height,
-            unsigned int fps) {
-    *error_code = 0;
+typedef struct hi3516av100_isp_init_in_struct {
+    unsigned int width;
+    unsigned int height;
+    unsigned int fps;
+    unsigned int bayer;
+    unsigned int wdr;
+} hi3516av100_isp_init_in;
 
-    //*error_code = HI_MPI_ISP_Exit(0);
-    //if (*error_code != HI_SUCCESS) return ERR_MPP;
+static int hi3516av100_isp_init(error_in *err, hi3516av100_isp_init_in *in) { 
+    unsigned int mpp_error_code = 0;
 
-    ISP_DEV IspDev = 0;
-    ISP_PUB_ATTR_S stPubAttr;  
     ALG_LIB_S stLib;
                 
-    // 1. sensor register callback 
-    *error_code = sensor_register_callback();
-    if (*error_code != HI_SUCCESS) return ERR_MPP;
-    
-    // 2. register hisi ae lib 
     stLib.s32Id = 0;
     strcpy(stLib.acLibName, HI_AE_LIB_NAME);
-    *error_code = HI_MPI_AE_Register(IspDev, &stLib);
-    if (*error_code != HI_SUCCESS) return ERR_MPP;
+    
+    mpp_error_code = HI_MPI_AE_Register(0, &stLib);
+    if (mpp_error_code != HI_SUCCESS) {
+        RETURN_ERR_MPP(ERR_F_HI_MPI_AE_Register, mpp_error_code);
+    }
 
-    // 3. register hisi awb lib
     stLib.s32Id = 0;
     strcpy(stLib.acLibName, HI_AWB_LIB_NAME);
-    *error_code = HI_MPI_AWB_Register(IspDev, &stLib);
-    if (*error_code != HI_SUCCESS) return ERR_MPP;
+    
+    mpp_error_code = HI_MPI_AWB_Register(IspDev, &stLib);
+    if (mpp_error_code != HI_SUCCESS) {
+        RETURN_ERR_MPP(ERR_F_HI_MPI_AWB_Register, mpp_error_code);
+    }
 
-    // 4. register hisi af lib
     stLib.s32Id = 0;  
     strcpy(stLib.acLibName, HI_AF_LIB_NAME);
-    *error_code = HI_MPI_AF_Register(IspDev, &stLib);
-    if (*error_code != HI_SUCCESS) return ERR_MPP;
+    
+    mpp_error_code = HI_MPI_AF_Register(IspDev, &stLib);
+    if (mpp_error_code != HI_SUCCESS) {
+        RETURN_ERR_MPP(ERR_F_HI_MPI_AF_Register, mpp_error_code); 
+    }
 
-    // 5. isp mem init 
-    *error_code = HI_MPI_ISP_MemInit(IspDev);
-    if (*error_code != HI_SUCCESS) return ERR_MPP;
+    mpp_error_code = HI_MPI_ISP_MemInit(IspDev);
+    if (mpp_error_code != HI_SUCCESS) {
+        RETURN_ERR_MPP(ERR_F_HI_MPI_ISP_MemInit, mpp_error_code); 
+    }
 
-    // 6. isp set WDR mode 
     ISP_WDR_MODE_S stWdrMode;
-    stWdrMode.enWDRMode  = WDR_MODE_NONE;//enWDRMode; 
-    *error_code = HI_MPI_ISP_SetWDRMode(0, &stWdrMode);    
-    if (*error_code != HI_SUCCESS) return ERR_MPP;
+    
+    stWdrMode.enWDRMode  = in->wdr;
 
-    // 7. isp set pub attributes
-    	// note : different sensor, different ISP_PUB_ATTR_S define.
-      //        if the sensor you used is different, you can change
-      //        ISP_PUB_ATTR_S definition 
-      // case SONY_IMX178_LVDS_5M_30FPS:
-            stPubAttr.enBayer               = BAYER_BGGR; //BAYER_GBRG;
-            stPubAttr.f32FrameRate          = fps;
-            stPubAttr.stWndRect.s32X        = 0;
-            stPubAttr.stWndRect.s32Y        = 0;
-            stPubAttr.stWndRect.u32Width    = width;
-            stPubAttr.stWndRect.u32Height   = height;
+    mpp_error_code = HI_MPI_ISP_SetWDRMode(0, &stWdrMode);    
+    if (mpp_error_code != HI_SUCCESS) {
+        RETURN_ERR_MPP(ERR_F_HI_MPI_ISP_SetWDRMode, mpp_error_code); 
+    }
 
-    *error_code = HI_MPI_ISP_SetPubAttr(IspDev, &stPubAttr);
-    if (*error_code != HI_SUCCESS) return ERR_MPP;
+    ISP_PUB_ATTR_S stPubAttr;
 
-    //* 8. isp init 
-    *error_code = HI_MPI_ISP_Init(IspDev);
-    if (*error_code != HI_SUCCESS) return ERR_MPP;
+    stPubAttr.enBayer               = in->bayer;
+    stPubAttr.f32FrameRate          = in->fps;
+    stPubAttr.stWndRect.s32X        = 0;
+    stPubAttr.stWndRect.s32Y        = 0;
+    stPubAttr.stWndRect.u32Width    = in->width;
+    stPubAttr.stWndRect.u32Height   = in->height;
 
-    if (pthread_create(&mpp2_isp_thread_pid, 0, (void* (*)(void*))mpp2_isp_thread, NULL) != 0) {
+    mpp_error_code = HI_MPI_ISP_SetPubAttr(0, &stPubAttr);
+    if (mpp_error_code != HI_SUCCESS) {
+        RETURN_ERR_MPP(ERR_F_HI_MPI_ISP_SetPubAttr, mpp_error_code); 
+    }
+
+    mpp_error_code = HI_MPI_ISP_Init(0);
+    if (mpp_error_code != HI_SUCCESS) {
+        RETURN_ERR_MPP(ERR_F_HI_MPI_ISP_Init, mpp_error_code); 
+    }
+
+    general_error_code = pthread_create(&hi3516av100_isp_thread_pid, 0, (void* (*)(void*))hi3516av100_isp_thread, NULL);
+    if (general_error_code != 0) {
+        GO_LOG_ISP(LOGGER_ERROR, "pthread_create");
+        err->general = general_error_code;
         return ERR_GENERAL;
     }
 
@@ -97,36 +103,62 @@ int mpp2_isp_init(int *error_code,
 */
 import "C"
 
-import (
-	 "application/pkg/mpp/error"
-
-	"application/pkg/logger"
+import (    
+    "errors"
+    "application/pkg/mpp/errmpp"
+    "application/pkg/logger"  
     "application/pkg/mpp/cmos"
-
 )
 
-func Init() {
-    var errorCode C.int
+func initFamily() error {
+    var inErr C.error_in
 
-        //switch err := C.mpp2_isp_init(&errorCode); err {
+    cmos.Register()
 
-    switch err := C.mpp2_isp_init(  &errorCode, 
-                    C.uint(cmos.Width()), 
-                    C.uint(cmos.Height()), 
-                    C.uint(cmos.Fps()) ); err {
+    var in C.hi3516av200_isp_init_in
+    in.width = C.uint(cmos.S.Width())
+    in.height = C.uint(cmos.S.Height())
+    in.fps = C.uint(cmos.S.Fps())
 
-    case C.ERR_NONE:
-        logger.Log.Debug().
-                Msg("C.mpp2_isp_init() ok")
-    case C.ERR_MPP:
-        logger.Log.Fatal().
-                Int("error", int(errorCode)).
-                Str("error_desc", error.Resolve(int64(errorCode))).
-                Msg("C.mpp2_isp_init() mpp error ")
-    default:
+    switch cmos.S.Wdr() {
+        case cmos.WDRNone:
+            in.wdr = C.WDR_MODE_NONE
+        //case cmos.WDR2TO1:
+        //    in.wdr = C.WDR_MODE_2To1_LINE
+        default:
             logger.Log.Fatal().
-                Int("error", int(err)).
-                Msg("Unexpected return of C.mpp2_isp_init()")
-        }
+                Msg("Unknown WDR mode")
+    }
 
+    switch cmos.S.Bayer() {
+        case cmos.RGGB:
+            in.bayer = C.BAYER_RGGB
+        case cmos.GRBG:
+            in.bayer = C.BAYER_GRBG
+        case cmos.GBRG:
+            in.bayer = C.BAYER_GBRG
+        case cmos.BGGR:
+            in.bayer = C.BAYER_BGGR
+        default:
+            logger.Log.Fatal().
+                Msg("Unknown CMOS bayer")
+    }
+
+    logger.Log.Trace().
+        Uint("width", uint(in.width)).
+        Uint("height", uint(in.height)).
+        Uint("fps", uint(in.fps)).
+        Uint("bayer", uint(in.bayer)).
+        Uint("wdr", uint(in.wdr)).
+        Msg("ISP params")
+
+    err := C.hi3516av100_isp_init(&inErr, &in)
+    switch err {
+        case C.ERR_MPP:
+            return errmpp.New(uint(inErr.f), uint(inErr.mpp))
+        case C.ERR_GENERAL:
+            return errors.New("ISP error TODO")
+        default:
+            return nil
+    }
 }

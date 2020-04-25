@@ -4,12 +4,10 @@
 package sys
 
 /*
-#include "../include/mpp_v4.h"
+#include "../include/mpp.h"
+#include "../errmpp/errmpp.h"
 
 #include <string.h>
-
-#define ERR_NONE                0
-#define ERR_MPP                 1
 
 typedef struct hi3516cv500_sys_init_in_struct {
     unsigned int width; 
@@ -17,25 +15,22 @@ typedef struct hi3516cv500_sys_init_in_struct {
     unsigned int cnt;
 } hi3516cv500_sys_init_in;
 
-static int hi3516cv500_sys_init(unsigned int *error_code, hi3516cv500_sys_init_in *in) {
-    *error_code = 0;
+static int hi3516cv500_sys_init(error_in *err, hi3516cv500_sys_init_in *in) {
+    unsigned int mpp_error_code = 0;
 
-    *error_code = HI_MPI_SYS_Exit();
-    if (*error_code != HI_SUCCESS) {
-        GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_SYS_Exit")                       
-        return ERR_MPP;        
+    mpp_error_code = HI_MPI_SYS_Exit();
+    if (mpp_error_code != HI_SUCCESS) {
+        RETURN_ERR_MPP(ERR_F_, mpp_error_code);
     }
 
-    *error_code = HI_MPI_VB_Exit();
-    if (*error_code != HI_SUCCESS) {
-        GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_VB_Exit")
-        return ERR_MPP;       
+    mpp_error_code = HI_MPI_VB_Exit();
+    if (mpp_error_code != HI_SUCCESS) {
+        RETURN_ERR_MPP(ERR_F_, mpp_error_code);
     }
 
 
     VB_CONFIG_S        stVbConf;
 
-    //hi_memset(&stVbConf, sizeof(VB_CONFIG_S), 0, sizeof(VB_CONFIG_S));   
     memset(&stVbConf,0,sizeof(VB_CONFIG_S));
     stVbConf.u32MaxPoolCnt              = 2;
     stVbConf.astCommPool[0].u64BlkSize = COMMON_GetPicBufferSize(   in->width, 
@@ -46,16 +41,14 @@ static int hi3516cv500_sys_init(unsigned int *error_code, hi3516cv500_sys_init_i
                                                                     DEFAULT_ALIGN);
     stVbConf.astCommPool[0].u32BlkCnt = in->cnt;
 
-    *error_code = HI_MPI_VB_SetConfig(&stVbConf);
-	if (*error_code != HI_SUCCESS) {
-        GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_VB_SetConfig")
-        return ERR_MPP;
+    mpp_error_code = HI_MPI_VB_SetConfig(&stVbConf);
+	if (mpp_error_code != HI_SUCCESS) {
+        RETURN_ERR_MPP(ERR_F_, mpp_error_code);
     }
 
-    *error_code = HI_MPI_VB_Init();
-	if (*error_code != HI_SUCCESS) {
-        GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_VB_Init")
-        return ERR_MPP;
+    mpp_error_code = HI_MPI_VB_Init();
+	if (mpp_error_code != HI_SUCCESS) {
+        RETURN_ERR_MPP(ERR_F_, mpp_error_code);
     }
 
     MPP_SYS_CONF_S stSysConf;
@@ -63,16 +56,14 @@ static int hi3516cv500_sys_init(unsigned int *error_code, hi3516cv500_sys_init_i
     memset(&stSysConf, 0, sizeof(MPP_SYS_CONF_S));
     stSysConf.u32AlignWidth = 64;
 
-    *error_code = HI_MPI_SYS_SetConf(&stSysConf);
-    if (*error_code != HI_SUCCESS) {
-        GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_SYS_SetConf")
-        return ERR_MPP;
+    mpp_error_code = HI_MPI_SYS_SetConf(&stSysConf);
+    if (mpp_error_code != HI_SUCCESS) {
+        RETURN_ERR_MPP(ERR_F_, mpp_error_code);
     }
 
-    *error_code = HI_MPI_SYS_Init();
-	if (*error_code != HI_SUCCESS) {
-        GO_LOG_SYS(LOGGER_ERROR, "HI_MPI_SYS_Init")
-        return ERR_MPP;
+    mpp_error_code = HI_MPI_SYS_Init();
+	if (mpp_error_code != HI_SUCCESS) {
+        RETURN_ERR_MPP(ERR_F_, mpp_error_code);
     }
 
     return ERR_NONE;
@@ -86,7 +77,7 @@ import (
 )
 
 func initFamily() error {
-    var errorCode C.uint
+    var inErr C.error_in 
     var in C.hi3516cv500_sys_init_int
 
     in.width = C.uint(width)
@@ -101,7 +92,7 @@ func initFamily() error {
 
     err := C.hi3516cv500_sys_init(&errorCode, &in)
     if err != C.ERR_NONE {
-        return errmpp.New("funcname", int64(errorCode))
+        return errmpp.New(uint(inErr.f), uint(inErr.mpp))
     }
 
     return nil

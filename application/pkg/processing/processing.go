@@ -3,8 +3,7 @@
 package processing
 
 /*
-
-#include "../mpp/include/mpp_v3.h"
+#include "../mpp/include/mpp.h"
 #include "processing.h"
 
 void sendToClients(unsigned int processingId, VIDEO_FRAME_INFO_S* frame) {

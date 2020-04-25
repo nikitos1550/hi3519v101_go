@@ -5,7 +5,7 @@ package vpss
 
 /*
 #include "../include/mpp.h"
-#include "../errmpp/error.h"
+#include "../errmpp/errmpp.h"
 #include "../../logger/logger.h"
 
 #include <stdint.h>
@@ -27,6 +27,8 @@ static int hi3516av200_vpss_init(error_in *err, hi3516av200_vpss_init_in *in) {
     unsigned int mpp_error_code = 0;
 
     VPSS_GRP_ATTR_S stVpssGrpAttr;
+
+    memset(&stVpssGrpAttr, 0, sizeof(stVpssGrpAttr));
 
     stVpssGrpAttr.u32MaxW           = in->width;
     stVpssGrpAttr.u32MaxH           = in->height;
@@ -64,17 +66,11 @@ static int hi3516av200_vpss_init(error_in *err, hi3516av200_vpss_init_in *in) {
     
     mpp_error_code = HI_MPI_VPSS_CreateGrp(0, &stVpssGrpAttr);
     if (mpp_error_code != HI_SUCCESS) {
-        //GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_CreateGrp")
-        //err->mpp = mpp_error_code;
-        //return ERR_MPP;
         RETURN_ERR_MPP(ERR_F_HI_MPI_VPSS_CreateGrp, mpp_error_code);
     }
 
     mpp_error_code = HI_MPI_VPSS_StartGrp(0);
     if (mpp_error_code != HI_SUCCESS) {
-        //GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_StartGrp")   
-        //err->mpp = mpp_error_code;
-        //return ERR_MPP;
         RETURN_ERR_MPP(ERR_F_HI_MPI_VPSS_StartGrp, mpp_error_code);
     }
 
@@ -91,9 +87,6 @@ static int hi3516av200_vpss_init(error_in *err, hi3516av200_vpss_init_in *in) {
 
     mpp_error_code = HI_MPI_SYS_Bind(&stSrcChn, &stDestChn);
     if (mpp_error_code != HI_SUCCESS) {
-        //GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_SYS_Bind")   
-        //err->mpp = mpp_error_code;
-        //return ERR_MPP;
         RETURN_ERR_MPP(ERR_F_HI_MPI_SYS_Bind, mpp_error_code);
     }
 
@@ -110,15 +103,6 @@ typedef struct hi3516av200_vpss_create_channel_in_struct {
 
 static int hi3516av200_vpss_create_channel(error_in *err, hi3516av200_vpss_create_channel_in * in) {
     unsigned int mpp_error_code = 0;
-
-    VPSS_CHN_MODE_S stVpssChnMode;
-
-    stVpssChnMode.enChnMode      = VPSS_CHN_MODE_USER;
-    stVpssChnMode.bDouble        = HI_FALSE;
-    stVpssChnMode.enPixelFormat  = PIXEL_FORMAT_YUV_SEMIPLANAR_420;
-    stVpssChnMode.u32Width       = in->width;
-    stVpssChnMode.u32Height      = in->height;
-    stVpssChnMode.enCompressMode = COMPRESS_MODE_NONE; //COMPRESS_MODE_SEG;
 
     VPSS_CHN_ATTR_S stVpssChnAttr;
 
@@ -141,34 +125,31 @@ static int hi3516av200_vpss_create_channel(error_in *err, hi3516av200_vpss_creat
 
     mpp_error_code = (uint64_t)HI_MPI_VPSS_SetChnAttr(0, in->channel_id, &stVpssChnAttr);
     if (mpp_error_code != HI_SUCCESS) {
-        //GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_SetChnAttr")   
-        //err->mpp = mpp_error_code;
-        //return ERR_MPP;
         RETURN_ERR_MPP(ERR_F_HI_MPI_VPSS_SetChnAttr, mpp_error_code);
     }
 
+    VPSS_CHN_MODE_S stVpssChnMode;
+
+    stVpssChnMode.enChnMode      = VPSS_CHN_MODE_USER;
+    stVpssChnMode.bDouble        = HI_FALSE;
+    stVpssChnMode.enPixelFormat  = PIXEL_FORMAT_YUV_SEMIPLANAR_420;
+    stVpssChnMode.u32Width       = in->width;
+    stVpssChnMode.u32Height      = in->height;
+    stVpssChnMode.enCompressMode = COMPRESS_MODE_NONE; //COMPRESS_MODE_SEG;
+
     mpp_error_code = HI_MPI_VPSS_SetChnMode(0, in->channel_id, &stVpssChnMode);
     if (mpp_error_code != HI_SUCCESS) {
-        //GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_SetChnMode")   
-        //err->mpp = mpp_error_code;
-        //return ERR_MPP;
         RETURN_ERR_MPP(ERR_F_HI_MPI_VPSS_SetChnMode, mpp_error_code);
     }
 
  	HI_U32 u32Depth = 1; //TODO
  	mpp_error_code = HI_MPI_VPSS_SetDepth(0, in->channel_id, u32Depth);
     if (mpp_error_code != HI_SUCCESS) {
-        //GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_SetDepth")
-        //err->mpp = mpp_error_code;
-        //return ERR_MPP;
         RETURN_ERR_MPP(ERR_F_HI_MPI_VPSS_SetDepth, mpp_error_code);
     }
 
     mpp_error_code = HI_MPI_VPSS_EnableChn(0, in->channel_id);
     if (mpp_error_code != HI_SUCCESS) {
-        //GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_EnableChn")   
-        //err->mpp = mpp_error_code;
-        //return ERR_MPP;
         RETURN_ERR_MPP(ERR_F_HI_MPI_VPSS_EnableChn, mpp_error_code);
     }
 
@@ -184,9 +165,6 @@ static int hi3516av200_vpss_destroy_channel(error_in * err, hi3516av200_vpss_des
 
     mpp_error_code = HI_MPI_VPSS_DisableChn(0, in->channel_id);
     if (mpp_error_code != HI_SUCCESS) {
-        //GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_DisableChn")   
-        //err->mpp = mpp_error_code;
-        //return ERR_MPP;
         RETURN_ERR_MPP(ERR_F_HI_MPI_VPSS_DisableChn, mpp_error_code);
     }
 
@@ -203,9 +181,6 @@ static int hi3516av200_receive_frame(error_in *err, unsigned int channel_id) {
     mpp_error_code = HI_MPI_VPSS_GetChnFrame(0, channel_id, &channelFrames[channel_id], -1); //blocking mode call
 
  	if (mpp_error_code != HI_SUCCESS) {
-        //GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_GetChnFrame")
-        //err->mpp = mpp_error_code;
-        //return ERR_MPP;
         RETURN_ERR_MPP(ERR_F_HI_MPI_VPSS_GetChnFrame, mpp_error_code);
  	}
 
@@ -218,9 +193,6 @@ static int hi3516av200_release_frame(error_in *err, unsigned int channel_id) {
  	mpp_error_code = HI_MPI_VPSS_ReleaseChnFrame(0, channel_id, &channelFrames[channel_id]);
 
  	if (mpp_error_code != HI_SUCCESS) {
-        //GO_LOG_VPSS(LOGGER_ERROR, "HI_MPI_VPSS_ReleaseChnFrame")
-        //err->mpp = mpp_error_code;
-        //return ERR_MPP;
         RETURN_ERR_MPP(ERR_F_HI_MPI_VPSS_ReleaseChnFrame, mpp_error_code);
  	}
 

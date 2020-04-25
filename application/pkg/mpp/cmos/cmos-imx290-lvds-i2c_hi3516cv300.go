@@ -12,11 +12,11 @@ package cmos
 
 #include <string.h>
 
-int mpp_cmos_init(int *error_code) {
-    *error_code = 0;
-
-    return ERR_NONE;
-}
+//int mpp_cmos_init(int *error_code) {
+//    *error_code = 0;
+//
+//    return ERR_NONE;
+//}
 
 combo_dev_attr_t LVDS_4lane_SENSOR_IMX290_12BIT_1080_NOWDR_ATTR =
 {
@@ -124,6 +124,8 @@ var (
                 mipi: unsafe.Pointer(&C.LVDS_4lane_SENSOR_IMX290_12BIT_1080_NOWDR_ATTR),
                 viDev: unsafe.Pointer(&C.DEV_ATTR_LVDS_BASE),
                 clock: 37.125,
+                wdr: WDRNone,
+                description: "normal",
             },
         },
         control: cmosControl {
@@ -131,6 +133,7 @@ var (
             busNum: 0,
         },
         data: LVDS,
+        bayer: RGGB,
     }
 )
 

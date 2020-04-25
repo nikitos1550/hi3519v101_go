@@ -5,14 +5,17 @@ package vi
 
 /*
 #include "../include/mpp.h"
-#include "../errmpp/error.h"
+#include "../errmpp/errmpp.h"
 #include "../../logger/logger.h"
 
-#include <stdint.h>
 #include <string.h>
 
 typedef struct hi3516av200_vi_init_in_struct {
     void *videv;
+
+    unsigned int cmos_width;
+    unsigned int cmos_height;
+
     unsigned int x0;
     unsigned int y0;
     unsigned int width;
@@ -36,12 +39,13 @@ static int hi3516av200_vi_init(error_in *err, hi3516av200_vi_init_in * in) {
     VI_DEV_ATTR_S  stViDevAttr;
 
     memset(&stViDevAttr, 0, sizeof(stViDevAttr));
+
     memcpy(&stViDevAttr, in->videv, sizeof(stViDevAttr));
 
-    stViDevAttr.stDevRect.s32X                              = in->x0;
-    stViDevAttr.stDevRect.s32Y                              = in->y0;
-    stViDevAttr.stDevRect.u32Width                          = in->width; 
-    stViDevAttr.stDevRect.u32Height                         = in->height;
+    stViDevAttr.stDevRect.s32X                              = 0;
+    stViDevAttr.stDevRect.s32Y                              = 0;
+    stViDevAttr.stDevRect.u32Width                          = in->cmos_width; 
+    stViDevAttr.stDevRect.u32Height                         = in->cmos_height;
 
 	//For Hi3519 V101, Dev0 does not support scaling and phase adjustment of the Bayer
 	//domain. Therefore, for Dev0, the width and height of stBasAttr must be the same as
@@ -49,8 +53,8 @@ static int hi3516av200_vi_init(error_in *err, hi3516av200_vi_init_in * in) {
 	//Note that the width and height can be scaled down only by the multiple of 1, 1/2, or 1/3.
 	//Otherwise, calling the interface fails.
 	
-    stViDevAttr.stBasAttr.stSacleAttr.stBasSize.u32Width    = in->width; 
-    stViDevAttr.stBasAttr.stSacleAttr.stBasSize.u32Height   = in->height;
+    stViDevAttr.stBasAttr.stSacleAttr.stBasSize.u32Width    = in->cmos_width; 
+    stViDevAttr.stBasAttr.stSacleAttr.stBasSize.u32Height   = in->cmos_height;
     stViDevAttr.stBasAttr.stSacleAttr.bCompress             = HI_FALSE;
 
     mpp_error_code = HI_MPI_VI_SetDevAttr(0, &stViDevAttr);
@@ -72,8 +76,8 @@ static int hi3516av200_vi_init(error_in *err, hi3516av200_vi_init_in * in) {
     RECT_S stCapRect;
 
 	//Vi channel capture region coordinates are relative to Vi device
-    stCapRect.s32X          = 0;
-    stCapRect.s32Y          = 0;
+    stCapRect.s32X          = in->x0;
+    stCapRect.s32Y          = in->y0;
     stCapRect.u32Width      = in->width;
     stCapRect.u32Height     = in->height;
 
@@ -213,6 +217,8 @@ func initFamily() error {
     }
 
     in.videv = cmos.S.ViDev()
+    in.cmos_width = C.uint(cmos.S.Width())
+    in.cmos_height = C.uint(cmos.S.Height())
     in.x0 = C.uint(x0)
     in.y0 = C.uint(y0)
     in.width = C.uint(width)
@@ -230,6 +236,8 @@ func initFamily() error {
     logger.Log.Trace().
         Uint("mirror", uint(in.mirror)).
         Uint("flip", uint(in.flip)).
+        Uint("cmos_width", uint(in.cmos_width)).
+        Uint("cmos_height", uint(in.cmos_height)).
         Uint("x0", uint(in.x0)).
         Uint("y0", uint(in.y0)).
         Uint("width", uint(in.width)).

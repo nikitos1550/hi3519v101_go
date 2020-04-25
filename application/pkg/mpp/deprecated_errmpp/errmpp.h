@@ -1,5 +1,5 @@
-#ifndef ERROR_H_
-#define ERROR_H_
+#ifndef ERRMPP_H_
+#define ERRMPP_H_
 
 #define ERR_NONE                    0
 #define ERR_MPP                     1
@@ -68,4 +68,4 @@ typedef int error_general;
 #define ERR_F_HI_MPI_VENC_DestroyChn            36
 #define ERR_F_HI_MPI_VENC_StopRecvPic           37
 
-#endif // ERROR_H_
+#endif // ERRMPP_H_

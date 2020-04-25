@@ -1,4 +1,10 @@
 # Application notes
+
+## Notes
+
+* https://dominik.honnef.co/posts/2015/06/statically_compiled_go_programs__always__even_with_cgo__using_musl/
+* https://medium.com/@benbjohnson/structuring-applications-in-go-3b04be4ff091
+
 =======
 # Application
 Application is wrote mainly in golang with a bit C (via cgo). 

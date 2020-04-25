@@ -1,7 +1,7 @@
 package errmpp
 
 import (
-    //"strconv"
+    "application/pkg/logger"
 )
 
 type errorMpp struct {
@@ -23,4 +23,33 @@ func New(f uint, c uint) errorMpp {
 func (e errorMpp) Error() string {
     name, desc := resolveCode(e.c)
     return resolveFunc(e.f) + " " + name + " (" + desc + ")"
+}
+
+type codeInfo struct {
+    name string
+    desc string
+}
+
+func resolveCode(code uint) (string, string) {
+
+    if val, ok := codes[code]; ok {
+        return val.name, val.desc
+    }
+
+    logger.Log.Warn().
+        Uint("code", code).
+        Msg("ERRMPP missed info")
+
+    return "unknown", "unknown"
+}
+
+func resolveFunc(f uint) string {
+    if f == 0 || f >= uint(len(functions)) {
+        logger.Log.Warn().
+            Uint("func", f).
+            Msg("ERRMPP missed info")
+        return "unknown"
+    }
+
+    return functions[f]
 }

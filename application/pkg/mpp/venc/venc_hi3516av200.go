@@ -5,7 +5,7 @@ package venc
 
 /*
 #include "../include/mpp.h"
-#include "../errmpp/error.h"
+#include "../errmpp/errmpp.h"
 #include "../../logger/logger.h"
 
 #include <string.h>
@@ -261,9 +261,6 @@ func createVencEncoder(encoder ActiveEncoder) error {
 
     if err != C.ERR_NONE {
         return errmpp.New(uint(inErr.f), uint(inErr.mpp))
-        //logger.Log.Fatal(). //log temporary, should generate and return error
-        //    Str("error", errmpp.New("funcname", uint(inErr.mpp)).Error()).
-        //    Msg("VENC")
     }
 
     addVenc(encoder.VencId)
@@ -281,9 +278,6 @@ func deleteVencEncoder(encoder ActiveEncoder) error {
 
     if err != C.ERR_NONE {
         return errmpp.New(uint(inErr.f), uint(inErr.mpp))
-        //logger.Log.Fatal(). //log temporary, should generate and return error
-        //    Str("error", errmpp.New("funcname", uint(inErr.mpp)).Error()).
-        //    Msg("VENC")
     }
 
     return nil

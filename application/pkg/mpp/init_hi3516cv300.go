@@ -4,7 +4,7 @@
 package mpp
 
 /*
-#include "./include/mpp_v3.h"
+#include "./include/mpp.h"
 
 #define ERR_NONE    0
 #define ERR_MPP     1
@@ -33,7 +33,9 @@ int mpp3_isp_exit(int *error_code) {
 import "C"
 
 import (
-	"application/pkg/ko"
+        "os"
+
+    "application/pkg/ko"
         "application/pkg/mpp/cmos"
     "application/pkg/logger"
 )
@@ -43,6 +45,59 @@ const (
 )
 
 func systemInit(devInfo DeviceInfo) {
+   if _, err := os.Stat("/dev/sys"); err == nil { 
+        var errorCode C.int
+        /*
+        err := C.mpp3_sys_exit(&errorCode)
+        if err != nil {
+            logger.Log.Fatal().
+                Msg("TODO")
+
+        }
+        */
+        
+        switch err := C.mpp3_sys_exit(&errorCode); err {
+        case C.ERR_NONE:
+            logger.Log.Debug().
+                Msg("C.mpp3_sys_exit() ok")
+        case C.ERR_MPP:
+            logger.Log.Fatal().
+                Str("func", "HI_MPI_SYS_Exit()").
+                Int("error", int(errorCode)).
+                //Str("error_desc", error.Resolve(int64(errorCode))).
+                Msg("C.mpp3_sys_exit() error")
+        default:
+            logger.Log.Fatal().
+                Int("error", int(err)).
+                Msg("Unexpected return of C.mpp3_sys_exit()")
+        } 
+        
+    }
+
+    if _, err := os.Stat("/dev/vb"); err == nil {      
+        var errorCode C.int
+        switch err := C.mpp3_vb_exit(&errorCode); err {
+        case C.ERR_NONE:
+            //log.Println("C.mpp3_vb_exit() ok")
+        logger.Log.Debug().
+            Msg("C.mpp3_vb_exit() ok")
+        case C.ERR_MPP:
+            //log.Fatal("C.mpp3_vb_exit() HI_MPI_VB_Exit() error ", error.Resolve(int64(errorCode))) 
+        logger.Log.Fatal().
+            Str("func", "HI_MPI_VB_Exit()").
+            Int("error", int(errorCode)).
+        //Str("error_desc", error.Resolve(int64(errorCode))).
+        Msg("C.mpp3_vb_exit() error")
+        default:
+            //log.Fatal("Unexpected return ", err , " of C.mpp3_vb_exit()")
+        logger.Log.Fatal().
+                Int("error", int(err)).
+            Msg("Unexpected return of C.mpp3_vb_exit()")
+        }
+    }
+
+
+
 	//This family originally pack all reg init to sy_conf ko module
 	ko.UnloadAll()
 
@@ -54,7 +109,7 @@ func systemInit(devInfo DeviceInfo) {
     ko.Params.Add("mem_start_addr").Str("0x").Uint64Hex(DDRMemStartAddr + devInfo.MemLinuxSize)
     ko.Params.Add("mem_mpp_size").Uint64(devInfo.MemMppSize/(1024*1024)).Str("M")
                 
-    ko.Params.Add("cmos").Str(cmos.Model())
+    ko.Params.Add("cmos").Str(cmos.S.Model())
 
     ko.Params.Add("mem_total_size").Uint64(devInfo.MemTotalSize/(1024*1024))
     ko.Params.Add("vgs_clk_frequency").Uint64(297000000)
@@ -107,18 +162,18 @@ func systemInit(devInfo DeviceInfo) {
 	var tmpBus string
 	var tmpData string
 
-    switch cmos.BusType() {
+    switch cmos.S.BusType() {
         case cmos.I2C:
 			tmpBus = "i2c"
         case cmos.SPI:
 			tmpBus = "ssp"
         default:
         	logger.Log.Fatal().
-            	Int("type", int(cmos.BusType())).
+            	Int("type", int(cmos.S.BusType())).
                 Msg("unrecognized cmos bus type")
     }
 
-    switch cmos.Data() {
+    switch cmos.S.Data() {
         case cmos.DC:
             tmpData = "dc"
         case cmos.MIPI:
@@ -127,7 +182,7 @@ func systemInit(devInfo DeviceInfo) {
             tmpData = "mipi"
         default:
         	logger.Log.Fatal().
-                Int("type", int(cmos.Data())).
+                Int("type", int(cmos.S.Data())).
                 Msg("unrecognized cmos data type")
     }
 

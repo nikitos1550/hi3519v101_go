@@ -6,7 +6,7 @@ GO	?= go
 
 GOOS    ?= linux
 GOARCH  ?= amd64
-GOENV   := GOROOT_FINAL=/test/ GOPATH=$(GOPATH) GOOS=$(GOOS) GOARCH=$(GOARCH) GOARM=$(GOARM) 
+GOENV   := GOPATH=$(GOPATH) GOOS=$(GOOS) GOARCH=$(GOARCH) GOARM=$(GOARM) 
 
 FAMILY	?= host
 
@@ -45,7 +45,7 @@ ifneq ($(wildcard ../hisilicon/$(FAMILY)/Makefile.params),)
        CGO_LDFLAGS := $(abspath $(CMOS_TARGET)) $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a)
 endif 
 
-
+#GODEBUG=cgocheck=0
 CGOPARAMS := CGO_CFLAGS='$(CFLAGS) $(CGO_CFLAGS)' CGO_CFLAGS_ALLOW='.*' CGO_ENABLED=1 CGO_LDFLAGS='$(CGO_LDFLAGS) $(FAMILY_LDFLAGS)'
 
 ifneq ($(strip $(shell git status --porcelain 2>/dev/null)),)
@@ -155,7 +155,8 @@ deploy-dir-probe: distrib
 TRIMPATH := $(abspath .) 
 
 build-cam: generate $(LIB_TARGET) $(CMOS_TARGET) deploy-dir-cam
-	$(GOENV) $(CGOPARAMS) $(GO) build -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/gohisicam application/cmd/gohisicam
+	$(GOENV) $(CGOPARAMS) $(GO) build -work -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/gohisicam application/cmd/gohisicam
+	#$(GOENV) $(CGOPARAMS) $(GO) install -work -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" ./pkg/...
 
 build-probe: generate $(LIB_TARGET) deploy-dir-probe
 	$(GOENV) $(CGOPARAMS) $(GO) build -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/gohisiprobe application/cmd/gohisiprobe

@@ -1,5 +1,10 @@
 package logger
 
+/*
+#include "logger.h"
+*/
+import "C"
+
 import (
 	"github.com/rs/zerolog"
 )
@@ -21,4 +26,3 @@ func CLogger(packageName string, level int, msg string) {
         }
 
 }
-
