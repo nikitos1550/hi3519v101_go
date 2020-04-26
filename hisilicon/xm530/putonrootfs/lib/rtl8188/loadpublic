@@ -1,0 +1,11 @@
+#!/bin/sh
+
+insmod /usr/lib/modules/sdio0_sd.ko
+
+insmod /usr/lib/modules/dwc_common_port_lib.ko
+insmod /usr/lib/modules/dwc_otg.ko
+insmod /usr/lib/modules/wifi_pdn.ko value=96
+insmod /usr/lib/modules/cfg80211.ko
+insmod /usr/lib/modules/8188eu.ko
+
+#insmod /usr/lib/modules/kmotor.ko

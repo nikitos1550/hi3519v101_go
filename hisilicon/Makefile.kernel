@@ -9,6 +9,6 @@ ifndef TOOLCHAIN
 endif
 
 build:
-	make -C ./linux clean
+	make -C ./linux -j8 ARCH=$(GOARCH) CROSS_COMPILE=$(TOOLCHAIN) clean
 	make -C ./linux -j8 ARCH=$(GOARCH) CROSS_COMPILE=$(TOOLCHAIN) uImage
 	cp -f ./linux/arch/$(GOARCH)/boot/uImage ./uImage

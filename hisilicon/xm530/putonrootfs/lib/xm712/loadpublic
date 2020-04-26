@@ -1,0 +1,10 @@
+#!/bin/sh
+
+insmod /usr/lib/modules/sdio0_sd.ko
+
+insmod /usr/lib/modules/wifi_pdn.ko value=96
+insmod /usr/lib/modules/compat.ko
+insmod /usr/lib/modules/cfg80211.ko
+insmod /usr/lib/modules/xm712.ko
+
+#insmod /usr/lib/modules/kmotor.ko

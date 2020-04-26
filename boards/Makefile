@@ -93,6 +93,7 @@ $(ROOTFS_DIR): $(FAMILY_OUTDIR)/rootfs $(BOARD_DIR)/putonrootfs $(BOARD_DIR)/con
 	rm -rf $@; mkdir -p $@; cp -r $</* $@/
 	#if [ -d $(BOARD_DIR)/putonrootfs ]; then cp -r $(BOARD_DIR)/putonrootfs/* $@/; fi
 	if [ -d $(BOARD_DIR)/putonrootfs ]; then shopt -s nullglob; for P in $(BOARD_DIR)/putonrootfs/*; do cp -r $$P $(@) ; done; fi
+	if [ -d $(FAMILY_DIR)/putonrootfs ]; then shopt -s nullglob; for P in $(FAMILY_DIR)/putonrootfs/*; do cp -r $$P $(@) ; done; fi
 	cat $(BOARD_DIR)/config | tr -d "[:blank:]" > $@/etc/board.config
 
 # --- KERNEL ------------------------------------------------------------------------------------------------
@@ -134,6 +135,15 @@ $(FAMILY_OUTDIR)/kernel:
 ic_probe:
 	../scripts/power2.py --num $(CAMERA) off
 	flashrom -p serprog:dev=/dev/ttyPROG$(PROG):2000000 -V
+	../scripts/power2.py --num $(CAMERA) on
+
+get_regbin:
+	dd if=$(BOARD_DIR)/dumps/orig.bin of=$(BOARD_DIR)/dumps/reg.bin bs=1 skip=64 count=4096
+
+write_test:
+	../scripts/power2.py --num $(CAMERA) off
+	#flashrom -p serprog:dev=/dev/ttyPROG$(PROG):2000000 -c $(shell cat $(BOARD_DIR)/dumps/orig.ic) -w $(BOARD_DIR)/dumps/test
+	flashrom -p serprog:dev=/dev/ttyPROG$(PROG):2000000 -c W25Q128.V -w $(BOARD_DIR)/dumps/test
 	../scripts/power2.py --num $(CAMERA) on
 
 test_dump_tmp:
