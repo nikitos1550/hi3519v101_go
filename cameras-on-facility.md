@@ -29,9 +29,9 @@
 |22|YI|YHS-113-IR|hi3518ev201|unknown|-|
 |23|XM|IPG-53H13PL-S|hi3518cv100|AR0130|k4b1g164...|
 |..|...|...|...|...|...|
-|26|unknown|unknown|xm530|unknown|-|
 |27|unknown|unknown|hi3516dv100|it6801fn|-|
 |..|...|...|...|...|...|
+|30|unknown|unknown|xm530|unknown|-|
 |31|HISILICON|DEMB|hi3516dv300|imx327|official dev board|
 |32|HISILICON|DEMBVERC|hi3559av100|imx334|official dev board|
 
