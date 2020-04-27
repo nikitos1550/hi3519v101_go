@@ -6,10 +6,6 @@ package processing
 #include "../mpp/include/mpp.h"
 #include "processing.h"
 
-void sendToClients(unsigned int processingId, VIDEO_FRAME_INFO_S* frame) {
-	sendToEncoders(processingId, frame);
-}
-
 int sendToEncoder(unsigned int vencId, void* frame) {
  	return HI_MPI_VENC_SendFrame(vencId, frame, -1);
 }
@@ -19,51 +15,40 @@ import "C"
 
 import (
 	"log"
-	"unsafe"
 
+	"application/pkg/common"
 	"application/pkg/mpp/vpss"
 )
 
 func Init() {}
 
 type ActiveProcessing struct {
-	Name string
+	Proc common.Processing
 	InputChannel int
 	InputProcessing int
-	Callback unsafe.Pointer
 	Encoders map[int] bool
-	Processings map[int] unsafe.Pointer
-}
-
-type Processing struct {
-	Name string
-	Callback unsafe.Pointer
+	Processings map[int] bool
 }
 
 var (
-	Processings map[string] Processing
+	Processings map[string] common.Processing
 	ActiveProcessings map[int] ActiveProcessing
 	lastProcessingId int
 )
 
 func init() {
-	Processings = make(map[string] Processing)
+	Processings = make(map[string] common.Processing)
 	ActiveProcessings = make(map[int] ActiveProcessing)
 	lastProcessingId = 0
 }
 
-func register(name string, callback unsafe.Pointer){
-	_, exists := Processings[name]
+func register(processing common.Processing){
+	_, exists := Processings[processing.GetName()]
 	if (exists) {
-		log.Fatal("processing already exists", name)
+		log.Fatal("processing already exists", processing.GetName())
 	}
 
-	processing := Processing{
-		Name: name,
-		Callback: callback,
-	}
-	
-	Processings[name] = processing
+	Processings[processing.GetName()] = processing
 }
 
 func CreateProcessing(processingName string)  (int, string)  {
@@ -72,16 +57,15 @@ func CreateProcessing(processingName string)  (int, string)  {
 		return -1, "Processing not found"
 	}
 
+	lastProcessingId++
 	activeProcessing := ActiveProcessing{
-		Name: processing.Name,
+		Proc: processing.Create(lastProcessingId),
 		InputChannel: -1,
 		InputProcessing: -1,
-		Callback: processing.Callback,
 		Encoders: make(map[int] bool),
-		Processings: make(map[int] unsafe.Pointer),
+		Processings: make(map[int] bool),
 	}
 
-	lastProcessingId++
 	ActiveProcessings[lastProcessingId] = activeProcessing
 
 	return lastProcessingId, ""
@@ -94,7 +78,7 @@ func DeleteProcessing(processingId int)  (int, string)  {
 	}
 
 	if (activeProcessing.InputChannel != -1){
-		err, errorString := vpss.UnsubscribeChannel(activeProcessing.InputChannel, processingId)
+		err, errorString := vpss.UnsubscribeChannel(activeProcessing.InputChannel, activeProcessing.Proc)
 		if err < 0 {
 			return err, errorString
 		}
@@ -161,7 +145,7 @@ func SubscribeProcessingToProcessing(processingId int, subscribeProcessingId int
 		return -1, "Already subscribed"
 	}
 
-	activeProcessing.Processings[subscribeProcessingId] = subscribeProcessing.Callback
+	activeProcessing.Processings[subscribeProcessingId] = true
 	ActiveProcessings[processingId] = activeProcessing
 
 	subscribeProcessing.InputProcessing = processingId

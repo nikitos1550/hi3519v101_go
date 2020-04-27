@@ -2,28 +2,43 @@
 
 package processing
 
-/*
-
-#include "../mpp/include/mpp_v3.h"
-
-#include "processing.h"
-
-void proxyCallback(unsigned int processingId, VIDEO_FRAME_INFO_S* frame) {
-	sendToClients(processingId, frame);
-}
-
-void* getCallback(){
-	return proxyCallback;
-}
-*/
 import "C"
 
 import (
 	"unsafe"
+	"application/pkg/common"
 )
 
+type proxy struct {
+	Name string
+	Id int
+}
+
+func (p proxy) GetName() string {
+	return p.Name
+}
+
+func (p proxy) GetId() int {
+	return p.Id
+}
+
+func (p proxy) Create(id int) common.Processing {
+	var v proxy
+	v.Name = "proxy"
+	v.Id = id
+	return v
+}
+
+func (p proxy) Init() {
+}
+
+func (p proxy) Callback(data unsafe.Pointer) {
+	sendToEncoders(p.Id, data)
+}
+
 func init() {
-	var c unsafe.Pointer
-	c = C.getCallback()
-	register("proxy", c)
+	var v proxy
+	v.Name = "proxy"
+	v.Id = -1
+	register(v)
 }

@@ -3,9 +3,9 @@
 package vpss
 
 import (
+    "application/pkg/common"
 	"application/pkg/openapi"
 	"net/http"
-	"unsafe"
 )
 
 type ChannelInfo struct {
@@ -81,7 +81,7 @@ func startChannelRequest(w http.ResponseWriter, r *http.Request)  {
 	}
 
 	channel.Started = true                              //Should be done only after successfull channel start
-	channel.Clients = make(map[int] unsafe.Pointer)     //Most probably same issue as above
+	channel.Clients = make(map[common.Processing] bool)               //Most probably same issue as above
 
 	err, errorString := StartChannel(channel)
 	if err < 0 {
@@ -120,8 +120,8 @@ func listChannelsRequest(w http.ResponseWriter, r *http.Request) {
 			CropWidth: channel.CropWidth,
 			CropHeight: channel.CropHeight,
 		}
-		for processingId, _ := range channel.Clients {
-			info.Processings = append(info.Processings, processingId)
+		for processing, _ := range channel.Clients {
+			info.Processings = append(info.Processings, processing.GetId())
 		}
 
 		channelsInfo = append(channelsInfo, info)

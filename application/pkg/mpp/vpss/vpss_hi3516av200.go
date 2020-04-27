@@ -14,8 +14,6 @@ package vpss
 #define MAX_CHANNELS VPSS_MAX_PHY_CHN_NUM
 VIDEO_FRAME_INFO_S channelFrames[MAX_CHANNELS];
 
-typedef void (*callbackFunc) (unsigned int, VIDEO_FRAME_INFO_S*);
-
 typedef struct hi3516av200_vpss_init_in_struct {
     unsigned int width;
     unsigned int height;
@@ -175,7 +173,7 @@ typedef struct hi3516av200_receive_frame_out_struct {
 
 } hi3516av200_receive_frame_out;
 
-static int hi3516av200_receive_frame(error_in *err, unsigned int channel_id) {
+static int hi3516av200_receive_frame(error_in *err, unsigned int channel_id, void** frame) {
     unsigned int mpp_error_code;
 
     mpp_error_code = HI_MPI_VPSS_GetChnFrame(0, channel_id, &channelFrames[channel_id], -1); //blocking mode call
@@ -184,6 +182,7 @@ static int hi3516av200_receive_frame(error_in *err, unsigned int channel_id) {
         RETURN_ERR_MPP(ERR_F_HI_MPI_VPSS_GetChnFrame, mpp_error_code);
  	}
 
+	*frame = &channelFrames[channel_id];
  	return ERR_NONE;
 }
 
@@ -198,17 +197,12 @@ static int hi3516av200_release_frame(error_in *err, unsigned int channel_id) {
 
  	return ERR_NONE;
 }
-
-void mpp3_send_frame_to_clients(unsigned int channelId, unsigned int processingId, void* callback) { //TODO move to go space
-	callbackFunc func = callback;
-	func(processingId, &channelFrames[channelId]);
-}
-
 */
 import "C"
 
 import (
     "flag"
+    "unsafe"
     "application/pkg/mpp/vi"
     "application/pkg/mpp/errmpp"
     "application/pkg/logger"
@@ -327,8 +321,9 @@ func sendDataToClients(channel Channel) {
 
         var err C.int
         var inErr C.error_in
+		var frame unsafe.Pointer
 
-		err = C.hi3516av200_receive_frame(&inErr, C.uint(channel.ChannelId));
+		err = C.hi3516av200_receive_frame(&inErr, C.uint(channel.ChannelId), &frame);
 		if err != C.ERR_NONE {
 			logger.Log.Warn().
 				Int("channelId", channel.ChannelId).
@@ -337,10 +332,11 @@ func sendDataToClients(channel Channel) {
 			continue
 		}
 
-		for processingId, callback := range channel.Clients {
-			C.mpp3_send_frame_to_clients(C.uint(channel.ChannelId), C.uint(processingId), callback);
+		
+		for processing, _ := range channel.Clients {
+			processing.Callback(frame)
 		}
-
+		
 		err = C.hi3516av200_release_frame(&inErr, C.uint(channel.ChannelId));
 		if err != C.ERR_NONE {
 			logger.Log.Error().

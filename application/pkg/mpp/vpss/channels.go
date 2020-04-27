@@ -4,9 +4,9 @@ package vpss
 
 import (
     "sync"
-	"unsafe"
     //"errors"
 
+    "application/pkg/common"
     "application/pkg/logger"
 )
 
@@ -21,8 +21,7 @@ type Channel struct {
 	CropHeight int                      //Not used
     Mutex sync.RWMutex                  //Not used
 	Started bool                        //is channel active
-	Clients map[int] unsafe.Pointer     //int - id processing, callback processing
-    Clients2 map[int] chan unsafe.Pointer
+	Clients map[common.Processing] bool //int - id processing, callback processing
 }
 
 var (
@@ -70,35 +69,35 @@ func StopChannel(channelId int)  (int, string)  {
 	return 0, ""
 }
 
-func SubscribeChannel(channelId int, processingId int, callback unsafe.Pointer)  (int, string)  {
+func SubscribeChannel(channelId int, processing common.Processing)  (int, string)  {
 	channel, channelExists := Channels[channelId]
 	if (!channelExists) {
 		return -1, "Channel does not exist"
 	}
 
-	_, callbackExists := channel.Clients[processingId]
+	_, callbackExists := channel.Clients[processing]
 	if (callbackExists) {
 		return -1, "Already subscribed"
 	}
 
-	channel.Clients[processingId] = callback
+	channel.Clients[processing] = true
 	Channels[channelId] = channel
 	
 	return 0, ""
 }
 
-func UnsubscribeChannel(channelId int, processingId int)  (int, string)  {
+func UnsubscribeChannel(channelId int, processing common.Processing)  (int, string)  {
 	channel, channelExists := Channels[channelId]
 	if (!channelExists) {
 		return -1, "Channel does not exist"
 	}
 
-	_, callbackExists := channel.Clients[processingId]
+	_, callbackExists := channel.Clients[processing]
 	if (!callbackExists) {
 		return -1, "Not subscribed"
 	}
 
-	delete(channel.Clients, processingId)
+	delete(channel.Clients, processing)
 
 	return 0, ""
 }

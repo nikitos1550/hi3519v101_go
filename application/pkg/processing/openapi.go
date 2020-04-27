@@ -98,7 +98,7 @@ func subscribeChannelRequest(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
-	err, errorString := vpss.SubscribeChannel(channelId, processingId, activeProcessing.Callback)
+	err, errorString := vpss.SubscribeChannel(channelId, activeProcessing.Proc)
 	if err != 0 {
 		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: errorString})
 		return
@@ -127,7 +127,7 @@ func unsubscribeChannelRequest(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
-	err, errorString := vpss.UnsubscribeChannel(channelId, processingId)
+	err, errorString := vpss.UnsubscribeChannel(channelId, activeProcessing.Proc)
 	if err != 0 {
 		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: errorString})
 		return
@@ -195,7 +195,7 @@ func listActiveProcessingRequest(w http.ResponseWriter, r *http.Request)  {
 	for id, processing := range ActiveProcessings {
 		info := activeProcessingInfo{
 			Id: id,
-			Name: processing.Name,
+			Name: processing.Proc.GetName(),
 			InputChannel: processing.InputChannel,
 			InputProcessing: processing.InputProcessing,
 		}

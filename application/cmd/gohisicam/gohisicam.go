@@ -34,6 +34,7 @@ import (
 	_ "application/pkg/utils/temperature"
 
 	"application/pkg/logger"
+	"application/pkg/common"
 
     "application/pkg/utils/memparse"
 )
@@ -54,6 +55,8 @@ func main() {
 	flag.Parse()
 
 	logger.Init()
+
+	common.Init()
 
     var devInfo mpp.DeviceInfo
 

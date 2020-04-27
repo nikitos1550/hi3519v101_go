@@ -12,11 +12,10 @@ import (
 	"unsafe"
 )
 
-//export sendToEncoders
-func sendToEncoders(processingId C.uint, frame unsafe.Pointer) {
-	processing, exists := ActiveProcessings[int(processingId)]
+func sendToEncoders(processingId int, frame unsafe.Pointer) {
+	processing, exists := ActiveProcessings[processingId]
 	if (!exists) {
-		log.Println("processing not found", int(processingId))
+		log.Println("processing not found", processingId)
 	}
 
 	for encoderId, _ := range processing.Encoders {

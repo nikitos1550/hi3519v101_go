@@ -1,12 +1,11 @@
 package pipeline
 
 import (
-	"unsafe"
-
 	"application/pkg/mpp/venc"
 	"application/pkg/mpp/vpss"
 	"application/pkg/processing"
 
+	"application/pkg/common"
 	"application/pkg/logger"
 )
 
@@ -55,7 +54,7 @@ func CreatePipeline(encoderName string)  (int, string)  {
 		return -1, "Processing not created"
 	}
 
-	errId, err := vpss.SubscribeChannel(channelId, processingId, activeProcessing.Callback)
+	errId, err := vpss.SubscribeChannel(channelId, activeProcessing.Proc)
 	if errId < 0 {
 		return errId, err
 	}
@@ -86,7 +85,7 @@ func createChannelFromEncoder(encoder venc.PredefinedEncoder)  (vpss.Channel)  {
 		CropWidth: 0,
 		CropHeight: 0,
 		Started: true,
-		Clients: make(map[int] unsafe.Pointer),
+		Clients: make(map[common.Processing] bool),
 	}
 
 	return ch
