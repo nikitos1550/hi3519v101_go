@@ -46,7 +46,7 @@ int mpp_sys_init(error_in *err, mpp_sys_init_in *in) {
 
     mpp_error_code = HI_MPI_VB_SetConfig(&stVbConf);
     if (mpp_error_code != HI_SUCCESS) {
-        RETURN_ERR_MPP(ERR_F_, mpp_error_code);
+        RETURN_ERR_MPP(ERR_F_HI_MPI_VB_SetConfig, mpp_error_code);
     }
 
     #endif // defined(HI3516CV500) || defined(HI3516EV200) || defined(HI3519AV100) || defined(HI3559AV100)    
