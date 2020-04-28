@@ -1,12 +1,14 @@
 package vi
 
-//#include "../include/mpp.h"
+//#include "vi.h"
 import "C"
 
 import (
     "flag"
+    "application/pkg/buildinfo"
     "application/pkg/logger"
     "application/pkg/mpp/cmos"
+    "application/pkg/mpp/errmpp"
 )
 
 var (
@@ -17,6 +19,11 @@ var (
     width int
     height int
     fps int
+
+    ldc bool
+    ldcOffsetX int
+    ldcOffsetY int
+    ldcK  int
 )
 
 func Width() int {
@@ -38,7 +45,33 @@ func init() {
     flag.IntVar(&width, "vi-width", -1, "width of capture image")
     flag.IntVar(&height, "vi-height", -1, "height of capture image")
     flag.IntVar(&fps, "vi-fps", -1, "base framerate, should be less or equal cmos")
+
+    if buildinfo.Family == "hi3516av100" {
+    //IF HI3516AV100
+    /*
+    When the resolution of the captured VI picture is not greater than D1, the value range of s32Ratio is [0, 480].
+    When the resolution of the captured VI picture is greater than D1 but not greater than 720p, the value range of s32Ratio is [0, 433].
+    When the resolution of the captured VI picture is greater than 720p but not greater than 1080p, the value range of s32Ratio is [0, 400].
+    When the resolution of the captured VI picture is greater than 1080p but not greater than 2304 x 1536, the value range of s32Ratio is [0, 300].
+    When the resolution of the captured VI picture is greater than 2304 x 1536 but not greater than 5 megapixels, the value range of s32Ratio is [0, 168].
+    */
+        flag.BoolVar(&ldc, "vi-ldc", false, "LDC enable")
+        flag.IntVar(&ldcOffsetX, "vi-ldc-offset-x", 0, "LDC x offset from center [-75;75]")
+        flag.IntVar(&ldcOffsetY, "vi-ldc-offset-y", 0, "LDC y offset from center [-75;75]")
+        flag.IntVar(&ldcK, "vi-ldc-k", 0, "LDC coefficient [0;168]")
+    //ENDIF
+    }
+
+    if buildinfo.Family == "hi3516av200" {
+    //IF HI3516AV200
+        flag.BoolVar(&ldc, "vi-ldc", false, "LDC enable")
+        flag.IntVar(&ldcOffsetX, "vi-ldc-offset-x", 0, "LDC x offset from center [-127;127]")
+        flag.IntVar(&ldcOffsetY, "vi-ldc-offset-y", 0, "LDC y offset from center [-127;127]")
+        flag.IntVar(&ldcK, "vi-ldc-k", 0, "LDC coefficient [-300;500]")
+    //ENDIF
+    }
 }
+
 
 func Init() {
     /*
@@ -114,14 +147,115 @@ func Init() {
             Msg("vi-fps should be greater than 0 and less or equal cmos fps")
     }
 
-    //mirror =  true
+    var inErr C.error_in
+    var in C.mpp_vi_init_in
 
+    if buildinfo.Family == "hi3516av100" {
+        if ldc == true {
+            if ldcOffsetX < -75 || ldcOffsetX > 75 {
+                logger.Log.Fatal().
+                    Int("ldc-offset-x", ldcOffsetX).
+                    Msg("vi-ldc-offset-x should be [-75;75]")
+            }
+            if ldcOffsetY < -75 || ldcOffsetY > 75 {
+                logger.Log.Fatal().
+                    Int("ldc-offset-y", ldcOffsetY).
+                    Msg("vi-ldc-offset-y should be [-75;75]")
+            }
+            if ldcK < 0 || ldcK > 168 {
+                logger.Log.Fatal().
+                    Int("ldc-k", ldcK).
+                    Msg("vi-ldc-k should be [0;168]")
+            }
+
+            in.ldc = 1
+            in.ldc_offset_x = C.int(ldcOffsetX)
+            in.ldc_offset_y = C.int(ldcOffsetY)
+            in.ldc_k = C.int(ldcK)
+        }
+    }
+    if buildinfo.Family == "hi3516av200" {
+        if ldc == true {
+            if ldcOffsetX < -127 || ldcOffsetX > 127 {
+                logger.Log.Fatal().
+                    Int("ldc-offset-x", ldcOffsetX).
+                    Msg("vi-ldc-offset-x should be [-127;127]")
+            }
+            if ldcOffsetY < -127 || ldcOffsetY > 127 {
+                logger.Log.Fatal().
+                    Int("ldc-offset-y", ldcOffsetY).
+                    Msg("vi-ldc-offset-y should be [-127;127]")
+            }
+            if ldcK < -300 || ldcK > 500 {
+                logger.Log.Fatal().
+                    Int("ldc-k", ldcK).
+                    Msg("vi-ldc-k should be [-300;500]")
+            }
+
+            in.ldc = 1
+            in.ldc_offset_x = C.int(ldcOffsetX)
+            in.ldc_offset_y = C.int(ldcOffsetY)
+            in.ldc_k = C.int(ldcK)
+        }
+    }
+
+    if flipY == true {
+        in.mirror = 1
+    }
+    if flipX == true {
+        in.flip = 1
+    }
+
+    in.videv = cmos.S.ViDev()
+    in.cmos_width = C.uint(cmos.S.Width())
+    in.cmos_height = C.uint(cmos.S.Height())
+    in.x0 = C.uint(x0)
+    in.y0 = C.uint(y0)
+    in.width = C.uint(width)
+    in.height = C.uint(height)
+    in.cmos_fps = C.uint(cmos.S.Fps())
+    in.fps = C.uint(fps)
+
+    logger.Log.Trace().
+        Uint("mirror", uint(in.mirror)).
+        Uint("flip", uint(in.flip)).
+        Uint("cmos_width", uint(in.cmos_width)).
+        Uint("cmos_height", uint(in.cmos_height)).
+        Uint("x0", uint(in.x0)).
+        Uint("y0", uint(in.y0)).
+        Uint("width", uint(in.width)).
+        Uint("height", uint(in.height)).
+        Uint("cmos_fps", uint(in.cmos_fps)).
+        Uint("fps", uint(in.fps)).
+        Uint("ldc", uint(in.ldc)).
+        Int("ldc-offset-x", int(in.ldc_offset_x)).
+        Int("ldc-offset-y", int(in.ldc_offset_y)).
+        Int("ldc-k", int(in.ldc_k)).
+        Msg("VI params")
+
+    err := C.mpp_vi_init(&inErr, &in)
+
+    if err != 0 {
+        //return errmpp.New(uint(inErr.f), uint(inErr.mpp))
+        logger.Log.Fatal().
+            Str("error", errmpp.New(uint(inErr.f), uint(inErr.mpp)).Error()).
+            Msg("VI")
+    }
+    /*
     err := initFamily()
     if err != nil {
         logger.Log.Fatal().
             Str("error", err.Error()).
             Msg("VI")
     }
+    */
     logger.Log.Debug().
         Msg("VI inited")
+}
+
+
+
+//export go_logger_vi
+func go_logger_vi(level C.int, msgC *C.char) {
+        logger.CLogger("VI", int(level), C.GoString(msgC))
 }
