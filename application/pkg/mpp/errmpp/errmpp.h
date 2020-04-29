@@ -1,5 +1,4 @@
-#ifndef ERRMPP_H_
-#define ERRMPP_H_
+#pragma once
 
 #define ERR_NONE                    0
 #define ERR_MPP                     1
@@ -21,4 +20,3 @@ typedef int error_general;
 
 #include "functions.h"
 
-#endif // ERRMPP_H_

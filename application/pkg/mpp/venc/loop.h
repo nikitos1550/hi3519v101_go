@@ -1,5 +1,4 @@
-#ifndef _LOOP_H
-#define _LOOP_H
+#pragma once
 
 //forward declarations
 int mpp_data_loop_add(unsigned int *error_code, unsigned int venc_channel_id);
@@ -24,6 +23,4 @@ int mpp3_venc_sample_mjpeg(unsigned int *error_code, int width, int height, int 
 int mpp3_venc_sample_h264(unsigned int *error_code, int width, int height, int bitrate, int channelId);
 int mpp3_venc_sample_h265(unsigned int *error_code, int width, int height, int bitrate, int channelId);
 int mpp3_venc_delete_encoder(unsigned int *error_code, int channelId);
-
-#endif //_LOOP_H
 

@@ -1,5 +1,4 @@
-#ifndef SYS_H_
-#define SYS_H_
+#pragma once
 
 #include "../include/mpp.h"
 #include "../errmpp/errmpp.h"
@@ -14,5 +13,3 @@ typedef struct mpp_sys_init_in_struct {
 } mpp_sys_init_in;
 
 int mpp_sys_init(error_in *err, mpp_sys_init_in *in);
-
-#endif // SYS_H_

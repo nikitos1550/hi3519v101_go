@@ -1,5 +1,4 @@
-#ifndef HI3516CV100_MPP_H_
-#define HI3516CV100_MPP_H_
+#pragma once 
 
 #include "acodec.h"
 #include "hi_ae_comm.h"
@@ -63,6 +62,4 @@
 #include "mpi_vo.h"
 #include "mpi_vpss.h"
 //#include "mkp/mod_ext.h"
-
-#endif // HI3516AV200_MPP_H_
 

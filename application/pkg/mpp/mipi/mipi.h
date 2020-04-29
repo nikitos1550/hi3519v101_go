@@ -1,5 +1,4 @@
-#ifndef MIPI_H_
-#define MIPI_H_
+#pragma once
 
 #include "../include/mpp.h"
 #include "../errmpp/errmpp.h"
@@ -16,4 +15,3 @@ typedef struct mpp_mipi_init_in_struct {
 
 int mpp_mipi_init(error_in *err, mpp_mipi_init_in *in);
 
-#endif // MIPI_H_

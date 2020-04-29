@@ -1,5 +1,4 @@
-#ifndef _LOGGER_H
-#define _LOGGER_H
+#pragma once
 
 #define LOGGER_PANIC 	5
 #define LOGGER_FATAL 	4
@@ -42,6 +41,4 @@ void go_logger_sys(int level, char * msg);
 void go_logger_venc(int level, char * msg);
 void go_logger_vpss(int level, char * msg);
 //void go_logger_loop(int level, char * msg);
-
-#endif //_LOGGER_H
 

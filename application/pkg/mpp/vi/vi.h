@@ -1,5 +1,4 @@
-#ifndef VI_H_
-#define VI_H_
+#pragma once
 
 #include "../include/mpp.h"
 #include "../errmpp/errmpp.h"
@@ -30,6 +29,4 @@ typedef struct mpp_vi_init_in_struct {
 } mpp_vi_init_in;
 
 int mpp_vi_init(error_in *err, mpp_vi_init_in * in);
-
-#endif // SYS_H_
 

@@ -1,5 +1,4 @@
-#ifndef MPP_H_
-#define MPP_H_
+#pragma once
 
 #ifdef HI3516CV100 //Family includes
     #include "../include/hi3516cv100_mpp.h"
@@ -33,5 +32,4 @@
     #include "../include/hi3519av100.h"
 #endif
 
-#endif //MPP_H_
 

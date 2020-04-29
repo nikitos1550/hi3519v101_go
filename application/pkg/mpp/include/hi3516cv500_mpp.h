@@ -1,5 +1,4 @@
-#ifndef HI3516CV500_MPP_H_
-#define HI3516CV500_MPP_H_
+#pragma once
 
 #include "aacdec.h"          
 #include "hi_af_comm.h"
@@ -97,4 +96,3 @@
 #include "mpi_venc.h"   
 #include "osal_mmz.h"
 
-#endif // HI3516CV500_MPP_H_

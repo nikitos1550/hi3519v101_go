@@ -1,5 +1,4 @@
-#ifndef FUNCTIONS_H_
-#define FUNCTIONS_H_
+#pragma once
 
 //SYS
 #define ERR_F_HI_MPI_SYS_Init               1
@@ -48,4 +47,3 @@
 //TODO
 #define ERR_F_HI_MPI_VI_SetWDRAttr          38
 
-#endif // FUNCTIONS_H_

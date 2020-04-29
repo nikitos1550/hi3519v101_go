@@ -1,5 +1,4 @@
-#ifndef HI3516AV100_MPP_H_
-#define HI3516AV100_MPP_H_
+#pragma once
 
 #include "acodec.h"
 #include "hi_comm_adec.h"     
@@ -74,5 +73,4 @@
 #include "mpi_vdec.h"    
 #include "strlib.h"
 
-#endif // HI3516AV100_MPP_H_
 
