@@ -37,12 +37,15 @@ var (
 )
 
 func init() {
-	Processings = make(map[string] common.Processing)
 	ActiveProcessings = make(map[int] ActiveProcessing)
 	lastProcessingId = 0
 }
 
 func register(processing common.Processing){
+	if (Processings == nil){
+		Processings = make(map[string] common.Processing)
+	}
+
 	_, exists := Processings[processing.GetName()]
 	if (exists) {
 		log.Fatal("processing already exists", processing.GetName())
@@ -51,15 +54,21 @@ func register(processing common.Processing){
 	Processings[processing.GetName()] = processing
 }
 
-func CreateProcessing(processingName string)  (int, string)  {
+func CreateProcessing(processingName string, params map[string][]string)  (int, string)  {
 	processing, exists := Processings[processingName]
 	if (!exists) {
 		return -1, "Processing not found"
 	}
 
 	lastProcessingId++
+
+	p,err,errString := processing.Create(lastProcessingId, params)
+	if (err < 0){
+		return err,errString
+	}
+
 	activeProcessing := ActiveProcessing{
-		Proc: processing.Create(lastProcessingId),
+		Proc: p,
 		InputChannel: -1,
 		InputProcessing: -1,
 		Encoders: make(map[int] bool),
@@ -91,6 +100,7 @@ func DeleteProcessing(processingId int)  (int, string)  {
 		}
 	}
 
+	activeProcessing.Proc.Destroy()
 	delete(ActiveProcessings, processingId)
 
 	return 0, ""

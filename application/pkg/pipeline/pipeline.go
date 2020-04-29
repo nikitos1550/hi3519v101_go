@@ -37,7 +37,8 @@ func CreatePipeline(encoderName string)  (int, string)  {
 	}
 	logger.Log.Info().Int("channelId", channelId).Msg("Channel was created")
 
-	processingId, err := processing.CreateProcessing("proxy")
+	params := make(map[string][]string)
+	processingId, err := processing.CreateProcessing("proxy", params)
 	if processingId < 0 {
 		return processingId, err
 	}

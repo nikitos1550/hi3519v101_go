@@ -57,7 +57,7 @@ func createProcessingRequest(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
-	id, errorString := CreateProcessing(processingName)
+	id, errorString := CreateProcessing(processingName, r.URL.Query())
 	if id < 0 {
 		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: errorString})
 		return
