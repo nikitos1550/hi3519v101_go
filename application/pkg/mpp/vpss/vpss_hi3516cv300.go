@@ -1,3 +1,5 @@
+//+build nobuild
+
 //+build arm
 //+build hi3516cv300
 
@@ -283,6 +285,7 @@ func sendDataToClients(channel Channel) {
 
         var err C.int
         var inErr C.error_in
+        var frame unsafe.Pointer
 
         err = C.hi3516cv300_receive_frame(&inErr, C.uint(channel.ChannelId));
         if err != C.ERR_NONE {
@@ -293,9 +296,15 @@ func sendDataToClients(channel Channel) {
             continue
         }
 
+        /*
         for processingId, callback := range channel.Clients {
             C.mpp3_send_frame_to_clients(C.uint(channel.ChannelId), C.uint(processingId), callback);
         }
+        */
+        for processing, _ := range channel.Clients {
+            processing.Callback(frame)
+        }
+
 
         err = C.hi3516cv300_release_frame(&inErr, C.uint(channel.ChannelId));
         if err != C.ERR_NONE {

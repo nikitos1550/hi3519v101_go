@@ -4,7 +4,7 @@ package sys
 import "C"
 
 import (
-    "application/pkg/mpp/cmos"
+    _ "application/pkg/mpp/cmos"
     "application/pkg/mpp/errmpp"
     "application/pkg/logger"
 )
@@ -22,8 +22,9 @@ func Init(chip string) {
     var inErr C.error_in
     var in C.mpp_sys_init_in
 
-    in.width = C.uint(width)
-    in.height = C.uint(height)
+    //TODO should be taken from VI!
+    in.width = C.uint(cmos.S.Width()) //C.uint(width)
+    in.height = C.uint(cmos.S.Height()) //C.uint(height)
 
     if chip == "hi3516ev100" { //TODO calc mem smart, now 32MB mpp ram only for hi3516ev100
         in.cnt = 5

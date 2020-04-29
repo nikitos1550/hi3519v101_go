@@ -47,28 +47,24 @@ func init() {
     flag.IntVar(&fps, "vi-fps", -1, "base framerate, should be less or equal cmos")
 
     if buildinfo.Family == "hi3516av100" {
-    //IF HI3516AV100
-    /*
-    When the resolution of the captured VI picture is not greater than D1, the value range of s32Ratio is [0, 480].
-    When the resolution of the captured VI picture is greater than D1 but not greater than 720p, the value range of s32Ratio is [0, 433].
-    When the resolution of the captured VI picture is greater than 720p but not greater than 1080p, the value range of s32Ratio is [0, 400].
-    When the resolution of the captured VI picture is greater than 1080p but not greater than 2304 x 1536, the value range of s32Ratio is [0, 300].
-    When the resolution of the captured VI picture is greater than 2304 x 1536 but not greater than 5 megapixels, the value range of s32Ratio is [0, 168].
-    */
+        /*
+        When the resolution of the captured VI picture is not greater than D1, the value range of s32Ratio is [0, 480].
+        When the resolution of the captured VI picture is greater than D1 but not greater than 720p, the value range of s32Ratio is [0, 433].
+        When the resolution of the captured VI picture is greater than 720p but not greater than 1080p, the value range of s32Ratio is [0, 400].
+        When the resolution of the captured VI picture is greater than 1080p but not greater than 2304 x 1536, the value range of s32Ratio is [0, 300].
+        When the resolution of the captured VI picture is greater than 2304 x 1536 but not greater than 5 megapixels, the value range of s32Ratio is [0, 168].
+        */
         flag.BoolVar(&ldc, "vi-ldc", false, "LDC enable")
         flag.IntVar(&ldcOffsetX, "vi-ldc-offset-x", 0, "LDC x offset from center [-75;75]")
         flag.IntVar(&ldcOffsetY, "vi-ldc-offset-y", 0, "LDC y offset from center [-75;75]")
         flag.IntVar(&ldcK, "vi-ldc-k", 0, "LDC coefficient [0;168]")
-    //ENDIF
     }
 
     if buildinfo.Family == "hi3516av200" {
-    //IF HI3516AV200
         flag.BoolVar(&ldc, "vi-ldc", false, "LDC enable")
         flag.IntVar(&ldcOffsetX, "vi-ldc-offset-x", 0, "LDC x offset from center [-127;127]")
         flag.IntVar(&ldcOffsetY, "vi-ldc-offset-y", 0, "LDC y offset from center [-127;127]")
         flag.IntVar(&ldcK, "vi-ldc-k", 0, "LDC coefficient [-300;500]")
-    //ENDIF
     }
 }
 
@@ -174,6 +170,7 @@ func Init() {
             in.ldc_k = C.int(ldcK)
         }
     }
+
     if buildinfo.Family == "hi3516av200" {
         if ldc == true {
             if ldcOffsetX < -127 || ldcOffsetX > 127 {
@@ -235,25 +232,14 @@ func Init() {
 
     err := C.mpp_vi_init(&inErr, &in)
 
-    if err != 0 {
-        //return errmpp.New(uint(inErr.f), uint(inErr.mpp))
+    if err != C.ERR_NONE {
         logger.Log.Fatal().
             Str("error", errmpp.New(uint(inErr.f), uint(inErr.mpp)).Error()).
             Msg("VI")
     }
-    /*
-    err := initFamily()
-    if err != nil {
-        logger.Log.Fatal().
-            Str("error", err.Error()).
-            Msg("VI")
-    }
-    */
     logger.Log.Debug().
         Msg("VI inited")
 }
-
-
 
 //export go_logger_vi
 func go_logger_vi(level C.int, msgC *C.char) {

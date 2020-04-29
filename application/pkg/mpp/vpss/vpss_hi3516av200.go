@@ -1,3 +1,5 @@
+//+build nobuild
+
 //+build arm
 //+build hi3516av200
 
@@ -200,6 +202,7 @@ static int hi3516av200_release_frame(error_in *err, unsigned int channel_id) {
 */
 import "C"
 
+/*
 import (
     "flag"
     "unsafe"
@@ -257,7 +260,8 @@ func initFamily() error {
 
     return nil
 }
-
+*/
+/*
 func createChannel(channel Channel) { //TODO return error
     var inErr C.error_in
     var in C.hi3516av200_vpss_create_channel_in
@@ -290,7 +294,8 @@ func createChannel(channel Channel) { //TODO return error
 
     //return nil
 }
-
+*/
+/*
 func destroyChannel(channel Channel) { //TODO return error
     var inErr C.error_in
     var in C.hi3516av200_vpss_destroy_channel_in
@@ -351,3 +356,4 @@ func sendDataToClients(channel Channel) {
         Str("name", "sendDataToClients").
         Msg("VPSS rutine stopped")
 }
+*/

@@ -26,6 +26,8 @@ var (
 	//TotalRam string
 	//LinuxRam string
 	//MppRam   string
+
+    Chip string
 )
 
 //TODO make insternal structs by goups (build group, toolchain group, board group, etc)

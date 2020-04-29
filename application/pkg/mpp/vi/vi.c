@@ -196,7 +196,8 @@ int mpp_vi_init(int *error_code, mpp_vi_init_in *in) {
 }
 #endif // defined(HI3516AV100)
 
-#if defined(HI3516AV200)
+#if defined(HI3516AV200) //\
+//    || defined(HI3516CV300)
 int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
     unsigned int mpp_error_code = 0;
 
@@ -223,17 +224,11 @@ int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
 
     mpp_error_code = HI_MPI_VI_SetDevAttr(0, &stViDevAttr);
     if (mpp_error_code != HI_SUCCESS) {
-        //GO_LOG_VI(LOGGER_ERROR, "HI_MPI_VI_SetDevAttr");
-        //err->mpp = mpp_error_code;
-        //return ERR_MPP;
         RETURN_ERR_MPP(ERR_F_HI_MPI_VI_SetDevAttr, mpp_error_code);
     }
 
     mpp_error_code = HI_MPI_VI_EnableDev(0);
     if (mpp_error_code != HI_SUCCESS) {
-        //GO_LOG_VI(LOGGER_ERROR, "HI_MPI_VI_EnableDev")
-        //err->mpp = mpp_error_code;
-        //return ERR_MPP;
         RETURN_ERR_MPP(ERR_F_HI_MPI_VI_EnableDev, mpp_error_code);
     }
 
@@ -287,9 +282,6 @@ int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
 
     mpp_error_code = HI_MPI_VI_SetChnAttr(0, &stChnAttr);
     if (mpp_error_code != HI_SUCCESS) {
-        //GO_LOG_VI(LOGGER_ERROR, "HI_MPI_VI_SetChnAttr")   
-        //err->mpp = mpp_error_code;
-        //return ERR_MPP;
         RETURN_ERR_MPP(ERR_F_HI_MPI_VI_SetChnAttr, mpp_error_code);
     }
 
@@ -306,9 +298,6 @@ int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
     
         mpp_error_code = HI_MPI_VI_SetLDCAttr(0, &stLDCAttr);
         if (mpp_error_code != HI_SUCCESS) {
-            //GO_LOG_VI(LOGGER_ERROR, "HI_MPI_VI_SetLDCAttr")
-            //err->mpp = mpp_error_code;
-            //return ERR_MPP;
             RETURN_ERR_MPP(ERR_F_HI_MPI_VI_SetLDCAttr, mpp_error_code);
         }
         //Obtain LDC attributes.
@@ -321,9 +310,6 @@ int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
 
     mpp_error_code = HI_MPI_VI_EnableChn(0);
     if (mpp_error_code != HI_SUCCESS) {
-        //GO_LOG_VI(LOGGER_ERROR, "HI_MPI_VI_EnableChn")
-        //err->mpp = mpp_error_code;
-        //return ERR_MPP;
         RETURN_ERR_MPP(ERR_F_HI_MPI_VI_EnableChn, mpp_error_code);
     }
 

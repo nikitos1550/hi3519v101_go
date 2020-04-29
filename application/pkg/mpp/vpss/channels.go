@@ -7,7 +7,7 @@ import (
     //"errors"
 
     "application/pkg/common"
-    "application/pkg/logger"
+    //"application/pkg/logger"
 )
 
 type Channel struct {
@@ -32,6 +32,7 @@ func init() {
 	Channels = make(map[int] Channel)
 }
 
+/*
 func Init() {
     err := initFamily()
     if err != nil {
@@ -43,6 +44,7 @@ func Init() {
         Msg("VPSS inited")
 
 }
+*/
 
 func StartChannel(channel Channel)  (int, string)  {
 	_, channelExists := Channels[channel.ChannelId]

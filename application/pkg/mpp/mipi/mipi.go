@@ -4,42 +4,40 @@ package mipi
 import "C"
 
 import (
-    "unsafe"
+    //"unsafe"
     "errors"
     "application/pkg/mpp/cmos"
     "application/pkg/logger"
+    "application/pkg/buildinfo"
 )
 
 var (
-    mipi unsafe.Pointer
+    //mipi unsafe.Pointer
 )
 
 func Init() {
-    mipi = cmos.S.Mipi()
 
-    err := initFamily()
-    if err != nil {
-        logger.Log.Fatal().
-            Str("error", err.Error()).
-            Msg("MIPI")
+    if buildinfo.Family != "hi3516cv100" {
+
+        //mipi = cmos.S.Mipi()
+
+        var inErr C.error_in
+        var in C.mpp_mipi_init_in
+
+        in.mipi = cmos.S.Mipi()
+
+        err := C.mpp_mipi_init(&inErr, &in)
+
+        if err != C.ERR_NONE {
+            logger.Log.Fatal().
+                Str("error", errors.New("MIPI error TODO").Error()).
+                Msg("MIPI")
+        }
+
     }
+
     logger.Log.Debug().
         Msg("MIPI inited")
-
-}
-
-func initFamily() error {
-    var inErr C.error_in
-    var in C.mpp_mipi_init_in
-
-    in.mipi = mipi
-
-    err := C.mpp_mipi_init(&inErr, &in)
-    if err != C.ERR_NONE {
-        return errors.New("MIPI error TODO")
-    }
-
-    return nil
 }
 
 //export go_logger_mipi
