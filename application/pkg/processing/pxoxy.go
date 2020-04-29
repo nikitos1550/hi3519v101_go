@@ -22,14 +22,14 @@ func (p proxy) GetId() int {
 	return p.Id
 }
 
-func (p proxy) Create(id int) common.Processing {
+func (p proxy) Create(id int, params map[string][]string) (common.Processing,int,string) {
 	var v proxy
 	v.Name = "proxy"
 	v.Id = id
-	return v
+	return v,id,""
 }
 
-func (p proxy) Init() {
+func (p proxy) Destroy() {
 }
 
 func (p proxy) Callback(data unsafe.Pointer) {

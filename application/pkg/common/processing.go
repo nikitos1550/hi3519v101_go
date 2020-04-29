@@ -7,8 +7,8 @@ import (
 type Processing interface {
 	GetName() string
 	GetId() int
-	Create(id int) Processing
-	Init() 
+	Create(id int, params map[string][]string) (Processing,int,string)
+	Destroy()
 	Callback(unsafe.Pointer)
 }
 

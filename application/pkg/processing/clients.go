@@ -15,13 +15,13 @@ import (
 func sendToEncoders(processingId int, frame unsafe.Pointer) {
 	processing, exists := ActiveProcessings[processingId]
 	if (!exists) {
-		log.Println("processing not found", processingId)
+		log.Println("Failed to send frame, processing not found", processingId)
 	}
 
 	for encoderId, _ := range processing.Encoders {
 		err := C.sendToEncoder(C.uint(encoderId), frame)
 		if (err != 0){
-			log.Println("failed send to encoder", int(err))
+			log.Println("failed send frame to encoder", int(err))
 		}
 	}
 }
