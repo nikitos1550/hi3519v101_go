@@ -10,33 +10,54 @@ import (
 )
 
 var (
-    width int
-    height int
-    cnt int
+    //width int
+    //height int
+    //cnt int
 )
 
 func Init(chip string) {
-    width = cmos.S.Width()
-    height = cmos.S.Height()
+    //width = cmos.S.Width()
+    //height = cmos.S.Height()
+
+    var inErr C.error_in
+    var in C.mpp_sys_init_in
+
+    in.width = C.uint(width)
+    in.height = C.uint(height)
 
     if chip == "hi3516ev100" { //TODO calc mem smart, now 32MB mpp ram only for hi3516ev100
-        cnt = 5
+        in.cnt = 5
     } else {
-        cnt = 10
+        in.cnt = 10
     }
 
+    logger.Log.Trace().
+        Uint("width", uint(in.width)).
+        Uint("height", uint(in.height)).
+        Uint("cnt", uint(in.cnt)).
+        Msg("SYS params")
+
+    err := C.mpp_sys_init(&inErr, &in)
+    if err != C.ERR_NONE {
+        //return errmpp.New(uint(inErr.f), uint(inErr.mpp))
+        logger.Log.Fatal().
+            Str("error", errmpp.New(uint(inErr.f), uint(inErr.mpp)).Error()).
+            Msg("SYS")
+
+    }
+    /*
     err := initFamily()
     if err != nil {
         logger.Log.Fatal().
             Str("error", err.Error()).
             Msg("SYS")
     }
-
+    */
     logger.Log.Debug().
         Msg("SYS inited")
 }
 
-func initFamily() error {
+/*func initFamily() error {
     var inErr C.error_in
     var in C.mpp_sys_init_in
 
@@ -56,7 +77,8 @@ func initFamily() error {
     }
 
     return nil
-}
+}*/
+
 
 //export go_logger_sys
 func go_logger_sys(level C.int, msgC *C.char) {
