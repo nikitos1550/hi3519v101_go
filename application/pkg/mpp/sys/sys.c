@@ -13,7 +13,7 @@ int mpp_sys_init(error_in *err, mpp_sys_init_in *in) {
         RETURN_ERR_MPP(ERR_F_HI_MPI_VB_Exit, mpp_error_code);
     }
 
-	mpp_error_code = mpp_sys_vb_conf(in);
+    mpp_error_code = mpp_sys_vb_conf(in);
     if (mpp_error_code != HI_SUCCESS) {
     	RETURN_ERR_MPP(ERR_F_HI_MPI_VB_SetConf, mpp_error_code);//TODO
     }
@@ -41,20 +41,25 @@ int mpp_sys_init(error_in *err, mpp_sys_init_in *in) {
     return ERR_NONE;
 }
 
-#if defined(HI3516AV100) || defined(HI3516AV200) || defined(HI3516CV100) || defined(HI3516CV200) || defined(HI3516CV300)
+#if defined(HI3516AV100) \
+    || defined(HI3516AV200) \
+    || defined(HI3516CV100) \
+    || defined(HI3516CV200) \
+    || defined(HI3516CV300)
 inline int mpp_sys_vb_conf(mpp_sys_init_in *in) {
-	VB_CONF_S stVbConf;
+    VB_CONF_S stVbConf;
 
-	memset(&stVbConf, 0, sizeof(VB_CONF_S));
+    memset(&stVbConf, 0, sizeof(VB_CONF_S));
     stVbConf.u32MaxPoolCnt                  = 128;
     stVbConf.astCommPool[0].u32BlkSize      = (CEILING_2_POWER(in->width, 64) * CEILING_2_POWER(in->height, 64) * 1.5);
     stVbConf.astCommPool[0].u32BlkCnt       = in->cnt;
                         
  	return HI_MPI_VB_SetConf(&stVbConf);
 }
-#endif // defined(HI3516AV100) || defined(HI3516AV200) || defined(HI3516CV100) || defined(HI3516CV200) || defined(HI3516CV300)
-
-#if defined(HI3516CV500) || defined(HI3516EV200) || defined(HI3519AV100) || defined(HI3559AV100)
+#elif defined(HI3516CV500) \
+    || defined(HI3516EV200) \
+    || defined(HI3519AV100) \
+    || defined(HI3559AV100)
 inline int mpp_sys_vb_conf(mpp_sys_init_in *in) {
 
     VB_CONFIG_S        stVbConf;
@@ -71,4 +76,4 @@ inline int mpp_sys_vb_conf(mpp_sys_init_in *in) {
 
     return HI_MPI_VB_SetConfig(&stVbConf);
 }
-#endif // defined(HI3516CV500) || defined(HI3516EV200) || defined(HI3519AV100) || defined(HI3559AV100)<Paste>
+#endif
