@@ -16,10 +16,10 @@ int mpp_vpss_init(error_in *err, mpp_vpss_init_in *in) {
     stVpssGrpAttr.bHistEn           = HI_FALSE;                         //reserved
 
     if (in->nr == 1) {
-        GO_LOG_VPSS(LOGGER_TRACE, "VPSS NR on");
+        //GO_LOG_VPSS(LOGGER_TRACE, "VPSS NR on");
         stVpssGrpAttr.bNrEn = HI_TRUE;
     } else {
-        GO_LOG_VPSS(LOGGER_TRACE, "VPSS NR off");
+        //GO_LOG_VPSS(LOGGER_TRACE, "VPSS NR off");
         stVpssGrpAttr.bNrEn = HI_FALSE;
     }
 
@@ -49,9 +49,9 @@ int mpp_vpss_init(error_in *err, mpp_vpss_init_in *in) {
     stVpssGrpAttr.enDieMode         = VPSS_DIE_MODE_NODIE;              //reserved
     stVpssGrpAttr.enPixFmt          = PIXEL_FORMAT_YUV_SEMIPLANAR_420;  //yuv420 or yuv422
 
-    DO_OR_RETURN_MPP(HI_MPI_VPSS_CreateGrp, 0, &stVpssGrpAttr);
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_CreateGrp, 0, &stVpssGrpAttr);
 
-    DO_OR_RETURN_MPP(HI_MPI_VPSS_StartGrp, 0);
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_StartGrp, 0);
 
     MPP_CHN_S stSrcChn;
     MPP_CHN_S stDestChn;
@@ -64,7 +64,7 @@ int mpp_vpss_init(error_in *err, mpp_vpss_init_in *in) {
     stDestChn.s32DevId = 0;
     stDestChn.s32ChnId = 0;
 
-    DO_OR_RETURN_MPP(HI_MPI_SYS_Bind, &stSrcChn, &stDestChn);
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_SYS_Bind, &stSrcChn, &stDestChn);
 
     return ERR_NONE;
 }
@@ -91,7 +91,7 @@ int mpp_vpss_create_channel(error_in *err, mpp_vpss_create_channel_in * in) {
     stVpssChnAttr.s32SrcFrameRate = in->vi_fps;
     stVpssChnAttr.s32DstFrameRate = in->fps;
 
-    DO_OR_RETURN_MPP(HI_MPI_VPSS_SetChnAttr, 0, in->channel_id, &stVpssChnAttr);
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_SetChnAttr, 0, in->channel_id, &stVpssChnAttr);
 
     VPSS_CHN_MODE_S stVpssChnMode;
 
@@ -102,13 +102,13 @@ int mpp_vpss_create_channel(error_in *err, mpp_vpss_create_channel_in * in) {
     stVpssChnMode.u32Height      = in->height;
     stVpssChnMode.enCompressMode = COMPRESS_MODE_NONE; //COMPRESS_MODE_SEG;
 
-    DO_OR_RETURN_MPP(HI_MPI_VPSS_SetChnMode, 0, in->channel_id, &stVpssChnMode);
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_SetChnMode, 0, in->channel_id, &stVpssChnMode);
 
     HI_U32 u32Depth = 1; //TODO
 
-    DO_OR_RETURN_MPP(HI_MPI_VPSS_SetDepth, 0, in->channel_id, u32Depth);
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_SetDepth, 0, in->channel_id, u32Depth);
 
-    DO_OR_RETURN_MPP(HI_MPI_VPSS_EnableChn, 0, in->channel_id);
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_EnableChn, 0, in->channel_id);
 
     return ERR_NONE;
 }
@@ -116,7 +116,7 @@ int mpp_vpss_create_channel(error_in *err, mpp_vpss_create_channel_in * in) {
 int mpp_vpss_destroy_channel(error_in * err, mpp_vpss_destroy_channel_in *in) {
     unsigned int mpp_error_code = 0;
 
-    DO_OR_RETURN_MPP(HI_MPI_VPSS_DisableChn, 0, in->channel_id);
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_DisableChn, 0, in->channel_id);
 
     return ERR_NONE;
 }
@@ -124,7 +124,7 @@ int mpp_vpss_destroy_channel(error_in * err, mpp_vpss_destroy_channel_in *in) {
 int mpp_receive_frame(error_in *err, unsigned int channel_id, void** frame) {
     unsigned int mpp_error_code;
 
-    DO_OR_RETURN_MPP(HI_MPI_VPSS_GetChnFrame, 0, channel_id, &channelFrames[channel_id], -1); //blocking mode call
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_GetChnFrame, 0, channel_id, &channelFrames[channel_id], -1); //blocking mode call
 
     *frame = &channelFrames[channel_id];
     return ERR_NONE;
@@ -133,7 +133,7 @@ int mpp_receive_frame(error_in *err, unsigned int channel_id, void** frame) {
 int mpp_release_frame(error_in *err, unsigned int channel_id) {
     unsigned int mpp_error_code;
 
-    DO_OR_RETURN_MPP(HI_MPI_VPSS_ReleaseChnFrame, 0, channel_id, &channelFrames[channel_id]);
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_ReleaseChnFrame, 0, channel_id, &channelFrames[channel_id]);
 
     return ERR_NONE;
 }

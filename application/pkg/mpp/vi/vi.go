@@ -68,18 +68,7 @@ func init() {
     }
 }
 
-
-func Init() {
-    /*
-    logger.Log.Debug().
-        Uint("x0", x0).
-        Uint("y0", y0).
-        Int("width", width).
-        Int("height", height).
-        Int("fps", fps).
-        Msg("VI cmd params")
-    */
-
+func Params() {
     if width == -1 {
         width = cmos.S.Width()
     }
@@ -143,9 +132,13 @@ func Init() {
             Msg("vi-fps should be greater than 0 and less or equal cmos fps")
     }
 
+}
+
+func Init() {
     var inErr C.error_in
     var in C.mpp_vi_init_in
 
+    //TODO move LDS to Params
     if buildinfo.Family == "hi3516av100" {
         if ldc == true {
             if ldcOffsetX < -75 || ldcOffsetX > 75 {
@@ -234,7 +227,7 @@ func Init() {
 
     if err != C.ERR_NONE {
         logger.Log.Fatal().
-            Str("error", errmpp.New(uint(inErr.f), uint(inErr.mpp)).Error()).
+            Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
             Msg("VI")
     }
     logger.Log.Debug().

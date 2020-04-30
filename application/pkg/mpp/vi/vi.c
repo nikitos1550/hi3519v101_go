@@ -196,8 +196,8 @@ int mpp_vi_init(int *error_code, mpp_vi_init_in *in) {
 }
 #endif // defined(HI3516AV100)
 
-#if defined(HI3516AV200) //\
-//    || defined(HI3516CV300)
+#if defined(HI3516AV200) \
+    || defined(HI3516CV300)
 int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
     unsigned int mpp_error_code = 0;
 
@@ -207,30 +207,48 @@ int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
 
     memcpy(&stViDevAttr, in->videv, sizeof(stViDevAttr));
 
-    stViDevAttr.stDevRect.s32X                              = 0;
-    stViDevAttr.stDevRect.s32Y                              = 0;
-    stViDevAttr.stDevRect.u32Width                          = in->cmos_width; 
-    stViDevAttr.stDevRect.u32Height                         = in->cmos_height;
+    //ATTENTION, videv struct should be constructed here!!!!
+    //stViDevAttr.stDevRect.s32X                              = 0;
+    //stViDevAttr.stDevRect.s32Y                              = 0;
+    //stViDevAttr.stDevRect.u32Width                          = in->cmos_width; 
+    //stViDevAttr.stDevRect.u32Height                         = in->cmos_height;
 
-    //For Hi3519 V101, Dev0 does not support scaling and phase adjustment of the Bayer
-    //domain. Therefore, for Dev0, the width and height of stBasAttr must be the same as
-    //those of stDevRect. Dev1 supports scaling and phase adjustment of the Bayer domain.
-    //Note that the width and height can be scaled down only by the multiple of 1, 1/2, or 1/3.
-    //Otherwise, calling the interface fails.
+    #if defined(HI3516AV200)
+        //For Hi3519 V101, Dev0 does not support scaling and phase adjustment of the Bayer
+        //domain. Therefore, for Dev0, the width and height of stBasAttr must be the same as
+        //those of stDevRect. Dev1 supports scaling and phase adjustment of the Bayer domain.
+        //Note that the width and height can be scaled down only by the multiple of 1, 1/2, or 1/3.
+        //Otherwise, calling the interface fails.
     
-    stViDevAttr.stBasAttr.stSacleAttr.stBasSize.u32Width    = in->cmos_width; 
-    stViDevAttr.stBasAttr.stSacleAttr.stBasSize.u32Height   = in->cmos_height;
-    stViDevAttr.stBasAttr.stSacleAttr.bCompress             = HI_FALSE;
+        stViDevAttr.stBasAttr.stSacleAttr.stBasSize.u32Width    = in->cmos_width; 
+        stViDevAttr.stBasAttr.stSacleAttr.stBasSize.u32Height   = in->cmos_height;
+        stViDevAttr.stBasAttr.stSacleAttr.bCompress             = HI_FALSE;
+    #endif
 
-    mpp_error_code = HI_MPI_VI_SetDevAttr(0, &stViDevAttr);
-    if (mpp_error_code != HI_SUCCESS) {
-        RETURN_ERR_MPP(ERR_F_HI_MPI_VI_SetDevAttr, mpp_error_code);
-    }
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetDevAttr, 0, &stViDevAttr);
+    //mpp_error_code = HI_MPI_VI_SetDevAttr(0, &stViDevAttr);
+    //if (mpp_error_code != HI_SUCCESS) {
+    //    RETURN_ERR_MPP(err, ERR_F_HI_MPI_VI_SetDevAttr, mpp_error_code);
+    //}
+  
+    //TODO when we use 274 on 19v101 we set wdr in isp, but don`t set here in vi, but I am not sure
+    //VI_WDR_ATTR_S stWdrAttr;
+    //
+    //// WDR_MODE_NONE or WDR_MODE_2To1_LINE TODO
+    //stWdrAttr.enWDRMode = WDR_MODE_NONE;
+    //stWdrAttr.bCompress = HI_FALSE;
+    //
+    //mpp_error_code = HI_MPI_VI_SetWDRAttr(0, &stWdrAttr);
+    //if (mpp_error_code != HI_SUCCESS) {
+    //    RETURN_ERR_MPP(ERR_F_HI_MPI_VI_SetWDRAttr, mpp_error_code);
+    //}
 
-    mpp_error_code = HI_MPI_VI_EnableDev(0);
-    if (mpp_error_code != HI_SUCCESS) {
-        RETURN_ERR_MPP(ERR_F_HI_MPI_VI_EnableDev, mpp_error_code);
-    }
+
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_EnableDev, 0);
+    //mpp_error_code = HI_MPI_VI_EnableDev(0);
+    //if (mpp_error_code != HI_SUCCESS) {
+    //    RETURN_ERR_MPP(err, ERR_F_HI_MPI_VI_EnableDev, mpp_error_code);
+    //}
 
     RECT_S stCapRect;
 
@@ -280,10 +298,11 @@ int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
         stChnAttr.enCompressMode        = COMPRESS_MODE_SEG;
     }
 
-    mpp_error_code = HI_MPI_VI_SetChnAttr(0, &stChnAttr);
-    if (mpp_error_code != HI_SUCCESS) {
-        RETURN_ERR_MPP(ERR_F_HI_MPI_VI_SetChnAttr, mpp_error_code);
-    }
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetChnAttr, 0, &stChnAttr);
+    //mpp_error_code = HI_MPI_VI_SetChnAttr(0, &stChnAttr);
+    //if (mpp_error_code != HI_SUCCESS) {
+    //    RETURN_ERR_MPP(err, ERR_F_HI_MPI_VI_SetChnAttr, mpp_error_code);
+    //}
 
     if (in->ldc == 1) {
         VI_LDC_ATTR_S stLDCAttr;
@@ -296,10 +315,12 @@ int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
         stLDCAttr.stAttr.s32Ratio = in->ldc_k;
         stLDCAttr.stAttr.s32MinRatio = 0; //should be 0 for LDC_VIEW_TYPE_ALL
     
-        mpp_error_code = HI_MPI_VI_SetLDCAttr(0, &stLDCAttr);
-        if (mpp_error_code != HI_SUCCESS) {
-            RETURN_ERR_MPP(ERR_F_HI_MPI_VI_SetLDCAttr, mpp_error_code);
-        }
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetLDCAttr, 0, &stLDCAttr);
+        //mpp_error_code = HI_MPI_VI_SetLDCAttr(0, &stLDCAttr);
+        //if (mpp_error_code != HI_SUCCESS) {
+        //    RETURN_ERR_MPP(err, ERR_F_HI_MPI_VI_SetLDCAttr, mpp_error_code);
+        //}
+
         //Obtain LDC attributes.
         //s32Ret = HI_MPI_VI_GetLDCAttr (0, &stLDCAttr);
         //if (HI_SUCCESS != s32Ret) {
@@ -308,102 +329,115 @@ int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
         //}
     }
 
-    mpp_error_code = HI_MPI_VI_EnableChn(0);
-    if (mpp_error_code != HI_SUCCESS) {
-        RETURN_ERR_MPP(ERR_F_HI_MPI_VI_EnableChn, mpp_error_code);
-    }
+    //hi3516av200
+    //// when VI-VPSS online, VI Rotate is not support, HI_MPI_VI_SetRotate will failed
+    //if (ROTATE_NONE != enRotate && !SAMPLE_COMM_IsViVpssOnline()) {
+    //    s32Ret = HI_MPI_VI_SetRotate(ViChn, enRotate);
+    //    if (s32Ret != HI_SUCCESS)
+    //    {
+    //        SAMPLE_PRT("HI_MPI_VI_SetRotate failed with %#x!\n", s32Ret);
+    //        return HI_FAILURE;
+    //    }
+    //}
+
+
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_EnableChn, 0);
+    //mpp_error_code = HI_MPI_VI_EnableChn(0);
+    //if (mpp_error_code != HI_SUCCESS) {
+    //    RETURN_ERR_MPP(err, ERR_F_HI_MPI_VI_EnableChn, mpp_error_code);
+    //}
 
     return ERR_NONE;
 }
-#endif // defined(HI3516AV200)
+#endif
 
-#if defined(HI3516CV300)
-int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
-    unsigned int mpp_error_code = 0;
-
-    ISP_WDR_MODE_S stWdrMode;
-    VI_DEV_ATTR_S  stViDevAttr;
-    
-    memset(&stViDevAttr,0,sizeof(stViDevAttr));
-
-    memcpy(&stViDevAttr, in->videv, sizeof(stViDevAttr));
-
-    //stViDevAttr.stDevRect.s32X = 0;
-    //stViDevAttr.stDevRect.s32Y = 0;
-    //stViDevAttr.stDevRect.u32Width  = in->cmos_width;
-    //stViDevAttr.stDevRect.u32Height = in->cmos_height;
-
-    mpp_error_code = HI_MPI_VI_SetDevAttr(0, &stViDevAttr);
-    if (mpp_error_code != HI_SUCCESS) {
-        RETURN_ERR_MPP(ERR_F_HI_MPI_VI_SetDevAttr, mpp_error_code);
-    }
-
-    VI_WDR_ATTR_S stWdrAttr;
-
-    // WDR_MODE_NONE or WDR_MODE_2To1_LINE TODO
-    stWdrAttr.enWDRMode = WDR_MODE_NONE;
-    stWdrAttr.bCompress = HI_FALSE;
-
-    mpp_error_code = HI_MPI_VI_SetWDRAttr(0, &stWdrAttr);
-    if (mpp_error_code != HI_SUCCESS) {
-        RETURN_ERR_MPP(ERR_F_HI_MPI_VI_SetWDRAttr, mpp_error_code);
-    }
-    
-    mpp_error_code = HI_MPI_VI_EnableDev(0);
-    if (mpp_error_code != HI_SUCCESS) {
-        RETURN_ERR_MPP(ERR_F_HI_MPI_VI_EnableDev, mpp_error_code);
-    }
-
-    RECT_S stCapRect;
-
-    stCapRect.s32X = in->x0;
-    stCapRect.s32Y = in->y0;
-    stCapRect.u32Width  = in->width;
-    stCapRect.u32Height = in->height;
-
-
-    VI_CHN_ATTR_S stChnAttr;
-
-    memcpy(&stChnAttr.stCapRect, &stCapRect, sizeof(RECT_S));
-
-    stChnAttr.enCapSel = VI_CAPSEL_BOTH;
-    stChnAttr.stDestSize.u32Width = in->width;
-    stChnAttr.stDestSize.u32Height =  in->height;
-    stChnAttr.enPixFormat = PIXEL_FORMAT_YUV_SEMIPLANAR_420;   // sp420 or sp422
-
-    if (in->mirror == 1) {
-        GO_LOG_VI(LOGGER_TRACE, "VI mirror on");
-        stChnAttr.bMirror               = HI_TRUE;
-    } else {
-        stChnAttr.bMirror               = HI_FALSE;
-    }
-
-    if (in->flip == 1) {
-        GO_LOG_VI(LOGGER_TRACE, "VI flip on");
-        stChnAttr.bFlip                 = HI_TRUE;
-    } else {
-        stChnAttr.bFlip                 = HI_FALSE;
-    }
-
-
-    stChnAttr.s32SrcFrameRate = in->cmos_fps;
-    stChnAttr.s32DstFrameRate = in->fps;
-    //stChnAttr.enCompressMode = COMPRESS_MODE_SEG;
-    stChnAttr.enCompressMode = COMPRESS_MODE_NONE;
-
-    mpp_error_code = HI_MPI_VI_SetChnAttr(0, &stChnAttr);
-    if (mpp_error_code != HI_SUCCESS) {
-        RETURN_ERR_MPP(ERR_F_HI_MPI_VI_SetChnAttr, mpp_error_code);
-    }
-
-    mpp_error_code = HI_MPI_VI_EnableChn(0);
-    if (mpp_error_code != HI_SUCCESS) {
-        RETURN_ERR_MPP(ERR_F_HI_MPI_VI_EnableChn, mpp_error_code);
-    }
-
-    return ERR_NONE;
-}
-#endif // defined(HI3516CV300)
+//#if defined(HI3516CV300)
+//int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
+//    unsigned int mpp_error_code = 0;
+//
+//    ISP_WDR_MODE_S stWdrMode;
+//    VI_DEV_ATTR_S  stViDevAttr;
+//    
+//    memset(&stViDevAttr,0,sizeof(stViDevAttr));
+//
+//    memcpy(&stViDevAttr, in->videv, sizeof(stViDevAttr));
+//
+//    //stViDevAttr.stDevRect.s32X = 0;
+//    //stViDevAttr.stDevRect.s32Y = 0;
+//    //stViDevAttr.stDevRect.u32Width  = in->cmos_width;
+//    //stViDevAttr.stDevRect.u32Height = in->cmos_height;
+//
+//    mpp_error_code = HI_MPI_VI_SetDevAttr(0, &stViDevAttr);
+//    if (mpp_error_code != HI_SUCCESS) {
+//        RETURN_ERR_MPP(ERR_F_HI_MPI_VI_SetDevAttr, mpp_error_code);
+//    }
+//
+//    VI_WDR_ATTR_S stWdrAttr;
+//
+//    // WDR_MODE_NONE or WDR_MODE_2To1_LINE TODO
+//    stWdrAttr.enWDRMode = WDR_MODE_NONE;
+//    stWdrAttr.bCompress = HI_FALSE;
+//
+//    mpp_error_code = HI_MPI_VI_SetWDRAttr(0, &stWdrAttr);
+//    if (mpp_error_code != HI_SUCCESS) {
+//        RETURN_ERR_MPP(ERR_F_HI_MPI_VI_SetWDRAttr, mpp_error_code);
+//    }
+//    
+//    mpp_error_code = HI_MPI_VI_EnableDev(0);
+//    if (mpp_error_code != HI_SUCCESS) {
+//        RETURN_ERR_MPP(ERR_F_HI_MPI_VI_EnableDev, mpp_error_code);
+//    }
+//
+//    RECT_S stCapRect;
+//
+//    stCapRect.s32X = in->x0;
+//    stCapRect.s32Y = in->y0;
+//    stCapRect.u32Width  = in->width;
+//    stCapRect.u32Height = in->height;
+//
+//
+//    VI_CHN_ATTR_S stChnAttr;
+//
+//    memcpy(&stChnAttr.stCapRect, &stCapRect, sizeof(RECT_S));
+//
+//    stChnAttr.enCapSel = VI_CAPSEL_BOTH;
+//    stChnAttr.stDestSize.u32Width = in->width;
+//    stChnAttr.stDestSize.u32Height =  in->height;
+//    stChnAttr.enPixFormat = PIXEL_FORMAT_YUV_SEMIPLANAR_420;   // sp420 or sp422
+//
+//    if (in->mirror == 1) {
+//        GO_LOG_VI(LOGGER_TRACE, "VI mirror on");
+//        stChnAttr.bMirror               = HI_TRUE;
+//    } else {
+//        stChnAttr.bMirror               = HI_FALSE;
+//    }
+//
+//    if (in->flip == 1) {
+//        GO_LOG_VI(LOGGER_TRACE, "VI flip on");
+//        stChnAttr.bFlip                 = HI_TRUE;
+//    } else {
+//        stChnAttr.bFlip                 = HI_FALSE;
+//    }
+//
+//
+//    stChnAttr.s32SrcFrameRate = in->cmos_fps;
+//    stChnAttr.s32DstFrameRate = in->fps;
+//    //stChnAttr.enCompressMode = COMPRESS_MODE_SEG;
+//    stChnAttr.enCompressMode = COMPRESS_MODE_NONE;
+//
+//    mpp_error_code = HI_MPI_VI_SetChnAttr(0, &stChnAttr);
+//    if (mpp_error_code != HI_SUCCESS) {
+//        RETURN_ERR_MPP(ERR_F_HI_MPI_VI_SetChnAttr, mpp_error_code);
+//    }
+//
+//    mpp_error_code = HI_MPI_VI_EnableChn(0);
+//    if (mpp_error_code != HI_SUCCESS) {
+//        RETURN_ERR_MPP(ERR_F_HI_MPI_VI_EnableChn, mpp_error_code);
+//    }
+//
+//    return ERR_NONE;
+//}
+//#endif // defined(HI3516CV300)
 
 
 #if defined(HI3516CV500)

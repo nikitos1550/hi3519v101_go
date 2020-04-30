@@ -5,7 +5,7 @@ import "C"
 
 import (
     //"unsafe"
-    "errors"
+    //"errors"
     "application/pkg/mpp/cmos"
     "application/pkg/logger"
     "application/pkg/buildinfo"
@@ -30,7 +30,9 @@ func Init() {
 
         if err != C.ERR_NONE {
             logger.Log.Fatal().
-                Str("error", errors.New("MIPI error TODO").Error()).
+                //Str("error", errors.New("MIPI error TODO").Error()).
+                Str("error", C.GoString(inErr.name)).
+                Int("code", int(inErr.code)).
                 Msg("MIPI")
         }
 

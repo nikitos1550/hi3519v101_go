@@ -20,6 +20,8 @@ import (
 func Init(devInfo DeviceInfo) {
     cmos.Init()
 
+    vi.Params()
+
 	systemInit(devInfo)
     logger.Log.Debug().
         Msg("OS and chip inited")

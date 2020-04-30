@@ -61,7 +61,7 @@ func Init() {
     if err != 0 {
         //return errmpp.New(uint(inErr.f), uint(inErr.mpp))
         logger.Log.Fatal().
-            Str("error", errmpp.New(uint(inErr.f), uint(inErr.mpp)).Error()).
+            Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
             Msg("VPSS")
     }
 
@@ -100,7 +100,7 @@ func createChannel(channel Channel) { //TODO return error
     
     if err != 0 {
         logger.Log.Fatal(). //log temporary, should generate and return error
-            Str("error", errmpp.New(uint(inErr.f), uint(inErr.mpp)).Error()).
+            Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
             Msg("VPSS")
     }
 
@@ -121,7 +121,7 @@ func destroyChannel(channel Channel) { //TODO return error
 
     if err != 0 {
         logger.Log.Fatal(). //log temporary, should generate and return error
-            Str("error", errmpp.New(uint(inErr.f), uint(inErr.mpp)).Error()).
+            Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
             Msg("VPSS")
     }
 
@@ -147,7 +147,7 @@ func sendDataToClients(channel Channel) {
         if err != C.ERR_NONE {
             logger.Log.Warn().
                 Int("channelId", channel.ChannelId).
-                Str("error", errmpp.New(uint(inErr.f), uint(inErr.mpp)).Error()).
+                Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
                 Msg("VPSS failed receive frame")
             continue
         }
@@ -161,7 +161,7 @@ func sendDataToClients(channel Channel) {
         if err != C.ERR_NONE {
             logger.Log.Error().
                 Int("channelId", channel.ChannelId).
-                Str("error", errmpp.New(uint(inErr.f), uint(inErr.mpp)).Error()).
+                Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
                 Msg("VPSS failed release frame")
         }
     }

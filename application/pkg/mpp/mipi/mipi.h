@@ -14,4 +14,3 @@ typedef struct mpp_mipi_init_in_struct {
 } mpp_mipi_init_in;
 
 int mpp_mipi_init(error_in *err, mpp_mipi_init_in *in);
-

@@ -58,7 +58,7 @@ func Init() {
         case C.ERR_MPP:
             //return errmpp.New(uint(inErr.f), uint(inErr.mpp))
             logger.Log.Fatal().
-                Str("error", errmpp.New(uint(inErr.f), uint(inErr.mpp)).Error()).
+                Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
                 Msg("ISP")
         case C.ERR_GENERAL:
             //return errors.New("ISP error TODO")
