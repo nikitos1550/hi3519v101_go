@@ -16,3 +16,5 @@ typedef struct mpp_isp_init_in_struct {
 } mpp_isp_init_in;
 
 int mpp_isp_init(error_in *err, mpp_isp_init_in *in);
+
+void* mpp_isp_thread(HI_VOID *param);

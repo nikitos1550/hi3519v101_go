@@ -137,13 +137,13 @@ func systemInit(devInfo DeviceInfo) {
     ko.Params.Add("mem_mpp_size").Uint64(devInfo.MemMppSize/(1024*1024)).Str("M")
     ko.Params.Add("mem_total_size").Uint64(devInfo.MemTotalSize/(1024*1024))
     ko.Params.Add("vi_vpss_online").Bool(devInfo.ViVpssOnline)
-    ko.Params.Add("cmos").Str(cmos.Model())
+    ko.Params.Add("cmos").Str(cmos.S.Model())
     ko.Params.Add("detect_err_frame").Uint64(10)
 
 	ko.LoadAll()
 
         //imx178)
-        switch cmos.Clock() {
+        switch cmos.S.Clock() {
             case 24:
                 utils.WriteDevMem32(0x2003002c, 0xE0007)             //# sensor unreset, clk 24MHz, VI 250MHz
             case 25:
@@ -154,33 +154,33 @@ func systemInit(devInfo DeviceInfo) {
                 utils.WriteDevMem32(0x2003002c, 0x90007)       //sensor unreset, clk 37.125MHz, VI 250MHz
             default:
                 logger.Log.Fatal().
-                    Float32("clock", cmos.Clock()).
+                    Float32("clock", cmos.S.Clock()).
                     Msg("CMOS clock is not supported")
         }
 
-        switch cmos.BusType() {
+        switch cmos.S.BusType() {
             case cmos.I2C:
-                if cmos.BusNum() == 0 {
+                if cmos.S.BusNum() == 0 {
                     utils.WriteDevMem32(0x200f0050, 0x2)     //;                # i2c0_scl
                     utils.WriteDevMem32(0x200f0054, 0x2)     //;                # i2c0_sda
                 } else {
                     logger.Log.Fatal().
-                        Uint("bus", cmos.BusNum()).
+                        Uint("bus", cmos.S.BusNum()).
                         Msg("CMOS bus num not supported")
             }
         default:
             logger.Log.Fatal().
-                Int("type", int(cmos.BusType())).
+                Int("type", int(cmos.S.BusType())).
                 Msg("unrecognized cmos bus typy")
     }
 
-            switch cmos.Model() {
+            switch cmos.S.Model() {
             case "imx178":
             case "ov4689":
                 utils.WriteDevMem32(0x20030104, 0x0)
             default:
                 logger.Log.Fatal().
-                    Str("name", cmos.Model()).
+                    Str("name", cmos.S.Model()).
                     Msg("CMOS is not supported")
         }
 

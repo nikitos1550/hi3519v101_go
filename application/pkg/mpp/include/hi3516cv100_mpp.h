@@ -1,5 +1,10 @@
 #pragma once 
 
+#define VPSS_MIN_IMAGE_WIDTH    32
+#define VPSS_MIN_IMAGE_HEIGHT   32
+#define WDR_MODE_NONE           0
+#define WDR_MODE_2To1_LINE      0
+
 #include "acodec.h"
 #include "hi_ae_comm.h"
 #include "hi_af_comm.h"
@@ -32,7 +37,7 @@
 //#include "hi_io.h"
 #include "hi_isp_debug.h"
 #include "hi_math.h"
-#include "hi_mem.h"
+//#include "hi_mem.h"
 #include "hi_sns_ctrl.h"
 //#include "hi_ssp.h"
 #include "hi_tde_api.h"

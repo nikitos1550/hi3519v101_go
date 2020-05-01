@@ -20,7 +20,7 @@ import (
 func Init(devInfo DeviceInfo) {
     cmos.Init()
 
-    vi.Params()
+    vi.CheckFlags()
 
 	systemInit(devInfo)
     logger.Log.Debug().

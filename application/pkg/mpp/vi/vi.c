@@ -2,43 +2,44 @@
 
 #if defined(HI3516CV100)
 //imx122 DC 12bitÊäÈë
-VI_DEV_ATTR_S DEV_ATTR_IMX122_DC_1080P =
-{
-    //½Ó¿ÚÄ£Ê½
-    VI_MODE_DIGITAL_CAMERA,
-    //1¡¢2¡¢4Â·¹¤×÷Ä£Ê½
-    VI_WORK_MODE_1Multiplex,
-    // r_mask    g_mask    b_mask
-    {0xFFF00000,    0x0},
-    //ÖðÐÐor¸ôÐÐÊäÈë
-    VI_SCAN_PROGRESSIVE,
-    //AdChnId
-    {-1, -1, -1, -1},
-    //enDataSeq, ½öÖ§³ÖYUV¸ñÊ½
-    VI_INPUT_DATA_YUYV,
+//VI_DEV_ATTR_S DEV_ATTR_IMX122_DC_1080P =
+//{
+//    //½Ó¿ÚÄ£Ê½
+//    VI_MODE_DIGITAL_CAMERA,
+//    //1¡¢2¡¢4Â·¹¤×÷Ä£Ê½
+//    VI_WORK_MODE_1Multiplex,
+//    // r_mask    g_mask    b_mask
+//    {0xFFF00000,    0x0},
+//    //ÖðÐÐor¸ôÐÐÊäÈë
+//    VI_SCAN_PROGRESSIVE,
+//    //AdChnId
+//    {-1, -1, -1, -1},
+//    //enDataSeq, ½öÖ§³ÖYUV¸ñÊ½
+//    VI_INPUT_DATA_YUYV,
+//
+//    //Í¬²½ÐÅÏ¢£¬¶ÔÓ¦regÊÖ²áµÄÈçÏÂÅäÖÃ, --bt1120Ê±ÐòÎÞÐ§
+//    {
+//    //port_vsync   port_vsync_neg     port_hsync        port_hsync_neg      
+//    VI_VSYNC_PULSE, VI_VSYNC_NEG_HIGH, VI_HSYNC_VALID_SINGNAL,VI_HSYNC_NEG_HIGH,VI_VSYNC_NORM_PULSE,VI_VSYNC_VALID_NEG_HIGH,
+//    
+//    //timingÐÅÏ¢£¬¶ÔÓ¦regÊÖ²áµÄÈçÏÂÅäÖÃ
+//    //hsync_hfb    hsync_act    hsync_hhb
+//    {0,            1920,        0,
+//    //vsync0_vhb vsync0_act vsync0_hhb
+//     0,            1080,        0,
+//    //vsync1_vhb vsync1_act vsync1_hhb
+//     0,            0,            0}
+//    },
+//    //Ê¹ÓÃÄÚ²¿ISP
+//    VI_PATH_ISP,
+//    //ÊäÈëÊý¾ÝÀàÐÍ
+//    VI_DATA_TYPE_RGB
+//};
 
-    //Í¬²½ÐÅÏ¢£¬¶ÔÓ¦regÊÖ²áµÄÈçÏÂÅäÖÃ, --bt1120Ê±ÐòÎÞÐ§
-    {
-    //port_vsync   port_vsync_neg     port_hsync        port_hsync_neg      
-    VI_VSYNC_PULSE, VI_VSYNC_NEG_HIGH, VI_HSYNC_VALID_SINGNAL,VI_HSYNC_NEG_HIGH,VI_VSYNC_NORM_PULSE,VI_VSYNC_VALID_NEG_HIGH,
-    
-    //timingÐÅÏ¢£¬¶ÔÓ¦regÊÖ²áµÄÈçÏÂÅäÖÃ
-    //hsync_hfb    hsync_act    hsync_hhb
-    {0,            1920,        0,
-    //vsync0_vhb vsync0_act vsync0_hhb
-     0,            1080,        0,
-    //vsync1_vhb vsync1_act vsync1_hhb
-     0,            0,            0}
-    },
-    //Ê¹ÓÃÄÚ²¿ISP
-    VI_PATH_ISP,
-    //ÊäÈëÊý¾ÝÀàÐÍ
-    VI_DATA_TYPE_RGB
-};
 
-
-int mpp1_vi_init(unsigned int *error_code) {
-    *error_code = 0;
+//int mpp1_vi_init(unsigned int *error_code) {
+int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
+    //*error_code = 0;
 
     VI_DEV ViDev = 0;
 
@@ -46,13 +47,16 @@ int mpp1_vi_init(unsigned int *error_code) {
     memset(&stViDevAttr,0,sizeof(stViDevAttr));
 
     //case SONY_IMX122_DC_1080P_30FPS:                                        
-    memcpy(&stViDevAttr,&DEV_ATTR_IMX122_DC_1080P,sizeof(stViDevAttr));    
+    //memcpy(&stViDevAttr,&DEV_ATTR_IMX122_DC_1080P,sizeof(stViDevAttr));    
+    memcpy(&stViDevAttr, in->videv, sizeof(stViDevAttr));
 
-    *error_code = HI_MPI_VI_SetDevAttr(ViDev, &stViDevAttr);
-    if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VI_SetDevAttr;
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetDevAttr, ViDev, &stViDevAttr);
+    //*error_code = HI_MPI_VI_SetDevAttr(ViDev, &stViDevAttr);
+    //if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VI_SetDevAttr;
 
-    *error_code = HI_MPI_VI_EnableDev(ViDev);
-    if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VI_EnableDev;
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_EnableDev, ViDev);
+    //*error_code = HI_MPI_VI_EnableDev(ViDev);
+    //if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VI_EnableDev;
 
     VI_CHN ViChn = 0;
 
@@ -80,8 +84,9 @@ int mpp1_vi_init(unsigned int *error_code) {
     stChnAttr.s32SrcFrameRate = 30;
     stChnAttr.s32FrameRate = 30;
 
-    *error_code = HI_MPI_VI_SetChnAttr(ViChn, &stChnAttr);
-    if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VI_SetChnAttr;
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetChnAttr, ViChn, &stChnAttr);
+    //*error_code = HI_MPI_VI_SetChnAttr(ViChn, &stChnAttr);
+    //if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VI_SetChnAttr;
     
     //if(ROTATE_NONE != enRotate)
     //{
@@ -89,115 +94,97 @@ int mpp1_vi_init(unsigned int *error_code) {
     //  if (*error_code != HI_SUCCESS) return ERR_
     //}
     
-    *error_code = HI_MPI_VI_EnableChn(ViChn);
-    if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VI_EnableChn;
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_EnableChn, ViChn);
+    //*error_code = HI_MPI_VI_EnableChn(ViChn);
+    //if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VI_EnableChn;
 
     return ERR_NONE;
 }
 
 #endif // defined(HI3516CV100)
 
-#if defined(HI3516AV100)
-
-int mpp_vi_init(int *error_code, mpp_vi_init_in *in) {
-    unsigned int mpp_error_code = 0;
-
-    VI_DEV_ATTR_S  stViDevAttr;
-
-    memset(&stViDevAttr, 0, sizeof(stViDevAttr));
-    memcpy(&stViDevAttr, in->videv, sizeof(stViDevAttr));
-    stViDevAttr.stDevRect.s32X = in->x0;
-    stViDevAttr.stDevRect.s32Y = in->y0;
-    stViDevAttr.stDevRect.u32Width  = in->width;
-    stViDevAttr.stDevRect.u32Height = in->height;
-
-    mpp_error_code = HI_MPI_VI_SetDevAttr(0, &stViDevAttr);
-    if (mpp_error_code != HI_SUCCESS) {
-        RETURN_ERR_MPP(ERR_F_HI_MPI_VI_SetDevAttr, mpp_error_code);
-    }
-
-    mpp_error_code = HI_MPI_VI_EnableDev(0);
-    if (mpp_error_code != HI_SUCCESS) {
-        RETURN_ERR_MPP(ERR_F_HI_MPI_VI_EnableDev, mpp_error_code);
-    }
-
-    RECT_S stCapRect;
-
-    stCapRect.s32X = in->x0;
-    stCapRect.s32Y = in->y0;
-    stCapRect.u32Width  = in->width;
-    stCapRect.u32Height = in->height;
-
-    VI_CHN_ATTR_S stChnAttr;
-
-    memcpy(&stChnAttr.stCapRect, &stCapRect, sizeof(RECT_S));
-    stChnAttr.enCapSel              = VI_CAPSEL_BOTH;
-    stChnAttr.stDestSize.u32Width   = in->width;
-    stChnAttr.stDestSize.u32Height  = in->height;
-    stChnAttr.enPixFormat           = PIXEL_FORMAT_YUV_SEMIPLANAR_420;   // sp420 or sp422
-
-    if (in->mirror == 1) {
-        stChnAttr.bMirror = HI_TRUE;
-    } else {
-        stChnAttr.bMirror = HI_FALSE;
-    }
-
-    if (in->flip == 1) {
-        stChnAttr.bFlip = HI_TRUE;
-    } else {
-        stChnAttr.bFlip = HI_FALSE;
-    }
-
-    stChnAttr.s32SrcFrameRate = in->fps;
-    stChnAttr.s32DstFrameRate = in->fps;
-
-    stChnAttr.enCompressMode = COMPRESS_MODE_NONE;
-    //TODO check family mpp datasheet
-    //if (in->ldc == 1) {
-    //    stChnAttr.enCompressMode        = COMPRESS_MODE_NONE;
-    //} else {
-    //    stChnAttr.enCompressMode        = COMPRESS_MODE_SEG;
-    //}
-
-    mpp_error_code = HI_MPI_VI_SetChnAttr(0, &stChnAttr);
-    if (mpp_error_code != HI_SUCCESS) {
-        RETURN_ERR_MPP(ERR_F_HI_MPI_VI_SetChnAttr, mpp_error_code);
-    }
-
-    if (in.ldc == 1) {
-        VI_LDC_ATTR_S stLDCAttr;
-        
-        stLDCAttr.bEnable = HI_TRUE;
-        stLDCAttr.stAttr.enViewType =   LDC_VIEW_TYPE_ALL;
-                                        //LDC_VIEW_TYPE_CROP;
-        stLDCAttr.stAttr.s32CenterXOffset = ldc_offset_x;
-        stLDCAttr.stAttr.s32CenterYOffset = ldc_offset_y;
-        stLDCAttr.stAttr.s32Ratio = ldc_k;
-
-        mpp_error_code = HI_MPI_VI_SetLDCAttr(0, &stLDCAttr);
-        if (mpp_error_code != HI_SUCCESS) {
-            RETURN_ERR_MPP(ERR_F_HI_MPI_VI_SetLDCAttr, mpp_error_code);
-        }
-
-        //s32Ret = HI_MPI_VI_GetLDCAttr (ViChn, &stLDCAttr);
-        //if (HI_SUCCESS != s32ret)
-        //{
-        //printf("Get vi LDC attr err:0x%x\n", s32ret);
-        //return s32Ret;
-        //}
-    }
-
-    mpp_error_code = HI_MPI_VI_EnableChn(0);
-    if (mpp_error_code != HI_SUCCESS) {
-        RETURN_ERR_MPP(ERR_F_HI_MPI_VI_EnableChn, mpp_error_code);
-    }
-
-    return ERR_NONE;
-}
-#endif // defined(HI3516AV100)
+//#if defined(HI3516AV100)
+//int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
+//    //unsigned int mpp_error_code = 0;
+//
+//    VI_DEV_ATTR_S  stViDevAttr;
+//
+//    memset(&stViDevAttr, 0, sizeof(stViDevAttr));
+//    memcpy(&stViDevAttr, in->videv, sizeof(stViDevAttr));
+//
+//    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetDevAttr, 0, &stViDevAttr);
+//
+//    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_EnableDev, 0);
+//
+//    RECT_S stCapRect;
+//
+//    stCapRect.s32X = in->x0;
+//    stCapRect.s32Y = in->y0;
+//    stCapRect.u32Width  = in->width;
+//    stCapRect.u32Height = in->height;
+//
+//    VI_CHN_ATTR_S stChnAttr;
+//
+//    memcpy(&stChnAttr.stCapRect, &stCapRect, sizeof(RECT_S));
+//    stChnAttr.enCapSel              = VI_CAPSEL_BOTH;
+//    stChnAttr.stDestSize.u32Width   = in->width;
+//    stChnAttr.stDestSize.u32Height  = in->height;
+//    stChnAttr.enPixFormat           = PIXEL_FORMAT_YUV_SEMIPLANAR_420;   // sp420 or sp422
+//
+//    if (in->mirror == 1) {
+//        stChnAttr.bMirror = HI_TRUE;
+//    } else {
+//        stChnAttr.bMirror = HI_FALSE;
+//    }
+//
+//    if (in->flip == 1) {
+//        stChnAttr.bFlip = HI_TRUE;
+//    } else {
+//        stChnAttr.bFlip = HI_FALSE;
+//    }
+//
+//    stChnAttr.s32SrcFrameRate = in->cmos_fps;
+//    stChnAttr.s32DstFrameRate = in->fps;
+//
+//    stChnAttr.enCompressMode = COMPRESS_MODE_NONE;
+//    //TODO check family mpp datasheet
+//    //if (in->ldc == 1) {
+//    //    stChnAttr.enCompressMode        = COMPRESS_MODE_NONE;
+//    //} else {
+//    //    stChnAttr.enCompressMode        = COMPRESS_MODE_SEG;
+//    //}
+//
+//    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetChnAttr, 0, &stChnAttr);
+//
+//    if (in->ldc == 1) {
+//        VI_LDC_ATTR_S stLDCAttr;
+//        
+//        stLDCAttr.bEnable = HI_TRUE;
+//        stLDCAttr.stAttr.enViewType =   LDC_VIEW_TYPE_ALL;
+//                                        //LDC_VIEW_TYPE_CROP;
+//        stLDCAttr.stAttr.s32CenterXOffset = in->ldc_offset_x;
+//        stLDCAttr.stAttr.s32CenterYOffset = in->ldc_offset_y;
+//        stLDCAttr.stAttr.s32Ratio = in->ldc_k;
+//
+//        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetLDCAttr, 0, &stLDCAttr);
+//
+//        //s32Ret = HI_MPI_VI_GetLDCAttr (ViChn, &stLDCAttr);
+//        //if (HI_SUCCESS != s32ret)
+//        //{
+//        //printf("Get vi LDC attr err:0x%x\n", s32ret);
+//        //return s32Ret;
+//        //}
+//    }
+//
+//    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_EnableChn, 0)
+//
+//    return ERR_NONE;
+//}
+//#endif // defined(HI3516AV100)
 
 #if defined(HI3516AV200) \
-    || defined(HI3516CV300)
+    || defined(HI3516CV300) \
+    || defined(HI3516AV100)
 int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
     unsigned int mpp_error_code = 0;
 
@@ -208,6 +195,7 @@ int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
     memcpy(&stViDevAttr, in->videv, sizeof(stViDevAttr));
 
     //ATTENTION, videv struct should be constructed here!!!!
+    //Now this info should be in cmos source file
     //stViDevAttr.stDevRect.s32X                              = 0;
     //stViDevAttr.stDevRect.s32Y                              = 0;
     //stViDevAttr.stDevRect.u32Width                          = in->cmos_width; 
@@ -226,29 +214,16 @@ int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
     #endif
 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetDevAttr, 0, &stViDevAttr);
-    //mpp_error_code = HI_MPI_VI_SetDevAttr(0, &stViDevAttr);
-    //if (mpp_error_code != HI_SUCCESS) {
-    //    RETURN_ERR_MPP(err, ERR_F_HI_MPI_VI_SetDevAttr, mpp_error_code);
-    //}
   
     //TODO when we use 274 on 19v101 we set wdr in isp, but don`t set here in vi, but I am not sure
-    //VI_WDR_ATTR_S stWdrAttr;
-    //
-    //// WDR_MODE_NONE or WDR_MODE_2To1_LINE TODO
-    //stWdrAttr.enWDRMode = WDR_MODE_NONE;
-    //stWdrAttr.bCompress = HI_FALSE;
-    //
-    //mpp_error_code = HI_MPI_VI_SetWDRAttr(0, &stWdrAttr);
-    //if (mpp_error_code != HI_SUCCESS) {
-    //    RETURN_ERR_MPP(ERR_F_HI_MPI_VI_SetWDRAttr, mpp_error_code);
-    //}
+    VI_WDR_ATTR_S stWdrAttr;
 
+    stWdrAttr.enWDRMode = in->wdr;
+    stWdrAttr.bCompress = HI_FALSE;//TODO WTF?
+    
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetWDRAttr, 0, &stWdrAttr);
 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_EnableDev, 0);
-    //mpp_error_code = HI_MPI_VI_EnableDev(0);
-    //if (mpp_error_code != HI_SUCCESS) {
-    //    RETURN_ERR_MPP(err, ERR_F_HI_MPI_VI_EnableDev, mpp_error_code);
-    //}
 
     RECT_S stCapRect;
 
@@ -295,14 +270,11 @@ int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
     if (in->ldc == 1) {
         stChnAttr.enCompressMode        = COMPRESS_MODE_NONE;
     } else {
-        stChnAttr.enCompressMode        = COMPRESS_MODE_SEG;
+        stChnAttr.enCompressMode        = COMPRESS_MODE_SEG;//TODO
+        //stChnAttr.enCompressMode        = COMPRESS_MODE_NONE;
     }
 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetChnAttr, 0, &stChnAttr);
-    //mpp_error_code = HI_MPI_VI_SetChnAttr(0, &stChnAttr);
-    //if (mpp_error_code != HI_SUCCESS) {
-    //    RETURN_ERR_MPP(err, ERR_F_HI_MPI_VI_SetChnAttr, mpp_error_code);
-    //}
 
     if (in->ldc == 1) {
         VI_LDC_ATTR_S stLDCAttr;
@@ -313,13 +285,12 @@ int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
         stLDCAttr.stAttr.s32CenterXOffset = in->ldc_offset_x;
         stLDCAttr.stAttr.s32CenterYOffset = in->ldc_offset_y;
         stLDCAttr.stAttr.s32Ratio = in->ldc_k;
-        stLDCAttr.stAttr.s32MinRatio = 0; //should be 0 for LDC_VIEW_TYPE_ALL
-    
+
+        #if HI_MPP == 3
+            stLDCAttr.stAttr.s32MinRatio = 0; //should be 0 for LDC_VIEW_TYPE_ALL
+        #endif
+
         DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetLDCAttr, 0, &stLDCAttr);
-        //mpp_error_code = HI_MPI_VI_SetLDCAttr(0, &stLDCAttr);
-        //if (mpp_error_code != HI_SUCCESS) {
-        //    RETURN_ERR_MPP(err, ERR_F_HI_MPI_VI_SetLDCAttr, mpp_error_code);
-        //}
 
         //Obtain LDC attributes.
         //s32Ret = HI_MPI_VI_GetLDCAttr (0, &stLDCAttr);
@@ -342,10 +313,6 @@ int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
 
 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_EnableChn, 0);
-    //mpp_error_code = HI_MPI_VI_EnableChn(0);
-    //if (mpp_error_code != HI_SUCCESS) {
-    //    RETURN_ERR_MPP(err, ERR_F_HI_MPI_VI_EnableChn, mpp_error_code);
-    //}
 
     return ERR_NONE;
 }

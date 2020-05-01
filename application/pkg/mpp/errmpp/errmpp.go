@@ -1,6 +1,7 @@
 package errmpp
 
 import (
+    "fmt"
     "application/pkg/logger"
 )
 
@@ -36,7 +37,7 @@ func resolveCode(code uint) (string, string) {
     }
 
     logger.Log.Warn().
-        Uint("code", code).
+        Str("code", fmt.Sprintf("0x%08X", code)).
         Msg("ERRMPP missed info")
 
     return "unknown", "unknown"

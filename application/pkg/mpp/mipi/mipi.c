@@ -1,9 +1,10 @@
 #include "mipi.h"
 
-#if HI_MPP == 1
-    //there is no mipi subsystem in hi3516cv100 family
-#elif HI_MPP >= 2
 int mpp_mipi_init(error_in *err, mpp_mipi_init_in *in) {
+    #if HI_MPP == 1
+        //there is no mipi subsystem in hi3516cv100 family
+    #elif HI_MPP >= 2
+
     int general_error_code = 0;
 
     int fd;
@@ -110,6 +111,7 @@ int mpp_mipi_init(error_in *err, mpp_mipi_init_in *in) {
 
     close(fd);
 
+    #endif
+
     return ERR_NONE;
 }
-#endif

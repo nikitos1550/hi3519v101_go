@@ -2,14 +2,14 @@
 
 static pthread_t mpp_isp_thread_pid;
 
-static void* mpp_isp_thread(HI_VOID *param){
-    GO_LOG_ISP(LOGGER_TRACE, "HI_MPI_ISP_Run");
+void* mpp_isp_thread(HI_VOID *param){   //now we start it from go space
+    //GO_LOG_ISP(LOGGER_TRACE, "HI_MPI_ISP_Run");
     #if HI_MPP == 1
         HI_MPI_ISP_Run();
     #elif HI_MPP >= 2
         HI_MPI_ISP_Run(0);
     #endif
-    GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_ISP_Run failed");
+    //GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_ISP_Run failed");
 }
 
 static inline int64_t mpp_isp_register_lib_ae(char * lib) {
@@ -75,8 +75,8 @@ int mpp_isp_init(error_in *err, mpp_isp_init_in *in) {
         ISP_INPUT_TIMING_S stInputTiming;
 
         stInputTiming.enWndMode         = ISP_WIND_ALL;
-        stInputTiming.u16HorWndStart    = 0; //200;         //TODO
-        stInputTiming.u16VerWndStart    = 0; //18;          //TODO
+        stInputTiming.u16HorWndStart    = 200;          //TODO
+        stInputTiming.u16VerWndStart    = 18;           //Add wnd rec to cmos struct
         stInputTiming.u16HorWndLength   = in->width;
         stInputTiming.u16VerWndLength   = in->height;
 
@@ -119,7 +119,8 @@ int mpp_isp_init(error_in *err, mpp_isp_init_in *in) {
         DO_OR_RETURN_ERR_MPP(err, HI_MPI_ISP_Init, 0);
     #endif
 
-    DO_OR_RETURN_ERR_GENERAL(err, pthread_create, &mpp_isp_thread_pid, 0, (void* (*)(void*))mpp_isp_thread, NULL);
+    //thread start moved to go space
+    //DO_OR_RETURN_ERR_GENERAL(err, pthread_create, &mpp_isp_thread_pid, 0, (void* (*)(void*))mpp_isp_thread, NULL);
 
     return ERR_NONE;
 }

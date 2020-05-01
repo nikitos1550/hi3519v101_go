@@ -19,6 +19,8 @@ typedef struct mpp_vi_init_in_struct {
     unsigned int cmos_fps;
     unsigned int fps;
 
+    unsigned int wdr;
+
     unsigned char mirror;
     unsigned char flip;
 

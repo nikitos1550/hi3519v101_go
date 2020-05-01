@@ -69,6 +69,14 @@ func Init() {
             break
     }
 
+    go func() {
+        logger.Log.Trace().
+            Msg("ISP task started")
+        C.mpp_isp_thread(nil)
+        logger.Log.Error().
+            Msg("ISP task failed")
+    }()
+
     /*
     err := ispInit()
     if err != nil {

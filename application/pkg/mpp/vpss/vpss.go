@@ -10,6 +10,8 @@ import (
     "application/pkg/mpp/errmpp"
     "application/pkg/logger"
     "application/pkg/buildinfo"
+
+    "time"
 )
 
 var (
@@ -143,6 +145,11 @@ func sendDataToClients(channel Channel) {
         var inErr C.error_in
         var frame unsafe.Pointer
 
+        //hi3516cv100 family doesn`t provide blocking getFrame call
+        if buildinfo.Family == "hi3516cv100" {  //TODO
+            time.Sleep(1 * time.Second)         //now we will just sleep here
+        }
+
         err = C.mpp_receive_frame(&inErr, C.uint(channel.ChannelId), &frame);
         if err != C.ERR_NONE {
             logger.Log.Warn().
@@ -150,6 +157,10 @@ func sendDataToClients(channel Channel) {
                 Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
                 Msg("VPSS failed receive frame")
             continue
+        } else {
+            //logger.Log.Trace().
+            //    Int("channelId", channel.ChannelId).
+            //    Msg("VPSS received frame")
         }
 
         
@@ -163,7 +174,12 @@ func sendDataToClients(channel Channel) {
                 Int("channelId", channel.ChannelId).
                 Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
                 Msg("VPSS failed release frame")
+        } else {
+            //logger.Log.Trace().
+            //    Int("channelId", channel.ChannelId).
+            //    Msg("VPSS released frame")
         }
+
     }
 
     logger.Log.Trace().        

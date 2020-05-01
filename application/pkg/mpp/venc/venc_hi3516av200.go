@@ -1,5 +1,5 @@
 //+build arm
-//+build hi3516av200 hi3516cv300
+//+build hi3516av100 hi3516av200 hi3516cv300
 
 package venc
 
@@ -21,7 +21,6 @@ typedef struct hi3516av200_venc_create_mjpeg_in_struct {
 } hi3516av200_venc_create_mjpeg_in;
 
 static int hi3516av200_venc_sample_mjpeg(error_in *err, hi3516av200_venc_create_mjpeg_in *in) {
-    //unsigned int mpp_error_code = 0;
 
 	VENC_ATTR_MJPEG_S stMjpegAttr;
 
@@ -46,26 +45,15 @@ static int hi3516av200_venc_sample_mjpeg(error_in *err, hi3516av200_venc_create_
     stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_MJPEGCBR;
 	memcpy(&stVencChnAttr.stVeAttr.stAttrH264e, &stMjpegAttr, sizeof(VENC_ATTR_MJPEG_S));
     memcpy(&stVencChnAttr.stRcAttr.stAttrMjpegeCbr, &stMjpegCbr, sizeof(VENC_ATTR_MJPEG_CBR_S));
+    
+    #if defined(HI_MPP_V3)
     stVencChnAttr.stGopAttr.enGopMode  = VENC_GOPMODE_NORMALP;
     stVencChnAttr.stGopAttr.stNormalP.s32IPQpDelta = 0;
+    #endif
 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_CreateChn, in->venc_id, &stVencChnAttr);
-    //mpp_error_code = HI_MPI_VENC_CreateChn(in->venc_id, &stVencChnAttr);
-    //if (mpp_error_code != HI_SUCCESS) {
-    //    //GO_LOG_VENC(LOGGER_ERROR, "HI_MPI_VENC_CreateChn")
-    //    //err->mpp = mpp_error_code;
-	//	//return ERR_MPP;
-    //    RETURN_ERR_MPP(err, ERR_F_HI_MPI_VENC_CreateChn, mpp_error_code);
-	//}
 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_StartRecvPic, in->venc_id);
-    //mpp_error_code = HI_MPI_VENC_StartRecvPic(in->venc_id);
-    //if (mpp_error_code != HI_SUCCESS) {
-    //    //GO_LOG_VENC(LOGGER_ERROR, "HI_MPI_VENC_StartRecvPic")
-    //    //err->mpp = mpp_error_code;
-	//	//return ERR_MPP;
-    //    RETURN_ERR_MPP(err, ERR_F_HI_MPI_VENC_StartRecvPic, mpp_error_code);
-	//}
 
     return ERR_NONE;
 }
@@ -110,26 +98,15 @@ static int hi3516av200_venc_create_h264(error_in *err, hi3516av200_venc_create_h
     stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_H264CBR;
     memcpy(&stVencChnAttr.stVeAttr.stAttrH264e, &stH264Attr, sizeof(VENC_ATTR_H264_S));
     memcpy(&stVencChnAttr.stRcAttr.stAttrH264Cbr, &stH264Cbr, sizeof(VENC_ATTR_H264_CBR_S));
+
+    #if defined(HI_MPP_V3)
     stVencChnAttr.stGopAttr.enGopMode               = VENC_GOPMODE_NORMALP;
     stVencChnAttr.stGopAttr.stNormalP.s32IPQpDelta  = 2;
+    #endif
 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_CreateChn, in->venc_id, &stVencChnAttr);
-    //mpp_error_code = HI_MPI_VENC_CreateChn(in->venc_id, &stVencChnAttr);
-    //if (mpp_error_code != HI_SUCCESS) {
-    //    //GO_LOG_VENC(LOGGER_ERROR, "HI_MPI_VENC_CreateChn")
-    //    //err->mpp = mpp_error_code;    
-    //    //return ERR_MPP;
-    //    RETURN_ERR_MPP(err, ERR_F_HI_MPI_VENC_CreateChn, mpp_error_code);
-    //}
 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_StartRecvPic, in->venc_id);
-    //mpp_error_code = HI_MPI_VENC_StartRecvPic(in->venc_id);
-    //if (mpp_error_code != HI_SUCCESS) {
-    //    //GO_LOG_VENC(LOGGER_ERROR, "HI_MPI_VENC_StartRecvPic")
-    //    //err->mpp = mpp_error_code;
-    //    //return ERR_MPP;
-    //    RETURN_ERR_MPP(err, ERR_F_HI_MPI_VENC_StartRecvPic, mpp_error_code);
-    //}
 
     return ERR_NONE;
 }
@@ -145,7 +122,6 @@ typedef struct hi3516av200_venc_create_h265_in_struct {
 } hi3516av200_venc_create_h265_in;
 
 static int hi3516av200_venc_create_h265(error_in *err, hi3516av200_venc_create_h265_in *in) {
-    //unsigned int mpp_error_code = 0;
 
     VENC_ATTR_H265_S stH265Attr;
 
@@ -172,50 +148,23 @@ static int hi3516av200_venc_create_h265(error_in *err, hi3516av200_venc_create_h
     memcpy(&stVencChnAttr.stVeAttr.stAttrH265e, &stH265Attr, sizeof(VENC_ATTR_H265_S));
     memcpy(&stVencChnAttr.stRcAttr.stAttrH265Cbr, &stH265Cbr, sizeof(VENC_ATTR_H265_CBR_S));
 
+    #if defined(HI_MPP_V3)
     stVencChnAttr.stGopAttr.enGopMode               = VENC_GOPMODE_NORMALP;
     stVencChnAttr.stGopAttr.stNormalP.s32IPQpDelta  = 2;
+    #endif
 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_CreateChn, in->venc_id, &stVencChnAttr);
-    //mpp_error_code = HI_MPI_VENC_CreateChn(in->venc_id, &stVencChnAttr);
-    //if (mpp_error_code != HI_SUCCESS) {
-    //    //GO_LOG_VENC(LOGGER_ERROR, "HI_MPI_VENC_CreateChn")
-    //    //err->mpp = mpp_error_code;        
-    //    //return ERR_MPP;
-    //    RETURN_ERR_MPP(err, ERR_F_HI_MPI_VENC_CreateChn, mpp_error_code);
-    //}
 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_StartRecvPic, in->venc_id);
-    //mpp_error_code = HI_MPI_VENC_StartRecvPic(in->venc_id);
-    //if (mpp_error_code != HI_SUCCESS) {
-    //    //GO_LOG_VENC(LOGGER_ERROR, "HI_MPI_VENC_StartRecvPic")
-    //    //err->mpp = mpp_error_code;
-    //    //return ERR_MPP;
-    //    RETURN_ERR_MPP(err, ERR_F_HI_MPI_VENC_StartRecvPic, mpp_error_code);
-    //}
 
     return ERR_NONE;
 }
 
 static int hi3516av200_venc_delete_encoder(error_in *err, unsigned int venc_id) {
-	//unsigned int mpp_error_code = 0;
 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_StopRecvPic, venc_id);
-    //mpp_error_code = HI_MPI_VENC_StopRecvPic(venc_id);
-    //if (mpp_error_code != HI_SUCCESS) {
-    //    //GO_LOG_VENC(LOGGER_ERROR, "HI_MPI_VENC_StopRecvPic")
-    //    //err->mpp = mpp_error_code;
-    //    //return ERR_MPP;
-    //    RETURN_ERR_MPP(err, ERR_F_HI_MPI_VENC_StopRecvPic, mpp_error_code);
-    //}
 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_DestroyChn, venc_id);
-	//mpp_error_code = HI_MPI_VENC_DestroyChn(venc_id);
-	//if (mpp_error_code != HI_SUCCESS) {
-    //    //GO_LOG_VENC(LOGGER_ERROR, "HI_MPI_VENC_DestroyChn")
-    //    //err->mpp = mpp_error_code;
-    //    //return ERR_MPP;
-    //    RETURN_ERR_MPP(err, ERR_F_HI_MPI_VENC_DestroyChn, mpp_error_code);
-    //}
 
 	return ERR_NONE;
 }

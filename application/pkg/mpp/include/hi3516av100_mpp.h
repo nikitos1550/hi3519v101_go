@@ -8,11 +8,11 @@
 #include "hi_defines.h"   
 #include "hi_ive.h"  
 #include "hi_tde_errcode.h"  
-#include "iniparser.h"
+//#include "iniparser.h"
 #include "mpi_ai.h"   
 #include "mpi_pciv.h"    
 #include "mpi_venc.h"
-#include "dictionary.h"   
+//#include "dictionary.h"   
 #include "hi_comm_aenc.h"     
 #include "hi_comm_ive.h"   
 #include "hi_comm_vb.h"  
@@ -71,6 +71,6 @@
 #include "mpi_af.h"   
 #include "mpi_ive.h"    
 #include "mpi_vdec.h"    
-#include "strlib.h"
+//#include "strlib.h"
 
 

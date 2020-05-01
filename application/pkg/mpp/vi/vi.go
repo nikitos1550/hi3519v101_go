@@ -68,7 +68,7 @@ func init() {
     }
 }
 
-func Params() {
+func CheckFlags() {
     if width == -1 {
         width = cmos.S.Width()
     }
@@ -206,6 +206,16 @@ func Init() {
     in.cmos_fps = C.uint(cmos.S.Fps())
     in.fps = C.uint(fps)
 
+    switch cmos.S.Wdr() {//same check as in isp
+        case cmos.WDRNone:
+            in.wdr = C.WDR_MODE_NONE
+        case cmos.WDR2TO1:
+            in.wdr = C.WDR_MODE_2To1_LINE
+        default:
+            logger.Log.Fatal().
+                Msg("Unknown WDR mode")
+    }
+
     logger.Log.Trace().
         Uint("mirror", uint(in.mirror)).
         Uint("flip", uint(in.flip)).
@@ -221,6 +231,7 @@ func Init() {
         Int("ldc-offset-x", int(in.ldc_offset_x)).
         Int("ldc-offset-y", int(in.ldc_offset_y)).
         Int("ldc-k", int(in.ldc_k)).
+        Uint("wdr", uint(in.wdr)).
         Msg("VI params")
 
     err := C.mpp_vi_init(&inErr, &in)

@@ -7,8 +7,9 @@ inline static int mpp_sys_vb_conf(mpp_sys_init_in *in) {
     VB_CONF_S stVbConf;
 
     memset(&stVbConf, 0, sizeof(VB_CONF_S));
-    stVbConf.u32MaxPoolCnt                  = 1;
-    stVbConf.astCommPool[0].u32BlkSize      = (CEILING_2_POWER(in->width, 128) * CEILING_2_POWER(in->height, 128) * 1.5); //TODO
+    stVbConf.u32MaxPoolCnt                  = 128;
+    stVbConf.astCommPool[0].u32BlkSize      = (CEILING_2_POWER(in->width, 64) * CEILING_2_POWER(in->height, 64) * 1.5); //TODO
+    //stVbConf.astCommPool[0].u32BlkSize      = (CEILING_2_POWER(in->width, 128) * CEILING_2_POWER(in->height, 128) * 1.5); //TODO
     stVbConf.astCommPool[0].u32BlkCnt       = in->cnt;
                         
     return HI_MPI_VB_SetConf(&stVbConf);

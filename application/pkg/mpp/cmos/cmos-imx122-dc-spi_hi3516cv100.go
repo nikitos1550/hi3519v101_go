@@ -9,11 +9,11 @@ package cmos
 
 #include "cmos.h"
 
-int mpp_cmos_init(int *error_code) {
-    *error_code = 0;
-
-    return ERR_NONE;
-}
+//int mpp_cmos_init(int *error_code) {
+//    *error_code = 0;
+//
+//    return ERR_NONE;
+//}
 
 //imx122 DC 12bitÊäÈë
 VI_DEV_ATTR_S DEV_ATTR_IMX122_DC_1080P =
@@ -70,6 +70,8 @@ var (
                 mipi: nil,
                 viDev: unsafe.Pointer(&C.DEV_ATTR_IMX122_DC_1080P),
                 clock: 37.125,
+                wdr: WDRNone,
+                description: "normal",
             },
         },
         control: cmosControl {
@@ -77,6 +79,7 @@ var (
             busNum: 0,
         },
         data: DC,
+        bayer: RGGB,
     }
 )
 

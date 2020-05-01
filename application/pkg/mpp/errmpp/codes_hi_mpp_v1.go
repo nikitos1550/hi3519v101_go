@@ -270,7 +270,7 @@ var (
         //ISP
         0xA00A8006: codeInfo{name: "HI_ERR_ISP_NULL_PTR", desc: "The input pointer is null"},
         0xA00A8003: codeInfo{name: "HI_ERR_ISP_ILLEGAL_PARAM", desc: "The input parameter is invalid"},
-        0xA00A8043: codeInfo{name: "HI_ERR_ISP_SNS_UNREGISTER", desc: "The sensor is not registered"},
+        0xA01C8043: codeInfo{name: "HI_ERR_ISP_SNS_UNREGISTER", desc: "The sensor is not registered"}, //0xA00A8043
         0xA00A0040: codeInfo{name: "HI_ERR_ISP_NOT_INIT", desc: "The ISP is not initialized"},
         0xA00A0041: codeInfo{name: "HI_ERR_ISP_TM_NOT_CFG", desc: "The timing is not configured"},
         0xA00A0044: codeInfo{name: "HI_ERR_ISP_INVALID_ADDR", desc: "The address is invalid"},

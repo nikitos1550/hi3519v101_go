@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdio.h>
 #include <stdint.h>
 
 #define ERR_NONE                    0
@@ -24,6 +25,8 @@ typedef int error_general;
         return ERR_MPP; \
     } \
 }
+
+// printf("%s returning %u\n", #FUNC, tmp_mpp_error_code); \
 
 #define DO_OR_RETURN_ERR_GENERAL(ERR, FUNC, ...) \
 { \

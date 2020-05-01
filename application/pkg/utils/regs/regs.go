@@ -94,6 +94,11 @@ func (r *register32) Set(value uint32) {
         //TODO
         return
     }
+    logger.Log.Trace().
+        Str("name", r.name).
+        Str("addr", fmt.Sprintf("0x%08X", r.addr)).
+        Str("value", fmt.Sprintf("0x%08X", value)).
+        Msg("Reg write")
     utils.WriteDevMem32(r.addr, value)
 }
 

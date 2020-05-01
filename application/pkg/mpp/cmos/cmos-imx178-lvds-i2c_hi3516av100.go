@@ -5,17 +5,17 @@
 package cmos
 
 /*
-#include "../include/mpp_v2.h"
+#include "../include/mpp.h"
 
 #include "cmos.h"
 
 #include <string.h>
 
-int mpp_cmos_init(int *error_code) {
-	*error_code = 0;
-
-    return ERR_NONE;
-}
+//int mpp_cmos_init(int *error_code) {
+//	*error_code = 0;
+//
+//    return ERR_NONE;
+//}
 
 combo_dev_attr_t LVDS_4lane_SENSOR_IMX178_12BIT_5M_NOWDR_ATTR =
 {
@@ -109,7 +109,7 @@ VI_DEV_ATTR_S DEV_ATTR_LVDS_BASE =
     // bRever
     HI_FALSE,    
     // DEV CROP
-    {0, 0, 1920, 1080}
+    {0, 0, 2592, 1944}
 };
 
 
@@ -132,6 +132,8 @@ var (
 				mipi: unsafe.Pointer(&C.LVDS_4lane_SENSOR_IMX178_12BIT_5M_NOWDR_ATTR),
                 viDev: unsafe.Pointer(&C.DEV_ATTR_LVDS_BASE),
                 clock: 25,
+                wdr: WDRNone,
+                description: "normal",
 			},
 		},
         control: cmosControl {
@@ -139,5 +141,6 @@ var (
             busNum: 0,
         },
         data: LVDS,
+        bayer: RGGB,
 	}
 )

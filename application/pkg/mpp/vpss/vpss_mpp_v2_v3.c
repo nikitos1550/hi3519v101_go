@@ -1,10 +1,11 @@
 #include "vpss.h"
 
-#if defined(HI_MPP_V3) 
+#if defined(HI_MPP_V2) \
+    || defined(HI_MPP_V3)
 VIDEO_FRAME_INFO_S channelFrames[MAX_CHANNELS];
 
 int mpp_vpss_init(error_in *err, mpp_vpss_init_in *in) {
-    unsigned int mpp_error_code = 0;
+    //unsigned int mpp_error_code = 0;
 
     VPSS_GRP_ATTR_S stVpssGrpAttr;
 
@@ -23,9 +24,12 @@ int mpp_vpss_init(error_in *err, mpp_vpss_init_in *in) {
         stVpssGrpAttr.bNrEn = HI_FALSE;
     }
 
-    #if defined(HI3516AV200)
+    #if defined(HI3516AV100) \
+        || defined(HI3516AV200)
         stVpssGrpAttr.bDciEn            = HI_FALSE;                         //reserved
+    #endif
 
+    #if defined(HI3516AV200)
         stVpssGrpAttr.stNrAttr.enNrType                         = VPSS_NR_TYPE_VIDEO;       //video or snapshot, we use video (i don`t know anything about snapshot mode)
 
         //VPSS_NR_REF_FROM_RFR Reconstruction frame as the reference frame
@@ -70,7 +74,7 @@ int mpp_vpss_init(error_in *err, mpp_vpss_init_in *in) {
 }
 
 int mpp_vpss_create_channel(error_in *err, mpp_vpss_create_channel_in * in) {
-    unsigned int mpp_error_code = 0;
+    //unsigned int mpp_error_code = 0;
 
     VPSS_CHN_ATTR_S stVpssChnAttr;
 
@@ -89,7 +93,7 @@ int mpp_vpss_create_channel(error_in *err, mpp_vpss_create_channel_in * in) {
     //}VPSS_CHN_ATTR_S;
 
     stVpssChnAttr.s32SrcFrameRate = in->vi_fps;
-    stVpssChnAttr.s32DstFrameRate = in->fps;
+    stVpssChnAttr.s32DstFrameRate = 1; //in->fps;
 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_SetChnAttr, 0, in->channel_id, &stVpssChnAttr);
 
@@ -114,7 +118,7 @@ int mpp_vpss_create_channel(error_in *err, mpp_vpss_create_channel_in * in) {
 }
 
 int mpp_vpss_destroy_channel(error_in * err, mpp_vpss_destroy_channel_in *in) {
-    unsigned int mpp_error_code = 0;
+    //unsigned int mpp_error_code = 0;
 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_DisableChn, 0, in->channel_id);
 
@@ -122,7 +126,7 @@ int mpp_vpss_destroy_channel(error_in * err, mpp_vpss_destroy_channel_in *in) {
 }
 
 int mpp_receive_frame(error_in *err, unsigned int channel_id, void** frame) {
-    unsigned int mpp_error_code;
+    //unsigned int mpp_error_code;
 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_GetChnFrame, 0, channel_id, &channelFrames[channel_id], -1); //blocking mode call
 
@@ -131,7 +135,7 @@ int mpp_receive_frame(error_in *err, unsigned int channel_id, void** frame) {
 }
 
 int mpp_release_frame(error_in *err, unsigned int channel_id) {
-    unsigned int mpp_error_code;
+    //unsigned int mpp_error_code;
 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_ReleaseChnFrame, 0, channel_id, &channelFrames[channel_id]);
 

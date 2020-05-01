@@ -196,7 +196,7 @@ VI_DEV_ATTR_S DEV_ATTR_LVDS_BASE =
     // bRever
     HI_FALSE,
     // DEV CROP
-    {0, 0, 1920, 1080},
+    {0, 0, 3840, 2160},
     {
         {
             {1920, 1080},
