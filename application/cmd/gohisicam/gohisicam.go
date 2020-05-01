@@ -58,6 +58,7 @@ func main() {
 
 	common.Init()
 
+    //TODO move all run env to buildinfo
     var devInfo mpp.DeviceInfo
 
     devInfo.MemTotalSize = memparse.Str(*memTotal)
@@ -65,6 +66,8 @@ func main() {
     devInfo.MemMppSize = memparse.Str(*memMpp)
 
     devInfo.Chip = *chip
+
+    buildinfo.Chip = *chip //temporary
 
     println(C.sysconf(C._SC_PHYS_PAGES)*C.sysconf(C._SC_PAGE_SIZE), " bytes")
 

@@ -5,7 +5,7 @@
 package cmos
 
 /*
-#include "../include/mpp_v4.h"
+#include "../include/mpp.h"
 
 #include "cmos.h"
 
@@ -13,6 +13,35 @@ package cmos
 
 int mpp_cmos_init(int *error_code) {
     *error_code = 0;
+
+    ALG_LIB_S stAeLib;
+    ALG_LIB_S stAwbLib;
+    const ISP_SNS_OBJ_S* pstSnsObj;
+
+    pstSnsObj = &stSnsImx335Obj;
+
+    stAeLib.s32Id = 0;
+    stAwbLib.s32Id = 0;
+    strncpy(stAeLib.acLibName, HI_AE_LIB_NAME, sizeof(HI_AE_LIB_NAME));
+    strncpy(stAwbLib.acLibName, HI_AWB_LIB_NAME, sizeof(HI_AWB_LIB_NAME));
+    
+    *error_code = pstSnsObj->pfnRegisterCallback(0, &stAeLib, &stAwbLib);
+    if (*error_code != HI_SUCCESS) {
+        printf("sensor_register_callback failed with %#x!\n", *error_code);
+        return ERR_GENERAL;
+    }
+
+    ISP_SNS_COMMBUS_U uSnsBusInfo;
+    ISP_SNS_TYPE_E enBusType;
+
+    enBusType = ISP_SNS_I2C_TYPE;
+    uSnsBusInfo.s8I2cDev = 0;
+
+    *error_code = pstSnsObj->pfnSetBusInfo(0, uSnsBusInfo);
+    if (*error_code != HI_SUCCESS) {
+        printf("set sensor bus info failed with %#x!\n", *error_code);
+        return ERR_GENERAL;
+    }
 
     return ERR_NONE;
 }
@@ -256,6 +285,8 @@ var (
                 mipi: unsafe.Pointer(&C.MIPI_4lane_CHN0_SENSOR_IMX335_12BIT_5M_NOWDR_ATTR),
                 viDev: unsafe.Pointer(&C.DEV_ATTR_IMX335_5M_BASE),
                 clock: 0,
+                wdr: WDRNone,
+                description: "normal",
             },
         },
         control: cmosControl {
@@ -263,6 +294,7 @@ var (
             busNum: 0,
         },
         data: MIPI,
+        bayer: RGGB,
     }
 )
 

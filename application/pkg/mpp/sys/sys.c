@@ -33,6 +33,25 @@ inline static int mpp_sys_vb_conf(mpp_sys_init_in *in) {
 }
 #endif
 
+inline static int mpp_sys_sys_conf() {
+    #if HI_MPP <= 3
+        MPP_SYS_CONF_S stSysConf;
+
+        memset(&stSysConf, 0, sizeof(MPP_SYS_CONF_S));
+        stSysConf.u32AlignWidth = 64;
+
+        return HI_MPI_SYS_SetConf(&stSysConf);
+    #elif HI_MPP == 4
+        //MPP_SYS_CONFIG_S stSysConfig;
+    
+        //memset(&stSysConfig, 0, sizeof(MPP_SYS_CONFIG_S));
+        //stSysConf.u32AlignWidth = 64;
+
+        //return HI_MPI_SYS_SetConfig(&stSysConfig);
+        return HI_SUCCESS;
+    #endif
+}
+
 int mpp_sys_init(error_in *err, mpp_sys_init_in *in) {
 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_SYS_Exit);
@@ -43,14 +62,24 @@ int mpp_sys_init(error_in *err, mpp_sys_init_in *in) {
 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VB_Init);
     
-    MPP_SYS_CONF_S stSysConf;
+    //MPP_SYS_CONF_S stSysConf;
 
-    memset(&stSysConf, 0, sizeof(MPP_SYS_CONF_S));
-    stSysConf.u32AlignWidth = 64;
+    //memset(&stSysConf, 0, sizeof(MPP_SYS_CONF_S));
+    //stSysConf.u32AlignWidth = 64;
     
-    DO_OR_RETURN_ERR_MPP(err, HI_MPI_SYS_SetConf, &stSysConf);
+    //DO_OR_RETURN_ERR_MPP(err, HI_MPI_SYS_SetConf, &stSysConf);
+
+    DO_OR_RETURN_ERR_MPP(err, mpp_sys_sys_conf);
     
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_SYS_Init);
+
+    #if defined(HI3516CV500)
+        VI_VPSS_MODE_S      stVIVPSSMode;
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_SYS_GetVIVPSSMode, &stVIVPSSMode);
+        stVIVPSSMode.aenMode[0] = VI_OFFLINE_VPSS_OFFLINE;
+
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_SYS_SetVIVPSSMode, &stVIVPSSMode);
+    #endif
 
     return ERR_NONE;
 }

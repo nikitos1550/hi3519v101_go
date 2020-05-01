@@ -1,7 +1,7 @@
 #include "vpss.h"
 
 #if defined(HI_MPP_V1)
-VIDEO_FRAME_INFO_S channelFrames[MAX_CHANNELS];
+VIDEO_FRAME_INFO_S channelFrames[VPSS_MAX_PHY_CHN_NUM];
 
 int mpp_vpss_init(error_in *err, mpp_vpss_init_in *in) {
 

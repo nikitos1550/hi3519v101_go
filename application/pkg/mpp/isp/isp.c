@@ -46,6 +46,8 @@ static inline int mpp_isp_register_lib_af(char * lib) {
 
     #if HI_MPP == 1
         return HI_MPI_AF_Register(&stLib);
+    #elif HI_MPP == 4
+        return HI_SUCCESS;
     #elif HI_MPP >=2
         return HI_MPI_AF_Register(0, &stLib);
     #endif

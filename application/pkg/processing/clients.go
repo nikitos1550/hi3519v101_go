@@ -12,7 +12,7 @@ import (
 	"unsafe"
 
     "application/pkg/logger"
-    //"application/pkg/mpp/errmpp"
+    "application/pkg/mpp/errmpp"
 )
 
 func sendToEncoders(processingId int, frame unsafe.Pointer) {
@@ -29,9 +29,9 @@ func sendToEncoders(processingId int, frame unsafe.Pointer) {
 
 		err := C.sendToEncoder(&inErr, C.uint(encoderId), frame)
 		if err != C.ERR_NONE {
-            //logger.Log.Error().
-            //    Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
-            //    Msg("SYS")
+            logger.Log.Error().
+                Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
+                Msg("SYS")
 
             //logger.Log.Error().
             //    Int("error", int(err)).

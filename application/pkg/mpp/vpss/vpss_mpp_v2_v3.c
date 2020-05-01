@@ -2,7 +2,7 @@
 
 #if defined(HI_MPP_V2) \
     || defined(HI_MPP_V3)
-VIDEO_FRAME_INFO_S channelFrames[MAX_CHANNELS];
+VIDEO_FRAME_INFO_S channelFrames[VPSS_MAX_PHY_CHN_NUM];
 
 int mpp_vpss_init(error_in *err, mpp_vpss_init_in *in) {
     //unsigned int mpp_error_code = 0;
@@ -93,7 +93,7 @@ int mpp_vpss_create_channel(error_in *err, mpp_vpss_create_channel_in * in) {
     //}VPSS_CHN_ATTR_S;
 
     stVpssChnAttr.s32SrcFrameRate = in->vi_fps;
-    stVpssChnAttr.s32DstFrameRate = 1; //in->fps;
+    stVpssChnAttr.s32DstFrameRate = in->fps;
 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_SetChnAttr, 0, in->channel_id, &stVpssChnAttr);
 

@@ -438,77 +438,85 @@ static VI_CHN_ATTR_S CHN_ATTR_2592x1944_420_SDR8_LINEAR =
     {-1, -1}
 };
 
-int mpp_vi_init(unsigned int *error_code, void *videv, unsigned int width, unsigned int height, unsigned int fps) {
-    *error_code = 0;
+int mpp_vi_init(error_in *err, mpp_vi_init_in * in) { 
+    //*error_code = 0;
+   
+  	//VI_StartDev
+    VI_DEV_ATTR_S       stViDevAttr;
+    hi_memcpy(&stViDevAttr, sizeof(VI_DEV_ATTR_S), in->videv, sizeof(VI_DEV_ATTR_S));
 
+	stViDevAttr.stWDRAttr.enWDRMode = WDR_MODE_NONE;
+    //stViDevAttr.enDataRate = DATA_RATE_X2; //???????????????
 
-      //VI_StartDev
-        VI_DEV_ATTR_S       stViDevAttr;
-        hi_memcpy(&stViDevAttr, sizeof(VI_DEV_ATTR_S), videv, sizeof(VI_DEV_ATTR_S));
-        stViDevAttr.stWDRAttr.enWDRMode = WDR_MODE_NONE;
-        //stViDevAttr.enDataRate = DATA_RATE_X2; //???????????????
+	DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetDevAttr, 0, &stViDevAttr);
+    //    *error_code = HI_MPI_VI_SetDevAttr(0, &stViDevAttr);
+    //    if (*error_code != HI_SUCCESS) {
+    //        printf("HI_MPI_VI_SetDevAttr failed with %#x!\n", *error_code);
+    //        return -1;
+    //    }
 
-        *error_code = HI_MPI_VI_SetDevAttr(0, &stViDevAttr);
-        if (*error_code != HI_SUCCESS) {
-            printf("HI_MPI_VI_SetDevAttr failed with %#x!\n", *error_code);
-            return -1;
-        }
+	DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_EnableDev, 0);
+    //    *error_code = HI_MPI_VI_EnableDev(0);
+    //    if (*error_code != HI_SUCCESS) {
+    //        printf("HI_MPI_VI_EnableDev failed with %#x!\n", *error_code);
+    //        return -1;
+    //    }        
 
-        *error_code = HI_MPI_VI_EnableDev(0);
-        if (*error_code != HI_SUCCESS) {
-            printf("HI_MPI_VI_EnableDev failed with %#x!\n", *error_code);
-            return -1;
-        }        
+    //VI_BindPipeDev
+    VI_DEV_BIND_PIPE_S  stDevBindPipe = {0};
+    
+   	stDevBindPipe.u32Num = 1;
 
-        //VI_BindPipeDev
-        VI_DEV_BIND_PIPE_S  stDevBindPipe = {0};
-        stDevBindPipe.u32Num = 1;
+	DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetDevBindPipe, 0, &stDevBindPipe);
+    //    *error_code = HI_MPI_VI_SetDevBindPipe(0, &stDevBindPipe);
+    //    if (*error_code != HI_SUCCESS) {
+    //        printf("HI_MPI_VI_SetDevBindPipe failed with %#x!\n", *error_code);
+    //        return -1;
+    //    }
+      
+  	//VI_StartViPipe
+    VI_PIPE_ATTR_S  stPipeAttr;
 
-        *error_code = HI_MPI_VI_SetDevBindPipe(0, &stDevBindPipe);
-        if (*error_code != HI_SUCCESS) {
-            printf("HI_MPI_VI_SetDevBindPipe failed with %#x!\n", *error_code);
-            return -1;
-        }
-        //VI_StartViPipe
-        VI_PIPE_ATTR_S  stPipeAttr;
+    hi_memcpy(&stPipeAttr, sizeof(VI_PIPE_ATTR_S), &PIPE_ATTR_2592x1944_RAW12_420_3DNR_RFR, sizeof(VI_PIPE_ATTR_S));
 
-        hi_memcpy(&stPipeAttr, sizeof(VI_PIPE_ATTR_S), &PIPE_ATTR_2592x1944_RAW12_420_3DNR_RFR, sizeof(VI_PIPE_ATTR_S));
+	DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_CreatePipe, 0, &stPipeAttr);
+    //    *error_code = HI_MPI_VI_CreatePipe(0, &stPipeAttr);
+    //    if (*error_code != HI_SUCCESS) {
+    //        printf("HI_MPI_VI_CreatePipe failed with %#x!\n", *error_code);
+    //        return -1;
+    //    }
 
-        *error_code = HI_MPI_VI_CreatePipe(0, &stPipeAttr);
-        if (*error_code != HI_SUCCESS) {
-            printf("HI_MPI_VI_CreatePipe failed with %#x!\n", *error_code);
-            return -1;
-        }
+	DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_StartPipe, 0);
+    //    *error_code = HI_MPI_VI_StartPipe(0);
+    //    if (*error_code != HI_SUCCESS) {
+    //        //HI_MPI_VI_DestroyPipe(ViPipe);
+    //        printf("HI_MPI_VI_StartPipe failed with %#x!\n", *error_code);
+    //        return -1;
+	//  }
 
-        *error_code = HI_MPI_VI_StartPipe(0);
-        if (*error_code != HI_SUCCESS) {
-            //HI_MPI_VI_DestroyPipe(ViPipe);
-            printf("HI_MPI_VI_StartPipe failed with %#x!\n", *error_code);
-            return -1;
-        }
-        //VI_StartViChn
-        VI_CHN_ATTR_S       stChnAttr;
+    //VI_StartViChn
+    VI_CHN_ATTR_S       stChnAttr;
 
-        hi_memcpy(&stChnAttr, sizeof(VI_CHN_ATTR_S), &CHN_ATTR_2592x1944_420_SDR8_LINEAR, sizeof(VI_CHN_ATTR_S));
+    hi_memcpy(&stChnAttr, sizeof(VI_CHN_ATTR_S), &CHN_ATTR_2592x1944_420_SDR8_LINEAR, sizeof(VI_CHN_ATTR_S));
 
-        stChnAttr.enDynamicRange = DYNAMIC_RANGE_SDR8;
-        stChnAttr.enVideoFormat  = VIDEO_FORMAT_LINEAR;
-        stChnAttr.enPixelFormat  = PIXEL_FORMAT_YVU_SEMIPLANAR_420;
-        stChnAttr.enCompressMode = COMPRESS_MODE_SEG;
+    stChnAttr.enDynamicRange = DYNAMIC_RANGE_SDR8;
+    stChnAttr.enVideoFormat  = VIDEO_FORMAT_LINEAR;
+    stChnAttr.enPixelFormat  = PIXEL_FORMAT_YVU_SEMIPLANAR_420;
+    stChnAttr.enCompressMode = COMPRESS_MODE_SEG;
 
-        *error_code = HI_MPI_VI_SetChnAttr(0, 0, &stChnAttr);
-        if (*error_code != HI_SUCCESS) {
-            printf("HI_MPI_VI_SetChnAttr failed with %#x!\n", *error_code);
-            return -1;
-        }
+	DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetChnAttr, 0, 0, &stChnAttr);
+    //    *error_code = HI_MPI_VI_SetChnAttr(0, 0, &stChnAttr);
+    //    if (*error_code != HI_SUCCESS) {
+    //        printf("HI_MPI_VI_SetChnAttr failed with %#x!\n", *error_code);
+    //        return -1;
+    //    }
 
-        *error_code = HI_MPI_VI_EnableChn(0, 0);
-        if (*error_code != HI_SUCCESS) {
-            printf("HI_MPI_VI_EnableChn failed with %#x!\n", -1);
-            return -1;
-        }
-
-
+	DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_EnableChn, 0, 0);
+    //    *error_code = HI_MPI_VI_EnableChn(0, 0);
+    //    if (*error_code != HI_SUCCESS) {
+    //        printf("HI_MPI_VI_EnableChn failed with %#x!\n", -1);
+    //        return -1;
+    //    }
 
     return ERR_NONE;
 }

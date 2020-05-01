@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#define MAX_CHANNELS VPSS_MAX_PHY_CHN_NUM
+//#define MAX_CHANNELS VPSS_MAX_PHY_CHN_NUM
 //VIDEO_FRAME_INFO_S channelFrames[MAX_CHANNELS];
 
 typedef struct mpp_vpss_init_in_struct {
