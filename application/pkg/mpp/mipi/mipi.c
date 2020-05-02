@@ -18,7 +18,9 @@ int mpp_mipi_init(error_in *err, mpp_mipi_init_in *in) {
 
     memcpy(&stcomboDevAttr, in->mipi, sizeof(combo_dev_attr_t));
 
-    stcomboDevAttr.devno = 0; //TODO
+    #if HI_MPP >= 3
+        stcomboDevAttr.devno = 0; //TODO
+    #endif
 
     #if HI_MPP == 4
     	lane_divide_mode_t lane_divide_mode = LANE_DIVIDE_MODE_0;

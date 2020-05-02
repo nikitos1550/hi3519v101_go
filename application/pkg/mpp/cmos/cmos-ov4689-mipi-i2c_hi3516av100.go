@@ -11,11 +11,11 @@ package cmos
 
 #include <string.h>
 
-int mpp_cmos_init(int *error_code) {
-	*error_code = 0;
-
-    return ERR_NONE;
-}
+//int mpp_cmos_init(int *error_code) {
+//	*error_code = 0;
+//
+//    return ERR_NONE;
+//}
 
 combo_dev_attr_t MIPI_4lane_SENSOR_OV4689_12BIT_ATTR =
 {
@@ -25,7 +25,7 @@ combo_dev_attr_t MIPI_4lane_SENSOR_OV4689_12BIT_ATTR =
         .mipi_attr =
         {
             RAW_DATA_12BIT,
-            {1, 0, 2, 3, -1, -1, -1, -1}
+            {0, 1, 2, 3, -1, -1, -1, -1}
         }
     }
 };
@@ -90,6 +90,8 @@ var (
 				mipi: unsafe.Pointer(&C.MIPI_4lane_SENSOR_OV4689_12BIT_ATTR),
                 viDev: unsafe.Pointer(&C.DEV_ATTR_MIPI_BASE),
                 clock: 24,
+                wdr: WDRNone,
+                description: "normal",
 			},
 		},
         control: cmosControl {
@@ -97,5 +99,6 @@ var (
             busNum: 0,
         },
         data: MIPI,
+        bayer: RGGB,
 	}
 )

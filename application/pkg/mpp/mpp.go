@@ -15,6 +15,7 @@ import (
     "application/pkg/buildinfo"
     "application/pkg/logger"
 
+    "os/exec"
 )
 
 func Init(devInfo DeviceInfo) {
@@ -26,13 +27,26 @@ func Init(devInfo DeviceInfo) {
     logger.Log.Debug().
         Msg("OS and chip inited")
 
+    //echo "all=4" > /proc/umap/logmpp
+
+    cmd := exec.Command("sh", "-c", "echo \"all=9\" > /proc/umap/logmpp")
+	_, err := cmd.CombinedOutput()
+	if err != nil {
+		logger.Log.Error().
+            Msg("Can`t increase logmpp level")
+	}
+    logger.Log.Debug().
+        Msg("logmpp level increased")
+
     sys.Init(devInfo.Chip)
 
     if (buildinfo.Family != "hi3516cv100") {
         mipi.Init()
     }
 
-    if (buildinfo.Family == "hi3516cv500") {
+    cmos.Register()
+
+    if (buildinfo.Family == "hi3516cv500" || buildinfo.Family == "hi3516ev200") {
 	    vi.Init()
         isp.Init()
     } else {

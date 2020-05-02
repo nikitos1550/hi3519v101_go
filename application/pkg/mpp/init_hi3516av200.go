@@ -242,12 +242,18 @@ func systemInit(devInfo DeviceInfo) {
             case "imx326":
                 utils.WriteDevMem32(0x1201004c, 0x00094c21)
                 utils.WriteDevMem32(0x12010054, 0x0004041)
-                utils.WriteDevMem32(0x12010040, 0x14)
+                //utils.WriteDevMem32(0x12010040, 0x14)
 			case "imx274":
                 utils.WriteDevMem32(0x1201004c, 0x00094c23)
                 utils.WriteDevMem32(0x12010054, 0x0004041)
 			case "imx226":
                 utils.WriteDevMem32(0x1201004c, 0x00094c23)
+                utils.WriteDevMem32(0x12010054, 0x0004041)
+            case "os08a10":
+                utils.WriteDevMem32(0x1201004c, 0x00094c21)
+                utils.WriteDevMem32(0x12010054, 0x0004041)
+            case "ov4689":
+                utils.WriteDevMem32(0x1201004c, 0x00094c21)
                 utils.WriteDevMem32(0x12010054, 0x0004041)
 			default:
                 logger.Log.Fatal().

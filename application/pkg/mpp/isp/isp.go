@@ -12,7 +12,7 @@ import (
 
 func Init() {
 
-    cmos.Register() // TODO check return
+    //cmos.Register() // TODO check return
 
     var inErr C.error_in
     var in C.mpp_isp_init_in

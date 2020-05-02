@@ -99,7 +99,7 @@ VI_DEV_ATTR_S DEV_ATTR_MIPI_BASE =
     // bRever
     HI_FALSE,
     // DEV CROP
-    {0, 0, 1920, 1080},
+    {0, 0, 3840, 2160},
     {
         {
             {1920, 1080},
@@ -133,6 +133,8 @@ var (
 				mipi: unsafe.Pointer(&C.MIPI_4lane_SENSOR_OS08A_12BIT_4K_NOWDR_ATTR),
                 viDev: unsafe.Pointer(&C.DEV_ATTR_MIPI_BASE),
                 clock: 24,
+                wdr: WDRNone,
+                description: "normal",
 			},
 		},
 		control: cmosControl {
@@ -140,5 +142,6 @@ var (
 			busNum: 0,
 		},
         data: MIPI,
+        bayer: RGGB,
 	}
 )

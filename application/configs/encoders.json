@@ -17,6 +17,12 @@
     "Height": 1080,
     "Bitrate": 16384
   },
+  "MGPEG_1280_720": {
+    "Format": "mjpeg",
+    "Width": 1280,
+    "Height": 720,
+    "Bitrate": 1024
+  },
   "H264_1280_720_1M": {
     "Format": "h264",
     "Width": 1280,

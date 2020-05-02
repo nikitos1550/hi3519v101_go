@@ -1,92 +1,41 @@
 #include "vi.h"
 
 #if defined(HI3516CV100)
-//imx122 DC 12bitÊäÈë
-//VI_DEV_ATTR_S DEV_ATTR_IMX122_DC_1080P =
-//{
-//    //½Ó¿ÚÄ£Ê½
-//    VI_MODE_DIGITAL_CAMERA,
-//    //1¡¢2¡¢4Â·¹¤×÷Ä£Ê½
-//    VI_WORK_MODE_1Multiplex,
-//    // r_mask    g_mask    b_mask
-//    {0xFFF00000,    0x0},
-//    //ÖðÐÐor¸ôÐÐÊäÈë
-//    VI_SCAN_PROGRESSIVE,
-//    //AdChnId
-//    {-1, -1, -1, -1},
-//    //enDataSeq, ½öÖ§³ÖYUV¸ñÊ½
-//    VI_INPUT_DATA_YUYV,
-//
-//    //Í¬²½ÐÅÏ¢£¬¶ÔÓ¦regÊÖ²áµÄÈçÏÂÅäÖÃ, --bt1120Ê±ÐòÎÞÐ§
-//    {
-//    //port_vsync   port_vsync_neg     port_hsync        port_hsync_neg      
-//    VI_VSYNC_PULSE, VI_VSYNC_NEG_HIGH, VI_HSYNC_VALID_SINGNAL,VI_HSYNC_NEG_HIGH,VI_VSYNC_NORM_PULSE,VI_VSYNC_VALID_NEG_HIGH,
-//    
-//    //timingÐÅÏ¢£¬¶ÔÓ¦regÊÖ²áµÄÈçÏÂÅäÖÃ
-//    //hsync_hfb    hsync_act    hsync_hhb
-//    {0,            1920,        0,
-//    //vsync0_vhb vsync0_act vsync0_hhb
-//     0,            1080,        0,
-//    //vsync1_vhb vsync1_act vsync1_hhb
-//     0,            0,            0}
-//    },
-//    //Ê¹ÓÃÄÚ²¿ISP
-//    VI_PATH_ISP,
-//    //ÊäÈëÊý¾ÝÀàÐÍ
-//    VI_DATA_TYPE_RGB
-//};
-
-
-//int mpp1_vi_init(unsigned int *error_code) {
 int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
-    //*error_code = 0;
-
-    VI_DEV ViDev = 0;
 
     VI_DEV_ATTR_S    stViDevAttr;
-    memset(&stViDevAttr,0,sizeof(stViDevAttr));
 
-    //case SONY_IMX122_DC_1080P_30FPS:                                        
-    //memcpy(&stViDevAttr,&DEV_ATTR_IMX122_DC_1080P,sizeof(stViDevAttr));    
+    memset(&stViDevAttr, 0, sizeof(stViDevAttr));
+
     memcpy(&stViDevAttr, in->videv, sizeof(stViDevAttr));
 
-    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetDevAttr, ViDev, &stViDevAttr);
-    //*error_code = HI_MPI_VI_SetDevAttr(ViDev, &stViDevAttr);
-    //if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VI_SetDevAttr;
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetDevAttr, 0, &stViDevAttr);
 
-    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_EnableDev, ViDev);
-    //*error_code = HI_MPI_VI_EnableDev(ViDev);
-    //if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VI_EnableDev;
-
-    VI_CHN ViChn = 0;
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_EnableDev, 0);
 
     VI_CHN_ATTR_S stChnAttr;
-    ROTATE_E enRotate = ROTATE_NONE;
+    //ROTATE_E enRotate = ROTATE_NONE;
 
-    // step  5: config & start vicap dev
     //memcpy(&stChnAttr.stCapRect, pstCapRect, sizeof(RECT_S));
-    stChnAttr.stCapRect.s32X = 0;
-    stChnAttr.stCapRect.s32Y = 0;
-    stChnAttr.stCapRect.u32Width = 1920;
-    stChnAttr.stCapRect.u32Height = 1080;
+    stChnAttr.stCapRect.s32X        = in->x0;
+    stChnAttr.stCapRect.s32Y        = in->y0;
+    stChnAttr.stCapRect.u32Width    = in->width;
+    stChnAttr.stCapRect.u32Height   = in->height;
 
 
     stChnAttr.enCapSel = VI_CAPSEL_BOTH;
-    // to show scale. this is a sample only, we want to show dist_size = D1 only 
-    stChnAttr.stDestSize.u32Width = 1920; //pstTarSize->u32Width;
-    stChnAttr.stDestSize.u32Height = 1080; //pstTarSize->u32Height;
-    stChnAttr.enPixFormat = PIXEL_FORMAT_YUV_SEMIPLANAR_420;   // sp420 or sp422
+    stChnAttr.stDestSize.u32Width   = in->width; 
+    stChnAttr.stDestSize.u32Height  = in->height;
+    stChnAttr.enPixFormat           = PIXEL_FORMAT_YUV_SEMIPLANAR_420;   // sp420 or sp422
 
     stChnAttr.bMirror = HI_FALSE;
     stChnAttr.bFlip = HI_FALSE;
 
-    stChnAttr.bChromaResample = HI_FALSE;
-    stChnAttr.s32SrcFrameRate = 30;
-    stChnAttr.s32FrameRate = 30;
+    stChnAttr.bChromaResample   = HI_FALSE;
+    stChnAttr.s32SrcFrameRate   = 30;
+    stChnAttr.s32FrameRate      = 30;
 
-    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetChnAttr, ViChn, &stChnAttr);
-    //*error_code = HI_MPI_VI_SetChnAttr(ViChn, &stChnAttr);
-    //if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VI_SetChnAttr;
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetChnAttr, 0, &stChnAttr);
     
     //if(ROTATE_NONE != enRotate)
     //{
@@ -94,9 +43,7 @@ int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
     //  if (*error_code != HI_SUCCESS) return ERR_
     //}
     
-    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_EnableChn, ViChn);
-    //*error_code = HI_MPI_VI_EnableChn(ViChn);
-    //if (*error_code != HI_SUCCESS) return ERR_HI_MPI_VI_EnableChn;
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_EnableChn, 0);
 
     return ERR_NONE;
 }
@@ -407,7 +354,8 @@ int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
 //#endif // defined(HI3516CV300)
 
 
-#if defined(HI3516CV500)
+#if defined(HI3516CV500) \
+    || defined(HI3516EV200)
 static VI_PIPE_ATTR_S PIPE_ATTR_2592x1944_RAW12_420_3DNR_RFR =
 {
     VI_PIPE_BYPASS_NONE, HI_FALSE, HI_FALSE,
@@ -426,6 +374,24 @@ static VI_PIPE_ATTR_S PIPE_ATTR_2592x1944_RAW12_420_3DNR_RFR =
     {-1, -1}                
 };                                           
 
+VI_PIPE_ATTR_S PIPE_ATTR_1920x1080_RAW12_420_3DNR_RFR =
+{
+    VI_PIPE_BYPASS_NONE, HI_FALSE, HI_FALSE,
+    1920, 1080,
+    PIXEL_FORMAT_RGB_BAYER_12BPP,
+    COMPRESS_MODE_NONE,
+    DATA_BITWIDTH_12,
+    HI_FALSE,
+    {
+        PIXEL_FORMAT_YVU_SEMIPLANAR_420,
+        DATA_BITWIDTH_8,   
+        VI_NR_REF_FROM_RFR,
+        COMPRESS_MODE_NONE
+    },
+    HI_FALSE,
+    { -1, -1}
+};
+
 static VI_CHN_ATTR_S CHN_ATTR_2592x1944_420_SDR8_LINEAR =
 {
     {2592, 1944},
@@ -438,6 +404,19 @@ static VI_CHN_ATTR_S CHN_ATTR_2592x1944_420_SDR8_LINEAR =
     {-1, -1}
 };
 
+VI_CHN_ATTR_S CHN_ATTR_1920x1080_420_SDR8_LINEAR =
+{
+    {1920, 1080},
+    PIXEL_FORMAT_YVU_SEMIPLANAR_420,
+    DYNAMIC_RANGE_SDR8, 
+    VIDEO_FORMAT_LINEAR,
+    COMPRESS_MODE_NONE,
+    0,      0,
+    0,
+    { -1, -1}
+};
+
+
 int mpp_vi_init(error_in *err, mpp_vi_init_in * in) { 
     //*error_code = 0;
    
@@ -449,74 +428,43 @@ int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
     //stViDevAttr.enDataRate = DATA_RATE_X2; //???????????????
 
 	DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetDevAttr, 0, &stViDevAttr);
-    //    *error_code = HI_MPI_VI_SetDevAttr(0, &stViDevAttr);
-    //    if (*error_code != HI_SUCCESS) {
-    //        printf("HI_MPI_VI_SetDevAttr failed with %#x!\n", *error_code);
-    //        return -1;
-    //    }
 
 	DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_EnableDev, 0);
-    //    *error_code = HI_MPI_VI_EnableDev(0);
-    //    if (*error_code != HI_SUCCESS) {
-    //        printf("HI_MPI_VI_EnableDev failed with %#x!\n", *error_code);
-    //        return -1;
-    //    }        
 
-    //VI_BindPipeDev
     VI_DEV_BIND_PIPE_S  stDevBindPipe = {0};
     
    	stDevBindPipe.u32Num = 1;
 
 	DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetDevBindPipe, 0, &stDevBindPipe);
-    //    *error_code = HI_MPI_VI_SetDevBindPipe(0, &stDevBindPipe);
-    //    if (*error_code != HI_SUCCESS) {
-    //        printf("HI_MPI_VI_SetDevBindPipe failed with %#x!\n", *error_code);
-    //        return -1;
-    //    }
       
-  	//VI_StartViPipe
     VI_PIPE_ATTR_S  stPipeAttr;
 
+    #if defined(HI3516CV500)
     hi_memcpy(&stPipeAttr, sizeof(VI_PIPE_ATTR_S), &PIPE_ATTR_2592x1944_RAW12_420_3DNR_RFR, sizeof(VI_PIPE_ATTR_S));
+    #elif defined(HI3516EV200)
+    hi_memcpy(&stPipeAttr, sizeof(VI_PIPE_ATTR_S), &PIPE_ATTR_1920x1080_RAW12_420_3DNR_RFR, sizeof(VI_PIPE_ATTR_S));
+    #endif
 
 	DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_CreatePipe, 0, &stPipeAttr);
-    //    *error_code = HI_MPI_VI_CreatePipe(0, &stPipeAttr);
-    //    if (*error_code != HI_SUCCESS) {
-    //        printf("HI_MPI_VI_CreatePipe failed with %#x!\n", *error_code);
-    //        return -1;
-    //    }
 
 	DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_StartPipe, 0);
-    //    *error_code = HI_MPI_VI_StartPipe(0);
-    //    if (*error_code != HI_SUCCESS) {
-    //        //HI_MPI_VI_DestroyPipe(ViPipe);
-    //        printf("HI_MPI_VI_StartPipe failed with %#x!\n", *error_code);
-    //        return -1;
-	//  }
-
-    //VI_StartViChn
+    
     VI_CHN_ATTR_S       stChnAttr;
 
+    #if defined(HI3516CV500)
     hi_memcpy(&stChnAttr, sizeof(VI_CHN_ATTR_S), &CHN_ATTR_2592x1944_420_SDR8_LINEAR, sizeof(VI_CHN_ATTR_S));
+    #elif defined(HI3516EV200)
+    hi_memcpy(&stChnAttr, sizeof(VI_CHN_ATTR_S), &CHN_ATTR_1920x1080_420_SDR8_LINEAR, sizeof(VI_CHN_ATTR_S));
+    #endif
 
-    stChnAttr.enDynamicRange = DYNAMIC_RANGE_SDR8;
-    stChnAttr.enVideoFormat  = VIDEO_FORMAT_LINEAR;
-    stChnAttr.enPixelFormat  = PIXEL_FORMAT_YVU_SEMIPLANAR_420;
-    stChnAttr.enCompressMode = COMPRESS_MODE_SEG;
+    //stChnAttr.enDynamicRange = DYNAMIC_RANGE_SDR8;
+    //stChnAttr.enVideoFormat  = VIDEO_FORMAT_LINEAR;
+    //stChnAttr.enPixelFormat  = PIXEL_FORMAT_YVU_SEMIPLANAR_420;
+    //stChnAttr.enCompressMode = COMPRESS_MODE_SEG;
 
 	DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetChnAttr, 0, 0, &stChnAttr);
-    //    *error_code = HI_MPI_VI_SetChnAttr(0, 0, &stChnAttr);
-    //    if (*error_code != HI_SUCCESS) {
-    //        printf("HI_MPI_VI_SetChnAttr failed with %#x!\n", *error_code);
-    //        return -1;
-    //    }
 
 	DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_EnableChn, 0, 0);
-    //    *error_code = HI_MPI_VI_EnableChn(0, 0);
-    //    if (*error_code != HI_SUCCESS) {
-    //        printf("HI_MPI_VI_EnableChn failed with %#x!\n", -1);
-    //        return -1;
-    //    }
 
     return ERR_NONE;
 }

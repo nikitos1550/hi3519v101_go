@@ -77,8 +77,8 @@ int mpp_isp_init(error_in *err, mpp_isp_init_in *in) {
         ISP_INPUT_TIMING_S stInputTiming;
 
         stInputTiming.enWndMode         = ISP_WIND_ALL;
-        stInputTiming.u16HorWndStart    = 200;          //TODO
-        stInputTiming.u16VerWndStart    = 18;           //Add wnd rec to cmos struct
+        stInputTiming.u16HorWndStart    = 0; //200;          //TODO
+        stInputTiming.u16VerWndStart    = 0; //18;           //Add wnd rec to cmos struct
         stInputTiming.u16HorWndLength   = in->width;
         stInputTiming.u16VerWndLength   = in->height;
 
