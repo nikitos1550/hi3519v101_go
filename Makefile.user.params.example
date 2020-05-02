@@ -2,7 +2,7 @@ THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 #THIS IS YOUR CUSTOM SETTINGS
 
-#APP_TARGET := cam
+APP_TARGET := cam
 
 #BOARD ?= unknown_unknown_hi3516av100_unknown
 #BOARD ?= unknown_unknown_hi3516av200_unknown
@@ -43,7 +43,7 @@ THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 #PROG    ?= 7
 
 #CAMERA  ?= 8
-#BOARD   ?= xm_ivg-85hg50pya-s_hi3516ev300_imx335
+#BOARD   ?= xm_ivg-85hf30ps-s_hi3516ev200_sc4239
 #PROG    ?= 8
 
 #CAMERA   ?= 9
@@ -57,6 +57,11 @@ THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 #CAMERA   ?= 11
 #BOARD    ?= xm_ivg-83h80nv-be_hi3516av200_os08a10
 #PROG     ?= no
+
+#kernel start issue
+#CAMERA	  ?= 12
+#BOARD    ?= topsee_th38j29_hi3516ev200_imx307
+#PROG	  ?= no
 
 #CAMERA   ?= 13
 #BOARD    ?= ssqvision_on335h16d_hi3516dv300_imx335
@@ -78,18 +83,20 @@ THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 #BOARD   ?= ssqvision_unknown_hi3519v101_imx326 
 #PROG    ?= no
 
+#cmos no driver, check china
 #CAMERA   ?= 18
 #BOARD    ?= ssqvision_on290h16d_hi3516dv100_imx290
 #PROG     ?= no
-
-#CAMERA	  ?= 19
-#BOARD    ?= unknown_unknown_hi3518ev200_unknown
-#PROG     ?= 19
 
 #CAMERA   ?= 20
 #BOARD    ?= unknown_unknown_hi3518ev201_unknown
 #PROG     ?= no
 
+#CAMERA	  ?= 21
+#BOARD    ?= topsee_th38d16_hi3516ev200_sc3235 
+#PROG     ?= no
+
+#only wifi
 #CAMERA   ?= 22
 #BOARD   ?=yi_yhs-113-ir_hi3518ev201_ov9732
 #PROG    ?=22
@@ -98,14 +105,24 @@ THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 #BOARD    ?= xm_ipg-53h13pl-s_hi3518cv100_ar0130
 #PROG	  ?= no
 
+#uboot locked
+#CAMERA   ?= 24
+#BOARD	  ?= topsee_th38c21_hi3518ev200_ar0130
+#PROG	  ?= no
+
+#CAMERA   ?= 25
+#BOARD    ?= unknown_unknown_hi3518ev200_unknown
+#PROG     ?= no
+
 #CAMERA   ?= 27
-#BOARD    ?= unknown_unknown_hi3516dv100_unknown
+#BOARD    ?= unknown_facility27_hi3516dv100_it6801fn
 #PROG     ?= no
 
 #CAMERA   ?= 30
 #BOARD    ?= unknown_unknown_xm530_unknown
 #PROG     ?= no
 
+#uboot tftp issue
 #CAMERA  ?= 31
 #BOARD   ?= hisilicon_demb_hi3516dv300_imx327
 #PROG    ?= no
