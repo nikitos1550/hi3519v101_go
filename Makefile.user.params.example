@@ -18,6 +18,7 @@ APP_TARGET := cam
 #BOARD   ?= jvt_s274h19v-l29_hi3519v101_imx274 
 #PROG	 ?= 1
 
+#[Func]:SpecAwbRegsInitialize [Line]:561 [Info]:Get SpecAwb Buffer Err
 #CAMERA    ?= 2
 #BOARD     ?= xm_ivg-85hf20pya-s_hi3516ev200_imx307
 #PROG	  ?= 2
@@ -58,7 +59,6 @@ APP_TARGET := cam
 #BOARD    ?= xm_ivg-83h80nv-be_hi3516av200_os08a10
 #PROG     ?= no
 
-#kernel start issue
 #CAMERA	  ?= 12
 #BOARD    ?= topsee_th38j29_hi3516ev200_imx307
 #PROG	  ?= no
@@ -79,6 +79,7 @@ APP_TARGET := cam
 #BOARD    ?= xm_83h40pl-b_hi3516dv100_ov4689 
 #PROG     ?= no
 
+#uboot network issue
 #CAMERA  ?= 17
 #BOARD   ?= ssqvision_unknown_hi3519v101_imx326 
 #PROG    ?= no
@@ -105,7 +106,6 @@ APP_TARGET := cam
 #BOARD    ?= xm_ipg-53h13pl-s_hi3518cv100_ar0130
 #PROG	  ?= no
 
-#uboot locked
 #CAMERA   ?= 24
 #BOARD	  ?= topsee_th38c21_hi3518ev200_ar0130
 #PROG	  ?= no
@@ -114,8 +114,16 @@ APP_TARGET := cam
 #BOARD    ?= unknown_unknown_hi3518ev200_unknown
 #PROG     ?= no
 
+#CAMERA	  ?= 26
+#BOARD	  ?= xm_ivg-85hg50pya-s_hi3516ev300_imx335
+#PROG      ?= no
+
 #CAMERA   ?= 27
 #BOARD    ?= unknown_facility27_hi3516dv100_it6801fn
+#PROG     ?= no
+
+#CAMERA   ?= 28
+#BOARD    ?= unknown_facility28_hi3516cv500_imx327
 #PROG     ?= no
 
 #CAMERA   ?= 30
