@@ -91,7 +91,9 @@ $(KERNEL_SOURCE_DIR): $(FAMILY_DIR)/kernel/linux.tar.gz
 	tar -C $@ --strip-components=1 -xf $<
 	cd $@; shopt -s nullglob; for P in $(FAMILY_DIR)/kernel/patches/*.patch; do patch -p1 < $$P; done
 	shopt -s nullglob; for P in $(FAMILY_DIR)/kernel/overlay/*; do cp -r $$P $(@) ; done
-	#cp -r $(FAMILY_DIR)/kernel/files/* $@/
+	#below actual only for hi3559av100
+	#test -f $(FAMILY_DIR)/kernel/arm-trusted-firmware.tgz && mkdir -p $(OUTDIR)/kernel/arm-trusted-firmware
+	#test -f $(FAMILY_DIR)/kernel/arm-trusted-firmware.tgz && tar -C  $(OUTDIR)/kernel/arm-trusted-firmware --strip-components=1 -xf $(FAMILY_DIR)/kernel/arm-trusted-firmware.tgz
 
 $(KERNEL_MAKEFILE): ./Makefile.kernel
 	mkdir -p `dirname $@`
