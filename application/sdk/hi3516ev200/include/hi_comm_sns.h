@@ -133,6 +133,7 @@ typedef struct hiISP_CMOS_SHARPEN_S {
 
 typedef struct hiISP_CMOS_DRC_S {
     HI_BOOL bEnable;
+    ISP_OP_TYPE_E enOpType;
 
     HI_U16  u16ManualStrength;
     HI_U16  u16AutoStrength;
@@ -162,6 +163,7 @@ typedef struct hiISP_CMOS_DRC_S {
     HI_U8   u8LocalMixingDarkThr;
     HI_S8   s8LocalMixingDarkSlo;
     HI_U16  u16ColorCorrectionLut[33];
+    HI_U16  u16ToneMappingValue[200];
 
     HI_U8   u8Asymmetry;
     HI_U8   u8SecondPole;
@@ -231,6 +233,8 @@ typedef struct hiISP_CMOS_SENSOR_MAX_RESOLUTION_S {
 typedef struct hiISP_CMOS_DPC_S {
     HI_U16  au16Strength[ISP_AUTO_ISO_STRENGTH_NUM];
     HI_U16  au16BlendRatio[ISP_AUTO_ISO_STRENGTH_NUM];
+    HI_U8   u8DpcPos;    /* DPC module position. Linear Mode Range: [0, 1]; WDR Mode Range: [0]. 
+                            0 for after drc, 1 for before wdr. Default:0 */
 } ISP_CMOS_DPC_S;
 
 typedef struct hiISP_LSC_CABLI_TABLE_S {

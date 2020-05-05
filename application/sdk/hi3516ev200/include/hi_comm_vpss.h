@@ -597,6 +597,9 @@ typedef struct {
     /* TPC;    Range: [0,  32]; Type of temporal NR. */
     HI_U8  TRC, TPC : 6, _rb1_ : 2;
 
+    HI_BOOL MODE;
+    /* PRESFC;    Range: [0,  32]; The strength for chroma pre spatial filter. */
+    HI_U8  PRESFC : 6, _rb2_ : 2;
 } tV200_VPSS_NRc;
 
 /* Only used for Hi3516EV200 */

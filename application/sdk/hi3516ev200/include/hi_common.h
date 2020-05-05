@@ -62,6 +62,12 @@ extern "C" {
 #define VER_D " Release"
 #endif
 
+#ifdef CONFIG_HI_LOG_TRACE_SUPPORT
+#define VER_E ""
+#else
+#define VER_E " NoLog"
+#endif
+
 
 #define ATTRIBUTE __attribute__((aligned (ALIGN_NUM)))
 
@@ -79,7 +85,7 @@ extern "C" {
 
 #define __MK_VERSION(x,y,z,p,b) #x"."#y"."#z"."#p" B0"#b
 #define MK_VERSION(x,y,z,p,b) __MK_VERSION(x,y,z,p,b)
-#define MPP_VERSION  CHIP_NAME MPP_VER_PRIX MK_VERSION(VER_X,VER_Y,VER_Z,VER_P,VER_B) VER_D
+#define MPP_VERSION  CHIP_NAME MPP_VER_PRIX MK_VERSION(VER_X,VER_Y,VER_Z,VER_P,VER_B) VER_D VER_E
 
 #define VERSION_NAME_MAXLEN 64
 typedef struct hiMPP_VERSION_S
@@ -209,8 +215,9 @@ typedef enum hiMOD_ID_E
     HI_ID_GYRODIS      = 57,
     HI_ID_PM           = 58,
     HI_ID_SVP_ALG      = 59,
-	HI_ID_IVP          = 60,
-	HI_ID_MCF          = 61,
+    HI_ID_IVP          = 60,
+    HI_ID_MCF          = 61,
+    HI_ID_QR           = 62,
 
     HI_ID_BUTT,
 } MOD_ID_E;

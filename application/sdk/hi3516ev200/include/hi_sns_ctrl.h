@@ -89,6 +89,7 @@ extern ISP_SNS_OBJ_S stSnsSc4210Obj;
 extern ISP_SNS_OBJ_S stSnsSc2231Obj;
 extern ISP_SNS_OBJ_S stSnsSc2235Obj;
 extern ISP_SNS_OBJ_S stSnsSc3235Obj;
+extern ISP_SNS_OBJ_S stSnsSoiF37Obj;
 extern ISP_SNS_OBJ_S stSnsOs05aObj;
 extern ISP_SNS_OBJ_S stSnsOS08A10Obj;
 extern ISP_SNS_OBJ_S stSnsOs05a_2lObj;

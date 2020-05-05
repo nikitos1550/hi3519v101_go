@@ -100,7 +100,10 @@ extern "C" {
 
 #define HI_ISP_DEMOSAIC_LUT_LENGTH      (17)
 #define ISP_BAYER_CHN_NUM               (4)
-
+#define BAYER_CHN_R                     0
+#define BAYER_CHN_GR                    1
+#define BAYER_CHN_GB                    2
+#define BAYER_CHN_B                     3
 #define LDCI_LPF_LUT_SIZE               (9)
 #define LDCI_HE_LUT_SIZE                (33)
 #define LDCI_DE_USM_LUT_SIZE            (33)
@@ -210,6 +213,7 @@ Defines the structure of ISP module parameters.
 typedef struct hiISP_MOD_PARAM_S {
     HI_U32      u32IntBotHalf;  /* RW;Range:[0,1]; Format:32.0; Indicate ISP interrupt bottom half,No distinction vipipe */
     HI_U32      u32QuickStart;  /* RW;Range:[0,1]; Format:32.0; Indicate ISP Quick Start No distinction vipipe. Only used for Hi3516EV200/Hi3516EV300/Hi3518EV300/Hi3516DV200 */
+    HI_BOOL     bLongFrmIntEn; /*when wdr mode enable/disable long frame pipe interrupt.Only used for Hi3516EV200/Hi3516EV300/Hi3518EV300/Hi3516DV200 */
 } ISP_MOD_PARAM_S;
 
 /*
@@ -1129,6 +1133,10 @@ typedef struct hiISP_DEMOSAIC_MANUAL_ATTR_S {
                                                                 Hi3516EV200 = [0x1, 0x7]|Hi3516EV300 = [0x1, 0x7]|Hi3518EV300 = [0x1, 0x7]|Hi3516DV200 = [0x1, 0x7];
                                                                 Format:4.0; Detail smooth range */
     HI_U16  u16DetailSmoothStr;     /* RW;Range:[0x0,0x100]; Format:9.0;   Strength of detail smooth, Only used for Hi3559AV100 */
+	HI_U8   u8ColorNoiseThdF;       /* RW;Range:[0x0,0xFF]; Format:8.0;   Frequency Threshold used for ColorNoise */
+    HI_U8   u8ColorNoiseStrF;       /* RW;Range:[0x0,0x8]; Format:4.0;   Frequency Strength used for ColorNoise */
+    HI_U8   u8ColorNoiseThdY;       /* RW;Range:[0x0,0xF];Format:4.0; Range of color denoise luma*/
+    HI_U8   u8ColorNoiseStrY;       /* RW;Range:[0x0,0x3F];Format:6.0; Strength of color denoise luma*/
 } ISP_DEMOSAIC_MANUAL_ATTR_S;
 
 typedef struct hiISP_DEMOSAIC_AUTO_ATTR_S {
@@ -1143,6 +1151,10 @@ typedef struct hiISP_DEMOSAIC_AUTO_ATTR_S {
                                                                   Hi3516EV200= [0x1, 0x7]|Hi3516EV300 = [0x, 0x7] |Hi3518EV300= [0x1, 0x7]|Hi3516DV200= [0x1, 0x7] ;
                                                                   Format:4.0; Detail smooth range */
     HI_U16  au16DetailSmoothStr[ISP_AUTO_ISO_STRENGTH_NUM];     /* RW;Range:[0x0,0x100]; Format:9.0;   Strength of detail smooth, Only used for Hi3559AV100 */
+	HI_U8   au8ColorNoiseThdF[ISP_AUTO_ISO_STRENGTH_NUM];       /* RW;Range:[0x0,0xFF]; Format:8.0;   Frequency Threshold used for ColorNoise */
+    HI_U8   au8ColorNoiseStrF[ISP_AUTO_ISO_STRENGTH_NUM];       /* RW;Range:[0x0,0x8]; Format:4.0;   Frequency Strength used for ColorNoise */
+    HI_U8   au8ColorNoiseThdY[ISP_AUTO_ISO_STRENGTH_NUM];       /* RW;Range:[0x0,0xF];Format:4.0; Range of color denoise luma*/
+    HI_U8   au8ColorNoiseStrY[ISP_AUTO_ISO_STRENGTH_NUM];       /* RW;Range:[0x0,0x3F];Format:6.0; Strength of color denoise luma*/
 } ISP_DEMOSAIC_AUTO_ATTR_S;
 
 typedef struct hiISP_DEMOSAIC_ATTR_S {
@@ -1747,11 +1759,13 @@ typedef struct hiISP_STATISTICS_CFG_S {
 } ISP_STATISTICS_CFG_S;
 
 typedef struct hiISP_INIT_ATTR_S {
+    HI_BOOL bIsIrMode;
     HI_U32 u32ExpTime;
     HI_U32 u32AGain;
     HI_U32 u32DGain;
     HI_U32 u32ISPDGain;
     HI_U32 u32Exposure;
+    HI_U32 u32InitIso;
     HI_U32 u32LinesPer500ms;
     HI_U32 u32PirisFNO;
     HI_U16 u16WBRgain;
@@ -1759,7 +1773,7 @@ typedef struct hiISP_INIT_ATTR_S {
     HI_U16 u16WBBgain;
     HI_U16 u16SampleRgain;
     HI_U16 u16SampleBgain;
-    HI_U16 au16CCM[CCM_MATRIX_SIZE];	
+    HI_U16 au16CCM[CCM_MATRIX_SIZE];
 } ISP_INIT_ATTR_S ;
 
 /* ISP debug information */
@@ -1802,7 +1816,12 @@ typedef union hiISP_SNS_COMMBUS_U {
 typedef struct hiISP_I2C_DATA_S {
     HI_BOOL bUpdate;            /* RW; Range: [0x0, 0x1]; Format:1.0; HI_TRUE: The sensor registers are written,HI_FALSE: The sensor registers are not written */
     HI_U8   u8DelayFrmNum;      /* RW; Number of delayed frames for the sensor register */
-    HI_U8   u8IntPos;           /* RW;Position where the configuration of the sensor register takes effect */
+    HI_U8   u8IntPos;           /* RW;Position where the configuration of the sensor register takes effect
+                                 0x0:very short frame start interrupt, 0x1:very short frame end interrupt,
+                                 0x10:short frame start interrupt, 0x11:short frame end interrupt,
+                                 0x20:middle frame start interrupt, 0x21:middle frame end interrupt,
+                                 0x30:long frame start interrupt, 0x31:long frame end interrupt */
+
     HI_U8   u8DevAddr;          /* RW;Sensor device address */
     HI_U32  u32RegAddr;         /* RW;Sensor register address */
     HI_U32  u32AddrByteNum;     /* RW;Bit width of the sensor register address */
@@ -1813,7 +1832,11 @@ typedef struct hiISP_I2C_DATA_S {
 typedef struct hiISP_SSP_DATA_S {
     HI_BOOL bUpdate;            /* RW; Range: [0x0, 0x1]; Format:1.0; HI_TRUE: The sensor registers are written,HI_FALSE: The sensor registers are not written */
     HI_U8   u8DelayFrmNum;      /* RW; Number of delayed frames for the sensor register */
-    HI_U8   u8IntPos;           /* RW;Position where the configuration of the sensor register takes effect */
+    HI_U8   u8IntPos;           /* RW;Position where the configuration of the sensor register takes effect
+                                 0x0:very short frame start interrupt, 0x1:very short frame end interrupt,
+                                 0x10:short frame start interrupt, 0x11:short frame end interrupt,
+                                 0x20:middle frame start interrupt, 0x21:middle frame end interrupt,
+                                 0x30:long frame start interrupt, 0x31:long frame end interrupt */
     HI_U32  u32DevAddr;         /* RW;Sensor device address */
     HI_U32  u32DevAddrByteNum;  /* RW;Bit width of the sensor device address */
     HI_U32  u32RegAddr;         /* RW;Sensor register address */
@@ -2172,7 +2195,6 @@ typedef struct hiISP_HDR_EXPOSURE_ATTR_S {
 
 } ISP_HDR_EXPOSURE_ATTR_S;
 
-// Only support for Hi3516EV200/Hi3516EV300/Hi3518EV300/Hi3516DV200
 typedef struct hiISP_SMART_EXPOSURE_ATTR_S {
     HI_BOOL bEnable;                /* RW; Range:[0, 1]; Format:1.0; smart ae enable or not */
     HI_BOOL bIRMode;                /* RW; Range:[0, 1]; Format:1.0; smart ae IR mode or not */
@@ -2189,6 +2211,7 @@ typedef struct hiISP_SMART_EXPOSURE_ATTR_S {
                                             When enExpHDRLvType is OP_TYPE_MANUAL, u32ExpCoefMin is invalid. */
     HI_U8   u8SmartInterval;        /*RW; Range:[0x1, 0xFF]; Format:8.0; smart ae run interval*/
     HI_U8   u8SmartSpeed;           /*RW; Range:[0x0, 0xFF]; Format:8.0; smart ae adjust step*/
+    HI_U16  u16SmartDelayNum;       /*RW; Range:[0x0, 0x400]; Format:16.0; smart ae adjust delay frame num */
 } ISP_SMART_EXPOSURE_ATTR_S;
 
 
@@ -2385,6 +2408,13 @@ typedef struct  hiISP_SPECAWB_ATTR_S {
     ISP_SPECAWB_BBL_TBL_S                stBlackBodyTbl[SPECAWB_BBL_SIZE];                           /* RW;BlackBody table. */
     HI_U16                               u16Fno;                                                     /* RW; Range:[10, 100];F number of the len,F1.4=14,F2.8=28,F36 =360... */
 } ISP_SPECAWB_ATTR_S;
+
+typedef struct  hiISP_SPECAWB_CONTROL_ATTR_S {
+    HI_S16 s16BlendHighBvThresh;          /* RW; Range: [-32768, 32767]; High Bv threshold for inner blending function */
+    HI_U16 u16BlendHighBvWt;              /* RW; Range: [0, 2048]; High Bv  weight for inner blending function */
+    HI_S16 s16BlendLowBvThresh;           /* RW; Range: [-32768, s16BlendHighBvThresh); Low Bv threshold for inner blending function */
+    HI_U16 u16BlendLowBvWt;               /* RW; Range: [0, 2048]; Low Bv  weight for inner blending function */
+} ISP_SPECAWB_CONTROL_ATTR_S;
 
 #define SPECAWB_MAX_CAA_NUM                       3
 #define SPECAWB_KEVIN_CONVER_MAX_NUM              8

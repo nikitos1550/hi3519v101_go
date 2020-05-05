@@ -733,6 +733,7 @@ typedef struct hiVENC_MOD_JPEGE_S {
     HI_U32  u32OneStreamBuffer;         /* RW; Range:[0,1]; one stream buffer*/
     HI_U32  u32JpegeMiniBufMode;        /* RW; Range:[0,1]; Jpege MiniBufMode*/
     HI_U32  u32JpegClearStreamBuf;      /* RW; Range:[0,1]; JpegClearStreamBuf*/
+    HI_U32  u32JpegeDeringMode;         /* RW; Range:[0,1]; Jpege Dering Mode */
 } VENC_MOD_JPEGE_S;
 
 typedef struct hiVENC_MOD_RC_S {
@@ -871,6 +872,32 @@ typedef struct hiVENC_CHN_POOL_S {
 typedef struct hiVENC_RC_ADVPARAM_S {
     HI_U32 u32ClearStatAfterSetAttr; /* RW; Range:[0,1]; Clear Stat After SetAttr enable */
 } VENC_RC_ADVPARAM_S;
+
+typedef enum hiFG_REGION_TYPE_E {
+    FG_REGION_PEOPLE = 0,
+    FG_REGION_FACE,
+    FG_REGION_BUTT
+} FG_REGION_TYPE_E;
+
+typedef struct {
+    HI_U8 u8QpmapValueI;   /* RW;Range: [0, 255] */
+    HI_U8 u8QpmapValueP;   /* RW;Range: [0, 255] */
+    HI_U8 u8SkipmapValue;  /* RW;Range: [0, 255] */
+} VENC_SVC_MAP_PARAM_S;
+
+typedef struct {
+    VENC_SVC_MAP_PARAM_S  stFgRegion[FG_REGION_BUTT];
+    VENC_SVC_MAP_PARAM_S  stActivityRegion;
+    VENC_SVC_MAP_PARAM_S  stBgRegion;
+    HI_BOOL bFgProtectAdaptiveEn; /* RW;Range: [0, 1] */
+} VENC_SVC_PARAM_S;
+
+
+typedef struct {
+    HI_U16 u16SceneComplexity; /* R;Range: [0, 65535], Proportional to total area of detected objects */
+    HI_U8  u8ObjectLevel;      /* R;Range: [0, 2], Related to total number of detected objects */
+} VENC_SVC_DETECT_RESULT_S;
+
 
 #ifdef __cplusplus
 #if __cplusplus
