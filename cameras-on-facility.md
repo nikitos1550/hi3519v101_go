@@ -24,19 +24,59 @@
 |17|SSQVISION   |unknown            |hi3519v101 |imx326     |uboot tftp issue       |+          |+          |-      |    |
 |18|SSQVISION   |ON290H16D          |hi3516dv100|imx290     |rev.2                  |+          |+          |+      |    |
 |..|...         |...                |...        |...        |uart adapter broken    |           |           |       |    |
-|20|unknown     |unknown            |hi3518ev201|unknown    |soih65                 |+          |+          |+      |    |
+|20|unknown     |facility20         |hi3518ev201|unknown    |soih65                 |+          |+          |+      |    |
 |21|TOPSEE      |TH38D16            |hi3516ev200|sc3235     |check cmos             |+          |+          |+      |    |
 |22|YI          |YHS-113-IR         |hi3518ev201|unknown    |wifi only              |+          |-          |       |    |
 |23|XM          |IPG-53H13PL-S      |hi3518cv100|AR0130     |k4b1g164               |+          |+          |+      |    |
 |24|TOPSEE      |TH38C21            |hi3518ev200|ar0130     |                       |+          |+          |+      |    |
-|25|unknown     |unknown            |hi3518ev200|unknown    |                       |+          |+          |+      |    |
+|25|unknown     |facility25         |hi3518ev200|unknown    |                       |+          |+          |+      |    |
 |26|XM          |ivg-85hg50pya-s    |hi3516ev300|imx335     |                       |+          |+          |+      |    |
-|27|unknown     |unknown            |hi3516dv100|it6801fn   |hdmi encoder, mr. ipcam|+          |+          |+      |    |
-|28|unknown     |unknown            |hi3516cv500|imx327     |mr. ipcam              |+          |+          |+      |    |
+|27|unknown     |facility27         |hi3516dv100|it6801fn   |hdmi encoder, mr. ipcam|+          |+          |+      |    |
+|28|unknown     |facility28         |hi3516cv500|imx327     |mr. ipcam              |+          |+          |+      |    |
 |29|            |                   |           |           |                       |           |           |       |    |
 |30|unknown     |unknown            |xm530      |unknown    |no responce            |+          |+          |+      |    |
 |31|HISILICON   |DEMB               |hi3516dv300|imx327     |                       |+          |+          |+-     |    |
 |32|HISILICON   |DEMBVERC           |hi3559av100|imx334     |                       |+          |+          |+      |    |
+
+## App success table
+
+|family     |chip       |camera                                 |status |
+|-----------|-----------|---------------------------------------|-------|
+|hi3516cv100|hi3516cv100|xm_53H20-S_hi3516cv100_imx122          |		|
+|           |           |XM_53H20-AE_hi3516cv100_imx222         |		|
+|           |hi3518cv100|XM_IPG-53H13PL-S_hi3518cv100_AR0130    |		|
+|           |hi3518ev100|N/A                                    |		|
+|hi3516cv200|hi3516cv200|N/A                                    |		|
+|           |hi3518ev200|TOPSEE_TH38C21_hi3518ev200_ar0130      |		|
+|           |           |unknown_facility25_hi3518ev200_unknown |		|
+|           |hi3518ev201|unknown_facility20_hi3518ev201_unknown |		|
+|           |           |YI_YHS-113-IR_hi3518ev201_unknown      |		|
+|hi3516cv300|hi3516cv300|XM_IVG-HP203Y-SE_hi3516cv300_imx291    |		|
+|           |           |XM_IVG-HP201Y-SE_hi3516cv300_imx323    |		|
+|           |           |JVT_S323H16XF_hi3516cv300_imx323       |		|
+|           |           |RUISION_RS-H622QM-B0_hi3516cv300_imx323|		|
+|           |hi3516ev100|XM_IPG-83HE20PY-S_hi3516ev100_imx323   |		|
+|hi3516av100|hi3516av100|XM_IPG-83H50P-B_hi3516av100_imx178     |		|
+|           |           |XM_83H40PL-B_hi3516av100_OV4689        |		|
+|           |hi3516dv100|SSQVISION_ON290H16D_hi3516dv100_imx290 |		|
+|           |           |unknown_facility27_hi3516dv100_it6801fn|		|
+|hi3516av200|hi3516av200|XM_IVG-83H80NV-BE_hi3516av200_OS08A10  |		|
+|           |hi3519v101 |JVT_S274H19V-L29_hi3519v101_imx274     |		|
+|           |           |JVT_S226H19V-L29_hi3519v101_imx226     |		|
+|           |           |SSQVISION_unknown_hi3519v101_imx326    |       |
+|hi3516ev200|hi3516ev200|XM_IVG-85HF20PYA-S_hi3516ev200-imx307  |       |
+|           |           |XM_IVG-85HF30PS-S_hi3516ev200_sc4239   |       |
+|           |           |TOPSEE_TH38J29_hi3516ev200_imx307      |       |
+|           |           |TOPSEE_TH38D16_hi3516ev200_sc3235      |       |
+|           |hi3516ev300|XM_ivg-85hg50pya-s_hi3516ev300_imx335  |       |
+|           |hi3518ev300|N/A                                    |		|
+|           |hi3516dv200|N/A                                    |		|
+|hi3516cv500|hi3516cv500|unknown_facility28_hi3516cv500_imx327  |		|
+|           |hi3516dv300|SSQVISION_ON335H16D_hi3516dv300_imx335 |		|
+|           |           |HISILICON_DEMB_hi3516dv300_imx327      |		|
+|hi3519av100|hi3519av100|N/A                                    |		|
+|hi3559av100|hi3559av100|HISILICON_DEMBVERC_hi3559av100_imx334  |		|
+
 
 ## Checklist
 
