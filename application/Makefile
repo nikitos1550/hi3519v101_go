@@ -41,8 +41,9 @@ GOTAGS_CAM      := gohisicam $(FAMILY) $(CHIP) $(CMOS_TAGS) netgo nethttpomithtt
 GOTAGS := $(GOTAGS_$(shell echo '$(APP)' | tr '[:lower:]' '[:upper:]'))
 
 ifneq ($(wildcard ../hisilicon/$(FAMILY)/Makefile.params),) 
-       LIB_TARGET := ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a
-       CGO_LDFLAGS := $(abspath $(CMOS_TARGET)) $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a)
+	LIB_TARGET := ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a
+	#CGO_LDFLAGS := $(abspath $(CMOS_TARGET)) $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a)
+	CGO_LDFLAGS	:= $(abspath ../output/boards/$(BOARD)/cmos/lib_cmoses.a) $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a)
 endif 
 
 #GODEBUG=cgocheck=0
@@ -91,34 +92,35 @@ LIBS := $(wildcard sdk/$(FAMILY)/lib/*.a)
 	$(AR) rcsT ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a $(LIBS)
 
 #CMOS all in one archive
-#CMOSES := $(wildcard pkg/mpp/cmos/$(FAMILY)/*/)
-#CMOSDIRS := $(patsubst pkg/mpp/cmos/$(FAMILY)/%/, ../output/boards/$(BOARD)/cmos/%/, $(CMOSES))
-#
-#CMOSSRC   := $(wildcard pkg/mpp/cmos/$(FAMILY)/*/*.c)
-#CMOSOBJ := $(patsubst pkg/mpp/cmos/$(FAMILY)/%.c, ../output/boards/$(BOARD)/cmos/%.o, $(CMOSSRC))
-#
-#../output/boards/$(BOARD)/cmos/lib_cmoses.a: $(CMOSDIRS) $(CMOSOBJ)
-#	$(AR) rcs ../output/boards/$(BOARD)/cmos/lib_cmoses.a $(CMOSOBJ)
-#
-#../output/boards/$(BOARD)/cmos/%/:
-#	[ -d $@ ] || mkdir -p $@
-#
-#../output/boards/$(BOARD)/cmos/%.o: pkg/mpp/cmos/$(FAMILY)/%.c
-#	$(CC) $(CFLAGS) -I$(abspath sdk/$(FAMILY)/include) -c $< -o $@
+CMOSES := $(wildcard pkg/mpp/cmos/$(FAMILY)/*/)
+CMOSDIRS := $(patsubst pkg/mpp/cmos/$(FAMILY)/%/, ../output/boards/$(BOARD)/cmos/%/, $(CMOSES))
 
-#CMOS separate archive for each cmos
+CMOSSRC   := $(wildcard pkg/mpp/cmos/$(FAMILY)/*/*.c)
+CMOSOBJ := $(patsubst pkg/mpp/cmos/$(FAMILY)/%.c, ../output/boards/$(BOARD)/cmos/%.o, $(CMOSSRC))
 
-CMOSSRC   := $(wildcard pkg/mpp/cmos/$(FAMILY)/$(CMOS_DRIVER)/*.c)
-CMOSOBJ := $(patsubst pkg/mpp/cmos/$(FAMILY)/$(CMOS_DRIVER)/%.c, ../output/boards/$(BOARD)/cmos/$(CMOS_DRIVER)/%.o, $(CMOSSRC))
+../output/boards/$(BOARD)/cmos/lib_cmoses.a: $(CMOSDIRS) $(CMOSOBJ)
+	$(AR) rcs ../output/boards/$(BOARD)/cmos/lib_cmoses.a $(CMOSOBJ)
 
 ../output/boards/$(BOARD)/cmos/%/:
 	[ -d $@ ] || mkdir -p $@
 
-../output/boards/$(BOARD)/cmos/$(CMOS_DRIVER)/%.o: pkg/mpp/cmos/$(FAMILY)/$(CMOS_DRIVER)/%.c
+../output/boards/$(BOARD)/cmos/%.o: pkg/mpp/cmos/$(FAMILY)/%.c
 	$(CC) $(CFLAGS) -I$(abspath sdk/$(FAMILY)/include) -c $< -o $@
 
-../output/boards/$(BOARD)/cmos/lib_$(CMOS_DRIVER).a: ../output/boards/$(BOARD)/cmos/$(CMOS_DRIVER)/ $(CMOSOBJ)
-	 $(AR) rcs ../output/boards/$(BOARD)/cmos/lib_$(CMOS_DRIVER).a $(CMOSOBJ)
+#CMOS separate archive for each cmos
+#CMOSSRC   := $(wildcard pkg/mpp/cmos/$(FAMILY)/$(CMOS_DRIVER)/*.c)
+#CMOSOBJ := $(patsubst pkg/mpp/cmos/$(FAMILY)/$(CMOS_DRIVER)/%.c, ../output/boards/$(BOARD)/cmos/$(CMOS_DRIVER)/%.o, $(CMOSSRC))
+#
+#../output/boards/$(BOARD)/cmos/%/:
+#	[ -d $@ ] || mkdir -p $@
+#
+#../output/boards/$(BOARD)/cmos/$(CMOS_DRIVER)/%.o: pkg/mpp/cmos/$(FAMILY)/$(CMOS_DRIVER)/%.c
+#	$(CC) $(CFLAGS) -I$(abspath sdk/$(FAMILY)/include) -c $< -o $@
+#
+#../output/boards/$(BOARD)/cmos/lib_$(CMOS_DRIVER).a: ../output/boards/$(BOARD)/cmos/$(CMOS_DRIVER)/ $(CMOSOBJ)
+#	 $(AR) rcs ../output/boards/$(BOARD)/cmos/lib_$(CMOS_DRIVER).a $(CMOSOBJ)
+
+
 
 pkg/ko/kobin_$(APP)_$(FAMILY).go:
 	GOPATH=$(GOPATH) $(GO) generate -tags "$(GOTAGS)" application/pkg/ko
@@ -154,7 +156,8 @@ deploy-dir-probe: distrib
 
 TRIMPATH := $(abspath .) 
 
-build-cam: generate $(LIB_TARGET) $(CMOS_TARGET) deploy-dir-cam
+#build-cam: generate $(LIB_TARGET) $(CMOS_TARGET) deploy-dir-cam
+build-cam: generate $(LIB_TARGET) ../output/boards/$(BOARD)/cmos/lib_cmoses.a deploy-dir-cam
 	$(GOENV) $(CGOPARAMS) $(GO) build -work -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/gohisicam application/cmd/gohisicam
 	#$(GOENV) $(CGOPARAMS) $(GO) install -work -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" ./pkg/...
 

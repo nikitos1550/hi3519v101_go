@@ -41,6 +41,7 @@ var (
         	[2]string{"hi3516ev200_aenc.ko", ""},
         	[2]string{"hi3516ev200_adec.ko", ""},
         	[2]string{"hi3516ev200_acodec.ko", ""},
+            [2]string{"hi_piris.ko", ""},
 		//[2]string{"hi_tlv320aic31.ko", ""},
 	        [2]string{"hi_mipi_rx.ko", ""},
 		//[2]string{"hi_user.ko", ""},

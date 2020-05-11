@@ -7,7 +7,7 @@ package utils
 // HI_S32 HI_MPI_SYS_GetChipId(HI_U32 *pu32ChipId);
 import "C"
 
-import "log"
+//import "log"
 
 func Version() string {
 	var ver C.MPP_VERSION_S
@@ -21,7 +21,7 @@ func MppId() uint32 {
 	var id C.HI_U32
 	C.HI_MPI_SYS_GetChipId(&id)
 
-	log.Println("ChipID=", id)
+	//log.Println("ChipID=", id)
 
 	return uint32(id)
 }

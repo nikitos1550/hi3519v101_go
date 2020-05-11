@@ -19,6 +19,21 @@ func Init() {
 
     in.width = C.uint(cmos.S.Width())
     in.height = C.uint(cmos.S.Height())
+
+    ispCrop := cmos.S.IspCrop()
+
+    in.isp_crop_x0 = C.uint(ispCrop.X0)
+    in.isp_crop_y0 = C.uint(ispCrop.Y0)
+    in.isp_crop_width = C.uint(ispCrop.Width)
+    in.isp_crop_height = C.uint(ispCrop.Height)
+
+    //in.crop_x0 = 0
+    //in.crop_y0 = 0
+    //in.crop_width = C.uint(cmos.S.Width())
+    //in.crop_height = C.uint(cmos.S.Height())
+    //in.width = C.uint(cmos.S.Width())
+    //in.height = C.uint(cmos.S.Height())
+
     in.fps = C.uint(cmos.S.Fps())
 
     switch cmos.S.Wdr() {
@@ -26,6 +41,8 @@ func Init() {
             in.wdr = C.WDR_MODE_NONE
         case cmos.WDR2TO1:
             in.wdr = C.WDR_MODE_2To1_LINE
+        case cmos.WDR2TO1FFR:
+            in.wdr = C.WDR_MODE_2To1_FRAME_FULL_RATE
         default:
             logger.Log.Fatal().
                 Msg("Unknown WDR mode")
@@ -46,6 +63,10 @@ func Init() {
     }
 
     logger.Log.Trace().
+        Uint("crop_x0", uint(in.isp_crop_x0)).
+        Uint("crop_y0", uint(in.isp_crop_y0)).
+        Uint("crop_width", uint(in.isp_crop_width)).
+        Uint("crop_height", uint(in.isp_crop_height)).
         Uint("width", uint(in.width)).
         Uint("height", uint(in.height)).
         Uint("fps", uint(in.fps)).
@@ -69,13 +90,13 @@ func Init() {
             break
     }
 
-    go func() {
-        logger.Log.Trace().
-            Msg("ISP task started")
-        C.mpp_isp_thread(nil)
-        logger.Log.Error().
-            Msg("ISP task failed")
-    }()
+    //go func() {
+    //    logger.Log.Trace(). 
+    //        Msg("ISP task started")
+    //    C.mpp_isp_thread(nil)
+    //    logger.Log.Error().
+    //        Msg("ISP task failed")
+    //}()
 
     /*
     err := ispInit()

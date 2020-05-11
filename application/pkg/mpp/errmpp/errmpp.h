@@ -22,6 +22,7 @@ typedef int error_general;
     if (tmp_mpp_error_code != HI_SUCCESS) { \
         ERR->name = #FUNC; \
         ERR->code = tmp_mpp_error_code; \
+        printf("%s returning %u\n", #FUNC, tmp_mpp_error_code); \
         return ERR_MPP; \
     } \
 }

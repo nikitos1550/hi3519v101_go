@@ -18,11 +18,14 @@ func Init(chip string) {
     in.width = C.uint(vi.Width()) //C.uint(width)
     in.height = C.uint(vi.Height()) //C.uint(height)
 
-    if buildinfo.Chip == "hi3516ev100" { //TODO calc mem smart, now 32MB mpp ram only for hi3516ev100
-        in.cnt = 5
+    if buildinfo.Chip == "hi3516ev100" || buildinfo.Chip == "hi3516ev300" { //TODO calc mem smart, now 32MB mpp ram only for hi3516ev100
+        in.cnt = 7
     } else {
         in.cnt = 10
     }
+
+    //ev200 sc4236 testing
+    in.cnt = 6
 
     logger.Log.Trace().
         Uint("width", uint(in.width)).

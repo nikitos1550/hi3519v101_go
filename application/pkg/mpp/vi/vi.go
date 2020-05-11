@@ -14,10 +14,10 @@ import (
 var (
     flipX bool
     flipY bool
-    x0 int
-    y0 int
-    width int
-    height int
+    //x0 int
+    //y0 int
+    //width int
+    //height int
     fps int
 
     ldc bool
@@ -27,10 +27,12 @@ var (
 )
 
 func Width() int {
-    return width
+    return cmos.S.Width()
+    //return width
 }
 func Height() int {
-    return height
+    return cmos.S.Height()
+    //return height
 }
 func Fps() int {
     return fps
@@ -40,10 +42,10 @@ func init() {
     flag.BoolVar(&flipY, "vi-flip-y", false, "Flip image relative to y axis")
     flag.BoolVar(&flipX, "vi-flip-x", false, "flip image relative to x axis")
 
-    flag.IntVar(&x0, "vi-x0", 0, "top left x point to capture from")
-    flag.IntVar(&y0, "vi-y0", 0, "top left y point to capture from")
-    flag.IntVar(&width, "vi-width", -1, "width of capture image")
-    flag.IntVar(&height, "vi-height", -1, "height of capture image")
+    //flag.IntVar(&x0, "vi-x0", 0, "top left x point to capture from")
+    //flag.IntVar(&y0, "vi-y0", 0, "top left y point to capture from")
+    //flag.IntVar(&width, "vi-width", -1, "width of capture image")
+    //flag.IntVar(&height, "vi-height", -1, "height of capture image")
     flag.IntVar(&fps, "vi-fps", -1, "base framerate, should be less or equal cmos")
 
     if buildinfo.Family == "hi3516av100" {
@@ -69,62 +71,65 @@ func init() {
 }
 
 func CheckFlags() {
-    if width == -1 {
-        width = cmos.S.Width()
-    }
-    if height == -1 {
-        height = cmos.S.Height()
-    }
+    //VI crop removed untill video pipeline full research
+
+    //if width == -1 {
+    //    width = cmos.S.Width()
+    //}
+    //if height == -1 {
+    //    height = cmos.S.Height()
+    //}
+
     if fps == -1 {
         fps = cmos.S.Fps()
     }
 
-    if x0<0 || x0 > cmos.S.Width() {
-        logger.Log.Fatal().
-            Int("vi-x0", x0).
-            Msg("vi-x0 should be positive")
-    }
-    if y0<0 || y0 > cmos.S.Height() {
-        logger.Log.Fatal().
-            Int("vi-y0", y0).
-            Msg("vi-y0 should be positive")
-    }
-    if width < x0 || width > cmos.S.Width() {
-        logger.Log.Fatal().
-            Int("vi-width", width).
-            Int("vi-x0", x0).
-            Int("cmos-width", int(cmos.S.Width())).
-            Msg("vi-width should be greater than x0 and less or equal than cmos width")
-    }
-    if height < y0 || height > cmos.S.Height() {
-        logger.Log.Fatal().
-            Int("vi-height", height).
-            Int("vi-y0", x0).
-            Int("cmos-height", int(cmos.S.Height())).
-            Msg("vi-height should be greater than y0 and less or equal than cmos height")
-    }
-    if (width - x0) % 2 != 0 {
-        logger.Log.Fatal().
-            Int("vi-captured-width", (width - x0)).
-            Msg("captured width (vi-width - vi-x0) should be aligned by 2 pixels")
-    }
-    if (height - y0) % 2 != 0 {
-        logger.Log.Fatal().
-            Int("vi-captured-height", (height - x0)).
-            Msg("captured height (vi-height - vi-y0) should be aligned by 2 pixels")
-    }
-    if (width - x0) < C.VPSS_MIN_IMAGE_WIDTH {
-        logger.Log.Fatal().
-            Int("vi-captured-width", (width - x0)).
-            Int("vi-minimal-width", int(C.VPSS_MIN_IMAGE_WIDTH)).
-            Msg("captured width (vi-width - vi-x0) should be greater than minimal width")
-    }
-    if (height - y0) < C.VPSS_MIN_IMAGE_HEIGHT {
-        logger.Log.Fatal().
-            Int("vi-captured-width", (height - x0)).
-            Int("vi-minimal-width", int(C.VPSS_MIN_IMAGE_HEIGHT)).
-            Msg("captured height (vi-height - vi-y0) should be greater than minimal height")
-    }
+    //if x0<0 || x0 > cmos.S.Width() {
+    //    logger.Log.Fatal().
+    //        Int("vi-x0", x0).
+    //        Msg("vi-x0 should be positive")
+    //}
+    //if y0<0 || y0 > cmos.S.Height() {
+    //    logger.Log.Fatal().
+    //        Int("vi-y0", y0).
+    //        Msg("vi-y0 should be positive")
+    //}
+    //if width < x0 || width > cmos.S.Width() {
+    //    logger.Log.Fatal().
+    //        Int("vi-width", width).
+    //        Int("vi-x0", x0).
+    //        Int("cmos-width", int(cmos.S.Width())).
+    //        Msg("vi-width should be greater than x0 and less or equal than cmos width")
+    //}
+    //if height < y0 || height > cmos.S.Height() {
+    //    logger.Log.Fatal().
+    //        Int("vi-height", height).
+    //        Int("vi-y0", x0).
+    //        Int("cmos-height", int(cmos.S.Height())).
+    //        Msg("vi-height should be greater than y0 and less or equal than cmos height")
+    //}
+    //if (width - x0) % 2 != 0 {
+    //    logger.Log.Fatal().
+    //        Int("vi-captured-width", (width - x0)).
+    //        Msg("captured width (vi-width - vi-x0) should be aligned by 2 pixels")
+    //}
+    //if (height - y0) % 2 != 0 {
+    //    logger.Log.Fatal().
+    //        Int("vi-captured-height", (height - x0)).
+    //        Msg("captured height (vi-height - vi-y0) should be aligned by 2 pixels")
+    //}
+    //if (width - x0) < C.VPSS_MIN_IMAGE_WIDTH {
+    //    logger.Log.Fatal().
+    //        Int("vi-captured-width", (width - x0)).
+    //        Int("vi-minimal-width", int(C.VPSS_MIN_IMAGE_WIDTH)).
+    //        Msg("captured width (vi-width - vi-x0) should be greater than minimal width")
+    //}
+    //if (height - y0) < C.VPSS_MIN_IMAGE_HEIGHT {
+    //    logger.Log.Fatal().
+    //        Int("vi-captured-width", (height - x0)).
+    //        Int("vi-minimal-width", int(C.VPSS_MIN_IMAGE_HEIGHT)).
+    //        Msg("captured height (vi-height - vi-y0) should be greater than minimal height")
+    //}
     if fps < 0 || fps == 0 || fps > cmos.S.Fps() {
         logger.Log.Fatal().
             Int("vi-fps", fps).
@@ -196,14 +201,22 @@ func Init() {
         in.flip = 1
     }
 
-    in.videv = cmos.S.ViDev()
-    in.cmos_width = C.uint(cmos.S.Width())
-    in.cmos_height = C.uint(cmos.S.Height())
-    in.x0 = C.uint(x0)
-    in.y0 = C.uint(y0)
-    in.width = C.uint(width)
-    in.height = C.uint(height)
+    //in.crop_width = C.uint(cmos.S.Width())
+    //in.crop_height = C.uint(cmos.S.Height())
+
+    //in.videv = cmos.S.ViDev()
+    in.width = C.uint(cmos.S.Width())
+    in.height = C.uint(cmos.S.Height())
+
+    viCrop := cmos.S.ViCrop()
+
+    in.vi_crop_x0 = C.uint(viCrop.X0)
+    in.vi_crop_y0 = C.uint(viCrop.Y0)
+    in.vi_crop_width = C.uint(viCrop.Width)
+    in.vi_crop_height = C.uint(viCrop.Height)
+    
     in.cmos_fps = C.uint(cmos.S.Fps())
+    in.pixel_bitness = C.uint(cmos.S.Bitness())
     in.fps = C.uint(fps)
 
     switch cmos.S.Wdr() {//same check as in isp
@@ -211,21 +224,127 @@ func Init() {
             in.wdr = C.WDR_MODE_NONE
         case cmos.WDR2TO1:
             in.wdr = C.WDR_MODE_2To1_LINE
+        case cmos.WDR2TO1FFR:
+            in.wdr = C.WDR_MODE_2To1_FRAME_FULL_RATE
         default:
             logger.Log.Fatal().
                 Msg("Unknown WDR mode")
     }
 
+    if buildinfo.Family == "hi3516cv100" {
+        if cmos.S.Data() != cmos.DC {
+            logger.Log.Fatal().
+                Msg("Unknown CMOS data type")
+        } else {
+            in.data_type = C.VI_MODE_DIGITAL_CAMERA
+        }
+    } else {
+        switch cmos.S.Data() {
+        case cmos.SubLVDS:
+            in.data_type = C.VI_MODE_LVDS
+        case cmos.LVDS:
+            in.data_type = C.VI_MODE_LVDS
+        case cmos.DC:
+            in.data_type = C.VI_MODE_DIGITAL_CAMERA
+        case cmos.MIPI:
+            in.data_type = C.VI_MODE_MIPI
+        case cmos.HISPI:
+            in.data_type = C.VI_MODE_HISPI
+        default:
+            logger.Log.Fatal().
+                Msg("Unknown CMOS data type")
+        }
+    }
+
+    if cmos.S.Data() == cmos.DC {
+
+        in.dc_zero_bit_offset = C.uint(cmos.DCZeroBitOffset())
+
+        dcSync := cmos.S.DCSYNC()
+
+        switch dcSync.VSync {
+            case cmos.DCVSyncField:
+                in.dc_sync_attrs.v_sync = C.uchar(C.VI_VSYNC_FIELD)
+            case cmos.DCVSyncPulse:
+                in.dc_sync_attrs.v_sync = C.uchar(C.VI_VSYNC_PULSE)
+            default:
+                logger.Log.Fatal().
+                    Str("param", "DCVSyncField").
+                    Msg("error in dc sync attrs")
+        }
+        switch dcSync.VSyncNeg {
+            case cmos.DCVSyncNegHigh:
+                in.dc_sync_attrs.v_sync_neg = C.uchar(C.VI_VSYNC_NEG_HIGH)
+            case cmos.DCVSyncNegLow:
+                in.dc_sync_attrs.v_sync_neg = C.uchar(C.VI_VSYNC_NEG_LOW)
+            default:
+                logger.Log.Fatal().
+                    Str("param", "VSyncNeg").
+                    Msg("error in dc sync attrs")
+        }
+        switch dcSync.HSync {
+            case cmos.DCHSyncSignal:
+                in.dc_sync_attrs.h_sync = C.uchar(C.VI_HSYNC_VALID_SINGNAL)
+            case cmos.DCHSyncPulse:
+                in.dc_sync_attrs.h_sync = C.uchar(C.VI_HSYNC_PULSE)
+            default:
+                logger.Log.Fatal().
+                    Str("param", "HSync").
+                    Msg("error in dc sync attrs")
+        }
+            switch dcSync.HSyncNeg {
+            case cmos.DCHSyncNegHigh:
+                in.dc_sync_attrs.h_sync_neg = C.uchar(C.VI_HSYNC_NEG_HIGH)
+            case cmos.DCHSyncNegLow:
+                in.dc_sync_attrs.h_sync_neg = C.uchar(C.VI_HSYNC_NEG_LOW)
+            default:
+                logger.Log.Fatal().
+                    Str("param", "HSyncNeg").
+                    Msg("error in dc sync attrs")
+        }
+            switch dcSync.VSyncValid {
+            case cmos.DCVSyncValidPulse:
+                in.dc_sync_attrs.v_sync_valid = C.uchar(C.VI_VSYNC_NORM_PULSE)
+            case cmos.DCVSyncValidSignal:
+                in.dc_sync_attrs.v_sync_valid = C.uchar(C.VI_VSYNC_VALID_SINGAL)
+            default:
+                logger.Log.Fatal().
+                    Str("param", "VSyncValid").
+                    Msg("error in dc sync attrs")
+        }
+        switch dcSync.VSyncValidNeg {
+            case cmos.DCVSyncValidNegHigh:
+                in.dc_sync_attrs.v_sync_valid_neg = C.uchar(C.VI_VSYNC_VALID_NEG_HIGH)
+            case cmos.DCVSyncValidNegLow:
+                in.dc_sync_attrs.v_sync_valid_neg = C.uchar(C.VI_VSYNC_VALID_NEG_LOW)
+            default:
+                logger.Log.Fatal().
+                    Str("param", "VSyncValidNeg").
+                    Msg("error in dc sync attrs")
+        }
+        
+        in.dc_sync_attrs.timing_hfb     = C.uint(dcSync.TimingHfb)
+        in.dc_sync_attrs.timing_act     = C.uint(dcSync.TimingAct)
+        in.dc_sync_attrs.timing_hbb     = C.uint(dcSync.TimingHbb)
+        in.dc_sync_attrs.timing_vfb     = C.uint(dcSync.TimingVfb)
+        in.dc_sync_attrs.timing_vact    = C.uint(dcSync.TimingVact)
+        in.dc_sync_attrs.timing_vbb     = C.uint(dcSync.TimingVbb)
+        in.dc_sync_attrs.timing_vbfb    = C.uint(dcSync.TimingVbfb)
+        in.dc_sync_attrs.timing_vbact   = C.uint(dcSync.TimingVbact)
+        in.dc_sync_attrs.timing_vbbb    = C.uint(dcSync.TimingVbbb)
+    }
+
     logger.Log.Trace().
         Uint("mirror", uint(in.mirror)).
         Uint("flip", uint(in.flip)).
-        Uint("cmos_width", uint(in.cmos_width)).
-        Uint("cmos_height", uint(in.cmos_height)).
-        Uint("x0", uint(in.x0)).
-        Uint("y0", uint(in.y0)).
         Uint("width", uint(in.width)).
         Uint("height", uint(in.height)).
+        //Uint("x0", uint(in.x0)).
+        //Uint("y0", uint(in.y0)).
+        //Uint("width", uint(in.width)).
+        //Uint("height", uint(in.height)).
         Uint("cmos_fps", uint(in.cmos_fps)).
+        Uint("pixel_bitness", uint(in.pixel_bitness)).
         Uint("fps", uint(in.fps)).
         Uint("ldc", uint(in.ldc)).
         Int("ldc-offset-x", int(in.ldc_offset_x)).

@@ -21,6 +21,9 @@ extern "C"{
 
 #define IMX290_ID 290
 
+extern void imx290_lvds_init(HI_VOID);
+extern void imx290_lvds_exit(HI_VOID);
+extern int imx290_lvds_write_register(int addr, int data);
 
 /****************************************************************************
  * local variables                                                            *
@@ -30,9 +33,9 @@ static HI_U16 g_au16InitWBGain[ISP_MAX_DEV_NUM][3] = {{0}};
 static HI_U16 g_au16SampleRgain[ISP_MAX_DEV_NUM] = {0};
 static HI_U16 g_au16SampleBgain[ISP_MAX_DEV_NUM] = {0};
 
-extern const unsigned int sensor_i2c_addr;
-extern unsigned int sensor_addr_byte;
-extern unsigned int sensor_data_byte;
+extern const unsigned int imx290_lvds_i2c_addr;
+extern unsigned int imx290_lvds_addr_byte;
+extern unsigned int imx290_lvds_data_byte;
 
 #define FULL_LINES_MAX  (0x3FFFF)
 #define FULL_LINES_MAX_2TO1_WDR (0x8AA)
@@ -62,11 +65,15 @@ extern unsigned int sensor_data_byte;
 
 /* global variables */
 static HI_BOOL bInit = HI_FALSE;
-HI_BOOL bSensorInit = HI_FALSE; 
+
+//HI_BOOL bSensorInit = HI_FALSE; 
+HI_BOOL bSensorInit_imx290_lvds = HI_FALSE;
 
 static HI_U8 gu8HCGReg = 0x2;
-HI_U8 gu8SensorImageMode = IMX290_SENSOR_1080P_30FPS_LINEAR_MODE;
-HI_U8 genSensorMode = WDR_MODE_NONE;
+//HI_U8 gu8SensorImageMode = IMX290_SENSOR_1080P_30FPS_LINEAR_MODE;
+HI_U8 gu8SensorImageMode_imx290_lvds = IMX290_SENSOR_1080P_30FPS_LINEAR_MODE;
+
+static HI_U8 genSensorMode = WDR_MODE_NONE;
 
 static HI_U32 gu32BRL = 1109;                                          
 static HI_U32 gu32RHS1_Max = (IMX290_VMAX_1080P60TO30_WDR - 1109) * 2 - 21;
@@ -75,8 +82,8 @@ static HI_U32 gu32FullLinesStd = IMX290_VMAX_1080P30_LINEAR;
 static HI_U32 gu32FullLines = IMX290_VMAX_1080P30_LINEAR;
 static HI_U32 gu32PreFullLines = IMX290_VMAX_1080P30_LINEAR;
 
-ISP_SNS_REGS_INFO_S g_stSnsRegsInfo = {0};
-ISP_SNS_REGS_INFO_S g_stPreSnsRegsInfo = {0};
+static ISP_SNS_REGS_INFO_S g_stSnsRegsInfo = {0};
+static ISP_SNS_REGS_INFO_S g_stPreSnsRegsInfo = {0};
 
 static HI_U32 au32WDRIntTime[4] = {0};
 static ISP_FSWDR_MODE_E genFSWDRMode = ISP_FSWDR_NORMAL_MODE;
@@ -221,7 +228,7 @@ static HI_VOID cmos_fps_set(HI_FLOAT f32Fps, AE_SENSOR_DEFAULT_S *pstAeSnsDft)
 
     HI_U32 u32VMAX = IMX290_VMAX_1080P30_LINEAR;                                                                            
                                                                                                                           
-    switch (gu8SensorImageMode)                                                                                           
+    switch (gu8SensorImageMode_imx290_lvds)                                                                                           
     {                
       case IMX290_SENSOR_1080P_30FPS_WDR_MODE:                                                                                  
            if ((f32Fps <= 30) && (f32Fps >= 16.5))                                                                            
@@ -604,7 +611,7 @@ static HI_VOID cmos_ae_fswdr_attr_set(AE_FSWDR_ATTR_S *pstAeFSWDRAttr)
 }
 
 
-HI_S32 cmos_init_ae_exp_function(AE_SENSOR_EXP_FUNC_S *pstExpFuncs)
+static HI_S32 cmos_init_ae_exp_function(AE_SENSOR_EXP_FUNC_S *pstExpFuncs)
 {
     memset(pstExpFuncs, 0, sizeof(AE_SENSOR_EXP_FUNC_S));
 
@@ -773,7 +780,7 @@ static HI_S32 cmos_get_awb_default(AWB_SENSOR_DEFAULT_S *pstAwbSnsDft)
     return 0;
 }
 
-HI_S32 cmos_init_awb_exp_function(AWB_SENSOR_EXP_FUNC_S *pstExpFuncs)
+static HI_S32 cmos_init_awb_exp_function(AWB_SENSOR_EXP_FUNC_S *pstExpFuncs)
 {
     memset(pstExpFuncs, 0, sizeof(AWB_SENSOR_EXP_FUNC_S));
 
@@ -1656,7 +1663,7 @@ static ISP_CMOS_CA_S g_stIspWDRCA =
      950,  900,  900,  800,  800,  800,  800,  800,}
 };
 
-HI_U32 cmos_get_isp_default(ISP_CMOS_DEFAULT_S *pstDef)
+static HI_U32 cmos_get_isp_default(ISP_CMOS_DEFAULT_S *pstDef)
 {
     if (HI_NULL == pstDef)
     {
@@ -1712,7 +1719,7 @@ HI_U32 cmos_get_isp_default(ISP_CMOS_DEFAULT_S *pstDef)
     return 0;
 }
 
-HI_U32 cmos_get_isp_black_level(ISP_CMOS_BLACK_LEVEL_S *pstBlackLevel)
+static HI_U32 cmos_get_isp_black_level(ISP_CMOS_BLACK_LEVEL_S *pstBlackLevel)
 {
     HI_S32  i;
     
@@ -1748,7 +1755,7 @@ HI_U32 cmos_get_isp_black_level(ISP_CMOS_BLACK_LEVEL_S *pstBlackLevel)
     
 }
 
-HI_VOID cmos_set_pixel_detect(HI_BOOL bEnable)
+static HI_VOID cmos_set_pixel_detect(HI_BOOL bEnable)
 {
   
     HI_U32 u32FullLines_5Fps, u32MaxIntTime_5Fps;
@@ -1763,7 +1770,7 @@ HI_VOID cmos_set_pixel_detect(HI_BOOL bEnable)
     }
     else
     {
-        if (IMX290_SENSOR_1080P_30FPS_LINEAR_MODE == gu8SensorImageMode)
+        if (IMX290_SENSOR_1080P_30FPS_LINEAR_MODE == gu8SensorImageMode_imx290_lvds)
         {
             u32FullLines_5Fps = (IMX290_VMAX_1080P30_LINEAR * 30) / 5;
         }
@@ -1778,31 +1785,31 @@ HI_VOID cmos_set_pixel_detect(HI_BOOL bEnable)
 
     if (bEnable) /* setup for ISP pixel calibration mode */
     {
-        sensor_write_register (GAIN_ADDR,0x00);
+        imx290_lvds_write_register (GAIN_ADDR,0x00);
         
-        sensor_write_register (VMAX_ADDR, u32FullLines_5Fps & 0xFF); 
-        sensor_write_register (VMAX_ADDR + 1, (u32FullLines_5Fps & 0xFF00) >> 8); 
-        sensor_write_register (VMAX_ADDR + 2, (u32FullLines_5Fps & 0x30000) >> 16);
+        imx290_lvds_write_register (VMAX_ADDR, u32FullLines_5Fps & 0xFF); 
+        imx290_lvds_write_register (VMAX_ADDR + 1, (u32FullLines_5Fps & 0xFF00) >> 8); 
+        imx290_lvds_write_register (VMAX_ADDR + 2, (u32FullLines_5Fps & 0x30000) >> 16);
 
-        sensor_write_register (SHS1_ADDR, u32MaxIntTime_5Fps & 0xFF);
-        sensor_write_register (SHS1_ADDR + 1,  (u32MaxIntTime_5Fps & 0xFF00) >> 8); 
-        sensor_write_register (SHS1_ADDR + 2, (u32MaxIntTime_5Fps & 0x30000) >> 16); 
+        imx290_lvds_write_register (SHS1_ADDR, u32MaxIntTime_5Fps & 0xFF);
+        imx290_lvds_write_register (SHS1_ADDR + 1,  (u32MaxIntTime_5Fps & 0xFF00) >> 8); 
+        imx290_lvds_write_register (SHS1_ADDR + 2, (u32MaxIntTime_5Fps & 0x30000) >> 16); 
           
     }
     else /* setup for ISP 'normal mode' */
     {
         gu32FullLinesStd = (gu32FullLinesStd > 0x1FFFF) ? 0x1FFFF : gu32FullLinesStd;
         gu32FullLines = gu32FullLinesStd;
-        sensor_write_register (VMAX_ADDR, gu32FullLines & 0xFF); 
-        sensor_write_register (VMAX_ADDR + 1, (gu32FullLines & 0xFF00) >> 8); 
-        sensor_write_register (VMAX_ADDR + 2, (gu32FullLines & 0x30000) >> 16);
+        imx290_lvds_write_register (VMAX_ADDR, gu32FullLines & 0xFF); 
+        imx290_lvds_write_register (VMAX_ADDR + 1, (gu32FullLines & 0xFF00) >> 8); 
+        imx290_lvds_write_register (VMAX_ADDR + 2, (gu32FullLines & 0x30000) >> 16);
         bInit = HI_FALSE;
     }
 
     return;
 }
 
-HI_VOID cmos_set_wdr_mode(HI_U8 u8Mode)                                          
+static HI_VOID cmos_set_wdr_mode(HI_U8 u8Mode)                                          
 {                                                                                
     bInit = HI_FALSE;  
                                                                                  
@@ -1810,7 +1817,7 @@ HI_VOID cmos_set_wdr_mode(HI_U8 u8Mode)
     {                                                                            
         case WDR_MODE_NONE:                                                      
             genSensorMode = WDR_MODE_NONE; 
-            gu8SensorImageMode = IMX290_SENSOR_1080P_30FPS_LINEAR_MODE;
+            gu8SensorImageMode_imx290_lvds = IMX290_SENSOR_1080P_30FPS_LINEAR_MODE;
             gu32FullLinesStd = IMX290_VMAX_1080P30_LINEAR;
             gu8HCGReg = 0x2; 
             g_stSnsRegsInfo.astI2cData[4].u32Data = 0x2; 
@@ -1819,7 +1826,7 @@ HI_VOID cmos_set_wdr_mode(HI_U8 u8Mode)
                                                                                  
         case WDR_MODE_2To1_LINE:                                                 
             genSensorMode = WDR_MODE_2To1_LINE;
-            gu8SensorImageMode = IMX290_SENSOR_1080P_30FPS_WDR_MODE;
+            gu8SensorImageMode_imx290_lvds = IMX290_SENSOR_1080P_30FPS_WDR_MODE;
             gu32FullLinesStd = IMX290_VMAX_1080P60TO30_WDR *2 ;                  
             gu32FullLines = IMX290_VMAX_1080P60TO30_WDR *2 ;                     
             gu32BRL = 1109;
@@ -1841,7 +1848,7 @@ HI_VOID cmos_set_wdr_mode(HI_U8 u8Mode)
     return;                                                                      
 }                                                                                
 
-HI_U32 cmos_get_sns_regs_info(ISP_SNS_REGS_INFO_S *pstSnsRegsInfo)
+static HI_U32 cmos_get_sns_regs_info(ISP_SNS_REGS_INFO_S *pstSnsRegsInfo)
 {
     HI_S32 i;
 
@@ -1860,9 +1867,9 @@ HI_U32 cmos_get_sns_regs_info(ISP_SNS_REGS_INFO_S *pstSnsRegsInfo)
         for (i=0; i<g_stSnsRegsInfo.u32RegNum; i++)
         {
             g_stSnsRegsInfo.astI2cData[i].bUpdate = HI_TRUE;
-            g_stSnsRegsInfo.astI2cData[i].u8DevAddr = sensor_i2c_addr;
-            g_stSnsRegsInfo.astI2cData[i].u32AddrByteNum = sensor_addr_byte;
-            g_stSnsRegsInfo.astI2cData[i].u32DataByteNum = sensor_data_byte;
+            g_stSnsRegsInfo.astI2cData[i].u8DevAddr = imx290_lvds_i2c_addr;
+            g_stSnsRegsInfo.astI2cData[i].u32AddrByteNum = imx290_lvds_addr_byte;
+            g_stSnsRegsInfo.astI2cData[i].u32DataByteNum = imx290_lvds_data_byte;
         }
 
         //Linear Mode Regs
@@ -1954,7 +1961,7 @@ HI_U32 cmos_get_sns_regs_info(ISP_SNS_REGS_INFO_S *pstSnsRegsInfo)
 
 static HI_S32 cmos_set_image_mode(ISP_CMOS_SENSOR_IMAGE_MODE_S *pstSensorImageMode)
 {
-    HI_U8 u8SensorImageMode = gu8SensorImageMode;
+    HI_U8 u8SensorImageMode = gu8SensorImageMode_imx290_lvds;
     
     bInit = HI_FALSE;    
         
@@ -1978,7 +1985,7 @@ static HI_S32 cmos_set_image_mode(ISP_CMOS_SENSOR_IMAGE_MODE_S *pstSensorImageMo
         return -1;
     }
 
-    if ((HI_TRUE == bSensorInit) && (u8SensorImageMode == gu8SensorImageMode))     
+    if ((HI_TRUE == bSensorInit_imx290_lvds) && (u8SensorImageMode == gu8SensorImageMode_imx290_lvds))     
     {                                                                              
         /* Don't need to switch SensorImageMode */                                 
         return -1;                                                                 
@@ -1986,19 +1993,20 @@ static HI_S32 cmos_set_image_mode(ISP_CMOS_SENSOR_IMAGE_MODE_S *pstSensorImageMo
     return 0;
 }
 
-int  sensor_set_inifile_path(const char *pcPath)
+//int  sensor_set_inifile_path(const char *pcPath)
+static int  imx290_lvds_set_inifile_path(const char *pcPath)
 {
     return 0;
 }
 
-HI_VOID sensor_global_init(HI_VOID)
+static HI_VOID sensor_global_init(HI_VOID)
 {     
-    gu8SensorImageMode = IMX290_SENSOR_1080P_30FPS_LINEAR_MODE;
+    gu8SensorImageMode_imx290_lvds = IMX290_SENSOR_1080P_30FPS_LINEAR_MODE;
     genSensorMode = WDR_MODE_NONE;
     gu32FullLinesStd = IMX290_VMAX_1080P30_LINEAR;
     gu32FullLines = IMX290_VMAX_1080P30_LINEAR; 
     bInit = HI_FALSE;
-    bSensorInit = HI_FALSE; 
+    bSensorInit_imx290_lvds = HI_FALSE; 
 
     memset(&g_stSnsRegsInfo, 0, sizeof(ISP_SNS_REGS_INFO_S));
     memset(&g_stPreSnsRegsInfo, 0, sizeof(ISP_SNS_REGS_INFO_S));
@@ -2006,12 +2014,12 @@ HI_VOID sensor_global_init(HI_VOID)
 
 }
 
-HI_S32 cmos_init_sensor_exp_function(ISP_SENSOR_EXP_FUNC_S *pstSensorExpFunc)
+static HI_S32 cmos_init_sensor_exp_function(ISP_SENSOR_EXP_FUNC_S *pstSensorExpFunc)
 {
     memset(pstSensorExpFunc, 0, sizeof(ISP_SENSOR_EXP_FUNC_S));
 
-    pstSensorExpFunc->pfn_cmos_sensor_init = sensor_init;
-    pstSensorExpFunc->pfn_cmos_sensor_exit = sensor_exit;
+    pstSensorExpFunc->pfn_cmos_sensor_init = imx290_lvds_init;
+    pstSensorExpFunc->pfn_cmos_sensor_exit = imx290_lvds_exit;
     pstSensorExpFunc->pfn_cmos_sensor_global_init = sensor_global_init;
     pstSensorExpFunc->pfn_cmos_set_image_mode = cmos_set_image_mode;
     pstSensorExpFunc->pfn_cmos_set_wdr_mode = cmos_set_wdr_mode;
@@ -2027,7 +2035,8 @@ HI_S32 cmos_init_sensor_exp_function(ISP_SENSOR_EXP_FUNC_S *pstSensorExpFunc)
 /****************************************************************************
  * callback structure                                                       *
  ****************************************************************************/
-int sensor_register_callback(void)
+//int sensor_register_callback(void)
+int sensor_register_callback_imx290_lvds(void)
 {
     ISP_DEV IspDev = 0;
     HI_S32 s32Ret;
@@ -2070,7 +2079,8 @@ int sensor_register_callback(void)
     return 0;
 }
 
-int sensor_unregister_callback(void)
+//int sensor_unregister_callback(void)
+int sensor_unregister_callback_imx290_lvds(void)
 {
     ISP_DEV IspDev = 0;
     HI_S32 s32Ret;
@@ -2106,7 +2116,8 @@ int sensor_unregister_callback(void)
     return 0;
 }
 
-int sensor_set_init(ISP_INIT_ATTR_S *pstInitAttr)
+//int sensor_set_init(ISP_INIT_ATTR_S *pstInitAttr)
+static int imx290_lvds_set_init(ISP_INIT_ATTR_S *pstInitAttr)
 {
     ISP_DEV IspDev = 0;
 

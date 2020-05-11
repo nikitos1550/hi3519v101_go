@@ -12,13 +12,14 @@
 #include "hi_spi.h"
 
 
-extern WDR_MODE_E genSensorMode;
-extern HI_U8 gu8SensorImageMode;
-extern HI_BOOL bSensorInit;
+//extern WDR_MODE_E genSensorMode_imx323_spi;
+extern HI_U8 gu8SensorImageMode_imx323_spi;
+extern HI_BOOL bSensorInit_imx323_spi;
 
 static int g_fd= -1;
 
-int sensor_spi_init(void)
+//int sensor_spi_init(void)
+int imx323_spi_spi_init(void)
 {
     if (g_fd >= 0)
     {
@@ -62,7 +63,8 @@ int sensor_spi_init(void)
     return 0;
 }
 
-int sensor_spi_exit(void)
+//int sensor_spi_exit(void)
+int imx323_spi_spi_exit(void)
 {
     if (g_fd >= 0)
     {
@@ -73,7 +75,8 @@ int sensor_spi_exit(void)
     return -1;
 }
 
-int sensor_write_register(unsigned int addr, unsigned char data)
+//int sensor_write_register(unsigned int addr, unsigned char data)
+int imx323_spi_write_register(unsigned int addr, unsigned char data)
 {
     int ret;
     struct spi_ioc_transfer mesg[1];
@@ -104,7 +107,8 @@ int sensor_write_register(unsigned int addr, unsigned char data)
     return 0;
 }
 
-int sensor_read_register(unsigned int addr)
+//int sensor_read_register(unsigned int addr)
+int imx323_spi_read_register(unsigned int addr)
 {
     int ret = 0;
     struct spi_ioc_transfer mesg[1];
@@ -141,7 +145,8 @@ static void delay_ms(int ms) {
      hi_usleep(ms*1000);
 }
 
-void sensor_prog(int* rom) 
+//void sensor_prog(int* rom) 
+void imx323_spi_prog(int* rom) 
 {
     int i = 0;
     while (1) {
@@ -153,43 +158,50 @@ void sensor_prog(int* rom)
         } else if (addr == 0xFFFF) {
             return;
         } else {
-            sensor_write_register(addr, data);
+            imx323_spi_write_register(addr, data);//sensor_write_register(addr, data);
         }
     }
 }
 
-void sensor_linear_1080p30_RAW12_init(HI_VOID);
-void sensor_linear_720p30_RAW12_init(HI_VOID);
-void sensor_linear_720p60_RAW10_init(HI_VOID);
+//void sensor_linear_1080p30_RAW12_init(HI_VOID);
+//void sensor_linear_720p30_RAW12_init(HI_VOID);
+//void sensor_linear_720p60_RAW10_init(HI_VOID);
 
-void sensor_init(HI_VOID)
+static void imx323_spi_linear_1080p30_RAW12_init(HI_VOID);
+static void imx323_spi_linear_720p30_RAW12_init(HI_VOID);
+static void imx323_spi_linear_720p60_RAW10_init(HI_VOID);
+
+
+//void sensor_init(HI_VOID)
+void imx323_spi_init(HI_VOID)
 {
-    bSensorInit = HI_TRUE;
+    bSensorInit_imx323_spi = HI_TRUE;
     /* 1. sensor spi init */
-    sensor_spi_init();
+    imx323_spi_spi_init();//sensor_spi_init();
 
-    switch (gu8SensorImageMode)
+    switch (gu8SensorImageMode_imx323_spi)
     {        
 	case 0: // 1080P30
-                 sensor_linear_1080p30_RAW12_init();
+                 imx323_spi_linear_1080p30_RAW12_init();//sensor_linear_1080p30_RAW12_init();
             break;
 	case 1: // 720P30
-                 sensor_linear_720p30_RAW12_init();
+                 imx323_spi_linear_720p30_RAW12_init();//sensor_linear_720p30_RAW12_init();
             break;
 	case 2: // 720P30
-                 sensor_linear_720p60_RAW10_init();
+                 imx323_spi_linear_720p60_RAW10_init();//sensor_linear_720p60_RAW10_init();
             break;
       default:
             printf("Not support this mode\n");
-            bSensorInit = HI_FALSE;
+            bSensorInit_imx323_spi = HI_FALSE;
     }
 
 
 }
 
-void sensor_exit(HI_VOID)
+//void sensor_exit(HI_VOID)
+void imx323_spi_exit(HI_VOID)
 {
-    sensor_spi_exit();
+    imx323_spi_spi_exit();
 
     return;
 }
@@ -197,27 +209,28 @@ void sensor_exit(HI_VOID)
 //37.125MHz
 //30fps
 //RAW12
-void sensor_linear_1080p30_RAW12_init(HI_VOID)
+//void sensor_linear_1080p30_RAW12_init(HI_VOID)
+static void imx323_spi_linear_1080p30_RAW12_init(HI_VOID)
 {
-	sensor_write_register(0x0200, 0x31);
-	sensor_write_register(0x0202, 0x0F);
-	sensor_write_register(0x0203, 0x4C);
-	sensor_write_register(0x0204, 0x04);
-	sensor_write_register(0x0205, 0x65);
-	sensor_write_register(0x0206, 0x04);
-	sensor_write_register(0x0212, 0x82);
-	sensor_write_register(0x0216, 0x3C);
-	sensor_write_register(0x021F, 0x73);
-	sensor_write_register(0x0220, 0xF0);
-	sensor_write_register(0x0227, 0x20);
-	sensor_write_register(0x022C, 0x00);
-	sensor_write_register(0x023F, 0x0A);
-	sensor_write_register(0x027A, 0x00);
-	sensor_write_register(0x027B, 0x00);
-	sensor_write_register(0x029A, 0x26);
-	sensor_write_register(0x029B, 0x02);
-	sensor_write_register(0x0317, 0x0D);
-	sensor_write_register(0x0200, 0x30);
+	imx323_spi_write_register(0x0200, 0x31);
+	imx323_spi_write_register(0x0202, 0x0F);
+	imx323_spi_write_register(0x0203, 0x4C);
+	imx323_spi_write_register(0x0204, 0x04);
+	imx323_spi_write_register(0x0205, 0x65);
+	imx323_spi_write_register(0x0206, 0x04);
+	imx323_spi_write_register(0x0212, 0x82);
+	imx323_spi_write_register(0x0216, 0x3C);
+	imx323_spi_write_register(0x021F, 0x73);
+	imx323_spi_write_register(0x0220, 0xF0);
+	imx323_spi_write_register(0x0227, 0x20);
+	imx323_spi_write_register(0x022C, 0x00);
+	imx323_spi_write_register(0x023F, 0x0A);
+	imx323_spi_write_register(0x027A, 0x00);
+	imx323_spi_write_register(0x027B, 0x00);
+	imx323_spi_write_register(0x029A, 0x26);
+	imx323_spi_write_register(0x029B, 0x02);
+	imx323_spi_write_register(0x0317, 0x0D);
+	imx323_spi_write_register(0x0200, 0x30);
 	printf("-------Sony IMX323 Sensor 1080p_30fps_raw12_cmos_37p125Mhz Initial OK!-------\n");
 }
 
@@ -225,28 +238,29 @@ void sensor_linear_1080p30_RAW12_init(HI_VOID)
 //37.125MHz
 //30fps
 //RAW12
-void sensor_linear_720p30_RAW12_init(HI_VOID)
+//void sensor_linear_720p30_RAW12_init(HI_VOID)
+static void imx323_spi_linear_720p30_RAW12_init(HI_VOID)
 {
-	sensor_write_register(0x200, 0x31);
-	sensor_write_register(0x202, 0x01);
-	sensor_write_register(0x203, 0x72);
-	sensor_write_register(0x204, 0x06);
-	sensor_write_register(0x205, 0xEE);
-	sensor_write_register(0x206, 0x02);
-	sensor_write_register(0x211, 0x01);
-	sensor_write_register(0x212, 0x82);
-	sensor_write_register(0x216, 0xF0);
-	sensor_write_register(0x21F, 0x73);
-	sensor_write_register(0x220, 0xF0);
-	sensor_write_register(0x222, 0xC0);
-	sensor_write_register(0x227, 0x20);
-	sensor_write_register(0x22C, 0x00);
-	sensor_write_register(0x23F, 0x0A);
-	sensor_write_register(0x2CE, 0x40);
-	sensor_write_register(0x2CF, 0x81);
-	sensor_write_register(0x2D0, 0x01);
-	sensor_write_register(0x317, 0x0D);
-	sensor_write_register(0x200, 0x30);
+	imx323_spi_write_register(0x200, 0x31);
+	imx323_spi_write_register(0x202, 0x01);
+	imx323_spi_write_register(0x203, 0x72);
+	imx323_spi_write_register(0x204, 0x06);
+	imx323_spi_write_register(0x205, 0xEE);
+	imx323_spi_write_register(0x206, 0x02);
+	imx323_spi_write_register(0x211, 0x01);
+	imx323_spi_write_register(0x212, 0x82);
+	imx323_spi_write_register(0x216, 0xF0);
+	imx323_spi_write_register(0x21F, 0x73);
+	imx323_spi_write_register(0x220, 0xF0);
+	imx323_spi_write_register(0x222, 0xC0);
+	imx323_spi_write_register(0x227, 0x20);
+	imx323_spi_write_register(0x22C, 0x00);
+	imx323_spi_write_register(0x23F, 0x0A);
+	imx323_spi_write_register(0x2CE, 0x40);
+	imx323_spi_write_register(0x2CF, 0x81);
+	imx323_spi_write_register(0x2D0, 0x01);
+	imx323_spi_write_register(0x317, 0x0D);
+	imx323_spi_write_register(0x200, 0x30);
 	printf("-------Sony IMX323 Sensor 720p_30fps_raw12_cmos_37p125Mhz Initial OK!-------\n");
 }
 
@@ -254,24 +268,25 @@ void sensor_linear_720p30_RAW12_init(HI_VOID)
 //37.125MHz
 //60fps
 //RAW10
-void sensor_linear_720p60_RAW10_init(HI_VOID)
+//void sensor_linear_720p60_RAW10_init(HI_VOID)
+static void imx323_spi_linear_720p60_RAW10_init(HI_VOID)
 {
-	sensor_write_register(0x200, 0x31);
-	sensor_write_register(0x202, 0x01);
-	sensor_write_register(0x203, 0x39);
-	sensor_write_register(0x204, 0x03);
-	sensor_write_register(0x205, 0xEE);
-	sensor_write_register(0x206, 0x02);
-	sensor_write_register(0x216, 0xF0);
-	sensor_write_register(0x21F, 0x73);
-	sensor_write_register(0x222, 0xC0);
-	sensor_write_register(0x227, 0x20);
-	sensor_write_register(0x22C, 0x00);
-	sensor_write_register(0x23F, 0x0A);
-	sensor_write_register(0x2CE, 0x00);
-	sensor_write_register(0x2CF, 0x00);
-	sensor_write_register(0x2D0, 0x00);
-	sensor_write_register(0x317, 0x0D);
-	sensor_write_register(0x200, 0x30);
+	imx323_spi_write_register(0x200, 0x31);
+	imx323_spi_write_register(0x202, 0x01);
+	imx323_spi_write_register(0x203, 0x39);
+	imx323_spi_write_register(0x204, 0x03);
+	imx323_spi_write_register(0x205, 0xEE);
+	imx323_spi_write_register(0x206, 0x02);
+	imx323_spi_write_register(0x216, 0xF0);
+	imx323_spi_write_register(0x21F, 0x73);
+	imx323_spi_write_register(0x222, 0xC0);
+	imx323_spi_write_register(0x227, 0x20);
+	imx323_spi_write_register(0x22C, 0x00);
+	imx323_spi_write_register(0x23F, 0x0A);
+	imx323_spi_write_register(0x2CE, 0x00);
+	imx323_spi_write_register(0x2CF, 0x00);
+	imx323_spi_write_register(0x2D0, 0x00);
+	imx323_spi_write_register(0x317, 0x0D);
+	imx323_spi_write_register(0x200, 0x30);
 	printf("-------Sony IMX323 Sensor 720p_60fps_raw10_cmos_37p125Mhz Initial OK!-------\n");
 }

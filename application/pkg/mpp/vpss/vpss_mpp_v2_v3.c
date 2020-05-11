@@ -17,10 +17,10 @@ int mpp_vpss_init(error_in *err, mpp_vpss_init_in *in) {
     stVpssGrpAttr.bHistEn           = HI_FALSE;                         //reserved
 
     if (in->nr == 1) {
-        //GO_LOG_VPSS(LOGGER_TRACE, "VPSS NR on");
+        GO_LOG_VPSS(LOGGER_TRACE, "VPSS NR on");
         stVpssGrpAttr.bNrEn = HI_TRUE;
     } else {
-        //GO_LOG_VPSS(LOGGER_TRACE, "VPSS NR off");
+        GO_LOG_VPSS(LOGGER_TRACE, "VPSS NR off");
         stVpssGrpAttr.bNrEn = HI_FALSE;
     }
 

@@ -19,12 +19,68 @@ func Init() {
 
     if buildinfo.Family != "hi3516cv100" {
 
-        //mipi = cmos.S.Mipi()
 
         var inErr C.error_in
         var in C.mpp_mipi_init_in
 
-        in.mipi = cmos.S.Mipi()
+        //if cmos.S.Mipi() == nil {
+        //    logger.Log.Fatal().
+        //        Msg("MIPI settings missed")
+        //}
+        //
+        //in.mipi = cmos.S.Mipi()
+
+        switch cmos.S.Data() {
+            case cmos.LVDS:
+                in.data_type = C.uint(C.INPUT_MODE_LVDS)
+
+                if (cmos.S.MipiLVDSAttr() == nil) {
+                    logger.Log.Fatal().
+                        Msg("MIPI LVDS attrs missed")
+                }
+
+                in.mipi_lvds_attr = cmos.S.MipiLVDSAttr()
+            case cmos.SubLVDS:
+                in.data_type = C.uint(C.INPUT_MODE_SUBLVDS)
+
+                if (cmos.S.MipiLVDSAttr() == nil) {
+                    logger.Log.Fatal().
+                        Msg("MIPI LVDS attrs missed")   
+                }
+
+                in.mipi_lvds_attr = cmos.S.MipiLVDSAttr()
+            case cmos.HISPI:
+                in.data_type = C.uint(C.INPUT_MODE_HISPI)
+
+                if (cmos.S.MipiLVDSAttr() == nil) {
+                    logger.Log.Fatal().
+                        Msg("MIPI LVDS attrs missed")   
+                }
+
+                in.mipi_lvds_attr = cmos.S.MipiLVDSAttr()
+            case cmos.MIPI:
+                in.data_type = C.uint(C.INPUT_MODE_MIPI)
+
+                if (cmos.S.MipiMIPIAttr() == nil) {
+                    logger.Log.Fatal().
+                        Msg("MIPI MIPI attrs missed")   
+                }
+
+                in.mipi_mipi_attr = cmos.S.MipiMIPIAttr()
+            case cmos.DC:
+                if  buildinfo.Family == "hi3516cv200" ||
+                    buildinfo.Family == "hi3516av100" {
+                        in.data_type = C.uint(C.INPUT_MODE_CMOS_33V)
+                } else if buildinfo.Family == "hi3516cv100" {
+                    logger.Log.Fatal().
+                        Msg("hi3516cv100 has no mipi!!!")
+                } else {
+                    in.data_type = C.uint(C.INPUT_MODE_CMOS)
+                }
+            default:
+            logger.Log.Fatal().
+                Msg("MIPI unsupported data type")
+        }
 
         err := C.mpp_mipi_init(&inErr, &in)
 

@@ -130,7 +130,7 @@ func load(modules [][2]string) {
 		//var err error
 		data, err := Asset(modules[i][0])
 		if err != nil {
-			logger.Log.Error().
+			logger.Log.Fatal().
 				Str("module", modules[i][0]).
 				Str("desc", err.Error()).
 				Msg("KO")
@@ -145,7 +145,7 @@ func load(modules [][2]string) {
 				Str("module", modules[i][0]).
 				Str("params", modules[i][1]).
 				Str("desc", err2.Error()).
-				Msg("KO")
+				Msg("KO load")
 			//return
 		} else {
 			logger.Log.Trace().
@@ -191,7 +191,7 @@ func setupParams(modules [][2]string) {
                         logger.Log.Warn().
                                 Str("module", modules[i][0]).
                                 Str("params", modules[i][1]).
-                                Msg("KO params")
+                                Msg("KO params not set")
                 }
 
 	}

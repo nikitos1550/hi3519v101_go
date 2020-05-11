@@ -5,11 +5,7 @@
 package cmos
 
 /*
-#include "../include/mpp.h"
-
 #include "cmos.h"
-
-#include <string.h>
 
 int mpp_cmos_init(int *error_code) {
     *error_code = 0;

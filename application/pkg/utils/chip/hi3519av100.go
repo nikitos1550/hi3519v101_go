@@ -3,13 +3,16 @@
 
 package chip
 
+import "application/pkg/utils"
+
 var (
     chips = [...]string {
-        "hi3559av100",
+        "hi3519av100",
     }
 )
 
 func RegId() uint32 {
-    return 0
+    sysIdReg := utils.ReadDevMem32(0x12020EE0)
+    return sysIdReg
 }
 

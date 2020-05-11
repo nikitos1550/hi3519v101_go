@@ -159,6 +159,18 @@ func systemInit(devInfo DeviceInfo) {
         }
 
         switch cmos.S.BusType() {
+            case cmos.SPI:
+            if cmos.S.BusNum() == 0 {
+                utils.WriteDevMem32(0x200f0050, 0x1)//                # spi0_sclk
+                utils.WriteDevMem32(0x200f0054, 0x1)//                # spi0_sdo
+                utils.WriteDevMem32(0x200f0058, 0x1)//                # spi0_sdi
+                utils.WriteDevMem32(0x200f005c, 0x1)//                # spi0_csn
+
+            } else {
+                    logger.Log.Fatal().
+                        Uint("bus", cmos.S.BusNum()).
+                        Msg("CMOS bus num not supported")
+            }
             case cmos.I2C:
                 if cmos.S.BusNum() == 0 {
                     utils.WriteDevMem32(0x200f0050, 0x2)     //;                # i2c0_scl
@@ -175,6 +187,7 @@ func systemInit(devInfo DeviceInfo) {
     }
 
             switch cmos.S.Model() {
+            case "imx290_lvds":
             case "imx178":
             case "ov4689":
                 utils.WriteDevMem32(0x20030104, 0x0)

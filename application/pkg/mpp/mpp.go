@@ -12,6 +12,9 @@ import (
 
 	//"application/pkg/mpp/ai"
 
+    "application/pkg/mpp/utils"
+    "application/pkg/utils/chip"
+
     "application/pkg/buildinfo"
     "application/pkg/logger"
 
@@ -23,20 +26,27 @@ func Init(devInfo DeviceInfo) {
 
     vi.CheckFlags()
 
+    //TODO perform system cleanup as in hi3516av200 for all families
 	systemInit(devInfo)
     logger.Log.Debug().
         Msg("OS and chip inited")
 
+    logger.Log.Trace().
+        Str("chip", chip.Detect(utils.MppId())).
+        Msg("MPP")
+
     //echo "all=4" > /proc/umap/logmpp
 
-    cmd := exec.Command("sh", "-c", "echo \"all=9\" > /proc/umap/logmpp")
-	_, err := cmd.CombinedOutput()
-	if err != nil {
-		logger.Log.Error().
-            Msg("Can`t increase logmpp level")
-	}
-    logger.Log.Debug().
-        Msg("logmpp level increased")
+    if true {
+        cmd := exec.Command("sh", "-c", "echo \"all=9\" > /proc/umap/logmpp")
+	    _, err := cmd.CombinedOutput()
+    	if err != nil {
+		    logger.Log.Error().
+                Msg("Can`t increase logmpp level")
+	    }
+        logger.Log.Debug().
+            Msg("logmpp level increased")
+    }
 
     sys.Init(devInfo.Chip)
 

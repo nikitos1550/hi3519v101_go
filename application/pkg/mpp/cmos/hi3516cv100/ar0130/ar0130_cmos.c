@@ -27,15 +27,22 @@ extern "C"{
  * local variables                                                            *
  ****************************************************************************/
 
-extern const unsigned int sensor_i2c_addr;
-extern unsigned int sensor_addr_byte;
-extern unsigned int sensor_data_byte;
+//extern const unsigned int sensor_i2c_addr;
+//extern unsigned int sensor_addr_byte;
+//extern unsigned int sensor_data_byte;
 
-HI_U32 gu32FullLinesStd = 750;
-HI_U8 gu8SensorMode = 0;
+extern const unsigned int ar0130_i2c_addr;
+extern unsigned int ar0130_addr_byte;
+extern unsigned int ar0130_data_byte;
+
+extern int ar0130_write_register(int addr, int data);
+extern void ar0130_init();
+
+static HI_U32 gu32FullLinesStd = 750;
+static HI_U8 gu8SensorMode = 0;
 
 #if CMOS_AR0130_ISP_WRITE_SENSOR_ENABLE
-ISP_SNS_REGS_INFO_S g_stSnsRegsInfo = {0};
+static ISP_SNS_REGS_INFO_S g_stSnsRegsInfo = {0};
 #endif
 
 static AWB_CCM_S g_stAwbCcm =
@@ -207,7 +214,8 @@ static ISP_CMOS_GAMMA_S g_stIspGamma =
 #endif
 };
 
-HI_U32 cmos_get_isp_default(ISP_CMOS_DEFAULT_S *pstDef)
+//HI_U32 cmos_get_isp_default(ISP_CMOS_DEFAULT_S *pstDef)
+static HI_U32 cmos_get_isp_default(ISP_CMOS_DEFAULT_S *pstDef)
 {
     if (HI_NULL == pstDef)
     {
@@ -239,7 +247,8 @@ HI_U32 cmos_get_isp_default(ISP_CMOS_DEFAULT_S *pstDef)
     return 0;
 }
 
-HI_U32 cmos_get_isp_black_level(ISP_CMOS_BLACK_LEVEL_S *pstBlackLevel)
+//HI_U32 cmos_get_isp_black_level(ISP_CMOS_BLACK_LEVEL_S *pstBlackLevel)
+static HI_U32 cmos_get_isp_black_level(ISP_CMOS_BLACK_LEVEL_S *pstBlackLevel)
 {
     HI_S32  i;
     
@@ -260,28 +269,30 @@ HI_U32 cmos_get_isp_black_level(ISP_CMOS_BLACK_LEVEL_S *pstBlackLevel)
     return 0;    
 }
 
-HI_VOID cmos_set_pixel_detect(HI_BOOL bEnable)
+//HI_VOID cmos_set_pixel_detect(HI_BOOL bEnable)
+static HI_VOID cmos_set_pixel_detect(HI_BOOL bEnable)
 {
     if (bEnable) /* setup for ISP pixel calibration mode */
     {
-        sensor_write_register(0x300C, 0x4D58);	//5fps
-        sensor_write_register(0x3012, 0x05DA);	//max exposure lines
-        sensor_write_register(0x30B0, 0x1300);	//AG, Context A
-        sensor_write_register(0x305E, 0x0020);	//DG, Context A
-        sensor_write_register(0x3100, 0x0000);
-	    sensor_write_register(0x3ee4, 0xd208);
+        ar0130_write_register(0x300C, 0x4D58);	//5fps
+        ar0130_write_register(0x3012, 0x05DA);	//max exposure lines
+        ar0130_write_register(0x30B0, 0x1300);	//AG, Context A
+        ar0130_write_register(0x305E, 0x0020);	//DG, Context A
+        ar0130_write_register(0x3100, 0x0000);
+	    ar0130_write_register(0x3ee4, 0xd208);
     }
     else /* setup for ISP 'normal mode' */
     {
-        sensor_write_register(0x300C, 0xa78);	//25fps
-        sensor_write_register(0x3ee4, 0xd308);
- 	    sensor_write_register(0x3100, 0x0004);
+        ar0130_write_register(0x300C, 0xa78);	//25fps
+        ar0130_write_register(0x3ee4, 0xd308);
+ 	    ar0130_write_register(0x3100, 0x0004);
     }
 
     return;
 }
 
-HI_VOID cmos_set_wdr_mode(HI_U8 u8Mode)
+//HI_VOID cmos_set_wdr_mode(HI_U8 u8Mode)
+static HI_VOID cmos_set_wdr_mode(HI_U8 u8Mode)
 {
     switch(u8Mode)
     {
@@ -423,7 +434,7 @@ static HI_VOID cmos_fps_set(HI_U8 u8Fps, AE_SENSOR_DEFAULT_S *pstAeSnsDft)
             gu32FullLinesStd = 750;
             pstAeSnsDft->u32MaxIntTime = 748;
             pstAeSnsDft->u32LinesPer500ms = 750 * 30 / 2;
-            sensor_write_register(0x300c, 0x8ba);
+            ar0130_write_register(0x300c, 0x8ba);
         break;
         
         case 25:
@@ -431,7 +442,7 @@ static HI_VOID cmos_fps_set(HI_U8 u8Fps, AE_SENSOR_DEFAULT_S *pstAeSnsDft)
             gu32FullLinesStd = 750;
             pstAeSnsDft->u32MaxIntTime = 748;
             pstAeSnsDft->u32LinesPer500ms = 750 * 25 / 2;
-            sensor_write_register(0x300c, 0xa78);
+            ar0130_write_register(0x300c, 0xa78);
         break;
         
         default:
@@ -446,7 +457,7 @@ static HI_VOID cmos_fps_set(HI_U8 u8Fps, AE_SENSOR_DEFAULT_S *pstAeSnsDft)
 static HI_VOID cmos_slow_framerate_set(HI_U16 u16FullLines,
     AE_SENSOR_DEFAULT_S *pstAeSnsDft)
 {
-    sensor_write_register(0x300A, u16FullLines);
+    ar0130_write_register(0x300A, u16FullLines);
 
     pstAeSnsDft->u32MaxIntTime = u16FullLines - 2;
     
@@ -465,9 +476,9 @@ static HI_VOID cmos_init_regs_info(HI_VOID)
         g_stSnsRegsInfo.u32RegNum = 4;
         for (i=0; i<g_stSnsRegsInfo.u32RegNum; i++)
         {
-            g_stSnsRegsInfo.astI2cData[i].u8DevAddr = sensor_i2c_addr;
-            g_stSnsRegsInfo.astI2cData[i].u32AddrByteNum = sensor_addr_byte;
-            g_stSnsRegsInfo.astI2cData[i].u32DataByteNum = sensor_data_byte;
+            g_stSnsRegsInfo.astI2cData[i].u8DevAddr = ar0130_i2c_addr;
+            g_stSnsRegsInfo.astI2cData[i].u32AddrByteNum = ar0130_addr_byte;
+            g_stSnsRegsInfo.astI2cData[i].u32DataByteNum = ar0130_data_byte;
         }
         g_stSnsRegsInfo.astI2cData[0].bDelayCfg = HI_FALSE;
         g_stSnsRegsInfo.astI2cData[0].u32RegAddr = 0x3012;
@@ -492,7 +503,7 @@ static HI_VOID cmos_inttime_update(HI_U32 u32IntTime)
     cmos_init_regs_info();
     g_stSnsRegsInfo.astI2cData[0].u32Data = u32IntTime;
 #else
-    sensor_write_register(0x3012, u32IntTime);
+    ar0130_write_register(0x3012, u32IntTime);
 #endif
     return;
 }
@@ -535,32 +546,32 @@ static HI_VOID cmos_gains_update(HI_U32 u32Again, HI_U32 u32Dgain)
 #else
         if(u32Again >= 2)
         {
-            sensor_write_register(0x3100, 0x0004);
+            ar0130_write_register(0x3100, 0x0004);
         }
         else
         {
-            sensor_write_register(0x3100, 0x0000);
+            ar0130_write_register(0x3100, 0x0000);
         }
         
         switch(u32Again)
         {
             case 0:
             case 2:
-                sensor_write_register(0x30B0, 0x1300);
+                ar0130_write_register(0x30B0, 0x1300);
                 break;
             case 1:
             case 3:
-                sensor_write_register(0x30B0, 0x1310);
+                ar0130_write_register(0x30B0, 0x1310);
                 break;
             case 4:
-                sensor_write_register(0x30B0, 0x1320);
+                ar0130_write_register(0x30B0, 0x1320);
                 break;
             case 5:
-                sensor_write_register(0x30B0, 0x1330);
+                ar0130_write_register(0x30B0, 0x1330);
                 break;
         }
     
-        sensor_write_register(0x305E, u32Dgain);
+        ar0130_write_register(0x305E, u32Dgain);
     
 #endif
         return;
@@ -596,7 +607,8 @@ static HI_S32 cmos_get_awb_default(AWB_SENSOR_DEFAULT_S *pstAwbSnsDft)
     return 0;
 }
 
-HI_VOID sensor_global_init()
+//HI_VOID sensor_global_init()
+static HI_VOID sensor_global_init()
 {
 
    gu8SensorMode = 0;
@@ -607,11 +619,12 @@ HI_VOID sensor_global_init()
 /****************************************************************************
  * callback structure                                                       *
  ****************************************************************************/
-HI_S32 cmos_init_sensor_exp_function(ISP_SENSOR_EXP_FUNC_S *pstSensorExpFunc)
+//HI_S32 cmos_init_sensor_exp_function(ISP_SENSOR_EXP_FUNC_S *pstSensorExpFunc)
+static HI_S32 cmos_init_sensor_exp_function(ISP_SENSOR_EXP_FUNC_S *pstSensorExpFunc)
 {
     memset(pstSensorExpFunc, 0, sizeof(ISP_SENSOR_EXP_FUNC_S));
 
-    pstSensorExpFunc->pfn_cmos_sensor_init = sensor_init;
+    pstSensorExpFunc->pfn_cmos_sensor_init = ar0130_init; //sensor_init;
     pstSensorExpFunc->pfn_cmos_sensor_global_init = sensor_global_init;
     pstSensorExpFunc->pfn_cmos_get_isp_default = cmos_get_isp_default;
     pstSensorExpFunc->pfn_cmos_get_isp_black_level = cmos_get_isp_black_level;
@@ -622,7 +635,8 @@ HI_S32 cmos_init_sensor_exp_function(ISP_SENSOR_EXP_FUNC_S *pstSensorExpFunc)
     return 0;
 }
 
-HI_S32 cmos_init_ae_exp_function(AE_SENSOR_EXP_FUNC_S *pstExpFuncs)
+//HI_S32 cmos_init_ae_exp_function(AE_SENSOR_EXP_FUNC_S *pstExpFuncs)
+static HI_S32 cmos_init_ae_exp_function(AE_SENSOR_EXP_FUNC_S *pstExpFuncs)
 {
     memset(pstExpFuncs, 0, sizeof(AE_SENSOR_EXP_FUNC_S));
 
@@ -636,7 +650,8 @@ HI_S32 cmos_init_ae_exp_function(AE_SENSOR_EXP_FUNC_S *pstExpFuncs)
     return 0;
 }
 
-HI_S32 cmos_init_awb_exp_function(AWB_SENSOR_EXP_FUNC_S *pstExpFuncs)
+//HI_S32 cmos_init_awb_exp_function(AWB_SENSOR_EXP_FUNC_S *pstExpFuncs)
+static HI_S32 cmos_init_awb_exp_function(AWB_SENSOR_EXP_FUNC_S *pstExpFuncs)
 {
     memset(pstExpFuncs, 0, sizeof(AWB_SENSOR_EXP_FUNC_S));
 
@@ -645,7 +660,8 @@ HI_S32 cmos_init_awb_exp_function(AWB_SENSOR_EXP_FUNC_S *pstExpFuncs)
     return 0;
 }
 
-int sensor_register_callback(void)
+//int sensor_register_callback(void)
+int sensor_register_callback_ar0130(void) 
 {
     HI_S32 s32Ret;
     ALG_LIB_S stLib;
@@ -684,7 +700,8 @@ int sensor_register_callback(void)
     return 0;
 }
 
-int sensor_unregister_callback(void)
+//int sensor_unregister_callback(void)
+int sensor_unregister_callback_ar0130(void)
 {
     HI_S32 s32Ret;
     ALG_LIB_S stLib;
