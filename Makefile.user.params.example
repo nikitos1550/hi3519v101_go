@@ -18,7 +18,6 @@ APP_TARGET := cam
 #BOARD   ?= jvt_s274h19v-l29_hi3519v101_imx274 
 #PROG	 ?= 1
 
-#[Func]:SpecAwbRegsInitialize [Line]:561 [Info]:Get SpecAwb Buffer Err
 #CAMERA    ?= 2
 #BOARD     ?= xm_ivg-85hf20pya-s_hi3516ev200_imx307
 #PROG	  ?= 2
@@ -55,9 +54,9 @@ APP_TARGET := cam
 #BOARD    ?= xm_ipg-83he20py-s_hi3516ev100_imx323
 #PROG     ?= 10
 
-#CAMERA   ?= 11
-#BOARD    ?= xm_ivg-83h80nv-be_hi3516av200_os08a10
-#PROG     ?= no
+CAMERA   ?= 11
+BOARD    ?= xm_ivg-83h80nv-be_hi3516av200_os08a10
+PROG     ?= no
 
 #CAMERA	  ?= 12
 #BOARD    ?= topsee_th38j29_hi3516ev200_imx307
@@ -84,13 +83,12 @@ APP_TARGET := cam
 #BOARD   ?= ssqvision_unknown_hi3519v101_imx326 
 #PROG    ?= no
 
-#cmos no driver, check china
 #CAMERA   ?= 18
 #BOARD    ?= ssqvision_on290h16d_hi3516dv100_imx290
 #PROG     ?= no
 
 #CAMERA   ?= 20
-#BOARD    ?= unknown_unknown_hi3518ev201_unknown
+#BOARD    ?= ruision_rs-h804l-b0_hi3518ev201_h65
 #PROG     ?= no
 
 #CAMERA	  ?= 21
@@ -106,12 +104,8 @@ APP_TARGET := cam
 #BOARD    ?= xm_ipg-53h13pl-s_hi3518cv100_ar0130
 #PROG	  ?= no
 
-#CAMERA   ?= 24
-#BOARD	  ?= topsee_th38c21_hi3518ev200_ar0130
-#PROG	  ?= no
-
 #CAMERA   ?= 25
-#BOARD    ?= unknown_unknown_hi3518ev200_unknown
+#BOARD    ?= ruision_rs-h802j-b0_hi3518ev200_f22
 #PROG     ?= no
 
 #CAMERA	  ?= 26
@@ -124,6 +118,10 @@ APP_TARGET := cam
 
 #CAMERA   ?= 28
 #BOARD    ?= unknown_facility28_hi3516cv500_imx327
+#PROG     ?= no
+
+#CAMERA   ?= 29
+#BOARD    ?= ruision_rs-h805-a0_hi3518ev200_ar0237
 #PROG     ?= no
 
 #CAMERA   ?= 30
