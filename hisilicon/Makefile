@@ -4,7 +4,7 @@ ifndef FAMILY
 endif
 
 ROOTFS_CONFIG_DIR := $(abspath ../rootfs)
-BUILDROOT_DIR  	  ?= $(abspath ../buildroot-2020.02)
+BUILDROOT_DIR  	  ?= $(abspath ../buildroot-2020.02.1)
 FAMILY_DIR        := $(abspath $(FAMILY))
 OUTDIR            ?= $(abspath ../output/hisilicon/$(FAMILY))
 

@@ -28,12 +28,12 @@
 |21|TOPSEE      |TH38D16            |hi3516ev200|sc3235     |check cmos             |+          |+          |+      |    |
 |22|YI          |YHS-113-IR         |hi3518ev201|ov9732     |wifi only              |+          |-          |       |    |
 |23|XM          |IPG-53H13PL-S      |hi3518cv100|AR0130     |k4b1g164               |+          |+          |+      |    |
-|24|TOPSEE      |TH38C21            |hi3518ev200|sc1135     |CMOS actually unknown  |+          |+          |+      |    | !REMOVED
+|..|...         |...                |...        |...        |uart adapter broken    |           |           |       |    |
 |25|RUISION     |RS-H802J-B0        |hi3518ev200|f22        |                       |+          |+          |+      |    |
 |26|XM          |ivg-85hg50pya-s    |hi3516ev300|imx335     |                       |+          |+          |+      |    |
 |27|unknown     |facility27         |hi3516dv100|it6801fn   |hdmi encoder, mr. ipcam|+          |+          |+      |    |
 |28|unknown     |facility28         |hi3516cv500|imx327     |mr. ipcam              |+          |+          |+      |    |
-|29|            |                   |           |           |                       |           |           |       |    | ruision_rs-h805-a0_hi3518ev200_ar0237
+|29|ruision     |rs-h805-a0         |hi3518ev200|ar0237     |                       |           |           |       |    | 
 |30|unknown     |unknown            |xm530      |unknown    |no responce            |+          |+          |+      |    |
 |31|HISILICON   |DEMB               |hi3516dv300|imx327     |                       |+          |+          |+-     |    |
 |32|HISILICON   |DEMBVERC           |hi3559av100|imx334     |                       |+          |+          |+      |    |
@@ -47,9 +47,8 @@
 |           |hi3518cv100|XM_IPG-53H13PL-S_hi3518cv100_AR0130    |+		|
 |           |hi3518ev100|N/A                                    |		|
 |hi3516cv200|hi3516cv200|N/A                                    |		|
-|           |hi3518ev200|TOPSEE_TH38C21_hi3518ev200_sc1135      |-		| ! REMOVED
+|           |hi3518ev200|ruision_rs-h805-a0_hi3518ev200_ar0237  |-		|
 |           |           |ruision_rs-h802j-b0_hi3518ev200_f22    |+		|
-|           |           |ruision_rs-h805-a0_hi3518ev200_ar0237  |-      |
 |           |hi3518ev201|ruision_rs-h804l-b0_hi3518ev201_h65    |-		|
 |           |           |YI_YHS-113-IR_hi3518ev201_ov9732       |?		|
 |hi3516cv300|hi3516cv300|XM_IVG-HP203Y-SE_hi3516cv300_imx291    |+		|
@@ -74,7 +73,7 @@
 |           |hi3516dv200|N/A                                    |		|
 |hi3516cv500|hi3516cv500|unknown_facility28_hi3516cv500_imx327  |+		|
 |           |hi3516dv300|SSQVISION_ON335H16D_hi3516dv300_imx335 |+		|
-|           |           |HISILICON_DEMB_hi3516dv300_imx327      |?		|
+|           |           |HISILICON_DEMB_hi3516dv300_imx327      |+		|
 |hi3519av100|hi3519av100|N/A                                    |		|
 |hi3559av100|hi3559av100|HISILICON_DEMBVERC_hi3559av100_imx334  |?		|
 

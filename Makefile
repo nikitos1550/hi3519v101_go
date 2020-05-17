@@ -15,12 +15,16 @@ ifndef CAMERA
 endif
 
 
-BR             := buildroot-2020.02
+BR             := buildroot-2020.02.1
 BUILDROOT_DIR  := $(abspath ./$(BR))
 BOARD_OUTDIR   := $(abspath ./output/boards/$(BOARD))
 CAMERA_TTY     := /dev/ttyCAM$(CAMERA)
 CAMERA_IP      := 192.168.10.1$(shell printf '%02d' $(CAMERA))
 TELNET_PORT    := 453$(shell printf '%02d' $(CAMERA))
+
+GATEWAY		   := 192.168.10.1
+DNS1		   := $(GATEWAY)
+DNS2		   := 8.8.8.8
 
 ########################################################################
 
@@ -148,10 +152,15 @@ deploy-external:
         --mem-linux_size $(RAM_LINUX_SIZE) \
         --linux_console "ttyAMA0,115200" \
         boot \
-    --upload-addr $(KERNEL_UPLOAD_ADDR) \
+		--upload-addr $(KERNEL_UPLOAD_ADDR) \
+		--bootargs-ip-gw $(GATEWAY) \
+		--bootargs-ip-dns1 $(DNS1) \
+		--bootargs-ip-dns2 $(DNS2) \
         --uimage $(KERNEL) \
         --rootfs $(ROOTFS) \
         --no-wait
+
+#--upload-addr $(KERNEL_UPLOAD_ADDR) \
 
 deploy: pack
 	authbind --deep scripts/hiburn.sh $(CAMERA) --verbose \
@@ -160,7 +169,10 @@ deploy: pack
         --mem-linux_size $(RAM_LINUX_SIZE) \
         --linux_console "ttyAMA0,115200" \
         boot \
-	--upload-addr $(KERNEL_UPLOAD_ADDR) \
+		--upload-addr $(KERNEL_UPLOAD_ADDR) \
+		--bootargs-ip-gw $(GATEWAY) \
+        --bootargs-ip-dns1 $(DNS1) \
+        --bootargs-ip-dns2 $(DNS2) \
         --uimage $(BOARD_OUTDIR)/kernel/uImage \
         --rootfs $(BOARD_OUTDIR)/rootfs.squashfs \
         --no-wait
@@ -173,17 +185,20 @@ deploy-app: pack-app
         	--net-host_ip 192.168.10.2/24 \
         	--mem-linux_size $(RAM_LINUX_SIZE) \
         	--linux_console "ttyAMA0,115200" \
-		boot \
-		        --upload-addr $(KERNEL_UPLOAD_ADDR) \
-		        --uimage $(BOARD_OUTDIR)/kernel/uImage \
-        		--rootfs $(BOARD_OUTDIR)/rootfs+app.squashfs \
-			--no-wait
+			boot \
+		    --upload-addr $(KERNEL_UPLOAD_ADDR) \
+			--bootargs-ip-gw $(GATEWAY) \
+        	--bootargs-ip-dns1 $(DNS1) \
+        	--bootargs-ip-dns2 $(DNS2) \
+		    --uimage $(BOARD_OUTDIR)/kernel/uImage \
+        	--rootfs $(BOARD_OUTDIR)/rootfs+app.squashfs \
+			--no-wait 
 
 #		--target-ip $(CAMERA_IP) --iface enp3s0 \
 #		--uimage $(BOARD_OUTDIR)/kernel/uImage \
 #		--rootfs $(BOARD_OUTDIR)/rootfs+app.squashfs \
 #		--initrd-size $(shell ls -s --block-size=1048576 $(BOARD_OUTDIR)/rootfs+app.squashfs | cut -d' ' -f1)M --memory-size $(RAM_LINUX_SIZE) \
-#		--lconsole "ttyAMA0,115200"
+#		--lconsole "ttyAMA0,115200" --ymodem
 
 deploy-external-control-uart: deploy-external control-uart
 
