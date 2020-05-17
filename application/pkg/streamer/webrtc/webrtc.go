@@ -10,12 +10,12 @@ import (
 
     "net/http"
     "application/pkg/openapi"
+    "application/pkg/mpp/venc"
 
     "github.com/pion/webrtc/v2"
     "github.com/pion/webrtc/v2/pkg/media"
 
     "io/ioutil"
-    //"reflect"
 
     //"application/pkg/mpp/venc"
 )
@@ -28,10 +28,6 @@ func init() {
 }
 
 func Init() {
-    loadTestVideo()
-    parseTestVideo()
-
-    
     go func() {
         // Create a new RTCPeerConnection, to evaluate our sdp in advance
         log.Println("Webrtc: stunning in advance")
@@ -54,6 +50,8 @@ func Init() {
 
 func connectWebrtc(w http.ResponseWriter, r *http.Request) {
     log.Println("connectWebrtc")
+	var payload = make(chan []byte, 1)
+	venc.SubsribeEncoder(1, payload)
 
     w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
     w.WriteHeader(http.StatusOK)
@@ -66,7 +64,7 @@ func connectWebrtc(w http.ResponseWriter, r *http.Request) {
     offer := webrtc.SessionDescription{}
     //Decode(MustReadStdin(), &offer)
     Decode(string(bodyt), &offer)
-    //log.Println(offer)
+    log.Println(offer)
 
     //return
 
@@ -120,26 +118,6 @@ func connectWebrtc(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    /*
-    go func() {
-        sleepTime := time.Millisecond * 40
-
-        var i int
-        i = 1
-        for {
-            time.Sleep(sleepTime)
-            var h264Err error
-            if h264Err = videoTrack.WriteSample(media.Sample{Data: getFrameTestVideo(i), Samples: 90000}); h264Err != nil {
-                panic(h264Err)
-            }
-            i++
-            if (i>=frames) {
-                i=1
-            }
-        }
-    }()
-    */
-
     // Set the handler for ICE connection state
     // This will notify you when the peer has connected/disconnected
     peerConnection.OnICEConnectionStateChange(func(connectionState webrtc.ICEConnectionState) {
@@ -154,25 +132,7 @@ func connectWebrtc(w http.ResponseWriter, r *http.Request) {
                 var start bool
                 //venc.SampleH264Start <- 100
                 for {
-                    //for {
-                    //    select {
-                    //    case msg := <-venc.SampleH264Notify:
-                    //        //new frame arrived
-                    //        log.Println("cleaning channel", msg)
-                    //    default:
-                    //        break
-                    //        log.Println("go go go")
-                    //    }
-                    //}
-
-                    //<-venc.SampleH264Notify
-                    //log.Println("webrtc new frame arrived", msg)
-                    buf := make([]byte, 1024*1024)
-                    //n,_ := venc.SampleH264Frames.ReadLast(buf) 
-					n:=0
-
-                    //log.Println("WEBRTC got", n, " bytes len(buf)=", len(buf))
-                    //log.Println(buf[0], buf[1], buf[2], buf[3], buf[4], buf[5])
+					buf := <- payload
                     nalType := buf[4] & 0x1F
                     //log.Println("WEBRTC Found NAL ", nalType)
 
@@ -184,33 +144,13 @@ func connectWebrtc(w http.ResponseWriter, r *http.Request) {
                         }
                     }
                     if start == true {
-                        //log.Println("WEBRTC sending data")
+                        log.Println("WEBRTC sending data")
                         var h264Err error
-                        if h264Err = videoTrack.WriteSample(media.Sample{Data: buf[0:n], Samples: 90000}); h264Err != nil {
+                        if h264Err = videoTrack.WriteSample(media.Sample{Data: buf, Samples: 90000}); h264Err != nil {
                             log.Println("Webrtc: ", h264Err)
                         }
                     }
                 }
-                
-                /*
-                //test video streaming
-                sleepTime := time.Millisecond * 40
-
-                var i int
-                i = 1
-                for {
-                    time.Sleep(sleepTime)
-                    var h264Err error
-                    if h264Err = videoTrack.WriteSample(media.Sample{Data: getFrameTestVideo(i), Samples: 90000}); h264Err != nil {
-                        //panic(h264Err)
-                        log.Println("Webrtc: ", h264Err)
-                    }
-                    i++
-                    if (i>=frames) {
-                        i=1
-                    }
-                }
-                */
             }()
 
         }
@@ -239,7 +179,8 @@ func connectWebrtc(w http.ResponseWriter, r *http.Request) {
     }
 
     // Output the answer in base64 so we can paste it in browser
-    //fmt.Println(Encode(answer))
+    fmt.Println(Encode(answer))
     fmt.Fprintf(w, "%s", Encode(answer))
+
 }
 
