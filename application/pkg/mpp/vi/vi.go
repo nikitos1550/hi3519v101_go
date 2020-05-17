@@ -222,8 +222,10 @@ func Init() {
     switch cmos.S.Wdr() {//same check as in isp
         case cmos.WDRNone:
             in.wdr = C.WDR_MODE_NONE
-        case cmos.WDR2TO1:
+        case cmos.WDR2TO1: //TODO rename
             in.wdr = C.WDR_MODE_2To1_LINE
+        case cmos.WDR2TO1F:
+            in.wdr = C.WDR_MODE_2To1_FRAME
         case cmos.WDR2TO1FFR:
             in.wdr = C.WDR_MODE_2To1_FRAME_FULL_RATE
         default:
@@ -270,6 +272,7 @@ func Init() {
             default:
                 logger.Log.Fatal().
                     Str("param", "DCVSyncField").
+                    Int("value", int(dcSync.VSync)).
                     Msg("error in dc sync attrs")
         }
         switch dcSync.VSyncNeg {
@@ -332,6 +335,23 @@ func Init() {
         in.dc_sync_attrs.timing_vbfb    = C.uint(dcSync.TimingVbfb)
         in.dc_sync_attrs.timing_vbact   = C.uint(dcSync.TimingVbact)
         in.dc_sync_attrs.timing_vbbb    = C.uint(dcSync.TimingVbbb)
+    } else { //for other data connection types we will fill in default values, at least hi3516cv500 requires it
+        in.dc_sync_attrs.v_sync = C.uchar(C.VI_VSYNC_PULSE)
+        in.dc_sync_attrs.v_sync_neg = C.uchar(C.VI_VSYNC_NEG_LOW)
+        in.dc_sync_attrs.h_sync = C.uchar(C.VI_HSYNC_VALID_SINGNAL)
+        in.dc_sync_attrs.h_sync_neg = C.uchar(C.VI_HSYNC_NEG_HIGH)
+        in.dc_sync_attrs.v_sync_valid = C.uchar(C.VI_VSYNC_VALID_SINGAL)
+        in.dc_sync_attrs.v_sync_valid_neg = C.uchar(C.VI_VSYNC_VALID_NEG_HIGH)
+
+        in.dc_sync_attrs.timing_hfb     = C.uint(0)
+        in.dc_sync_attrs.timing_act     = C.uint(1280)
+        in.dc_sync_attrs.timing_hbb     = C.uint(0)
+        in.dc_sync_attrs.timing_vfb     = C.uint(0)
+        in.dc_sync_attrs.timing_vact    = C.uint(720)
+        in.dc_sync_attrs.timing_vbb     = C.uint(0)
+        in.dc_sync_attrs.timing_vbfb    = C.uint(0)
+        in.dc_sync_attrs.timing_vbact   = C.uint(0)
+        in.dc_sync_attrs.timing_vbbb    = C.uint(0)
     }
 
     logger.Log.Trace().

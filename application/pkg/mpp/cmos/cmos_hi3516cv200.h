@@ -1,8 +1,9 @@
 #pragma once
 
+/*
 combo_dev_attr_t MIPI_CMOS3V3_ATTR =
 {    
-    /* input mode */   
+    // input mode 
     .input_mode = INPUT_MODE_CMOS_33V,
     {
   
@@ -22,7 +23,7 @@ combo_dev_attr_t MIPI_4lane_SENSOR_JXF22_10BIT_1080_NOWDR_ATTR =
 
 combo_dev_attr_t HISPI_4lane_SENSOR_AR0230_12BIT_ATTR = 
 {
-    /* input mode */
+    // input mode 
     .input_mode = INPUT_MODE_HISPI,
     {
         .lvds_attr = 
@@ -80,4 +81,4 @@ combo_dev_attr_t HISPI_4lane_SENSOR_AR0230_12BIT_ATTR =
     }
 };
 
-
+*/

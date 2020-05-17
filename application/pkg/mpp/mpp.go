@@ -19,6 +19,8 @@ import (
     "application/pkg/logger"
 
     "os/exec"
+
+    //"application/pkg/mpp/vo"
 )
 
 func Init(devInfo DeviceInfo) {
@@ -37,7 +39,8 @@ func Init(devInfo DeviceInfo) {
 
     //echo "all=4" > /proc/umap/logmpp
 
-    if true {
+    
+    if false {
         cmd := exec.Command("sh", "-c", "echo \"all=9\" > /proc/umap/logmpp")
 	    _, err := cmd.CombinedOutput()
     	if err != nil {
@@ -47,6 +50,7 @@ func Init(devInfo DeviceInfo) {
         logger.Log.Debug().
             Msg("logmpp level increased")
     }
+    
 
     sys.Init(devInfo.Chip)
 
@@ -71,4 +75,5 @@ func Init(devInfo DeviceInfo) {
 	venc.Init()
 
 
+    //vo.Init() //FOR TEST, onlu hi3516cv500
 }

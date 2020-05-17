@@ -12,7 +12,7 @@ import (
 
 func Init() {
 
-    //cmos.Register() // TODO check return
+    //cmos.Register() // moved to main mpp init func
 
     var inErr C.error_in
     var in C.mpp_isp_init_in
@@ -26,14 +26,7 @@ func Init() {
     in.isp_crop_y0 = C.uint(ispCrop.Y0)
     in.isp_crop_width = C.uint(ispCrop.Width)
     in.isp_crop_height = C.uint(ispCrop.Height)
-
-    //in.crop_x0 = 0
-    //in.crop_y0 = 0
-    //in.crop_width = C.uint(cmos.S.Width())
-    //in.crop_height = C.uint(cmos.S.Height())
-    //in.width = C.uint(cmos.S.Width())
-    //in.height = C.uint(cmos.S.Height())
-
+    
     in.fps = C.uint(cmos.S.Fps())
 
     switch cmos.S.Wdr() {
@@ -41,6 +34,8 @@ func Init() {
             in.wdr = C.WDR_MODE_NONE
         case cmos.WDR2TO1:
             in.wdr = C.WDR_MODE_2To1_LINE
+        case cmos.WDR2TO1F:
+            in.wdr = C.WDR_MODE_2To1_FRAME
         case cmos.WDR2TO1FFR:
             in.wdr = C.WDR_MODE_2To1_FRAME_FULL_RATE
         default:
@@ -77,12 +72,10 @@ func Init() {
     err := C.mpp_isp_init(&inErr, &in)
     switch err {
         case C.ERR_MPP:
-            //return errmpp.New(uint(inErr.f), uint(inErr.mpp))
             logger.Log.Fatal().
                 Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
                 Msg("ISP")
         case C.ERR_GENERAL:
-            //return errors.New("ISP error TODO")
             logger.Log.Fatal().
                 Str("error", "ISP error TODO").
                 Msg("ISP")
@@ -90,7 +83,7 @@ func Init() {
             break
     }
 
-    //go func() {
+    //go func() {   //ISP thread started in C space
     //    logger.Log.Trace(). 
     //        Msg("ISP task started")
     //    C.mpp_isp_thread(nil)
@@ -98,31 +91,10 @@ func Init() {
     //        Msg("ISP task failed")
     //}()
 
-    /*
-    err := ispInit()
-    if err != nil {
-        logger.Log.Fatal().
-            Str("error", err.Error()).
-            Msg("ISP")
-    }
-    */
     logger.Log.Debug().
         Msg("ISP inited")
 
 }
-/*
-func ispInit() error {
-    err := C.mpp_isp_init(&inErr, &in)
-    switch err {
-        case C.ERR_MPP:
-            return errmpp.New(uint(inErr.f), uint(inErr.mpp))
-        case C.ERR_GENERAL:
-            return errors.New("ISP error TODO")
-        default:
-            return nil
-    }
-}
-*/
 
 //export go_logger_isp
 func go_logger_isp(level C.int, msgC *C.char) {

@@ -4,6 +4,7 @@
 
 * https://dominik.honnef.co/posts/2015/06/statically_compiled_go_programs__always__even_with_cgo__using_musl/
 * https://medium.com/@benbjohnson/structuring-applications-in-go-3b04be4ff091
+* https://github.com/xaionaro/documentation/blob/master/golang/reduce-binary-size.md
 
 =======
 # Application

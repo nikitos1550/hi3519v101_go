@@ -11,13 +11,18 @@ start() {
     #LDC="-vi-ldc=false -vi-ldc-offset-x=0 -vi-ldc-offset-y=0 -vi-ldc-k=0"
     #VI="-vi-flip-x=false -vi-flip-y=false -vi-x0=0 -vi-y0=0 -vi-width=1280 -vi-height=720 -vi-fps=30"
 
+    #HTTP8080="-openapi-port 8080"
+
     /opt/gohisicam -logger-level=-1 \
         -mem-total=$RAM_SIZE \
         -mem-linux=$RAM_LINUX_SIZE \
         -mem-mpp=$RAM_MPP_SIZE \
+        $HTTP8080 \
         $VI \
         $LDC \
         -chip=$CHIP -cmos=$CMOS_DRIVER &
+
+    #/opt/uhttpd.sh
 }
 
 stop() {

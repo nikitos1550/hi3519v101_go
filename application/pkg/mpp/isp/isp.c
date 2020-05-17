@@ -113,6 +113,29 @@ int mpp_isp_init(error_in *err, mpp_isp_init_in *in) {
 
         memset(&stPubAttr, 0, sizeof(stPubAttr));
 
+        //#if defined(HI3516AV200) || HI_MPP == 4
+        //    stPubAttr.stSnsSize.u32Width    = in->isp_crop_width; 
+        //    stPubAttr.stSnsSize.u32Height   = in->isp_crop_height; 
+        //#endif
+
+        //#if HI_MPP == 4
+        //    //Selecting the initialization sequence of the sensor. When the
+        //    //resolution and frame rates of the two sequences are the same,
+        //    //different u8SnsMode values map different initialization sequences.
+        //    //In other cases, u8SnsMode is set to 0 by default, and the
+        //    //initialization sequence can be selected based on stSnsSize and
+        //    //f32FrameRate.
+        //    stPubAttr.u8SnsMode             = 0;
+        //#endif
+
+        stPubAttr.enBayer               = in->bayer;
+        stPubAttr.f32FrameRate          = in->fps;
+        //Start position of the cropping window, image width, and image height
+        stPubAttr.stWndRect.s32X        = in->isp_crop_x0;
+        stPubAttr.stWndRect.s32Y        = in->isp_crop_y0;
+        stPubAttr.stWndRect.u32Width    = in->isp_crop_width;
+        stPubAttr.stWndRect.u32Height   = in->isp_crop_height;
+
         #if defined(HI3516AV200) || HI_MPP == 4
             stPubAttr.stSnsSize.u32Width    = in->isp_crop_width; 
             stPubAttr.stSnsSize.u32Height   = in->isp_crop_height; 
@@ -126,24 +149,6 @@ int mpp_isp_init(error_in *err, mpp_isp_init_in *in) {
             //initialization sequence can be selected based on stSnsSize and
             //f32FrameRate.
             stPubAttr.u8SnsMode             = 0;
-        #endif
-
-        stPubAttr.enBayer               = in->bayer;
-        stPubAttr.f32FrameRate          = in->fps;
-        //Start position of the cropping window, image width, and image height
-        stPubAttr.stWndRect.s32X        = in->isp_crop_x0;
-        stPubAttr.stWndRect.s32Y        = in->isp_crop_y0;
-        stPubAttr.stWndRect.u32Width    = in->isp_crop_width;
-        stPubAttr.stWndRect.u32Height   = in->isp_crop_height;
-
-        //#if HI_MPP <= 3
-        //    ISP_WDR_MODE_S stWdrMode;
-        //
-        //    stWdrMode.enWDRMode         = in->wdr;
-        //
-        //    DO_OR_RETURN_ERR_MPP(err, HI_MPI_ISP_SetWDRMode, 0, &stWdrMode);
-        //#endif
-        #if HI_MPP == 4
             stPubAttr.enWDRMode         = in->wdr;
         #endif
 

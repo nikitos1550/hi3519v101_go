@@ -13,28 +13,27 @@ int mpp_vpss_init(error_in *err, mpp_vpss_init_in *in) {
     stVpssGrpAttr.enPixelFormat                 = PIXEL_FORMAT_YVU_SEMIPLANAR_420;
     stVpssGrpAttr.u32MaxW                       = in->width;
     stVpssGrpAttr.u32MaxH                       = in->height;
-    stVpssGrpAttr.stFrameRate.s32SrcFrameRate   = -1; //in->vi_fps;
-    stVpssGrpAttr.stFrameRate.s32DstFrameRate   = -1; //in->fps;
-    stVpssGrpAttr.bNrEn                         = HI_FALSE;//HI_TRUE;
+    stVpssGrpAttr.stFrameRate.s32SrcFrameRate   = 30;//TODO
+    stVpssGrpAttr.stFrameRate.s32DstFrameRate   = 30;//TODO
+
+
+    if (in->nr == 1) {
+        GO_LOG_VPSS(LOGGER_TRACE, "VPSS NR on");
+        stVpssGrpAttr.bNrEn = HI_TRUE;
+    } else {
+        GO_LOG_VPSS(LOGGER_TRACE, "VPSS NR off");
+        stVpssGrpAttr.bNrEn = HI_FALSE;
+    }
+
+    //stVpssGrpAttr.bNrEn = HI_FALSE; //TESTING
+
     stVpssGrpAttr.stNrAttr.enNrType             = VPSS_NR_TYPE_VIDEO;
     stVpssGrpAttr.stNrAttr.enNrMotionMode       = NR_MOTION_MODE_NORMAL;
     stVpssGrpAttr.stNrAttr.enCompressMode       = COMPRESS_MODE_FRAME;
 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_CreateGrp, 0, &stVpssGrpAttr);
-    //ret = HI_MPI_VPSS_CreateGrp(0, &stVpssGrpAttr);
-    //if (ret != HI_SUCCESS) {
-    //    printf("HI_MPI_VPSS_CreateGrp(grp:%d) failed with %#x!\n", 0, ret);
-    //    return -1;
-    //}
-
-
 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_StartGrp, 0);
-    //ret = HI_MPI_VPSS_StartGrp(0);
-    //if (ret != HI_SUCCESS) {
-    //    printf("HI_MPI_VPSS_StartGrp failed with %#x\n", ret);
-    //    return -1;
-    //}
     
     MPP_CHN_S stSrcChn;
     MPP_CHN_S stDestChn;
@@ -48,12 +47,6 @@ int mpp_vpss_init(error_in *err, mpp_vpss_init_in *in) {
     stDestChn.s32ChnId = 0;
 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_SYS_Bind, &stSrcChn, &stDestChn);
-    //ret = HI_MPI_SYS_Bind(&stSrcChn, &stDestChn);
-    //if (ret != HI_SUCCESS) {
-    //    printf("HI_MPI_SYS_Bind(VI-VPSS)\n");
-    //    return -1;
-    //}
-
 
     return ERR_NONE;
 }
@@ -61,7 +54,6 @@ int mpp_vpss_init(error_in *err, mpp_vpss_init_in *in) {
 int mpp_vpss_create_channel(error_in *err, mpp_vpss_create_channel_in * in) {
 
 	VPSS_CHN_ATTR_S stVpssChnAttr;
-
 
     stVpssChnAttr.u32Width                     = in->width;
     stVpssChnAttr.u32Height                    = in->height;

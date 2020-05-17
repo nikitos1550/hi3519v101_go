@@ -54,41 +54,11 @@ static void mpp_videv_set_attrs(VI_DEV_ATTR_S  *stViDevAttr, mpp_vi_init_in * in
         
         stViDevAttr->enDataSeq                                      = VI_INPUT_DATA_YUYV;       
 
-        if (in->data_type == VI_MODE_DIGITAL_CAMERA) {
-            mpp_videv_sync(&stViDevAttr->stSynCfg, in);
-        }
+        mpp_videv_sync(&stViDevAttr->stSynCfg, in);
         
         stViDevAttr->enDataPath                                     = VI_PATH_ISP;
         stViDevAttr->enInputDataType                                = VI_DATA_TYPE_RGB;
         stViDevAttr->bDataRev                                       = HI_FALSE;
-	//#elif HI_MPP == 2
-    //    stViDevAttr->enIntfMode                                     = in->data_type;
-    //    stViDevAttr->enWorkMode                                     = VI_WORK_MODE_1Multiplex;
-    //
-    //    stViDevAttr->au32CompMask[0]                                = mpp_videv_mask(in->pixel_bitness, in->dc_zero_bit_offset);
-    //    stViDevAttr->au32CompMask[1]                                = 0;
-    //
-    //    stViDevAttr->enScanMode                                     = VI_SCAN_PROGRESSIVE;
-    //
-    //    stViDevAttr->s32AdChnId[0]                                  = -1;
-    //    stViDevAttr->s32AdChnId[1]                                  = -1;
-    //    stViDevAttr->s32AdChnId[2]                                  = -1;
-    //    stViDevAttr->s32AdChnId[3]                                  = -1;
-    //
-    //    stViDevAttr->enDataSeq                                      = VI_INPUT_DATA_YUYV;
-    //
-    //    if (in->data_type == VI_MODE_DIGITAL_CAMERA) {
-    //        mpp_videv_sync(&stViDevAttr->stSynCfg, in);
-    //    }
-    //
-    //    stViDevAttr->enDataPath                                     = VI_PATH_ISP;
-    //    stViDevAttr->enInputDataType                                = VI_DATA_TYPE_RGB;
-    //    stViDevAttr->bDataRev                                       = HI_FALSE;
-    //
-    //    stViDevAttr->stDevRect.s32X                                 = in->vi_crop_x0;
-    //    stViDevAttr->stDevRect.s32Y                                 = in->vi_crop_y0;
-    //    stViDevAttr->stDevRect.u32Width                             = in->vi_crop_width;
-    //    stViDevAttr->stDevRect.u32Height                            = in->vi_crop_height;
 	#elif HI_MPP == 2 || HI_MPP == 3
         stViDevAttr->enIntfMode                                     = in->data_type;
         stViDevAttr->enWorkMode                                     = VI_WORK_MODE_1Multiplex;
@@ -105,9 +75,7 @@ static void mpp_videv_set_attrs(VI_DEV_ATTR_S  *stViDevAttr, mpp_vi_init_in * in
     
         stViDevAttr->enDataSeq                                      = VI_INPUT_DATA_YUYV;
 
-        if (in->data_type == VI_MODE_DIGITAL_CAMERA) {
-            mpp_videv_sync(&stViDevAttr->stSynCfg, in);
-        }
+        mpp_videv_sync(&stViDevAttr->stSynCfg, in);
     
         stViDevAttr->enDataPath                                     = VI_PATH_ISP;
         stViDevAttr->enInputDataType                                = VI_DATA_TYPE_RGB;
@@ -140,10 +108,8 @@ static void mpp_videv_set_attrs(VI_DEV_ATTR_S  *stViDevAttr, mpp_vi_init_in * in
     
         stViDevAttr->enDataSeq                                      = VI_DATA_SEQ_YUYV;
 
-        if (in->data_type == VI_MODE_DIGITAL_CAMERA) {
-            mpp_videv_sync(&stViDevAttr->stSynCfg, in);
-        }
-    
+        mpp_videv_sync(&stViDevAttr->stSynCfg, in);
+
         stViDevAttr->enInputDataType                                = VI_DATA_TYPE_RGB;
         stViDevAttr->bDataReverse                                   = HI_FALSE;
 
@@ -156,7 +122,7 @@ static void mpp_videv_set_attrs(VI_DEV_ATTR_S  *stViDevAttr, mpp_vi_init_in * in
         stViDevAttr->stBasAttr.stRephaseAttr.enVRephaseMode         = VI_REPHASE_MODE_NONE;
     
         stViDevAttr->stWDRAttr.enWDRMode                            = in->wdr;
-        stViDevAttr->stWDRAttr.u32CacheLine                         = in->vi_crop_height; //WTF?
+        stViDevAttr->stWDRAttr.u32CacheLine                         = in->vi_crop_height;
     
         stViDevAttr->enDataRate                                     = DATA_RATE_X1;
 	#endif
@@ -226,7 +192,7 @@ int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
     /////DEV
 
     VI_DEV_ATTR_S  stViDevAttr;
-
+    
     mpp_videv_set_attrs(&stViDevAttr, in);
 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetDevAttr, 0, &stViDevAttr);
@@ -245,10 +211,19 @@ int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
     #if HI_MPP == 4
     /////PIPE
 
-        VI_DEV_BIND_PIPE_S  stDevBindPipe = {0};
-    
-        stDevBindPipe.u32Num    = 1;
-        //stDevBindPipe.PipeId[0] = 0; //TODO
+        VI_DEV_BIND_PIPE_S  stDevBindPipe; // = {0};
+        memset(&stDevBindPipe, 0, sizeof(stDevBindPipe));
+
+        if (in->wdr != WDR_MODE_NONE) {
+            GO_LOG_VI(LOGGER_TRACE, "VI two pipes");
+            stDevBindPipe.u32Num    = 2;
+            stDevBindPipe.PipeId[0] = 0;
+            stDevBindPipe.PipeId[1] = 1; 
+        } else {
+            GO_LOG_VI(LOGGER_TRACE, "VI one pipe");
+            stDevBindPipe.u32Num    = 1;
+            stDevBindPipe.PipeId[0] = 0;
+        }
 
         DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetDevBindPipe, 0, &stDevBindPipe);
       
@@ -281,22 +256,37 @@ int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
         stPipeAttr.bIspBypass                   = HI_FALSE;
         stPipeAttr.u32MaxW                      = in->width;
         stPipeAttr.u32MaxH                      = in->height;
-        stPipeAttr.enPixFmt                     = PIXEL_FORMAT_RGB_BAYER_12BPP; //TODO
         stPipeAttr.enCompressMode               = COMPRESS_MODE_NONE;
-        stPipeAttr.enBitWidth                   = DATA_BITWIDTH_12; //TODO
-        stPipeAttr.bNrEn                        = HI_FALSE;
+
+        if (in->pixel_bitness == 12) {
+            GO_LOG_VI(LOGGER_TRACE, "VI PIPE bitness 12bit");
+            stPipeAttr.enBitWidth               = DATA_BITWIDTH_12;
+            stPipeAttr.enPixFmt                 = PIXEL_FORMAT_RGB_BAYER_12BPP;
+        } else if (in->pixel_bitness == 10) {
+            stPipeAttr.enBitWidth               = DATA_BITWIDTH_10;
+            stPipeAttr.enPixFmt                 = PIXEL_FORMAT_RGB_BAYER_10BPP;
+        } else {
+            ;;; //TODO error
+        }
+
+        stPipeAttr.bNrEn                        = HI_TRUE; //HI_FALSE;
         stPipeAttr.stNrAttr.enPixFmt            = PIXEL_FORMAT_YVU_SEMIPLANAR_420,
         stPipeAttr.stNrAttr.enBitWidth          = DATA_BITWIDTH_8;
         stPipeAttr.stNrAttr.enNrRefSource       = VI_NR_REF_FROM_RFR;
         stPipeAttr.stNrAttr.enCompressMode      = COMPRESS_MODE_NONE;
+
         stPipeAttr.bSharpenEn                   = HI_FALSE;
         stPipeAttr.stFrameRate.s32SrcFrameRate  = in->cmos_fps;
         stPipeAttr.stFrameRate.s32DstFrameRate  = in->cmos_fps;
         stPipeAttr.bDiscardProPic               = HI_FALSE;
 
         DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_CreatePipe, 0, &stPipeAttr);
-
         DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_StartPipe, 0);
+
+        if (in->wdr != WDR_MODE_NONE) {
+            DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_CreatePipe, 1, &stPipeAttr);
+            DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_StartPipe, 1);
+        }
 
     #endif
 

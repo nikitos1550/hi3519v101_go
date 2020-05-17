@@ -37,7 +37,7 @@ CMOS_TAGS		:= $(CMOS) cmos_data_$(CMOS_DATA) cmos_control_$(CMOS_CONTROL) cmos_b
 
 GOTAGS_PROBE    := gohisiprobe $(FAMILY) netgo nethttpomithttp2
 #GOTAGS_CAM      := gohisicam $(FAMILY) $(CHIP) $(CMOS_TAGS) netgo nethttpomithttp2 openapi debug processing streamerJpeg streamerFile streamerRtsp streamerPipe
-GOTAGS_CAM      := gohisicam $(FAMILY) $(CHIP) $(CMOS_TAGS) netgo nethttpomithttp2 openapi debug processing streamerJpeg
+GOTAGS_CAM      := gohisicam $(FAMILY) netgo nethttpomithttp2 openapi debug processing streamerJpeg
 GOTAGS := $(GOTAGS_$(shell echo '$(APP)' | tr '[:lower:]' '[:upper:]'))
 
 ifneq ($(wildcard ../hisilicon/$(FAMILY)/Makefile.params),) 
@@ -70,8 +70,7 @@ EMBEDDVARS :=   -X 'application/pkg/buildinfo.BuildDateTime=$(shell date --utc "
                 -X 'application/pkg/buildinfo.CmosProfile=$(CMOS)'  
 
 #NO DEBUG SYMBOLS, COMMENT IF WANT TO TURN ON DEBUG
-GODEBUG := -s -w 
-#-extldflags "-static" 
+GODEBUG := -s -w -extldflags "-static" 
 #-linkmode "external"
 
 guard:
@@ -138,10 +137,13 @@ deploy-dir-cam: distrib
 	mkdir -p ./distrib/$(FAMILY)/opt/scripts
 	mkdir -p ./distrib/$(FAMILY)/opt/configs
 	mkdir -p ./distrib/$(FAMILY)/etc/init.d
+	mkdir -p ./distrib/$(FAMILY)/opt/cgi-bin
 	cp -r ./www/* ./distrib/$(FAMILY)/opt/www
 	cp -r ./scripts/* ./distrib/$(FAMILY)/opt/scripts
 	cp ./init/run.sh ./distrib/$(FAMILY)/opt
 	cp ./init/S99gohisicam ./distrib/$(FAMILY)/etc/init.d/
+	cp ./init/ldd.sh ./distrib/$(FAMILY)/opt
+	cp ./init/uhttpd.sh ./distrib/$(FAMILY)/opt
 	if [ -f ../boards/boards/$(BOARD)/config ]; then cp ../boards/boards/$(BOARD)/config ./distrib/$(FAMILY)/opt/board.config; fi
 	cp ../application/configs/* ./distrib/$(FAMILY)/opt/configs/
 	cp -r ./init/tools ././distrib/$(FAMILY)/opt/ 
@@ -158,13 +160,13 @@ TRIMPATH := $(abspath .)
 
 #build-cam: generate $(LIB_TARGET) $(CMOS_TARGET) deploy-dir-cam
 build-cam: generate $(LIB_TARGET) ../output/boards/$(BOARD)/cmos/lib_cmoses.a deploy-dir-cam
-	$(GOENV) $(CGOPARAMS) $(GO) build -work -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/gohisicam application/cmd/gohisicam
+	$(GOENV) $(CGOPARAMS) $(GO) build -work -gcflags=all="-trimpath=$(TRIMPATH) -l -B -C" -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/gohisicam application/cmd/gohisicam
 	#$(GOENV) $(CGOPARAMS) $(GO) install -work -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" ./pkg/...
 
 build-probe: generate $(LIB_TARGET) deploy-dir-probe
 	$(GOENV) $(CGOPARAMS) $(GO) build -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/gohisiprobe application/cmd/gohisiprobe
 
-build: build-$(APP)
+build: build-$(APP) cgi
 
 test-host: generate
 	GOPATH=$(GOPATH) $(GO) test -tags "$(GOTAGS)" ./... -v
@@ -207,3 +209,4 @@ install-deps:
 	GOPATH=$(GOPATH) $(GO) get -u golang.org/x/tools/cmd/goyacc
 	GOPATH=$(GOPATH) $(GO) get -u github.com/shuLhan/go-bindata
 	go get -u github.com/shuLhan/go-bindata
+

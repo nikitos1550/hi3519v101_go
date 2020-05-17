@@ -12,20 +12,19 @@ int mpp_vpss_init(error_in *err, mpp_vpss_init_in *in) {
     stGrpAttr.bDrEn     = HI_FALSE;
     stGrpAttr.bDbEn     = HI_FALSE;
     stGrpAttr.bIeEn     = HI_TRUE;
-    stGrpAttr.bNrEn     = HI_TRUE;
+
+    if (in->nr == 1) {
+        GO_LOG_VPSS(LOGGER_TRACE, "VPSS NR on");
+        stGrpAttr.bNrEn = HI_TRUE;
+    } else {
+        GO_LOG_VPSS(LOGGER_TRACE, "VPSS NR off");
+        stGrpAttr.bNrEn = HI_FALSE;
+    }
+    //stGrpAttr.bNrEn     = HI_TRUE;
+
     stGrpAttr.bHistEn   = HI_FALSE;
     stGrpAttr.enDieMode = VPSS_DIE_MODE_NODIE; //VPSS_DIE_MODE_AUTO;
     stGrpAttr.enPixFmt  = PIXEL_FORMAT_YUV_SEMIPLANAR_420;
-
-    //stGrpVpssAttr.u32MaxW = 720;
-    //stGrpVpssAttr.u32MaxH = 576;
-    //stGrpVpssAttr.bDrEn = HI_FALSE;
-    //stGrpVpssAttr.bDbEn = HI_FALSE;
-    //stGrpVpssAttr.bIeEn = HI_FALSE;
-    //stGrpVpssAttr.bNrEn = HI_FALSE;
-    //stGrpVpssAttr.bHistEn = HI_FALSE;
-    //stGrpVpssAttr.enDieMode = VPSS_DIE_MODE_NODIE;
-    //stGrpVpssAttr.enPixFmt = PIXEL_FORMAT_YUV_SEMIPLANAR_422;
 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_CreateGrp, 0, &stGrpAttr);
 
@@ -109,19 +108,13 @@ int mpp_vpss_create_channel(error_in *err, mpp_vpss_create_channel_in * in) {
 }
 
 int mpp_vpss_destroy_channel(error_in * err, mpp_vpss_destroy_channel_in *in) {
-
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_DisableChn, 0, in->channel_id);
 
     return ERR_NONE;
 }
 
 int mpp_receive_frame(error_in *err, unsigned int channel_id, void** frame) {
-
-    //HI_S32 HI_MPI_VPSS_UserGetFrame(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, VIDEO_FRAME_INFO_S *pstVideoFrame)
-
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_UserGetFrame, 0, channel_id, &channelFrames[channel_id])
-
-    //DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_GetChnFrame, 0, channel_id, &channelFrames[channel_id], -1); //blocking mode call
 
     *frame = &channelFrames[channel_id];
 
@@ -129,12 +122,7 @@ int mpp_receive_frame(error_in *err, unsigned int channel_id, void** frame) {
 }
 
 int mpp_release_frame(error_in *err, unsigned int channel_id) {
-
-    //HI_S32 HI_MPI_VPSS_UserReleaseFrame (VPSS_GRP VpssGrp, VPSS_CHN VpssChn, VIDEO_FRAME_INFO_S *pstVideoFrame)
-
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_UserReleaseFrame, 0, channel_id, &channelFrames[channel_id]);
-
-    //DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_ReleaseChnFrame, 0, channel_id, &channelFrames[channel_id]);
 
     return ERR_NONE;
 }

@@ -11,6 +11,12 @@
     "Height": 1944,
     "Bitrate": 1024
   },
+  "MGPEG_2592_1536": {
+    "Format": "mjpeg",
+    "Width": 2592,
+    "Height": 1536,
+    "Bitrate": 1024
+  },
   "MGPEG_2592_1520": {
     "Format": "mjpeg",
     "Width": 2592,

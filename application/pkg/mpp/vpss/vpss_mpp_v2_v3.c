@@ -5,7 +5,6 @@
 VIDEO_FRAME_INFO_S channelFrames[VPSS_MAX_PHY_CHN_NUM];
 
 int mpp_vpss_init(error_in *err, mpp_vpss_init_in *in) {
-    //unsigned int mpp_error_code = 0;
 
     VPSS_GRP_ATTR_S stVpssGrpAttr;
 
@@ -47,7 +46,7 @@ int mpp_vpss_init(error_in *err, mpp_vpss_init_in *in) {
         //1 or 2 for video mode
         stVpssGrpAttr.stNrAttr.u32RefFrameNum                   = in->nr_frames; //2;
     
-        stVpssGrpAttr.bStitchBlendEn    = HI_FALSE;
+        stVpssGrpAttr.bStitchBlendEn                            = HI_FALSE;
     #endif
 
     stVpssGrpAttr.enDieMode         = VPSS_DIE_MODE_NODIE;              //reserved
@@ -118,16 +117,12 @@ int mpp_vpss_create_channel(error_in *err, mpp_vpss_create_channel_in * in) {
 }
 
 int mpp_vpss_destroy_channel(error_in * err, mpp_vpss_destroy_channel_in *in) {
-    //unsigned int mpp_error_code = 0;
-
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_DisableChn, 0, in->channel_id);
 
     return ERR_NONE;
 }
 
 int mpp_receive_frame(error_in *err, unsigned int channel_id, void** frame) {
-    //unsigned int mpp_error_code;
-
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_GetChnFrame, 0, channel_id, &channelFrames[channel_id], -1); //blocking mode call
 
     *frame = &channelFrames[channel_id];
@@ -135,8 +130,6 @@ int mpp_receive_frame(error_in *err, unsigned int channel_id, void** frame) {
 }
 
 int mpp_release_frame(error_in *err, unsigned int channel_id) {
-    //unsigned int mpp_error_code;
-
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_ReleaseChnFrame, 0, channel_id, &channelFrames[channel_id]);
 
     return ERR_NONE;

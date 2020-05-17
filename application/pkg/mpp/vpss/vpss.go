@@ -19,8 +19,10 @@ var (
     nrFrmNum uint
 )
 func init() {
+    flag.BoolVar(&nr, "vpss-nr", true, "Noise remove enable")
+
     if buildinfo.Family == "hi3516av200" {
-        flag.BoolVar(&nr, "vpss-nr", true, "Noise remove enable")
+        //flag.BoolVar(&nr, "vpss-nr", true, "Noise remove enable") //moved outside as common param
         flag.UintVar(&nrFrmNum, "vpss-nr-frames", 2, "Noise remove reference frames number [1;2]")
     }
 }
@@ -36,6 +38,11 @@ func Init() {
     in.width = C.uint(vi.Width())
     in.height = C.uint(vi.Height())
 
+    if nr == true {
+        in.nr = 1
+    } else {
+        in.nr = 0
+    }
     if buildinfo.Family == "hi3516av200" {
         if nr == true {
 
@@ -45,10 +52,10 @@ func Init() {
                     Msg("vpss-nr-frames shoud be 1 or 2")
             }
             in.nr_frames = C.uchar(nrFrmNum)
-            in.nr = 1
-        } else {
-            in.nr = 0
-        }
+            //in.nr = 1
+        }   //else {
+            //in.nr = 0
+            //}
     }
 
     logger.Log.Trace().
@@ -61,25 +68,15 @@ func Init() {
     err := C.mpp_vpss_init(&inErr, &in)
 
     if err != 0 {
-        //return errmpp.New(uint(inErr.f), uint(inErr.mpp))
         logger.Log.Fatal().
             Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
             Msg("VPSS")
     }
 
-    /*
-    err := initFamily()
-    if err != nil {
-        logger.Log.Fatal().
-            Str("error", err.Error()).
-            Msg("VPSS")
-    }
-    */
     logger.Log.Debug().
         Msg("VPSS inited")
 }
 
-//HI3516AV200
 func createChannel(channel Channel) { //TODO return error
     var inErr C.error_in
     var in C.mpp_vpss_create_channel_in
@@ -187,9 +184,6 @@ func sendDataToClients(channel Channel) {
         Str("name", "sendDataToClients").
         Msg("VPSS rutine stopped")
 }
-
-//END hi3516av200
-
 
 //export go_logger_vpss
 func go_logger_vpss(level C.int, msgC *C.char) {

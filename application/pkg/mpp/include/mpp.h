@@ -14,6 +14,7 @@
 
     #define VI_MODE_HISPI 0
     #define WDR_MODE_2To1_FRAME_FULL_RATE 0
+    #define WDR_MODE_2To1_FRAME 0
 
     #define HI_MPP_V1
     #define HI_MPP 1
@@ -54,12 +55,16 @@
 #endif
 
 #ifdef HI3516CV500 //Family includes
+    #define INPUT_MODE_CMOS_33V 0
+
     #define HI_MPP_V4
     #define HI_MPP 4
     #include "../include/hi3516cv500_mpp.h"
 #endif
 
 #ifdef HI3516EV200 //Family includes
+    #define INPUT_MODE_CMOS_33V 0
+
     #define HI_MPP_V4
     #define HI_MPP 4
     #include "../include/hi3516ev200_mpp.h"

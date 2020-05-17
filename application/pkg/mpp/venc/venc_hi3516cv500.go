@@ -50,6 +50,27 @@ int hi3516cv500_venc_sample_mjpeg(error_in *err, hi3516cv500_venc_create_mjpeg_i
 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_CreateChn, in->venc_id, &stVencChnAttr);
 
+    //----------
+    VENC_RC_PARAM_S stRcParam;
+
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_GetRcParam, in->venc_id, &stRcParam);
+    //ret = HI_MPI_VENC_GetRcParam(0, &stRcParam);
+    //if (HI_SUCCESS != ret) {
+    //        printf("GetRcParam failed!\n");
+    //        return -1;
+    //}
+
+    stRcParam.stParamH264Cbr.s32MaxReEncodeTimes = 0; //!!! 265
+
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_SetRcParam, in->venc_id, &stRcParam);
+    //ret = HI_MPI_VENC_SetRcParam(0, &stRcParam);
+    //if (HI_SUCCESS != ret) {
+    //        printf("SetRcParam failed!\n");
+    //        return -1;
+    //}
+
+    //-----------------
+
     VENC_RECV_PIC_PARAM_S  stRecvParam;
     
     stRecvParam.s32RecvPicNum = -1;

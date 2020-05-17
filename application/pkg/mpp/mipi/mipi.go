@@ -23,15 +23,8 @@ func Init() {
         var inErr C.error_in
         var in C.mpp_mipi_init_in
 
-        //if cmos.S.Mipi() == nil {
-        //    logger.Log.Fatal().
-        //        Msg("MIPI settings missed")
-        //}
-        //
-        //in.mipi = cmos.S.Mipi()
-
         switch cmos.S.Data() {
-            case cmos.LVDS:
+            case cmos.LVDS, cmos.SubLVDS, cmos.HISPI:
                 in.data_type = C.uint(C.INPUT_MODE_LVDS)
 
                 if (cmos.S.MipiLVDSAttr() == nil) {
@@ -40,24 +33,24 @@ func Init() {
                 }
 
                 in.mipi_lvds_attr = cmos.S.MipiLVDSAttr()
-            case cmos.SubLVDS:
-                in.data_type = C.uint(C.INPUT_MODE_SUBLVDS)
-
-                if (cmos.S.MipiLVDSAttr() == nil) {
-                    logger.Log.Fatal().
-                        Msg("MIPI LVDS attrs missed")   
-                }
-
-                in.mipi_lvds_attr = cmos.S.MipiLVDSAttr()
-            case cmos.HISPI:
-                in.data_type = C.uint(C.INPUT_MODE_HISPI)
-
-                if (cmos.S.MipiLVDSAttr() == nil) {
-                    logger.Log.Fatal().
-                        Msg("MIPI LVDS attrs missed")   
-                }
-
-                in.mipi_lvds_attr = cmos.S.MipiLVDSAttr()
+            //case cmos.SubLVDS:
+            //    in.data_type = C.uint(C.INPUT_MODE_SUBLVDS)
+            //
+            //    if (cmos.S.MipiLVDSAttr() == nil) {
+            //        logger.Log.Fatal().
+            //            Msg("MIPI LVDS attrs missed")   
+            //    }
+            //
+            //    in.mipi_lvds_attr = cmos.S.MipiLVDSAttr()
+            //case cmos.HISPI:
+            //    in.data_type = C.uint(C.INPUT_MODE_HISPI)
+            //
+            //    if (cmos.S.MipiLVDSAttr() == nil) {
+            //        logger.Log.Fatal().
+            //            Msg("MIPI LVDS attrs missed")   
+            //    }
+            //
+            //    in.mipi_lvds_attr = cmos.S.MipiLVDSAttr()
             case cmos.MIPI:
                 in.data_type = C.uint(C.INPUT_MODE_MIPI)
 

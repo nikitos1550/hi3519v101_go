@@ -69,8 +69,9 @@ func init() {
 type cmosWdr uint
 const (
     WDRNone     cmosWdr = 1
-    WDR2TO1     cmosWdr = 2
-    WDR2TO1FFR  cmosWdr = 3 //WDR_MODE_2To1_FRAME_FULL_RATE 
+    WDR2TO1     cmosWdr = 2 //TODO rename to LINE
+    WDR2TO1F    cmosWdr = 3 //FRAME
+    WDR2TO1FFR  cmosWdr = 4 //WDR_MODE_2To1_FRAME_FULL_RATE 
 )
 
 type crop struct {
@@ -230,7 +231,7 @@ func Init() {
 
     //S = &cmosItem
 
-    //mode = 2
+    //mode = 1
     if mode >= uint(len(S.modes)) {
         logger.Log.Fatal().
             Int("mode", int(mode)).

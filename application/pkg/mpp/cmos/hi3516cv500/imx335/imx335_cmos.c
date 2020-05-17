@@ -25,6 +25,10 @@ extern "C" {
 #endif
 #endif /* End of #ifdef __cplusplus */
 
+#define CONFIG_HI_ISP_CA_SUPPORT        1
+#define CONFIG_HI_ISP_PREGAMMA_SUPPORT  1
+#define CONFIG_HI_ISP_CR_SUPPORT        1
+
 
 #define IMX335_ID                         335
 

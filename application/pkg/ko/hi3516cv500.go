@@ -15,10 +15,10 @@ var (
         	[2]string{"hi3516cv500_vgs.ko", ""},
         	[2]string{"hi3516cv500_dis.ko", ""},
         	[2]string{"hi3516cv500_vi.ko", ""},
-		[2]string{"hi3516cv500_isp.ko", ""},
+		    [2]string{"hi3516cv500_isp.ko", ""},
         	[2]string{"hi3516cv500_vpss.ko", ""},
         	[2]string{"hi3516cv500_vo.ko", ""},
-        	//[2]string{"insmod /lib/modules/hi3516dv300/hifb.ko video="hifb:vram0_size:16200"     //# default fb0:1080p
+        	//[2]string{"hifb.ko", "video=\"hifb:vram0_size:1620\""},     //# default fb0:1080p
         	[2]string{"hi3516cv500_rc.ko", ""},
         	[2]string{"hi3516cv500_venc.ko", ""},
         	[2]string{"hi3516cv500_chnl.ko", ""},
@@ -27,8 +27,8 @@ var (
         	[2]string{"hi3516cv500_h265e.ko", ""},
         	[2]string{"hi3516cv500_jpege.ko", ""},
         	[2]string{"hi3516cv500_jpegd.ko", ""},
-        	[2]string{"hi3516cv500_vfmw.ko", "vdecmaxvchnnum=1"},
-        	[2]string{"hi3516cv500_vdec.ko", "vfmwmaxchnnum=1"},
+        	[2]string{"hi3516cv500_vfmw.ko", ""},  // [2]string{"hi3516cv500_vfmw.ko", "vdecmaxvchnnum=1"},
+        	[2]string{"hi3516cv500_vdec.ko", ""}, //[2]string{"hi3516cv500_vdec.ko", "vfmwmaxchnnum=1"},
 
         	[2]string{"hi3516cv500_ive.ko", "save_power=0"},
 		//#       insmod /lib/modules/hi3516dv300/hi_ipcm.ko
