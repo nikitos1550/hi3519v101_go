@@ -167,7 +167,7 @@ build-cam: generate $(LIB_TARGET) ../output/boards/$(BOARD)/cmos/lib_cmoses.a de
 build-probe: generate $(LIB_TARGET) deploy-dir-probe
 	$(GOENV) $(CGOPARAMS) $(GO) build -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/gohisiprobe application/cmd/gohisiprobe
 
-build: build-$(APP) cgi
+build: build-$(APP)
 
 test-host: generate
 	GOPATH=$(GOPATH) $(GO) test -tags "$(GOTAGS)" ./... -v
