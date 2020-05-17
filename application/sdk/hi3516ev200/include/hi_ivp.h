@@ -1,16 +1,9 @@
-/******************************************************************************
-
-  Copyright (C), 2001-2019, Hisilicon Tech. Co., Ltd.
-
- ******************************************************************************
-  File Name     : hi_ivp.h
-  Version       : Initial Draft
-  Author        : Hisilicon multimedia software (IVE) group
-  Created       : 2018/10/26
-  Description   :
-  1.Date        : 2018/10/26
-    Modification: Created file
-******************************************************************************/
+/*
+ * Copyright (C) Hisilicon Technologies Co., Ltd. 2018-2019. All rights reserved.
+ * Description: defination of hi_ivp.h
+ * Author: Hisilicon multimedia software (SVP) group
+ * Create: 2018/10/26
+ */
 #ifndef _HI_IVP_H_
 #define _HI_IVP_H_
 
@@ -27,7 +20,8 @@ extern "C"{
 
 #define HI_IVP_MAX_VENC_CHN_NUM 16
 #define HI_IVP_MAX_VIPIPE_NUM 2
-#define HI_IVP_VENC_MAX_ISO_THRESHOLD_LEVEL 3
+#define HI_IVP_MAX_CLASS 2
+#define HI_IVP_CLASS_NAME_LEN 32
 
 typedef struct{
     hi_u64  physical_addr; /* RW;The physical address of the memory */
@@ -40,22 +34,28 @@ typedef struct{
 }hi_ivp_ctrl_attr;
 
 typedef struct{
-    hi_bool iso_adaptive_enable;
-    hi_u32 iso_threshold[HI_IVP_VENC_MAX_ISO_THRESHOLD_LEVEL];
-}hi_ivp_venc_lowlight_iso_threshold;
+    hi_s32 x;
+    hi_s32 y;
+    hi_u32 width;
+    hi_u32 height;
+}hi_ivp_rect;
 
 typedef struct{
-    hi_u8 fg_qpmap_value;       /* RW;Range: [0, 63] */
-    hi_u8 bg_qpmap_value;       /* RW;Range: [0, 63] */
-    hi_u8 roi_qpmap_value;      /* RW;Range: [0, 63] */
-    hi_u8 fg_skipmap_value;     /* RW;Range: [0, 255] */
-    hi_u8 bg_skipmap_value;     /* RW;Range: [0, 255] */
-    hi_u8 roi_skipmap_value;    /* RW;Range: [0, 255] */
-    hi_u8 fg_qpmap_value_i;     /* RW;Range: [0, 63] */
-    hi_u8 bg_qpmap_value_i;     /* RW;Range: [0, 63] */
-    hi_u8 roi_qpmap_value_i;    /* RW;Range: [0, 63] */
-    hi_bool high_presure_adjust_en; /* RW;Range: [0, 1] */
-}hi_ivp_venc_svc_param;
+	hi_ivp_rect rect;
+	hi_float quality;
+}hi_ivp_obj;
+
+typedef struct{
+    hi_char class_name[HI_IVP_CLASS_NAME_LEN];
+    hi_u32 rect_num;
+    hi_u32 rect_capcity;
+    hi_ivp_obj *objs;
+}hi_ivp_obj_of_one_class;
+
+typedef struct{
+    hi_s32 class_num;
+    hi_ivp_obj_of_one_class obj_class[HI_IVP_MAX_CLASS];
+}hi_ivp_obj_array;
 
 typedef struct{
     hi_bool enable;
@@ -143,7 +143,7 @@ hi_s32 hi_ivp_unload_resource(hi_s32 ivp_handle);
 
 /*****************************************************************************
 *   Prototype    : hi_ivp_set_ctrl_attr
-*   Description  : Set ctrl param,include threshold.
+*   Description  : Set ctrl param,include SMD threshold.
 *   Parameters   : hi_s32 ivp_handle:Input
                    const hi_ivp_ctrl_attr *ivp_ctrl_attr:input
 *
@@ -160,7 +160,7 @@ hi_s32 hi_ivp_set_ctrl_attr(hi_s32 ivp_handle, const hi_ivp_ctrl_attr *ivp_ctrl_
 
 /*****************************************************************************
 *   Prototype    : hi_ivp_get_ctrl_attr
-*   Description  : Get ctrl param,include threshold.
+*   Description  : Get ctrl param,include SMD threshold.
 *   Parameters   : hi_s32 ivp_handle:Input
                    hi_ivp_ctrl_attr *ivp_ctrl_attr:Output
 *
@@ -174,6 +174,40 @@ hi_s32 hi_ivp_set_ctrl_attr(hi_s32 ivp_handle, const hi_ivp_ctrl_attr *ivp_ctrl_
 *
 *****************************************************************************/
 hi_s32 hi_ivp_get_ctrl_attr(hi_s32 ivp_handle, hi_ivp_ctrl_attr *ivp_ctrl_attr);
+
+/*****************************************************************************
+*   Prototype    : hi_ivp_set_fd_ctrl_attr
+*   Description  : Set FD ctrl param,include FD threshold. Only Hi3518EV300 support.
+*   Parameters   : hi_s32 ivp_handle:Input
+                   const hi_ivp_ctrl_attr *ivp_ctrl_attr:input
+*
+*   Return Value : HI_SUCCESS: Success;Error codes: Failure.
+*   Spec         :
+*   History:
+*
+*       1.  Date         : 2019/05/22
+*           Author       :
+*           Modification : Created function
+*
+*****************************************************************************/
+hi_s32 hi_ivp_set_fd_ctrl_attr(hi_s32 ivp_handle, const hi_ivp_ctrl_attr *ivp_ctrl_attr);
+
+/*****************************************************************************
+*   Prototype    : hi_ivp_get_fd_ctrl_attr
+*   Description  : Get FD ctrl param,include FD threshold. Only Hi3518EV300 support.
+*   Parameters   : hi_s32 ivp_handle:Input
+                   hi_ivp_ctrl_attr *ivp_ctrl_attr:Output
+*
+*   Return Value : HI_SUCCESS: Success;Error codes: Failure.
+*   Spec         :
+*   History:
+*
+*       1.  Date         : 2019/05/22
+*           Author       :
+*           Modification : Created function
+*
+*****************************************************************************/
+hi_s32 hi_ivp_get_fd_ctrl_attr(hi_s32 ivp_handle, hi_ivp_ctrl_attr *ivp_ctrl_attr);
 
 /*****************************************************************************
 *   Prototype    : hi_ivp_set_venc_low_bitrate
@@ -210,78 +244,6 @@ hi_s32 hi_ivp_set_venc_low_bitrate(hi_s32 ivp_handle, hi_s32 venc_chn, hi_bool e
 *
 *****************************************************************************/
 hi_s32 hi_ivp_get_venc_low_bitrate(hi_s32 ivp_handle, hi_s32 venc_chn, hi_bool *enable);
-
-/*****************************************************************************
-*   Prototype    : hi_ivp_set_venc_lowlight_iso_threshold
-*   Description  : Set venc lowlight iso threshold.
-*   Parameters   : hi_s32 ivp_handle:Input
-                   hi_s32 venc_chn:Input
-                   const hi_ivp_venc_lowlight_iso_threshold *iso_threshold:Input
-*
-*   Return Value : HI_SUCCESS: Success;Error codes: Failure.
-*   Spec         :
-*   History:
-*
-*       1.  Date         : 2019/1/31
-*           Author       :
-*           Modification : Created function
-*
-*****************************************************************************/
-hi_s32 hi_ivp_set_venc_lowlight_iso_threshold(hi_s32 ivp_handle, hi_s32 venc_chn,
-                                              const hi_ivp_venc_lowlight_iso_threshold *iso_threshold);
-
-/*****************************************************************************
-*   Prototype    : hi_ivp_get_venc_lowlight_iso_threshold
-*   Description  : Get venc lowlight iso threshold.
-*   Parameters   : hi_s32 ivp_handle:Input
-                   hi_s32 venc_chn:Input
-                   hi_ivp_venc_lowlight_iso_threshold *iso_threshold:Output
-*
-*   Return Value : HI_SUCCESS: Success;Error codes: Failure.
-*   Spec         :
-*   History:
-*
-*       1.  Date         : 2019/1/31
-*           Author       :
-*           Modification : Created function
-*
-*****************************************************************************/
-hi_s32 hi_ivp_get_venc_lowlight_iso_threshold(hi_s32 ivp_handle, hi_s32 venc_chn,
-                                              hi_ivp_venc_lowlight_iso_threshold *iso_threshold);
-
-/*****************************************************************************
-*   Prototype    : hi_ivp_set_venc_svc_param
-*   Description  : Set venc svc param.
-                   hi_s32 venc_chn:Input
-                   const hi_ivp_venc_svc_param *svc_param:Input
-*
-*   Return Value : HI_SUCCESS: Success;Error codes: Failure.
-*   Spec         :
-*   History:
-*
-*       1.  Date         : 2019/4/25
-*           Author       :
-*           Modification : Created function
-*
-*****************************************************************************/
-hi_s32 hi_ivp_set_venc_svc_param(hi_s32 venc_chn, const hi_ivp_venc_svc_param *svc_param);
-
-/*****************************************************************************
-*   Prototype    : hi_ivp_get_venc_svc_param
-*   Description  : Get venc svc param.
-                   hi_s32 venc_chn:Input
-                   hi_ivp_venc_svc_param *svc_param:Output
-*
-*   Return Value : HI_SUCCESS: Success;Error codes: Failure.
-*   Spec         :
-*   History:
-*
-*       1.  Date         : 2019/4/25
-*           Author       :
-*           Modification : Created function
-*
-*****************************************************************************/
-hi_s32 hi_ivp_get_venc_svc_param(hi_s32 venc_chn, hi_ivp_venc_svc_param *svc_param);
 
 /*****************************************************************************
 *   Prototype    : hi_ivp_set_advance_isp
@@ -387,6 +349,24 @@ hi_s32 hi_ivp_set_roi_map(hi_s32 ivp_handle, const hi_ivp_roi_map *roi_map);
 *
 *****************************************************************************/
 hi_s32 hi_ivp_process(hi_s32 ivp_handle, const VIDEO_FRAME_INFO_S *src_frame, hi_bool *obj_alarm);
+
+/*****************************************************************************
+*   Prototype    : hi_ivp_process_ex
+*   Description  : Process.
+*   Parameters   : hi_s32 ivp_handle:Input
+                   const VIDEO_FRAME_INFO_S *src_frame:Input
+                   hi_ivp_obj_array *obj_array:Output
+*
+*   Return Value : HI_SUCCESS: Success;Error codes: Failure.
+*   Spec         :
+*   History:
+*
+*       1.  Date         : 2018/10/26
+*           Author       :
+*           Modification : Created function
+*
+*****************************************************************************/
+hi_s32 hi_ivp_process_ex(hi_s32 ivp_handle, const VIDEO_FRAME_INFO_S *src_frame, hi_ivp_obj_array *obj_array);
 
 /* Error Code */
 typedef enum hiEN_IVP_ERR_CODE_E {

@@ -1,5 +1,4 @@
-#ifndef HI3516CV200_MPP_H_
-#define HI3516CV200_MPP_H_
+#pragma once 
 
 #include "acodec.h"
 #include "hi_comm_aenc.h"     
@@ -13,7 +12,7 @@
 #include "mpi_ai.h"      
 #include "mpi_pciv.h"
 #include "mpi_venc.h"
-#include "hi_ae_comm.h"    
+//#include "hi_ae_comm.h"    
 #include "hi_comm_ai.h"      
 #include "hi_comm_pciv.h"    
 #include "hi_comm_vda.h"   
@@ -30,7 +29,8 @@
 #include "hi_comm_rc.h"    
 #include "hi_comm_vdec.h"
 #include "hi_comm_vpss.h"  
-#include "hi_io.h" 
+//#include "hi_io.h" 
+#include "hi_comm_isp.h" 
 #include "hi_sns_ctrl.h"
 #include "hi_vreg.h" 
 #include "mpi_adec.h"  
@@ -56,13 +56,13 @@
 #include "hi_debug.h"   
 #include "hi_ive.h"     
 #include "hi_tde_api.h"
-#include "himedia.h"  
+//#include "himedia.h"  
 #include "mpi_aenc.h"  
 #include "mpi_isp.h"    
 #include "mpi_vda.h"   
 #include "mpi_vpss.h"
 #include "hi_comm_adec.h"  
-#include "hi_comm_isp.h"     
+//#include "hi_comm_isp.h"      //moved up
 #include "hi_comm_sys.h"     
 #include "hi_comm_vi.h"   
 #include "hi_defines.h"
@@ -72,6 +72,4 @@
 #include "mpi_af.h"  
 #include "mpi_ive.h"    
 #include "mpi_vdec.h"
-
-#endif // HI3516CV200_MPP_H_
 

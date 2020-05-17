@@ -11,7 +11,7 @@ var (
 		[2]string{"hi3518_tde.ko", ""},
 		[2]string{"hi3518_dsu.ko", ""},
 		[2]string{"hi3518_viu.ko", ""},
-		[2]string{"hi3518_isp.ko", ""},
+		[2]string{"hi3518_isp.ko", "proc_param=1"},
 		[2]string{"hi3518_vpss.ko", ""},
 		//[2]string{"hi3518_vou.ko", ""},
 		//[2]string{"hi3518_vou.ko", "detectCycle=0"}, //close dac detect

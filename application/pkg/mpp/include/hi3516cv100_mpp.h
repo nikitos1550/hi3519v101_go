@@ -1,5 +1,9 @@
-#ifndef HI3516CV100_MPP_H_
-#define HI3516CV100_MPP_H_
+#pragma once 
+
+#define VPSS_MIN_IMAGE_WIDTH    32
+#define VPSS_MIN_IMAGE_HEIGHT   32
+#define WDR_MODE_NONE           0
+#define WDR_MODE_2To1_LINE      0
 
 #include "acodec.h"
 #include "hi_ae_comm.h"
@@ -33,7 +37,7 @@
 //#include "hi_io.h"
 #include "hi_isp_debug.h"
 #include "hi_math.h"
-#include "hi_mem.h"
+//#include "hi_mem.h"
 #include "hi_sns_ctrl.h"
 //#include "hi_ssp.h"
 #include "hi_tde_api.h"
@@ -63,6 +67,4 @@
 #include "mpi_vo.h"
 #include "mpi_vpss.h"
 //#include "mkp/mod_ext.h"
-
-#endif // HI3516AV200_MPP_H_
 

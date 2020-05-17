@@ -143,6 +143,7 @@ extern HI_U16 g_au16ResHMax[ISP_MAX_PIPE_NUM];
 #define HI_ISP_CCM_SOFT_CLIP1_STEP_DEFAULT        (14)
 #define HI_ISP_CCM_PEAKSUPP_SAT_DEFAULT           (110)
 #define HI_ISP_CCM_PEAKSUPP_MAX_DEFAULT           (255)
+#define HI_ISP_CCM_DARK_RANGE_MAX                 (15)
 
 
 #define HI_ISP_BAYERNR_LUT_EVEN_LENGTH            (17)

@@ -1,5 +1,4 @@
-#ifndef HI3516CV500_MPP_H_
-#define HI3516CV500_MPP_H_
+#pragma once
 
 #include "aacdec.h"          
 #include "hi_af_comm.h"
@@ -22,7 +21,7 @@
 #include "hi_comm_venc.h"
 #include "hi_common_cipher.h"
 #include "hi_isp_defines.h"
-#include "hi_osal.h"   
+///////////#include "hi_osal.h"   
 #include "hi_sns_ctrl.h"
 #include "hi_types.h"   
 #include "mpi_audio.h"  
@@ -36,7 +35,7 @@
 #include "hi_comm_vgs.h"  
 #include "hi_debug.h"          
 #include "hi_ive.h"   
-#include "hi_osal_user.h"
+////////////////#include "hi_osal_user.h"
 #include "hi_spi.h"  
 #include "hi_unf_cipher.h"
 #include "mpi_awb.h"  
@@ -68,7 +67,7 @@
 #include "hiir.h"      
 #include "mpi_hdmi.h"
 #include "mpi_vb.h" 
-#include "osal_ioctl.h"  
+//////////////#include "osal_ioctl.h"  
 #include "watchdog.h"
 #include "fisheye_calibrate.h"
 #include "hi_comm_aenc.h"  
@@ -82,7 +81,7 @@
 #include "ivs_md.h"       
 #include "mpi_isp.h"  
 #include "mpi_vdec.h"  
-#include "osal_list.h"
+///////////////#include "osal_list.h"
 #include "hi_ae_comm.h"        
 #include "hi_comm_ai.h" 
 #include "hi_comm_ive.h"   
@@ -95,6 +94,5 @@
 #include "list.h"       
 #include "mpi_ive.h"   
 #include "mpi_venc.h"   
-#include "osal_mmz.h"
+////////////////#include "osal_mmz.h"
 
-#endif // HI3516CV500_MPP_H_

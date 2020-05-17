@@ -12,17 +12,45 @@ import (
 
 	//"application/pkg/mpp/ai"
 
+    "application/pkg/mpp/utils"
+    "application/pkg/utils/chip"
+
     "application/pkg/buildinfo"
     "application/pkg/logger"
 
+    "os/exec"
+
+    //"application/pkg/mpp/vo"
 )
 
 func Init(devInfo DeviceInfo) {
     cmos.Init()
 
+    vi.CheckFlags()
+
+    //TODO perform system cleanup as in hi3516av200 for all families
 	systemInit(devInfo)
     logger.Log.Debug().
         Msg("OS and chip inited")
+
+    logger.Log.Trace().
+        Str("chip", chip.Detect(utils.MppId())).
+        Msg("MPP")
+
+    //echo "all=4" > /proc/umap/logmpp
+
+    
+    if false {
+        cmd := exec.Command("sh", "-c", "echo \"all=9\" > /proc/umap/logmpp")
+	    _, err := cmd.CombinedOutput()
+    	if err != nil {
+		    logger.Log.Error().
+                Msg("Can`t increase logmpp level")
+	    }
+        logger.Log.Debug().
+            Msg("logmpp level increased")
+    }
+    
 
     sys.Init(devInfo.Chip)
 
@@ -30,7 +58,9 @@ func Init(devInfo DeviceInfo) {
         mipi.Init()
     }
 
-    if (buildinfo.Family == "hi3516cv500") {
+    cmos.Register()
+
+    if (buildinfo.Family == "hi3516cv500" || buildinfo.Family == "hi3516ev200") {
 	    vi.Init()
         isp.Init()
     } else {
@@ -45,4 +75,5 @@ func Init(devInfo DeviceInfo) {
 	venc.Init()
 
 
+    //vo.Init() //FOR TEST, onlu hi3516cv500
 }

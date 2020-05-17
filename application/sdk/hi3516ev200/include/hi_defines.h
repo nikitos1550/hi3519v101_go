@@ -92,6 +92,7 @@ extern "C" {
 #define MAX_TILE_NUM                   1
 #define H265E_ADAPTIVE_FRAME_TYPE      4
 #define H265E_ADAPTIVE_QP_TYPE         5
+#define H265E_LCU_SIZE                 32
 
 #define VENC_MIN_INPUT_FRAME_RATE      1
 #define VENC_MAX_INPUT_FRAME_RATE      240

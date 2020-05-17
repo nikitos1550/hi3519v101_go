@@ -36,6 +36,10 @@ extern "C" {
 #endif
 #endif /* End of #ifdef __cplusplus */
 
+#define CONFIG_HI_ISP_CA_SUPPORT        1
+#define CONFIG_HI_ISP_PREGAMMA_SUPPORT  1
+#define CONFIG_HI_ISP_CR_SUPPORT        1
+
 
 #define IMX335_ID                         335
 
@@ -185,23 +189,45 @@ static HI_S32 cmos_get_ae_default(VI_PIPE ViPipe, AE_SENSOR_DEFAULT_S *pstAeSnsD
     if (IMX335_5M_30FPS_12BIT_LINEAR_MODE == pstSnsState->u8ImgMode) {
         u32Fll = IMX335_VMAX_5M_30FPS_12BIT_LINEAR;
         U32MaxFps = 30;
+        pstSnsState->u32FLStd = u32Fll*U32MaxFps/DIV_0_TO_1_FLOAT(gu32STimeFps);
     } else if (IMX335_5M_30FPS_10BIT_WDR_MODE == pstSnsState->u8ImgMode) {
         u32Fll = IMX335_VMAX_5M_30FPS_10BIT_WDR;
         U32MaxFps = 30;
+
+        pstSnsState->u32FLStd = u32Fll*U32MaxFps/DIV_0_TO_1_FLOAT(gu32STimeFps);
+
+        if (0 != (pstSnsState->u32FLStd % 4)) {
+            pstSnsState->u32FLStd = pstSnsState->u32FLStd - (pstSnsState->u32FLStd % 4) + 4; //Because FSC value an integer multiple of 8
+        }
+        pstSnsState->u32FLStd = pstSnsState->u32FLStd*2;
+
     } else if (IMX335_4M_30FPS_10BIT_WDR_MODE == pstSnsState->u8ImgMode) {
         u32Fll = IMX335_VMAX_4M_30FPS_10BIT_WDR;
         U32MaxFps = 30;
+        pstSnsState->u32FLStd = u32Fll*U32MaxFps/DIV_0_TO_1_FLOAT(gu32STimeFps);
+
+        if (0 != (pstSnsState->u32FLStd % 4)) {
+            pstSnsState->u32FLStd = pstSnsState->u32FLStd - (pstSnsState->u32FLStd % 4) + 4; //Because FSC value an integer multiple of 8
+        }
+        pstSnsState->u32FLStd = pstSnsState->u32FLStd*2;
     }
 
     else if (IMX335_4M_25FPS_10BIT_WDR_MODE == pstSnsState->u8ImgMode) {
         u32Fll = IMX335_VMAX_4M_25FPS_10BIT_WDR;
         U32MaxFps = 25;
+        pstSnsState->u32FLStd = u32Fll*U32MaxFps/DIV_0_TO_1_FLOAT(gu32STimeFps);
+        if (0 != (pstSnsState->u32FLStd % 4)) {
+            pstSnsState->u32FLStd = pstSnsState->u32FLStd - (pstSnsState->u32FLStd % 4) + 4; //Because FSC value an integer multiple of 8
+        }
+        pstSnsState->u32FLStd = pstSnsState->u32FLStd*2;
+
     } else {
         u32Fll = IMX335_VMAX_5M_30FPS_12BIT_LINEAR;
         U32MaxFps = 30;
+        pstSnsState->u32FLStd = u32Fll*U32MaxFps/DIV_0_TO_1_FLOAT(gu32STimeFps);
     }
 
-    pstSnsState->u32FLStd = u32Fll;
+    //pstSnsState->u32FLStd = u32Fll;
 
     pstAeSnsDft->stIntTimeAccu.f32Offset = 0;
     pstAeSnsDft->u32MaxIntTime = pstSnsState->u32FLStd - 8;
@@ -256,6 +282,7 @@ static HI_S32 cmos_get_ae_default(VI_PIPE ViPipe, AE_SENSOR_DEFAULT_S *pstAeSnsD
             pstAeSnsDft->u32MinIntTime = 2;
             pstAeSnsDft->u32MaxIntTimeTarget = 65535;
             pstAeSnsDft->u32MinIntTimeTarget = pstAeSnsDft->u32MinIntTime;
+            pstAeSnsDft->stIntTimeAccu.f32Offset = -0.198;
 
             pstAeSnsDft->u32MaxAgain = IMX335_AGAIN_MAX;
             pstAeSnsDft->u32MinAgain = IMX335_AGAIN_MIN;
@@ -283,6 +310,7 @@ static HI_S32 cmos_get_ae_default(VI_PIPE ViPipe, AE_SENSOR_DEFAULT_S *pstAeSnsD
             pstAeSnsDft->u32MinIntTime = 4; // 2;//192;
             pstAeSnsDft->u32MaxIntTimeTarget = 65535;
             pstAeSnsDft->u32MinIntTimeTarget = pstAeSnsDft->u32MinIntTime;;
+            pstAeSnsDft->stIntTimeAccu.f32Offset = -0.396;
 
             pstAeSnsDft->u32MaxIntTimeStep = 1000;
             pstAeSnsDft->u32LFMinExposure = 15000000;
@@ -332,6 +360,7 @@ static HI_VOID cmos_fps_set(VI_PIPE ViPipe, HI_FLOAT f32Fps, AE_SENSOR_DEFAULT_S
             if ((f32Fps <= 30.0) && (f32Fps >= 2.0)) {
                 u32MaxFps = 30;
                 u32Lines = IMX335_VMAX_5M_30FPS_12BIT_LINEAR * u32MaxFps / DIV_0_TO_1_FLOAT(f32Fps);
+                pstAeSnsDft->u32LinesPer500ms = IMX335_VMAX_5M_30FPS_12BIT_LINEAR * 15;
                 pstSnsState->u32FLStd = u32Lines;
             } else {
                 ISP_TRACE(HI_DBG_ERR, "Not support Fps: %f\n", f32Fps);
@@ -343,6 +372,7 @@ static HI_VOID cmos_fps_set(VI_PIPE ViPipe, HI_FLOAT f32Fps, AE_SENSOR_DEFAULT_S
             if ((f32Fps <= 30.0) && (f32Fps >= 15.0)) {
                 u32MaxFps = 30;
                 u32Lines = IMX335_VMAX_5M_30FPS_10BIT_WDR * u32MaxFps / DIV_0_TO_1_FLOAT(f32Fps);
+                pstAeSnsDft->u32LinesPer500ms = IMX335_VMAX_5M_30FPS_10BIT_WDR * 30;
                 if (0 != (u32Lines % 4)) {
                     u32Lines = u32Lines - (u32Lines % 4) + 4; //Because FSC value an integer multiple of 8
                 }
@@ -358,6 +388,7 @@ static HI_VOID cmos_fps_set(VI_PIPE ViPipe, HI_FLOAT f32Fps, AE_SENSOR_DEFAULT_S
             if ((f32Fps <= 30.0) && (f32Fps >= 15.0)) {
                 u32MaxFps = 30;
                 u32Lines = IMX335_VMAX_4M_30FPS_10BIT_WDR * u32MaxFps / DIV_0_TO_1_FLOAT(f32Fps);
+                pstAeSnsDft->u32LinesPer500ms = IMX335_VMAX_4M_30FPS_10BIT_WDR * 30;
                 if (0 != (u32Lines % 4)) {
                     u32Lines = u32Lines - (u32Lines % 4) + 4; //Because FSC value an integer multiple of 8
                 }
@@ -549,7 +580,11 @@ static HI_VOID cmos_inttime_update(VI_PIPE ViPipe, HI_U32 u32IntTime)
                 u32delta = u32LastShortIntTime - u32ShortIntTime;
                 u32RHS1Limit = (pstSnsState->au32FL[1] - (g_astimx335State[ViPipe].u32BRL * 2) - 2);
                 if (u32delta > u32RHS1Limit) {
-                    u32ShortIntTime = u32LastShortIntTime - (u32RHS1Limit - (u32RHS1Limit % 8) + 8);
+                    if (u32ShortIntTime >= 30) {
+                        u32ShortIntTime = u32LastShortIntTime - (u32RHS1Limit - (u32RHS1Limit % 8) + 8 + 8);
+                    } else {
+                        u32ShortIntTime = u32LastShortIntTime - (u32RHS1Limit - (u32RHS1Limit % 8) + 8);
+                    }
                 }
             }
 
@@ -1017,7 +1052,7 @@ static HI_S32 cmos_get_isp_default(VI_PIPE ViPipe, ISP_CMOS_DEFAULT_S *pstDef)
             pstDef->unKey.bit1Dehaze         = 1;
             pstDef->pstDehaze                = &g_stIspDehaze;
             pstDef->unKey.bit1Lcac           = 0;
-            pstDef->pstLcac                  = &g_stIspLCac;			
+            pstDef->pstLcac                  = &g_stIspLCac;
             memcpy(&pstDef->stNoiseCalibration, &g_stIspNoiseCalibration, sizeof(ISP_CMOS_NOISE_CALIBRATION_S));
             break;
 
@@ -1043,7 +1078,7 @@ static HI_S32 cmos_get_isp_default(VI_PIPE ViPipe, ISP_CMOS_DEFAULT_S *pstDef)
             pstDef->unKey.bit1Dehaze         = 1;
             pstDef->pstDehaze                = &g_stIspDehazeWDR;
             pstDef->unKey.bit1Lcac           = 0;
-            pstDef->pstLcac                  = &g_stIspLCacWdr;			
+            pstDef->pstLcac                  = &g_stIspLCacWdr;
             pstDef->unKey.bit1Rgbir          = 0;
             pstDef->stWdrSwitchAttr.au32ExpRatio[0] = 0x40;
 

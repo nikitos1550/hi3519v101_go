@@ -33,6 +33,8 @@ HI_S32 HI_MPI_SYS_GetVersion(MPP_VERSION_S *pstVersion);
 
 HI_S32 HI_MPI_SYS_GetChipId(HI_U32 *pu32ChipId);
 
+HI_S32 HI_MPI_SYS_GetUniqueId(HI_UNIQUE_ID_S *pstUniqueId);
+
 HI_S32 HI_MPI_SYS_GetCustomCode(HI_U32 *pu32CustomCode);
 
 /*

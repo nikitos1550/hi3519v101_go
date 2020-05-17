@@ -155,6 +155,12 @@ HI_S32 HI_MPI_VENC_GetHierarchicalQp(VENC_CHN VeChn, VENC_HIERARCHICAL_QP_S *pst
 HI_S32 HI_MPI_VENC_SetRcAdvParam(VENC_CHN VeChn, const VENC_RC_ADVPARAM_S *pstRcAdvParam);
 HI_S32 HI_MPI_VENC_GetRcAdvParam(VENC_CHN VeChn, VENC_RC_ADVPARAM_S *pstRcAdvParam);
 
+HI_S32 HI_MPI_VENC_EnableSvc(VENC_CHN VeChn, HI_BOOL bEnable);
+HI_S32 HI_MPI_VENC_SetSvcParam(VENC_CHN VeChn, const VENC_SVC_PARAM_S *pstSvcParam);
+HI_S32 HI_MPI_VENC_GetSvcParam(VENC_CHN VeChn, VENC_SVC_PARAM_S *pstSvcParam);
+HI_S32 HI_MPI_VENC_GetSvcSceneComplexity(VENC_CHN VeChn, VENC_SVC_DETECT_RESULT_S *pstSvcDetectResult);
+
+
 #ifdef __cplusplus
 #if __cplusplus
 }

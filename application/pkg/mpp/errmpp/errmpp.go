@@ -1,28 +1,28 @@
 package errmpp
 
 import (
+    "fmt"
     "application/pkg/logger"
 )
 
 type errorMpp struct {
-    f uint
-    c uint
-    //name string
-    //desc string
+    name string
+    code uint
 }
 
-func New(f uint, c uint) errorMpp {
+func New(name string, code uint) errorMpp {
     var e errorMpp
 
-    e.f = f
-    e.c = c
+    e.name = name
+    e.code = code
 
     return e
 }
 
 func (e errorMpp) Error() string {
-    name, desc := resolveCode(e.c)
-    return resolveFunc(e.f) + " " + name + " (" + desc + ")"
+    name, desc := resolveCode(e.code)
+    //return resolveFunc(e.f) + " " + name + " (" + desc + ")"
+    return e.name + " " + name + " (" + desc + ")"
 }
 
 type codeInfo struct {
@@ -37,19 +37,19 @@ func resolveCode(code uint) (string, string) {
     }
 
     logger.Log.Warn().
-        Uint("code", code).
+        Str("code", fmt.Sprintf("0x%08X", code)).
         Msg("ERRMPP missed info")
 
     return "unknown", "unknown"
 }
 
-func resolveFunc(f uint) string {
-    if f == 0 || f >= uint(len(functions)) {
-        logger.Log.Warn().
-            Uint("func", f).
-            Msg("ERRMPP missed info")
-        return "unknown"
-    }
-
-    return functions[f]
-}
+//func resolveFunc(f uint) string {
+//    if f == 0 || f >= uint(len(functions)) {
+//        logger.Log.Warn().
+//            Uint("func", f).
+//            Msg("ERRMPP missed info")
+//        return "unknown"
+//    }
+//
+//    return functions[f]
+//}

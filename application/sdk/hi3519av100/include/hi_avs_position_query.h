@@ -30,7 +30,7 @@ extern "C" {
 typedef enum hiAVS_QUERY_MODE_E
 {
     AVS_DST_QUERY_SRC = 0,
-    AVS_SRC_QUERY_DST = 1,    /* Not support */
+    AVS_SRC_QUERY_DST = 1,
     AVS_QUERY_MODE_BUTT
 }AVS_QUERY_MODE_E;
 
@@ -41,7 +41,7 @@ typedef struct hiAVS_CONFIG_S
     SIZE_S                 stSrcSize;                            /* Range: Hi3559AV100ES = [256, 8192] | Hi3559AV100 = [256, 8192]   | Hi3556AV100 = [256, 8192]; Size of source image. */
     SIZE_S                 stDstSize;                            /* Range: Hi3559AV100ES = [256, 16384] | Hi3559AV100 = [256, 16384] | Hi3556AV100 = [256, 8192]; Size of target image. */
     AVS_PROJECTION_MODE_E  enPrjMode;                            /* Projection mode. */
-    POINT_S                stCenter;                             /* Range: [-8192,8192]: Center point. */
+    POINT_S                stCenter;                             /* Range: [-16383,16383]: Center point. */
     AVS_FOV_S              stFOV;                                /* Output FOV. */
     AVS_ROTATION_S         stORIRotation;                        /* Output original rotation. */
     AVS_ROTATION_S         stRotation;                           /* Output rotation. */

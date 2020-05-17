@@ -2,7 +2,7 @@
  * Automatically generated C config: don't edit
  * Busybox version: 
  */
-#define AUTOCONF_TIMESTAMP "2019-06-17 11:19:10 CST"
+#define AUTOCONF_TIMESTAMP "2019-10-18 18:20:56 CST"
 
 
 /*
@@ -178,6 +178,7 @@
 #define CONFIG_HI_RECORDVQE_SUPPORT 1
 #define CONFIG_HI_AUDIO_STATIC_REGISTER_SUPPORT 1
 #define CONFIG_HI_AUDIO_BCD_SUPPORT 1
+#define CONFIG_HI_AUDIO_3518EV300_SUPPORT_BCD 1
 
 /*
  * media hdr config
@@ -201,6 +202,8 @@
 #define CONFIG_HIUSER 1
 #define CONFIG_MIPI_RX 1
 #define CONFIG_HI_WDG 1
+#define CONFIG_HI_SYSCFG 1
+#define CONFIG_HI_LSADC 1
 
 /*
  * Component Setup
@@ -219,19 +222,17 @@
 /*
  * Component svp Config
  */
-#define CONFIG_HI_SVP_SUPPORT 1
 #define CONFIG_HI_SVP_IVE 1
 #define CONFIG_HI_SVP_IVE_NORM_GRAD 1
 #define CONFIG_HI_SVP_IVE_ST_CANDI_CORNER 1
 #define CONFIG_HI_SVP_IVE_CNN_EX 1
 #define CONFIG_HI_SVP_IVP 1
-#define CONFIG_HI_SVP_IVP_SMD 1
 #define CONFIG_HI_SVP_MD 1
+#define CONFIG_HI_SVP_QR 1
 
 /*
  * Component photo Config
  */
-#define CONFIG_HI_PHOTO_SUPPORT 1
 
 /*
  * Component tde Config

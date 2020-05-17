@@ -99,6 +99,7 @@ typedef enum hiISP_CTRL_CMD_E {
     ISP_AE_BLC_SET,
     ISP_AE_RC_SET,
     ISP_AE_BAYER_FORMAT_SET,
+    ISP_AE_INIT_INFO_GET,
 
     ISP_AWB_ISO_SET,  /* set iso, change saturation when iso change */
     ISP_CHANGE_IMAGE_MODE_SET,
@@ -249,6 +250,11 @@ typedef struct hiISP_AE_RESULT_S {
     ISP_DCF_UPDATE_INFO_S stUpdateInfo;
 } ISP_AE_RESULT_S;
 
+typedef struct hiISP_AE_INIT_INFO_S {
+    HI_U32 u32IspDgain;
+    HI_U32 u32Iso;
+} ISP_AE_INIT_INFO_S;
+
 typedef struct hiISP_AE_EXP_FUNC_S {
     HI_S32 (*pfn_ae_init)(HI_S32 s32Handle, const ISP_AE_PARAM_S *pstAeParam);
     HI_S32 (*pfn_ae_run)(HI_S32 s32Handle,
@@ -300,6 +306,7 @@ typedef struct hiISP_AWB_PARAM_S {
     ISP_STITCH_ATTR_S stStitchAttr;
     HI_U16 u16AWBWidth;
     HI_U16 u16AWBHeight;
+    HI_U32 u32InitIso;
     HI_S8 s8Rsv;
 } ISP_AWB_PARAM_S;
 

@@ -1,5 +1,4 @@
-#ifndef HI3516AV200_MPP_H_
-#define HI3516AV200_MPP_H_
+#pragma once
 
 #include "hi_type.h"
 #include "hi_defines.h"
@@ -77,4 +76,3 @@
 #include "mpi_pciv.h"
 #include "mpi_vpss.h"
 
-#endif // HI3516AV200_MPP_H_

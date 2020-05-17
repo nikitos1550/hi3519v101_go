@@ -30,7 +30,7 @@ import (
 
 	_ "application/pkg/godebug"
 	//"application/pkg/ko"
-	_ "application/pkg/utils/chip"
+	"application/pkg/utils/chip"
 	_ "application/pkg/utils/temperature"
 
 	"application/pkg/logger"
@@ -47,7 +47,7 @@ func main() {
 	memLinux := flag.String("mem-linux", "20M", "RAM size passed to Linux kernel, rest will be used for MPP") //ko.MemLinux
 	memMpp	 := flag.String("mem-mpp", "12M", "RAM size passed to MPP") //ko.MemMpp
 
-	chip	 := flag.String("chip", buildinfo.Family, "Chip app will be running on")
+	chipCmd	 := flag.String("chip", buildinfo.Family, "Chip app will be running on")
 
     //cmosInfo := flag.Bool("cmos-info", false, "Show avalible CMOSes and modes info")
 
@@ -58,21 +58,26 @@ func main() {
 
 	common.Init()
 
+    //TODO move all run env to buildinfo
     var devInfo mpp.DeviceInfo
 
     devInfo.MemTotalSize = memparse.Str(*memTotal)
     devInfo.MemLinuxSize = memparse.Str(*memLinux)
     devInfo.MemMppSize = memparse.Str(*memMpp)
 
-    devInfo.Chip = *chip
+    devInfo.Chip = *chipCmd
 
-    println(C.sysconf(C._SC_PHYS_PAGES)*C.sysconf(C._SC_PAGE_SIZE), " bytes")
+    buildinfo.Chip = *chipCmd //temporary
+
+    fmt.Println(C.sysconf(C._SC_PHYS_PAGES)*C.sysconf(C._SC_PAGE_SIZE), " bytes")
+
+    fmt.Println("Detected chip ", chip.Detect(chip.RegId()))
 
     logger.Info().
         Uint64("mem-total", devInfo.MemTotalSize).
         Uint64("mem-linux", devInfo.MemLinuxSize).
         Uint64("mem-mpp", devInfo.MemMppSize).
-        Str("chip", *chip).
+        Str("chip", *chipCmd).
         Msg("cmdline mem params")
 
     logger.Log.Info().

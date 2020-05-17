@@ -54,7 +54,8 @@ HI_S32 HI_MPI_ISP_SetSpecAwbAttr(VI_PIPE ViPipe, const ISP_SPECAWB_ATTR_S *pstSp
 HI_S32 HI_MPI_ISP_SetCaaControlAttr(VI_PIPE ViPipe, const ISP_SPECAWB_CAA_CONTROl_S *pstSpecAwbCaaAttr);
 HI_S32 HI_MPI_ISP_GetCaaControlAttr(VI_PIPE ViPipe, ISP_SPECAWB_CAA_CONTROl_S *pstSpecAwbCaaAttr);
 HI_S32 HI_MPI_ISP_GetSpecAwbAttr(VI_PIPE ViPipe, ISP_SPECAWB_ATTR_S *pstSpecAwbAttr);
-
+HI_S32 HI_MPI_ISP_SetSpecAwbControlAttr(VI_PIPE ViPipe, ISP_SPECAWB_CONTROL_ATTR_S *pstSpecAwbControlAttr);
+HI_S32 HI_MPI_ISP_GetSpecAwbControlAttr(VI_PIPE ViPipe, ISP_SPECAWB_CONTROL_ATTR_S *pstSpecAwbControlAttr);
 
 #ifdef __cplusplus
 #if __cplusplus

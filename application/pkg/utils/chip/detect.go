@@ -1,11 +1,14 @@
 package chip
 
+
 func Detect(reg uint32) string {
     switch (reg) {
 	    case 100663297: //0x6000001
 	        return "hi3516av200"
         case 890765568: //0x35180100
             return "hi3518?v100"
+        case 890814720: //0x3518C100
+            return "hi3518cv100"
         case 890822912: //0x3518E100
             return "hi3518ev100"
         case 890683648: //0x3516C100
@@ -30,6 +33,12 @@ func Detect(reg uint32) string {
             return "hi3516dv300"
 	    case 895066368: //0x3559A100
 	        return "hi3559av100"
+        case 890692096: //0x3516E200
+            return "hi3516ev200"
+        case 890692352: //0x3516E300
+            return "hi3516ev300"
+        case 890684672: //0x3516C500
+            return "hi3516cv500"
         default:
             return "unknown"
     }
