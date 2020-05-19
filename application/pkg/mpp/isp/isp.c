@@ -10,6 +10,8 @@ void* mpp_isp_thread(HI_VOID *param){   //now we start it from go space
         HI_MPI_ISP_Run(0);
     #endif
     GO_LOG_ISP(LOGGER_ERROR, "HI_MPI_ISP_Run failed");
+
+    return NULL;
 }
 
 static inline int64_t mpp_isp_register_lib_ae(char * lib) {
@@ -60,7 +62,7 @@ static inline int mpp_isp_register_lib_af(char * lib) {
 } 
 
 int mpp_isp_init(error_in *err, mpp_isp_init_in *in) { 
-    int general_error_code = 0;
+    //int general_error_code = 0;
 
     DO_OR_RETURN_ERR_MPP(err, mpp_isp_register_lib_ae, HI_AE_LIB_NAME);
 
