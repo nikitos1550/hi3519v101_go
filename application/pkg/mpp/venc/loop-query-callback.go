@@ -1,9 +1,6 @@
 package venc
 
-/*
-#include "loop.h"
-//Should be here to export go callback
-*/
+//#include "venc.h"
 import "C"
 
 import (

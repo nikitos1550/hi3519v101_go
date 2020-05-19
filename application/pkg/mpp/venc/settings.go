@@ -26,26 +26,28 @@ package venc
 
 type Codec uint
 const (
-    MJPEG   encoderType = iota + 1
-    H264    encoderType
-    H265    encoderType
+    MJPEG   Codec = iota + 1
+    H264    Codec = iota
+    H265    Codec = iota
 )
 
 type Profile uint
 const (
-    Baseline    encoderProfile = iota + 1
-    Main        encoderProfile
-    Main10      encoderProfile
-    High        encoderProfile
+    Baseline    Profile = iota + 1
+    Main        Profile = iota
+    Main10      Profile = iota
+    High        Profile = iota
 )
 
 type BitrateControl uint 
 const (
-    Cbr     encoderBitcontrol = iota + 1
-    Vbr     encoderBitcontrol
-    FixQp   encoderBitcontrol
-    Avbr    encoderBitcontrol
-    //Qmap    encoderBitcontrol
+    Cbr     BitrateControl = iota + 1
+    Vbr     BitrateControl = iota
+    FixQp   BitrateControl = iota
+    CVbr    BitrateControl = iota
+    AVbr    BitrateControl = iota
+    QVbr    BitrateControl = iota
+    //Qmap    encoderBitcontrol = iota
 )
 
 type BitrateControlParams struct {
@@ -54,7 +56,7 @@ type BitrateControlParams struct {
     fluctuate   uint
 
     maxbitrate  uint
-    stattime    uint
+    //stattime    uint
     minIqp      uint
     maxqp       uint
     minqp       uint
@@ -67,10 +69,10 @@ type BitrateControlParams struct {
 type GopType uint
 const (
     NormalP GopType = iota + 1
-    DualP   GopType
-    SmartP  GopType
-    BipredB GopType
-    IntraR  GopType
+    DualP   GopType = iota
+    SmartP  GopType = iota
+    BipredB GopType = iota
+    IntraR  GopType = iota
 )
 
 type GopParams struct {

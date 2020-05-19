@@ -1,5 +1,7 @@
 #pragma once
 
+#if 0
+
 //forward declarations
 int mpp_data_loop_add(unsigned int *error_code, unsigned int venc_channel_id);
 int mpp_data_loop_del(unsigned int *error_code, unsigned int venc_channel_id);
@@ -24,3 +26,4 @@ int mpp3_venc_sample_h264(unsigned int *error_code, int width, int height, int b
 int mpp3_venc_sample_h265(unsigned int *error_code, int width, int height, int bitrate, int channelId);
 int mpp3_venc_delete_encoder(unsigned int *error_code, int channelId);
 
+#endif

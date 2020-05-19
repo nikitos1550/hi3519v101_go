@@ -1,3 +1,5 @@
+//+build nobuild
+
 //+build arm
 //+build hi3516cv200 hi3516av100 hi3516av200 hi3516cv300
 

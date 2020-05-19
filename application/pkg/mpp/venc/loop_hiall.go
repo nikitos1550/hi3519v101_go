@@ -12,7 +12,8 @@ package venc
 #include <string.h>
 #include <stdlib.h>
 
-#include "loop.h"
+#include "venc.h"
+//#include "loop.h"
 
 #define ERR_NONE                    0
 #define ERR_SYS                     2
