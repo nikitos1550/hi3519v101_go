@@ -1,8 +1,6 @@
 package venc
 
-/*
-#include "loop.h"
-*/
+//#include "venc.h"
 import "C"
 
 import (
