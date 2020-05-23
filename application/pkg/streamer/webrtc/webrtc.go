@@ -4,90 +4,88 @@ package webrtc
 
 import (
     "log"
-    "fmt"
     "math/rand"
-    "time"
+	"strings"
+	"strconv"
 
-    "net/http"
-    "application/pkg/openapi"
     "application/pkg/mpp/venc"
+	"application/pkg/streamer/rtsp"
 
     "github.com/pion/webrtc/v2"
     "github.com/pion/webrtc/v2/pkg/media"
 
-    "io/ioutil"
-
-    //"application/pkg/mpp/venc"
+	"github.com/google/uuid"
 )
 
-func init() {
-    openapi.AddApiRoute("connectWebrt",   "/webrtc/connect",   "POST",      connectWebrtc)
-
-    //Init()
-    //log.Println("WebRTC inited")
+type WebrtcSession struct {
+	SessionId string
+	EncoderId int
+	EncoderType string
+	Started bool
+	VideoTrack *webrtc.Track
+    Payload chan []byte
 }
 
-func Init() {
-    go func() {
-        // Create a new RTCPeerConnection, to evaluate our sdp in advance
-        log.Println("Webrtc: stunning in advance")
-        api := webrtc.NewAPI()
-        _, err := api.NewPeerConnection(webrtc.Configuration{
-            ICEServers: []webrtc.ICEServer{
-                {
-                    URLs: []string{"stun:stun.l.google.com:19302"},
-                },
+var (
+	WebrtcSessions map[string] WebrtcSession
+)
+
+func WebrtcInit() {
+	WebrtcSessions = make(map[string] WebrtcSession)
+    // Create a new RTCPeerConnection, to evaluate our sdp in advance
+    log.Println("Webrtc: stunning in advance")
+    api := webrtc.NewAPI()
+    _, err := api.NewPeerConnection(webrtc.Configuration{
+        ICEServers: []webrtc.ICEServer{
+            {
+                URLs: []string{"stun:stun.l.google.com:19302"},
             },
-        })
-        if err != nil {
-            log.Println("Webrtc: ", err)
-            return
-        }
-        log.Println("Webrtc: stunning in advance DONE")
-    }()
-    
+        },
+    })
+    if err != nil {
+        log.Println("Webrtc: ", err)
+        return
+    }
+    log.Println("Webrtc: stunning in advance DONE")
 }
 
-func connectWebrtc(w http.ResponseWriter, r *http.Request) {
-    log.Println("connectWebrtc")
-	var payload = make(chan []byte, 1)
-	venc.SubsribeEncoder(1, payload)
+func WebrtcConnect(browserSdp string, encoderId int) (int, string, string) {
+	var webrtcSession WebrtcSession
+	webrtcSession.SessionId = uuid.New().String()
+	webrtcSession.EncoderId = encoderId
+	webrtcSession.Payload = make(chan []byte, 1)
 
-    w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
-    w.WriteHeader(http.StatusOK)
+	encoder, encoderExists := venc.ActiveEncoders[encoderId]
+	if (!encoderExists) {
+		return -1, "", "Failed to find encoder  " + strconv.Itoa(encoderId)
+	}
 
-    bodyt, _ := ioutil.ReadAll(r.Body)
-    //log.Println("type of body is ", reflect.TypeOf(bodyt))
-    //log.Println(bodyt)
-    //return
+	webrtcSession.EncoderType = encoder.Format
+	webrtcSession.Started = true
+	
 
     offer := webrtc.SessionDescription{}
-    //Decode(MustReadStdin(), &offer)
-    Decode(string(bodyt), &offer)
-    log.Println(offer)
-
-    //return
+    Decode(string(browserSdp), &offer)
 
     // We make our own mediaEngine so we can place the sender's codecs in it.  This because we must use the
     // dynamic media type from the sender in our answer. This is not required if we are the offerer
     mediaEngine := webrtc.MediaEngine{}
     err := mediaEngine.PopulateFromSDP(offer)
     if err != nil {
-        panic(err)
+		return -1, "", "Failed to populate media server from browser SDP"
     }
 
     // Search for VP8 Payload type. If the offer doesn't support VP8 exit since
     // since they won't be able to decode anything we send them
     var payloadType uint8
     for _, videoCodec := range mediaEngine.GetCodecsByKind(webrtc.RTPCodecTypeVideo) {
-        if videoCodec.Name == "H264" {
+        if strings.ToLower(videoCodec.Name) == strings.ToLower(webrtcSession.EncoderType) {
             payloadType = videoCodec.PayloadType
             break
         }
     }
     if payloadType == 0 {
-        log.Println("Webrtc: Remote peer does not support H264")
-        return 
+		return -1, "", "Remote peer does not support " + webrtcSession.EncoderType
     }
 
     // Create a new RTCPeerConnection
@@ -99,23 +97,19 @@ func connectWebrtc(w http.ResponseWriter, r *http.Request) {
             },
         },
     })
+
     if err != nil {
-        //panic(err)
-        log.Println("Webrtc: ", err)
-        return
+		return -1, "", "Failed to create peer connection"
     }
 
     // Create a video track
-    videoTrack, err := peerConnection.NewTrack(payloadType, rand.Uint32(), "video", "pion")
+    webrtcSession.VideoTrack, err = peerConnection.NewTrack(payloadType, rand.Uint32(), "video", "pion")
     if err != nil {
-        //panic(err)
-        log.Println("Webrtc: ", err)
-        return
+		return -1, "", "Failed to create video track"
     }
-    if _, err = peerConnection.AddTrack(videoTrack); err != nil {
-        //panic(err)
-        log.Println("Webrtc: ", err)
-        return
+
+    if _, err = peerConnection.AddTrack(webrtcSession.VideoTrack); err != nil {
+		return -1, "", "Failed to add video track"
     }
 
     // Set the handler for ICE connection state
@@ -123,64 +117,60 @@ func connectWebrtc(w http.ResponseWriter, r *http.Request) {
     peerConnection.OnICEConnectionStateChange(func(connectionState webrtc.ICEConnectionState) {
         log.Println("Webrtc: connection state has changed ", connectionState.String(), connectionState)
         if (connectionState.String() == "connected") {
-            log.Println("Webrtc: Time to start data push (with small 1s delay)!")
-            time.Sleep(time.Millisecond * 1000)
-
-            go func() {
-
-                
-                var start bool
-                //venc.SampleH264Start <- 100
-                for {
-					buf := <- payload
-                    nalType := buf[4] & 0x1F
-                    //log.Println("WEBRTC Found NAL ", nalType)
-
-                    if start == false {
-                        if nalType == 7 {
-                            start = true
-                        } else {
-                            log.Println("Waiting for SPS")
-                        }
-                    }
-                    if start == true {
-                        log.Println("WEBRTC sending data")
-                        var h264Err error
-                        if h264Err = videoTrack.WriteSample(media.Sample{Data: buf, Samples: 90000}); h264Err != nil {
-                            log.Println("Webrtc: ", h264Err)
-                        }
-                    }
-                }
-            }()
-
+			go func() {
+				sendData(webrtcSession.SessionId)
+			}()
         }
     })
 
     // Set the remote SessionDescription
     if err = peerConnection.SetRemoteDescription(offer); err != nil {
-        //panic(err)
-        log.Println("Webrtc: ", err)
-        return
+		return -1, "", "Failed to set remote description"
     }
 
     // Create answer
     answer, err := peerConnection.CreateAnswer(nil)
     if err != nil {
-        //panic(err)
-        log.Println("Webrtc: ", err)
-        return
+		return -1, "", "Failed to create answer"
     }
 
     // Sets the LocalDescription, and starts our UDP listeners
     if err = peerConnection.SetLocalDescription(answer); err != nil {
-        //panic(err)
-        log.Println("Webrtc: ", err)
-        return
+		return -1, "", "Failed to set local description"
     }
 
-    // Output the answer in base64 so we can paste it in browser
-    fmt.Println(Encode(answer))
-    fmt.Fprintf(w, "%s", Encode(answer))
+	venc.SubsribeEncoder(webrtcSession.EncoderId, webrtcSession.Payload)
 
+	WebrtcSessions[webrtcSession.SessionId] = webrtcSession
+	return 0, webrtcSession.SessionId, Encode(answer)
 }
 
+func sendData(sessionId string) {
+    spsSended := false
+    for {
+		session, exists := WebrtcSessions[sessionId]
+		if (!exists) {
+			log.Println("Webrtc session not found")
+			break
+		}
+
+		if (!session.Started) {
+			break
+		}
+
+		buf := <- session.Payload
+
+		if (!spsSended){
+			sps := rtsp.ExtractSps(session.EncoderType, buf);
+			if (len(sps) == 0){
+				continue
+			}
+			spsSended = true
+		}
+
+        var h264Err error
+        if h264Err = session.VideoTrack.WriteSample(media.Sample{Data: buf, Samples: 90000}); h264Err != nil {
+            log.Println("Webrtc: ", h264Err)
+        }
+    }
+}

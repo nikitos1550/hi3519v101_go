@@ -50,7 +50,7 @@ pc.createOffer().then(d => pc.setLocalDescription(d)).catch(log)
             $.ajax({
                 type: "POST",
                 url: "../api/webrtc/connect",
-                data: document.getElementById('localSessionDescription').value,
+                data: { sdp: document.getElementById('localSessionDescription').value, encoderId: document.getElementById('encoderId').value },
                 success: function( data ) {
                     $("#remoteSessionDescription" ).val(data);
 
@@ -76,7 +76,10 @@ pc.createOffer().then(d => pc.setLocalDescription(d)).catch(log)
         <textarea id="localSessionDescription" readonly="true"></textarea> <br />
 
         Golang base64 Session Description<br />
-        <textarea id="remoteSessionDescription"> </textarea> <br/>
+        <textarea id="remoteSessionDescription"> </textarea> <br />
+
+        Encoder Id<br />
+        <textarea id="encoderId"> </textarea> <br />
 
         <button onclick="window.startSession()">/api/webrtc/connect</button><br />
         <br />
