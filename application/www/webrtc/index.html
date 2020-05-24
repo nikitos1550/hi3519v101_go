@@ -79,7 +79,7 @@ pc.createOffer().then(d => pc.setLocalDescription(d)).catch(log)
         <textarea id="remoteSessionDescription"> </textarea> <br />
 
         Encoder Id<br />
-        <textarea id="encoderId"> </textarea> <br />
+        <input type="text" id="encoderId" name="encoderId"> <br />
 
         <button onclick="window.startSession()">/api/webrtc/connect</button><br />
         <br />

@@ -120,7 +120,9 @@ func WebrtcConnect(browserSdp string, encoderId int) (int, string, string) {
 			go func() {
 				sendData(webrtcSession.SessionId)
 			}()
-        }
+        } else if (connectionState.String() == "failed" || connectionState.String() == "disconnected") {
+			WebrtcDisconnect(webrtcSession.SessionId)
+        } 
     })
 
     // Set the remote SessionDescription
@@ -155,6 +157,8 @@ func sendData(sessionId string) {
 		}
 
 		if (!session.Started) {
+			venc.RemoveSubscription(session.EncoderId, session.Payload)
+			delete(WebrtcSessions, sessionId)
 			break
 		}
 
@@ -173,4 +177,12 @@ func sendData(sessionId string) {
             log.Println("Webrtc: ", h264Err)
         }
     }
+}
+
+func WebrtcDisconnect(sessionId string) {
+	session, exists := WebrtcSessions[sessionId]
+	if (exists) {
+		session.Started = true
+		WebrtcSessions[session.SessionId] = session
+	}
 }
