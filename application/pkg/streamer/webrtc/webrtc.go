@@ -34,11 +34,12 @@ func WebrtcInit() {
 	WebrtcSessions = make(map[string] WebrtcSession)
     // Create a new RTCPeerConnection, to evaluate our sdp in advance
     log.Println("Webrtc: stunning in advance")
-    api := webrtc.NewAPI()
+    //api := webrtc.NewAPI()
+    /*
     _, err := api.NewPeerConnection(webrtc.Configuration{
         ICEServers: []webrtc.ICEServer{
             {
-                URLs: []string{"stun:stun.l.google.com:19302"},
+                URLs: []string{}, //"stun:stun.l.google.com:19302"},
             },
         },
     })
@@ -46,6 +47,7 @@ func WebrtcInit() {
         log.Println("Webrtc: ", err)
         return
     }
+    */
     log.Println("Webrtc: stunning in advance DONE")
 }
 
