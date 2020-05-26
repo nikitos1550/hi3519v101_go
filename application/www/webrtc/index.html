@@ -62,8 +62,7 @@ pc.createOffer().then(d => pc.setLocalDescription(d)).catch(log)
         window.startSession = () => {
             $.ajax({
                 type: "POST",
-                //url: "../api/webrtc/connect",
-                url: "../api/webrtc/connectSession",
+                url: "../api/webrtc/connect",
                 data: { sdp: document.getElementById('localSessionDescription').value, encoderId: document.getElementById('encoderId').value },
                 success: function( data ) {
                     var params = {};

@@ -181,10 +181,13 @@ func sendData(sessionId string) {
     }
 }
 
-func WebrtcDisconnect(sessionId string) {
+func WebrtcDisconnect(sessionId string) (int, string) {
 	session, exists := WebrtcSessions[sessionId]
-	if (exists) {
-		session.Started = true
-		WebrtcSessions[session.SessionId] = session
-	}
+	if (!exists) {
+		return -1, "Webrtc session not found " + sessionId
+    }
+
+	session.Started = false
+	WebrtcSessions[session.SessionId] = session
+	return 0,""
 }
