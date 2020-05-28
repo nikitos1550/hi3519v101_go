@@ -1,12 +1,12 @@
 THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
-ifeq ("$(wildcard Makefile.user.params)","")
- $(error cp Makefile.user.params.example to Makefile.user.params) 
-endif
-
 ifndef NO_USER_MAKEFILE
+    ifeq ("$(wildcard Makefile.user.params)","")
+        $(error cp Makefile.user.params.example to Makefile.user.params) 
+    endif
     include $(THIS_DIR)Makefile.user.params
 endif
+
 ifndef BOARD
     $(error BOARD variable MUST be defined)
 endif
