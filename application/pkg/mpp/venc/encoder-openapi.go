@@ -28,7 +28,7 @@ type predefinedEncoderInfo struct {
 
 type activeEncoderInfo struct {
     EncoderId int 
-	ProcessingId int 
+    ProcessingId int 
     Format string 
     Width int 
     Height int 
@@ -39,6 +39,7 @@ func init() {
     openapi.AddApiRoute("apiDescription", "/encoder", "GET", apiDescription)
 
     openapi.AddApiRoute("createEncoderRequest", "/encoder/create", "GET", createEncoderRequest)
+    openapi.AddApiRoute("createDummyEncoderRequest", "/encoder/create_dummy", "GET", createDummyEncoderRequest)
     openapi.AddApiRoute("deleteEncoderRequest", "/encoder/delete", "GET", deleteEncoderRequest)
 
     openapi.AddApiRoute("subscribeProcessingRequest", "/encoder/subscribeProcessing", "GET", subscribeProcessingRequest)
@@ -85,6 +86,16 @@ func createEncoderRequest(w http.ResponseWriter, r *http.Request)  {
 	openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: "Not supported"})
 }
 
+func createDummyEncoderRequest(w http.ResponseWriter, r *http.Request)  {
+	id, errString := CreateDummyEncoder()
+	if (id < 0){
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: errString})
+		return
+	}
+
+	openapi.ResponseSuccessWithDetails(w, encoderRecord{Id: id, Message: "Encoder was created"})
+}
+
 func deleteEncoderRequest(w http.ResponseWriter, r *http.Request)  {
 	ok, encoderId := openapi.GetIntParameter(w, r, "encoderId")
 	if !ok {
@@ -117,7 +128,7 @@ func subscribeProcessingRequest(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
-	err, errorString := processing.SubscribeEncoderToProcessing(processingId, encoderId)
+	err, errorString := processing.SubscribeEncoderToProcessing(processingId, encoder)
 	if err != 0 {
 		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: errorString})
 		return
@@ -145,7 +156,7 @@ func unsubscribeProcessingRequest(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
-	err, errorString := processing.UnsubscribeEncoderToProcessing(processingId, encoderId)
+	err, errorString := processing.UnsubscribeEncoderToProcessing(processingId, encoder)
 	if err < 0 {
 		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: errorString})
 		return
