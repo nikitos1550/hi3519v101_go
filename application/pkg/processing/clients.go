@@ -8,7 +8,6 @@ package processing
 import "C"
 
 import (
-	//"log"
 	"unsafe"
 
     "application/pkg/logger"

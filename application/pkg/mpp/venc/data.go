@@ -21,7 +21,7 @@ func SubsribeEncoderData(encoderId int, ch chan []byte) {
         return
     }
 
-    encoder.Channels[ch] = true
+    encoder.DataChannels[ch] = true
     ActiveEncoders[encoderId] = encoder
 }
 

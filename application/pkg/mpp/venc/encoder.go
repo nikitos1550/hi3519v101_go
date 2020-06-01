@@ -117,5 +117,14 @@ func (encoder ActiveEncoder) GetId() int {
 }
 
 func (encoder ActiveEncoder) DataCallback(data []byte) {
-log.Println(data)
+	for ch,_ := range encoder.DataChannels {
+log.Println("loop")
+		if (cap(ch) <= len(ch)) {
+log.Println("pop")
+			<-ch
+		}
+
+log.Println("send")
+		ch <- data
+	}
 }

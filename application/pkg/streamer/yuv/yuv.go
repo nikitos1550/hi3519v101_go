@@ -27,28 +27,25 @@ func serve(w http.ResponseWriter, encoderId int) {
 	logger.Log.Trace().
 		Msg("serveYuv")
 
-	var payload = make(chan []byte, 1)
-	venc.SubsribeEncoder(encoderId, payload)
-	//log.Println("reed data from channel ")
-		logger.Log.Trace().
-			Int("encoderId", encoderId).
-			Msg("reed data from channel")
-	data := <- payload
-	//log.Println("reeded data from channel ")
-		logger.Log.Trace().
-                        Int("encoderId", encoderId).
-                        Msg("reeded data from channel")
-	venc.RemoveSubscription(encoderId, payload)
+	var dataPayload = make(chan []byte, 1)
+	venc.SubsribeEncoderData(encoderId, dataPayload)
+	logger.Log.Trace().
+		Int("encoderId", encoderId).
+		Msg("reed data from channel")
+	data := <- dataPayload
+	logger.Log.Trace().
+                    Int("encoderId", encoderId).
+                    Msg("reeded data from channel")
+	venc.RemoveDataSubscription(encoderId, dataPayload)
 
-	w.Header().Set("Content-Type", "image/jpeg")
+	w.Header().Set("Content-Disposition", "attachment; filename=image.yuv")
+	w.Header().Set("Content-Type", "application/octet-stream")
 
 	n, err := w.Write(data)
 	if err != nil {
-		//log.Println("Failed to write data")
 		logger.Log.Warn().
 			Msg("Failed to write data")
 	} else {
-		//log.Println("written size is ", n)
 		logger.Log.Trace().
 			Int("size", n).
 			Msg("written size")
@@ -61,14 +58,9 @@ func serveYuv(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	encoder, encoderExists := venc.ActiveEncoders[encoderId]
+	_, encoderExists := venc.ActiveEncoders[encoderId]
 	if (!encoderExists) {
 		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: "Failed to find encoder  " + strconv.Itoa(encoderId)})
-		return
-	}
-
-	if (encoder.Format != "mjpeg") {
-		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: "Encoder has wrong format " + encoder.Format + ". Should be mjpeg"})
 		return
 	}
 
