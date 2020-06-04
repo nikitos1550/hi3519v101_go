@@ -24,7 +24,7 @@
 |17|SSQVISION   |unknown            |hi3519v101 |imx326     |uboot tftp issue       |+          |+          |-      |    |
 |18|SSQVISION   |ON290H16D          |hi3516dv100|imx290     |rev.2                  |+          |+          |+      |    |
 |..|...         |...                |...        |...        |uart adapter broken    |           |           |       |    |
-|20|RUISION     |RS-H804L-B0        |hi3518ev201|h65        |                       |+          |+          |+      |    |
+|20|unknown     |dacility20         |hi3518ev200|h65        |                       |+          |+          |+      |    |
 |21|TOPSEE      |TH38D16            |hi3516ev200|sc3235     |check cmos             |+          |+          |+      |    |
 |22|YI          |YHS-113-IR         |hi3518ev201|ov9732     |wifi only              |+          |-          |       |    |
 |23|XM          |IPG-53H13PL-S      |hi3518cv100|AR0130     |k4b1g164               |+          |+          |+      |    |
@@ -49,8 +49,8 @@
 |hi3516cv200|hi3516cv200|N/A                                    |		|
 |           |hi3518ev200|ruision_rs-h805-a0_hi3518ev200_ar0237  |-		|
 |           |           |ruision_rs-h802j-b0_hi3518ev200_f22    |+		|
-|           |hi3518ev201|ruision_rs-h804l-b0_hi3518ev201_h65    |-		|
-|           |           |YI_YHS-113-IR_hi3518ev201_ov9732       |?		|
+|           |           |unknown_facility20_hi3518ev200_h65     |?		|
+|           |hi3518ev201|YI_YHS-113-IR_hi3518ev201_ov9732       |?		|
 |hi3516cv300|hi3516cv300|XM_IVG-HP203Y-SE_hi3516cv300_imx291    |+		|
 |           |           |XM_IVG-HP201Y-SE_hi3516cv300_imx323    |+		|
 |           |           |JVT_S323H16XF_hi3516cv300_imx323       |+		|

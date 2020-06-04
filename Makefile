@@ -15,7 +15,7 @@ ifndef CAMERA
 endif
 
 
-BR             := buildroot-2020.02.2
+BR             := buildroot-2020.02.3
 BUILDROOT_DIR  := $(abspath ./$(BR))
 BOARD_OUTDIR   := $(abspath ./output/boards/$(BOARD))
 CAMERA_TTY     := /dev/ttyCAM$(CAMERA)
@@ -139,7 +139,7 @@ $(BOARD_OUTDIR)/kernel/uImage:
 
 build-rootfs: $(BOARD_OUTDIR)/rootfs
 
-build-app: $(APP)/distrib/$(FAMILY)
+build-app: build-rootfs $(APP)/distrib/$(FAMILY)
 
 pack-app: $(BOARD_OUTDIR)/rootfs+app.squashfs $(BOARD_OUTDIR)/kernel/uImage
 

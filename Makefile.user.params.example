@@ -14,9 +14,9 @@ APP_TARGET := cam
 #BOARD ?= unknown_unknown_hi3519av100_unknown 
 #BOARD ?= unknown_unknown_hi3559av100_unknown 
 
-#CAMERA  ?= 1
-#BOARD   ?= jvt_s274h19v-l29_hi3519v101_imx274 
-#PROG	 ?= 1
+CAMERA  ?= 1
+BOARD   ?= jvt_s274h19v-l29_hi3519v101_imx274 
+PROG	 ?= 1
 
 #CAMERA    ?= 2
 #BOARD     ?= xm_ivg-85hf20pya-s_hi3516ev200_imx307
@@ -88,9 +88,9 @@ APP_TARGET := cam
 #BOARD    ?= ssqvision_on290h16d_hi3516dv100_imx290
 #PROG     ?= no
 
-#no driver
+#testing driver
 #CAMERA   ?= 20
-#BOARD    ?= ruision_rs-h804l-b0_hi3518ev201_h65
+#BOARD    ?= unknown_facility20_hi3518ev200_h65
 #PROG     ?= no
 
 #no drivewr
