@@ -30,10 +30,10 @@ int mpp3_isp_exit(int *error_code) {
     return ERR_NONE;
 }
 */
-import "C"
+//import "C"
 
 import (
-        "os"
+       // "os"
 
     "application/pkg/ko"
         "application/pkg/mpp/cmos"
@@ -45,16 +45,9 @@ const (
 )
 
 func systemInit(devInfo DeviceInfo) {
+    /*
    if _, err := os.Stat("/dev/sys"); err == nil { 
         var errorCode C.int
-        /*
-        err := C.mpp3_sys_exit(&errorCode)
-        if err != nil {
-            logger.Log.Fatal().
-                Msg("TODO")
-
-        }
-        */
         
         switch err := C.mpp3_sys_exit(&errorCode); err {
         case C.ERR_NONE:
@@ -95,7 +88,7 @@ func systemInit(devInfo DeviceInfo) {
             Msg("Unexpected return of C.mpp3_vb_exit()")
         }
     }
-
+    */
 
 
 	//This family originally pack all reg init to sy_conf ko module

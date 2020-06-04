@@ -1,4 +1,4 @@
-// +build hi3516cv300
+//+build hi3516cv300
 
 package ko
 
@@ -57,8 +57,8 @@ var (
 		//[2]string{"hi3516cv300_sensor.ko", "sensor_bus_type=i2c sensor_clk_frequency=37125000 sensor_pinmux_mode=i2c_dc"}, 
 		//[2]string{"hi3516cv300_sensor.ko", "sensor_bus_type=ssp sensor_clk_frequency=37125000 sensor_pinmux_mode=ssp_dc"},
 		//[2]string{"hi3516cv300_sensor.ko", "sensor_bus_type=i2c sensor_clk_frequency=37125000 sensor_pinmux_mode=i2c_mipi"},
-		[2]string{"hi3516cv300_pwm.ko", ""},
-		[2]string{"hi_piris.ko", ""},
+		//[2]string{"hi3516cv300_pwm.ko", ""},//TODO
+		//[2]string{"hi_piris.ko", ""},
 		[2]string{"hi3516cv300_aio.ko", ""},
 		[2]string{"hi3516cv300_ai.ko", ""},
 		[2]string{"hi3516cv300_ao.ko", ""},

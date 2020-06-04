@@ -173,3 +173,22 @@ combo_dev_attr_t imx335_mode_3 = //MIPI_4lane_CHN0_SENSOR_IMX335_10BIT_4M_WDR2TO
     }
 };
 
+/////////////////////////////////
+
+combo_dev_attr_t MIPI_4lane_CHN0_SENSOR_IMX415_12BIT_8M_NOWDR_ATTR =
+{
+    .devno = 0,
+    .input_mode = INPUT_MODE_MIPI,
+    .data_rate = MIPI_DATA_RATE_X1,
+    .img_rect = {0, 0, 3840, 2160},
+
+    {
+        .mipi_attr =
+        {
+            DATA_TYPE_RAW_12BIT,
+            HI_MIPI_WDR_MODE_NONE,
+            {0, 1, 2, 3}
+        }
+    }
+};
+

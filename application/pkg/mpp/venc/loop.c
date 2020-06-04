@@ -104,10 +104,12 @@ void mpp_data_loop_get_data(unsigned int id) {
         int i = 0;
         int j = 0;
         for(i = 0; i < stStream.u32PackCount; i++) {
+            //TODO VENC_PACK_S->U64PTS
             data[j].data = stStream.pstPack[i].pu8Addr[0];
             data[j].length = stStream.pstPack[i].u32Len[0];
             j++;
             if (stStream.pstPack[i].u32Len[1] > 0) {
+                //TODO VENC_PACK_S->U64PTS
                 data[j].data = stStream.pstPack[i].pu8Addr[1];
                 data[j].length = stStream.pstPack[i].u32Len[1];    
                 j++;   
@@ -142,6 +144,7 @@ void mpp_data_loop_get_data(unsigned int id) {
         for(i = 0; i < stStream.u32PackCount; i++) {
             data[i].data = stStream.pstPack[i].pu8Addr;
             data[i].length = stStream.pstPack[i].u32Len;
+            //TODO VENC_PACK_S->U64PTS
         }
         //go_callback_receive_data(venc_channel_id, stStream.u32Seq, st_data, stStream.u32PackCount);
         go_callback_receive_data(venc_channel_id, &info, data, stStream.u32PackCount);

@@ -10,6 +10,19 @@
     <script type="text/javascript" src="../js/jquery-3.4.1.min.js"></script>
     <script>
 
+var getParams = function (url) {
+	var params = {};
+	var parser = document.createElement('a');
+	parser.href = url;
+	var query = parser.search.substring(1);
+	var vars = query.split('&');
+	for (var i = 0; i < vars.length; i++) {
+		var pair = vars[i].split('=');
+		params[pair[0]] = decodeURIComponent(pair[1]);
+	}
+	return params;
+};
+
 /* eslint-env browser */
 
 let pc = new RTCPeerConnection({
@@ -52,6 +65,8 @@ pc.createOffer().then(d => pc.setLocalDescription(d)).catch(log)
                 url: "../api/webrtc/connect",
                 data: document.getElementById('localSessionDescription').value,
                 success: function( data ) {
+                    var params = {};
+                    params = getParams(data);
                     $("#remoteSessionDescription" ).val(data);
 
                     let sd = document.getElementById('remoteSessionDescription').value

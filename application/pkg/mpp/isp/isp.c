@@ -14,7 +14,7 @@ void* mpp_isp_thread(HI_VOID *param){   //now we start it from go space
     return NULL;
 }
 
-static inline int64_t mpp_isp_register_lib_ae(char * lib) {
+static inline unsigned int mpp_isp_register_lib_ae(char * lib) {
     ALG_LIB_S stLib;
 
     strcpy(stLib.acLibName, lib);
@@ -29,7 +29,7 @@ static inline int64_t mpp_isp_register_lib_ae(char * lib) {
     #endif
 }
 
-static inline int mpp_isp_register_lib_awb(char * lib) {
+static inline unsigned int mpp_isp_register_lib_awb(char * lib) {
     ALG_LIB_S stLib;
 
     strcpy(stLib.acLibName, lib);           
@@ -44,7 +44,7 @@ static inline int mpp_isp_register_lib_awb(char * lib) {
     #endif
 } 
 
-static inline int mpp_isp_register_lib_af(char * lib) {
+static inline unsigned int mpp_isp_register_lib_af(char * lib) {
     ALG_LIB_S stLib;
 
     strcpy(stLib.acLibName, lib);           

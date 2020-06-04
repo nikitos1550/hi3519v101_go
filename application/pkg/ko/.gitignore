@@ -1,1 +1,3 @@
-kobin_*.go
+embed_*.go
+append_*.bin
+append_*.go

@@ -13,6 +13,7 @@ require (
 	github.com/rs/zerolog v1.18.0
 	github.com/shuLhan/go-bindata v3.4.0+incompatible // indirect
 	github.com/yuin/gopher-lua v0.0.0-20191220021717-ab39c6098bdb
+	go.starlark.net v0.0.0-20200519165436-0aa95694c768
 	golang.org/x/sys v0.0.0-20200331124033-c3d80250170d
 	gortc.io/sdp v0.17.0
 )

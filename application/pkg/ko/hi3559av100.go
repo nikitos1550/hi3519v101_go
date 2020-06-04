@@ -1,4 +1,4 @@
-// +build hi3559av100
+//+build hi3559av100
 
 package ko
 

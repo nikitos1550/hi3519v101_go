@@ -18,7 +18,7 @@ var (
 		[2]string{"hi3518e_isp.ko", "update_pos={update_pos} proc_param={proc_param}"}, //rest cmoses
 		[2]string{"hi3518e_viu.ko", "detect_err_frame={detect_err_frame}"}, //10
 		[2]string{"hi3518e_vpss.ko", "rfr_frame_comp={rfr_frame_comp}"},
-		[2]string{"hi3518e_vou.ko", ""},
+		//[2]string{"hi3518e_vou.ko", ""},
 		//[2]string{"hi3518e_vou.ko", "transparentTransmit=1"}, //enable transparentTransmit
 		//[2]string{"hifb.ko", 'video="hifb:vram0_size:1620"'}, //default pal
 		[2]string{"hi3518e_rc.ko", ""},
@@ -29,8 +29,8 @@ var (
 		[2]string{"hi3518e_ive.ko", "save_power={save_power}"}, //0
 		//[2]string{"hi3518e_ive.ko", ""},
 		[2]string{"sensor_i2c.ko", ""},
-		[2]string{"pwm.ko", ""},
-		[2]string{"piris.ko", ""},
+		//[2]string{"pwm.ko", ""},
+		//[2]string{"piris.ko", ""},
 
 		[2]string{"acodec.ko", ""},
 		[2]string{"hi3518e_aio.ko", ""},

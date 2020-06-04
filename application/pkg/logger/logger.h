@@ -8,7 +8,6 @@
 #define LOGGER_DEBUG 	0
 #define LOGGER_TRACE 	-1
 
-
 #ifdef LOGGER_C
 
 #define GO_LOG_AI(level, msg) go_logger_ai(level, msg)
@@ -29,7 +28,7 @@
 #define GO_LOG_SYS(level, msg) ;;
 #define GO_LOG_VENC(level, msg) ;;
 #define GO_LOG_VPSS(level, msg) ;;
-#define GO_LOG_LOOP(level, msg) ;;
+//#define GO_LOG_LOOP(level, msg) ;;
 
 #endif
 

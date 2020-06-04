@@ -30,11 +30,11 @@ int mpp3_isp_exit(int *error_code) {
     return ERR_NONE;
 }
 */
-import "C"
+//import "C"
 
 import (
     "application/pkg/logger"
-    "os"
+    //"os"
 
 	"application/pkg/ko"
     "application/pkg/utils"
@@ -54,17 +54,9 @@ func systemInit(devInfo DeviceInfo) {
     //NOTE should be done, otherwise there can be kernel panic on module unload
     //ATTENTION maybe isp exit should be added as well
     //TODO rework, add error codes, deal with C includes
-
+    /*
     if _, err := os.Stat("/dev/sys"); err == nil { 
         var errorCode C.int
-        /*
-        err := C.mpp3_sys_exit(&errorCode)
-        if err != nil {
-            logger.Log.Fatal().
-                Msg("TODO")
-
-        }
-        */
         
         switch err := C.mpp3_sys_exit(&errorCode); err {
         case C.ERR_NONE:
@@ -84,17 +76,17 @@ func systemInit(devInfo DeviceInfo) {
         
     }
 
-    /*if _, err := os.Stat("/dev/isp_dev"); err == nil { //kernel panic !?
-        var errorCode C.int
-        switch err := C.mpp3_isp_exit(&errorCode); err {
-        case C.ERR_NONE:
-            log.Println("C.mpp3_isp_exit() ok")
-        case C.ERR_MPP:
-            log.Fatal("C.mpp3_isp_exit() HI_MPI_ISP_Exit() error ", error.Resolve(uint(errorCode))) 
-        default:
-            log.Fatal("Unexpected return ", err , " of C.mpp3_isp_exit()")
-        }
-    }*/
+    //if _, err := os.Stat("/dev/isp_dev"); err == nil { //kernel panic !?
+    //    var errorCode C.int
+    //    switch err := C.mpp3_isp_exit(&errorCode); err {
+    //    case C.ERR_NONE:
+    //        log.Println("C.mpp3_isp_exit() ok")
+    //    case C.ERR_MPP:
+    //        log.Fatal("C.mpp3_isp_exit() HI_MPI_ISP_Exit() error ", error.Resolve(uint(errorCode))) 
+    //    default:
+    //        log.Fatal("Unexpected return ", err , " of C.mpp3_isp_exit()")
+    //    }
+    //}
 
     if _, err := os.Stat("/dev/vb"); err == nil {      
         var errorCode C.int
@@ -117,6 +109,8 @@ func systemInit(devInfo DeviceInfo) {
 			Msg("Unexpected return of C.mpp3_vb_exit()")
         }
     }
+    */
+
 	//delete_module("hi3519v101_isp", NULL);//ATTENTION THIS IS NEED FOR PROPER APP RERUN, also some info here
     //http://bbs.ebaina.com/forum.php?mod=viewthread&tid=13925&extra=&highlight=run%2Bae%2Blib%2Berr%2B0xffffffff%21&page=1
     ko.UnloadAll()

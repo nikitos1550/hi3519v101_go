@@ -69,8 +69,7 @@ typedef struct mpp_venc_create_in_struct {
 
     unsigned int min_qp;
     unsigned int max_qp;
-    unsigned int min_i_qp
-
+    unsigned int min_i_qp;
 
 } mpp_venc_create_in;              
 

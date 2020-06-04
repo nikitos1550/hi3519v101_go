@@ -1,4 +1,5 @@
-//+build !ignore, !generate
+//+build !ignore,!generate
+//+build koEmbed koAppend
 
 package ko
 
@@ -20,12 +21,12 @@ var (
 	//Chip     string = "hi3516ev200"
 
 	//Params	map[string]string //TODO find proper name, as params is already param string...
-	Params		Parameters
+	//Params		Parameters
 )
 
-func init() {
-	Params = make(Parameters)
-}
+//func init() {
+//	Params = make(Parameters)
+//}
 
 /*
 type Parameters map[string]string
@@ -128,7 +129,8 @@ func load(modules [][2]string) {
 
 	for i := 0; i < len(modules); i++ {
 		//var err error
-		data, err := Asset(modules[i][0])
+		//data, err := Asset(modules[i][0])
+        err := loadModule(modules[i][0], modules[i][1])
 		if err != nil {
 			logger.Log.Fatal().
 				Str("module", modules[i][0]).
@@ -139,20 +141,20 @@ func load(modules [][2]string) {
 
 		//TODO rework, remove err2
         //log.Println("params", modules[i][1])
-		err2 := unix.InitModule(data, modules[i][1])
-		if err2 != nil {
-			logger.Log.Error().
-				Str("module", modules[i][0]).
-				Str("params", modules[i][1]).
-				Str("desc", err2.Error()).
-				Msg("KO load")
-			//return
-		} else {
-			logger.Log.Trace().
-				Str("module", modules[i][0]).
-				Str("params", modules[i][1]).
-				Msg("KO loaded")
-		}
+		//err2 := unix.InitModule(data, modules[i][1])
+		//if err2 != nil {
+		//	logger.Log.Error().
+		//		Str("module", modules[i][0]).
+		//		Str("params", modules[i][1]).
+		//		Str("desc", err2.Error()).
+		//		Msg("KO load")
+		//	//return
+		//} else {
+		//	logger.Log.Trace().
+		//		Str("module", modules[i][0]).
+		//		Str("params", modules[i][1]).
+		//		Msg("KO loaded")
+		//}
 		//time.Sleep(1 * time.Second)
 	}
 	//time.Sleep(5 * time.Second)

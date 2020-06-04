@@ -1,8 +1,20 @@
+//+build !ignore,!generate
+
 package ko
 
 import (
     "strconv"
 )
+
+var(
+    Params      Parameters
+)
+
+
+func init() {
+    Params = make(Parameters)
+}
+
 
 type Parameter string
 type Parameters map[string]*Parameter
