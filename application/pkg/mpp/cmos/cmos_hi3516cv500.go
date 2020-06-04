@@ -31,7 +31,7 @@ int mpp_cmos_init(int *error_code, unsigned char cmos) {
         return ERR_NONE;
     }
 
-    //if (cmos == 1) {
+    //if (cmos == 2) {
     //    ISP_SNS_OBJ_S *cmos = &stSnsImx335Obj;
 
     //    if (cmos->pfnRegisterCallback != HI_NULL) {
@@ -43,6 +43,20 @@ int mpp_cmos_init(int *error_code, unsigned char cmos) {
 
     //    return ERR_NONE;
     //}
+
+    if (cmos == 1) {
+        ISP_SNS_OBJ_S *cmos = &stSnsImx415Obj;
+                    
+        if (cmos->pfnRegisterCallback != HI_NULL) {
+            *error_code = cmos->pfnRegisterCallback(0, &stAeLib, &stAwbLib);
+            if (*error_code != HI_SUCCESS) return ERR_GENERAL;
+        } else {                 
+            return ERR_GENERAL;  
+        }
+                  
+        return ERR_NONE;
+    }
+
 
     *error_code = 999;
     return ERR_GENERAL;
@@ -94,6 +108,31 @@ var (
             },
             data: MIPI,
             bayer: RGGB, //RGGB,
+        },
+        cmos{   
+            vendor: "Sony", 
+            model: "imx415",   
+            modes: []cmosMode {
+                cmosMode {
+                    mipiCrop:   crop{X0: 0, Y0: 0, Width: 0, Height: 0,},
+                    viCrop:     crop{X0: 0, Y0: 0, Width: 3840, Height: 2160,},
+                    ispCrop:    crop{X0: 0, Y0: 0, Width: 3840, Height: 2160,},
+                    width: 3840,     
+                    height: 2160,    
+                    fps: 30,  
+                    bitness: 12,
+                    mipiMIPIAttr: unsafe.Pointer(&C.MIPI_4lane_CHN0_SENSOR_IMX415_12BIT_8M_NOWDR_ATTR),                                            
+                    clock: 0,
+                    wdr: WDRNone,
+                    description: "normal",
+                },
+            },
+            control: cmosControl {
+                bus: I2C, 
+                busNum: 0,
+            },
+            data: MIPI,
+            bayer: GBRG,
         },
         cmos {   
             vendor: "Sony", 

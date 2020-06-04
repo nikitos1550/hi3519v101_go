@@ -15,7 +15,7 @@ ifndef CAMERA
 endif
 
 
-BR             := buildroot-2020.02.1
+BR             := buildroot-2020.02.2
 BUILDROOT_DIR  := $(abspath ./$(BR))
 BOARD_OUTDIR   := $(abspath ./output/boards/$(BOARD))
 CAMERA_TTY     := /dev/ttyCAM$(CAMERA)

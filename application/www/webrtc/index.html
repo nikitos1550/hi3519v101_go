@@ -12,6 +12,7 @@
 
 var getParams = function (url) {
 	var params = {};
+
 	//var parser = document.createElement('a');
 	//parser.href = url;
 	var query = url; //parser.search.substring(1);
@@ -19,6 +20,7 @@ var getParams = function (url) {
 	for (var i = 0; i < vars.length; i++) {
 		var pair = vars[i].split('=');
 		params[pair[0]] = pair[1]; //decodeURIComponent(pair[1]);
+
 	}
 	return params;
 };
@@ -67,6 +69,7 @@ pc.createOffer().then(d => pc.setLocalDescription(d)).catch(log)
                 success: function( data ) {
                     var params = {};
                     params = getParams(data);
+
                     console.log(params);
                     $("#remoteSessionDescription" ).val(params["sdp"]);
                     $("#session" ).val(params["sessionId"]);

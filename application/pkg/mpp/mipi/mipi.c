@@ -208,25 +208,6 @@ static void mpp_mipi_set_attrs(combo_dev_attr_t *stcomboDevAttr, mpp_mipi_init_i
 
 #endif
 
-/*
-combo_dev_attr_t MIPI_4lane_CHN0_SENSOR_IMX327_12BIT_2M_NOWDR_ATTR =
-{
-    .devno = 0,
-    .input_mode = INPUT_MODE_MIPI,
-    .data_rate = MIPI_DATA_RATE_X1,
-    .img_rect = {0, 0, 1920, 1080},
-     
-    {
-        .mipi_attr =    
-        {
-            DATA_TYPE_RAW_12BIT,
-            HI_MIPI_WDR_MODE_NONE,
-            {0, 1, 2, 3}
-        }    
-    }
-};
-*/
-
 int mpp_mipi_init(error_in *err, mpp_mipi_init_in *in) {
     #if HI_MPP == 1
         //there is no mipi subsystem in hi3516cv100 family

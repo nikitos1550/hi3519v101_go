@@ -36,7 +36,7 @@ static uint32_t mpp_videv_mask(unsigned int bitness, unsigned int offset) {
 }
 
 static void mpp_videv_set_attrs(VI_DEV_ATTR_S  *stViDevAttr, mpp_vi_init_in * in) {
-    memset(stViDevAttr, 0, sizeof(stViDevAttr));
+    memset(stViDevAttr, 0, sizeof(VI_DEV_ATTR_S));
 
 	#if HI_MPP == 1
         stViDevAttr->enIntfMode                                     = in->data_type;
@@ -129,7 +129,7 @@ static void mpp_videv_set_attrs(VI_DEV_ATTR_S  *stViDevAttr, mpp_vi_init_in * in
 }
 
 static void mpp_vichan_set_atts(VI_CHN_ATTR_S *stChnAttr, mpp_vi_init_in * in) {
-    memset(stChnAttr, 0, sizeof(stChnAttr));
+    memset(stChnAttr, 0, sizeof(VI_CHN_ATTR_S));
 
     #if HI_MPP == 1
         stChnAttr->stCapRect.s32X               = 0;

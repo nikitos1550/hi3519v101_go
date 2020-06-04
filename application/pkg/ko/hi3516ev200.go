@@ -1,7 +1,4 @@
-// +build hi3516ev200
-
-//g-o:generate rm -f kobin_hi3516ev200.go
-//g-o:generate go run -tags "generate hi3516ev200" ./generate.go --output kobin_hi3516ev200.go --tag hi3516ev200 --dir ../../sdk/hi3516ev200/ko/ --pkg ko --source ./hi3516ev200.go
+//+build hi3516ev200
 
 package ko
 
@@ -22,7 +19,7 @@ var (
 		[2]string{"hi3516ev200_vi.ko", ""},
 		[2]string{"hi3516ev200_isp.ko", ""},
 		[2]string{"hi3516ev200_vpss.ko", ""},
-        	[2]string{"hi3516ev200_vo.ko", ""},
+        	//[2]string{"hi3516ev200_vo.ko", ""},
 		//[2]string{"hifb.ko video="hifb:vram0_size:1620"     # default fb0:D1
         	[2]string{"hi3516ev200_chnl.ko", ""},
         	[2]string{"hi3516ev200_vedu.ko", ""},
@@ -32,7 +29,7 @@ var (
         	[2]string{"hi3516ev200_h265e.ko", ""},
         	[2]string{"hi3516ev200_jpege.ko", ""},
         	[2]string{"hi3516ev200_ive.ko", "save_power={save_power}"},
-        	[2]string{"hi_pwm.ko", ""},
+        	//[2]string{"hi_pwm.ko", ""},
         	[2]string{"hi_sensor_i2c.ko", ""},
         	[2]string{"hi_sensor_spi.ko", ""},
         	[2]string{"hi3516ev200_aio.ko", ""},
@@ -41,7 +38,7 @@ var (
         	[2]string{"hi3516ev200_aenc.ko", ""},
         	[2]string{"hi3516ev200_adec.ko", ""},
         	[2]string{"hi3516ev200_acodec.ko", ""},
-            [2]string{"hi_piris.ko", ""},
+            //[2]string{"hi_piris.ko", ""},
 		//[2]string{"hi_tlv320aic31.ko", ""},
 	        [2]string{"hi_mipi_rx.ko", ""},
 		//[2]string{"hi_user.ko", ""},

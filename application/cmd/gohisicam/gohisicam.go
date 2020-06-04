@@ -37,6 +37,12 @@ import (
 	"application/pkg/common"
 
     "application/pkg/utils/memparse"
+
+    //_"application/pkg/experimental/tf"
+
+    //"time"
+
+    //"application/pkg/svp"
 )
 
 func main() {
@@ -138,6 +144,10 @@ func main() {
     closeHandler()
 
 	logger.Log.Info().Msg("GoHisiCam started")
+
+    //TMP
+    //svp.Init()
+
 	select {} //pause this routine forever
 }
 
@@ -149,6 +159,10 @@ func closeHandler() {
         logger.Log.Info().
             Msg("SIGTERM received")
 		//DeleteFiles()
+
+        //mpp.IspClose()
+        //time.Sleep(5 * time.Second)
+
 		os.Exit(0)
 	}()
 }

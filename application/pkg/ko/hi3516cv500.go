@@ -1,4 +1,4 @@
-// +build hi3516cv500
+//+build hi3516cv500
 
 package ko
 

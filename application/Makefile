@@ -18,8 +18,13 @@ CMOS_DRIVER ?= unknown
 FAMILY_UPPERCASE    := $(shell echo '$(FAMILY)' | tr '[:lower:]' '[:upper:]')
 CHIP_UPPERCASE      := $(shell echo '$(CHIP)' | tr '[:lower:]' '[:upper:]')
 
-CGO_CFLAGS  := -I$(abspath sdk/$(FAMILY)/include) -D$(FAMILY_UPPERCASE) -DLOGGER_C
+CGO_CFLAGS  := -Wall -Wno-comment -I$(abspath sdk/$(FAMILY)/include) -D$(FAMILY_UPPERCASE) -DLOGGER_C
 #-D$(CHIP_UPPERCASE)
+
+#CGO_CXXFLAGS := -Wall -I$(abspath ../experimental/tf/tensorflow) \
+#				-I$(abspath ../experimental/tf/tensorflow/tensorflow/lite/tools/make/downloads/absl) \
+#				-I$(abspath ../experimental/tf/tensorflow/tensorflow/lite/tools/make/downloads/flatbuffers/include)
+
 
 #TODO rework this
 ifneq ($(CMOS),unknown)
@@ -36,19 +41,24 @@ endif
 CMOS_TAGS		:= $(CMOS) cmos_data_$(CMOS_DATA) cmos_control_$(CMOS_CONTROL) cmos_bus_$(CMOS_BUS)
 
 GOTAGS_PROBE    := gohisiprobe $(FAMILY) netgo nethttpomithttp2
+ 
 #GOTAGS_CAM      := gohisicam $(FAMILY) $(CHIP) $(CMOS_TAGS) netgo nethttpomithttp2 openapi debug processing streamerJpeg streamerFile streamerRtsp streamerPipe streamerYuv
-GOTAGS_CAM      := gohisicam $(FAMILY) netgo nethttpomithttp2 openapi debug processing streamerJpeg streamerWebrtc streamerRtsp streamerYuv
+GOTAGS_CAM      := gohisicam $(FAMILY) netgo nethttpomithttp2 openapi debug processing streamerJpeg koEmbed scripts streamerWebrtc streamerRtsp streamerYuv
 #GOTAGS_CAM      := gohisicam $(FAMILY) netgo nethttpomithttp2 openapi debug processing streamerJpeg streamerFile streamerRtsp streamerPipe streamerWebrtc streamerYuv
+
 GOTAGS := $(GOTAGS_$(shell echo '$(APP)' | tr '[:lower:]' '[:upper:]'))
 
 ifneq ($(wildcard ../hisilicon/$(FAMILY)/Makefile.params),) 
 	LIB_TARGET := ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a
 	#CGO_LDFLAGS := $(abspath $(CMOS_TARGET)) $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a)
-	CGO_LDFLAGS	:= $(abspath ../output/boards/$(BOARD)/cmos/lib_cmoses.a) $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a)
+	CGO_LDFLAGS	:= 	$(abspath ../output/boards/$(BOARD)/cmos/lib_cmoses.a) \
+					$(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a) \
+					$(abspath ../experimental/tf/tensorflow/tensorflow/lite/tools/make/gen/hi3516cv500_armv7l/lib/libtensorflow-lite.a)
+					#-ldl -lm
 endif 
 
 #GODEBUG=cgocheck=0
-CGOPARAMS := CGO_CFLAGS='$(CFLAGS) $(CGO_CFLAGS)' CGO_CFLAGS_ALLOW='.*' CGO_ENABLED=1 CGO_LDFLAGS='$(CGO_LDFLAGS) $(FAMILY_LDFLAGS)'
+CGOPARAMS := CGO_CFLAGS='$(CFLAGS) $(CGO_CFLAGS)' CGO_CXXFLAGS='$(CXXFLAGS) $(CGO_CXXFLAGS)' CGO_CFLAGS_ALLOW='.*' CGO_ENABLED=1 CGO_LDFLAGS='$(CGO_LDFLAGS) $(FAMILY_LDFLAGS)'
 
 ifneq ($(strip $(shell git status --porcelain 2>/dev/null)),)
 	GIT_TREE_STATE=(dirty)
@@ -61,18 +71,24 @@ SDKV 	:= $(HISDK_ARCHIVE) $(HISDK)
 
 GOCC	:=$(shell $(GOENV) $(CGOPARAMS) $(GO) env | grep "CC=" | rev | cut -d '"' -f 2 | rev)
 
-EMBEDDVARS :=   -X 'application/pkg/buildinfo.BuildDateTime=$(shell date --utc "+%Y-%m-%d %H:%M (UTC)")' \
+#ELFSIZE:=1234567
+ELFSIZE:=1234567
+#ELFSIZE:=$(shell stat -c %s $(abspath ./distrib/hi3516ev200/opt/gohisicam))
+
+EMBEDDVARS  =   -X 'application/pkg/buildinfo.BuildDateTime=$(shell date --utc "+%Y-%m-%d %H:%M (UTC)")' \
                 -X 'application/pkg/buildinfo.GoVersion=$(shell $(GOENV) $(GO) version)' \
                 -X 'application/pkg/buildinfo.GccVersion=$(shell $(GOCC) --version | head -n 1)' \
                 -X 'application/pkg/buildinfo.BuildTags=$(GOTAGS)' \
                 -X 'application/pkg/buildinfo.BuildCommit=$(GIT_COMMIT)' \
                 -X 'application/pkg/buildinfo.Family=$(FAMILY)' \
 				-X 'application/pkg/buildinfo.SDK=$(SDKV)' \
-                -X 'application/pkg/buildinfo.CmosProfile=$(CMOS)'  
+                -X 'application/pkg/buildinfo.CmosProfile=$(CMOS)' \
+				-X 'application/pkg/ko.ElfSizeStr=$(ELFSIZE)'
 
 #NO DEBUG SYMBOLS, COMMENT IF WANT TO TURN ON DEBUG
 GODEBUG := -s -w -extldflags "-static" 
 #-linkmode "external"
+#GODEBUG := -s -w
 
 guard:
 	@echo "guard"
@@ -120,12 +136,10 @@ CMOSOBJ := $(patsubst pkg/mpp/cmos/$(FAMILY)/%.c, ../output/boards/$(BOARD)/cmos
 #../output/boards/$(BOARD)/cmos/lib_$(CMOS_DRIVER).a: ../output/boards/$(BOARD)/cmos/$(CMOS_DRIVER)/ $(CMOSOBJ)
 #	 $(AR) rcs ../output/boards/$(BOARD)/cmos/lib_$(CMOS_DRIVER).a $(CMOSOBJ)
 
+pkg/ko/embed_$(FAMILY).go:
+	GOPATH=$(GOPATH) $(GO) generate -tags "$(GOTAGS) generate" application/pkg/ko
 
-
-pkg/ko/kobin_$(APP)_$(FAMILY).go:
-	GOPATH=$(GOPATH) $(GO) generate -tags "$(GOTAGS)" application/pkg/ko
-
-generate: pkg/ko/kobin_$(APP)_$(FAMILY).go
+generate: pkg/ko/embed_$(FAMILY).go
 	make -C pkg/utils/regs
 
 distrib:
@@ -148,21 +162,34 @@ deploy-dir-cam: distrib
 	if [ -f ../boards/boards/$(BOARD)/config ]; then cp ../boards/boards/$(BOARD)/config ./distrib/$(FAMILY)/opt/board.config; fi
 	cp ../application/configs/* ./distrib/$(FAMILY)/opt/configs/
 	cp -r ./init/tools ././distrib/$(FAMILY)/opt/ 
+	mkdir -p ./distrib/$(FAMILY)/opt/svp
+	cp -r ./svp/* ./distrib/$(FAMILY)/opt/svp
+	mkdir -p ./distrib/$(FAMILY)/opt/nfs
 
-deploy-dir-probe: distrib
-	rm -rf ./distrib/$(FAMILY)
-	mkdir -p ./distrib/$(FAMILY)/etc/init.d
-	mkdir -p ./distrib/$(FAMILY)/opt
-	cp ./init/S99gohisiprobe ./distrib/$(FAMILY)/etc/init.d/
-	if [ -f ../boards/boards/$(BOARD)/config ]; then cp ../boards/boards/$(BOARD)/config ./distrib/$(FAMILY)/opt/board.config; fi
-	#cp ../application/configs/* ./distrib/$(FAMILY)/opt/configs/
+#deploy-dir-probe: distrib
+#	rm -rf ./distrib/$(FAMILY)
+#	mkdir -p ./distrib/$(FAMILY)/etc/init.d
+#	mkdir -p ./distrib/$(FAMILY)/opt
+#	cp ./init/S99gohisiprobe ./distrib/$(FAMILY)/etc/init.d/
+#	if [ -f ../boards/boards/$(BOARD)/config ]; then cp ../boards/boards/$(BOARD)/config ./distrib/$(FAMILY)/opt/board.config; fi
+#	#cp ../application/configs/* ./distrib/$(FAMILY)/opt/configs/
 
 TRIMPATH := $(abspath .) 
 
 #build-cam: generate $(LIB_TARGET) $(CMOS_TARGET) deploy-dir-cam
 build-cam: generate $(LIB_TARGET) ../output/boards/$(BOARD)/cmos/lib_cmoses.a deploy-dir-cam
-	$(GOENV) $(CGOPARAMS) $(GO) build -work -gcflags=all="-trimpath=$(TRIMPATH) -l -B -C" -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/gohisicam application/cmd/gohisicam
+	#$(GOENV) $(CGOPARAMS) $(GO) build -work -gcflags=all="-trimpath=$(TRIMPATH) -l -B -C" -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./gohisicam application/cmd/gohisicam
 	#$(GOENV) $(CGOPARAMS) $(GO) install -work -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" ./pkg/...
+	#stat -c %s ./gohisicam
+	#echo $(shell du -b ./gohisicam | cut -f 1 2>&1)
+	#echo $(shell stat -c %s ./gohisicam 2>&1)
+	#$ ( eval ELFSIZE := $(shell stat -c %s ./gohisicam 2>&1))
+	#echo $(ELFSIZE)
+	#rm ./gohisicam
+	$(GOENV) $(CGOPARAMS) $(GO) build -work -gcflags=all="-trimpath=$(TRIMPATH) -l -B -C" -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/gohisicam application/cmd/gohisicam
+	#stat -c %s ./distrib/$(FAMILY)/opt/gohisicam
+	#rm ./gohisicam
+	#cat pkg/ko/append_$(FAMILY).bin >> ./distrib/$(FAMILY)/opt/gohisicam
 
 build-probe: generate $(LIB_TARGET) deploy-dir-probe
 	$(GOENV) $(CGOPARAMS) $(GO) build -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/gohisiprobe application/cmd/gohisiprobe
@@ -196,7 +223,9 @@ testvideo-h265.mp4: testvideo.h265
 	MP4Box -add testvideo.h265 -fps 25 testvideo-h265.mp4
 
 clean:
-	rm -rf ./pkg/ko/kobin_*.go
+	rm -rf ./pkg/ko/embed_*.go
+	rm -rf ./pkg/ko/append_*.bin
+	rm -rf ./pkg/ko/append_*.go
 	rm -rf ./distrib
 	rm -f ./testvideo.h264
 	rm -f ./testvideo.h265
