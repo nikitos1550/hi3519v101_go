@@ -49,7 +49,7 @@
 |hi3516cv200|hi3516cv200|N/A                                    |		|
 |           |hi3518ev200|ruision_rs-h805-a0_hi3518ev200_ar0237  |-		|
 |           |           |ruision_rs-h802j-b0_hi3518ev200_f22    |+		|
-|           |           |unknown_facility20_hi3518ev200_h65     |?		|
+|           |           |unknown_facility20_hi3518ev200_h65     |+		|
 |           |hi3518ev201|YI_YHS-113-IR_hi3518ev201_ov9732       |?		|
 |hi3516cv300|hi3516cv300|XM_IVG-HP203Y-SE_hi3516cv300_imx291    |+		|
 |           |           |XM_IVG-HP201Y-SE_hi3516cv300_imx323    |+		|
