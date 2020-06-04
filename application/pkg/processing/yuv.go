@@ -5,36 +5,71 @@ package processing
 /*
 #include "processing.h"
 
+#include <stdlib.h>
+#include <string.h>
+
 int getData(void* frame, void** out) {
-	VIDEO_FRAME_INFO_S* stFrame = frame;
+    #if HI_MPP < 4
+	    VIDEO_FRAME_INFO_S* stFrame = frame;
 
-	char* data = (char*)malloc(stFrame->stVFrame.u32Width * stFrame->stVFrame.u32Height * 3 / 2);
+	    char* data = (char*)malloc(stFrame->stVFrame.u32Width * stFrame->stVFrame.u32Height * 3 / 2);
 
-	int ySize = stFrame->stVFrame.u32Width * stFrame->stVFrame.u32Height;
-	HI_U8* pUserPageAddr = (HI_U8*)HI_MPI_SYS_Mmap(stFrame->stVFrame.u32PhyAddr[0], ySize);
-	if (NULL == pUserPageAddr) {
-		return 0;
-	}
-	memcpy(data, pUserPageAddr, ySize);
-	HI_MPI_SYS_Munmap(pUserPageAddr, ySize);
+	    int ySize = stFrame->stVFrame.u32Width * stFrame->stVFrame.u32Height;
+	    HI_U8* pUserPageAddr = (HI_U8*)HI_MPI_SYS_Mmap(stFrame->stVFrame.u32PhyAddr[0], ySize);
+	    if (NULL == pUserPageAddr) {
+		    return 0;
+	    }
+	    memcpy(data, pUserPageAddr, ySize);
+	    HI_MPI_SYS_Munmap(pUserPageAddr, ySize);
 
-	int uvSize = stFrame->stVFrame.u32Width * stFrame->stVFrame.u32Height / 4;
-	pUserPageAddr = (HI_U8*)HI_MPI_SYS_Mmap(stFrame->stVFrame.u32PhyAddr[1], uvSize);
-	if (NULL == pUserPageAddr) {
-		return 0;
-	}
-	memcpy(data + ySize, pUserPageAddr, uvSize);
-	HI_MPI_SYS_Munmap(pUserPageAddr, uvSize);
+	    int uvSize = stFrame->stVFrame.u32Width * stFrame->stVFrame.u32Height / 4;
+	    pUserPageAddr = (HI_U8*)HI_MPI_SYS_Mmap(stFrame->stVFrame.u32PhyAddr[1], uvSize);
+	    if (NULL == pUserPageAddr) {
+		    return 0;
+	    }
+	    memcpy(data + ySize, pUserPageAddr, uvSize);
+	    HI_MPI_SYS_Munmap(pUserPageAddr, uvSize);
 
-	pUserPageAddr = (HI_U8*)HI_MPI_SYS_Mmap(stFrame->stVFrame.u32PhyAddr[2], uvSize);
-	if (NULL == pUserPageAddr) {
-		return 0;
-	}
-	memcpy((data + ySize + uvSize), pUserPageAddr, uvSize);
-	HI_MPI_SYS_Munmap(pUserPageAddr, uvSize);
+	    pUserPageAddr = (HI_U8*)HI_MPI_SYS_Mmap(stFrame->stVFrame.u32PhyAddr[2], uvSize);
+	    if (NULL == pUserPageAddr) {
+		    return 0;
+	    }
+	    memcpy((data + ySize + uvSize), pUserPageAddr, uvSize);
+	    HI_MPI_SYS_Munmap(pUserPageAddr, uvSize);
 
-	*out = data;
-	return ySize + 2 * uvSize;
+	    *out = data;
+	    return ySize + 2 * uvSize;
+    #elif HI_MPP == 4
+        VIDEO_FRAME_INFO_S* stFrame = frame;
+
+        char* data = (char*)malloc(stFrame->stVFrame.u32Width * stFrame->stVFrame.u32Height * 3 / 2);
+
+        int ySize = stFrame->stVFrame.u32Width * stFrame->stVFrame.u32Height;
+        HI_U8* pUserPageAddr = (HI_U8*)HI_MPI_SYS_Mmap(stFrame->stVFrame.u64PhyAddr[0], ySize);
+        if (NULL == pUserPageAddr) {
+            return 0;
+        }
+        memcpy(data, pUserPageAddr, ySize);
+        HI_MPI_SYS_Munmap(pUserPageAddr, ySize);
+
+        int uvSize = stFrame->stVFrame.u32Width * stFrame->stVFrame.u32Height / 4;
+        pUserPageAddr = (HI_U8*)HI_MPI_SYS_Mmap(stFrame->stVFrame.u64PhyAddr[1], uvSize);
+        if (NULL == pUserPageAddr) {
+            return 0;
+        }
+        memcpy(data + ySize, pUserPageAddr, uvSize);
+        HI_MPI_SYS_Munmap(pUserPageAddr, uvSize);
+
+        pUserPageAddr = (HI_U8*)HI_MPI_SYS_Mmap(stFrame->stVFrame.u64PhyAddr[2], uvSize);
+        if (NULL == pUserPageAddr) {
+            return 0;
+        }
+        memcpy((data + ySize + uvSize), pUserPageAddr, uvSize);
+        HI_MPI_SYS_Munmap(pUserPageAddr, uvSize);
+    
+        *out = data;
+        return ySize + 2 * uvSize;
+    #endif
 }
 
 void releaseData(void* data) {

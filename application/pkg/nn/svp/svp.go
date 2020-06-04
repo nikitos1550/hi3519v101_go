@@ -1,4 +1,5 @@
 //+build svp
+//+build hi3516cv500,hi3519av100
 
 package svp
 

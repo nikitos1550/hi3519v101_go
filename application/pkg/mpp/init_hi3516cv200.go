@@ -86,7 +86,9 @@ func systemInit(devInfo DeviceInfo) {
 
     if cmos.S.Model() == "f22" {
         ko.Params.Add("cmos").Str("ar0130") //same DC i2c, waiting untill init rework
-    }else {
+    } else if cmos.S.Model() == "h65" {
+        ko.Params.Add("cmos").Str("ar0130") //same DC i2c, waiting untill init rework
+    } else {
         ko.Params.Add("cmos").Str(cmos.S.Model())
     }
     //tmp for f22

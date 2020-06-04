@@ -22,7 +22,7 @@ import (
 
     //"application/pkg/mpp/vo"
 
-    //"application/pkg/mpp/ai"
+    "application/pkg/mpp/ai"
 )
 
 func Init(devInfo DeviceInfo) {
@@ -78,7 +78,7 @@ func Init(devInfo DeviceInfo) {
             Msg("VENC init")
 	venc.Init()
 
-    //ai.Init()
+    ai.Init()
 
     //vo.Init() //FOR TEST, onlu hi3516cv500
 }

@@ -50,11 +50,12 @@ GOTAGS := $(GOTAGS_$(shell echo '$(APP)' | tr '[:lower:]' '[:upper:]'))
 
 ifneq ($(wildcard ../hisilicon/$(FAMILY)/Makefile.params),) 
 	LIB_TARGET := ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a
-	#CGO_LDFLAGS := $(abspath $(CMOS_TARGET)) $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a)
-	CGO_LDFLAGS	:= 	$(abspath ../output/boards/$(BOARD)/cmos/lib_cmoses.a) \
-					$(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a) \
-					$(abspath ../experimental/tf/tensorflow/tensorflow/lite/tools/make/gen/hi3516cv500_armv7l/lib/libtensorflow-lite.a)
-					#-ldl -lm
+	#CGO_LDFLAGS := $(abspath $(CMOS_TARGET)) $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a )
+	CGO_LDFLAGS	:= 	$(abspath ../output/boards/$(BOARD)/cmos/lib_cmoses.a ) \
+					$(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a ) \
+					$(abspath ../output/hisilicon/$(FAMILY)/.br-rootfs/staging/usr/lib/libopus.a )
+					# $(abspath ../experimental/tf/tensorflow/tensorflow/lite/tools/make/gen/hi3516cv500_armv7l/lib/libtensorflow-lite.a)
+					# -ldl -lm
 endif 
 
 #GODEBUG=cgocheck=0

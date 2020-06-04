@@ -4,7 +4,7 @@ import (
 	"application/pkg/streamer/file"
     "application/pkg/streamer/jpeg"
 	"application/pkg/streamer/pipe"
-    "application/pkg/streamer/raw"
+    //"application/pkg/streamer/raw"
     "application/pkg/streamer/rtsp"
     "application/pkg/streamer/yuv"
     "application/pkg/streamer/webrtc"
@@ -17,7 +17,7 @@ func Init() {
     file.Init()
     jpeg.Init()
     pipe.Init()
-    raw.Init()
+    //raw.Init()
     rtsp.Init()
     yuv.Init()
     webrtc.Init()

@@ -38,11 +38,9 @@ import (
 
     "application/pkg/utils/memparse"
 
-    //_"application/pkg/experimental/tf"
-
     //"time"
 
-    //"application/pkg/svp"
+    "application/pkg/nn/svp"
 )
 
 func main() {
@@ -146,7 +144,7 @@ func main() {
 	logger.Log.Info().Msg("GoHisiCam started")
 
     //TMP
-    //svp.Init()
+    svp.Init()
 
 	select {} //pause this routine forever
 }
