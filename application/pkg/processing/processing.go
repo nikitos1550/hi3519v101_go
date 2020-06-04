@@ -31,7 +31,7 @@ type ActiveProcessing struct {
 	Proc common.Processing
 	InputChannel int
 	InputProcessing int
-	Encoders map[int] bool
+	Encoders map[int] common.Encoder
 	Processings map[int] bool
 }
 
@@ -76,7 +76,7 @@ func CreateProcessing(processingName string, params map[string][]string)  (int, 
 		Proc: p,
 		InputChannel: -1,
 		InputProcessing: -1,
-		Encoders: make(map[int] bool),
+		Encoders: make(map[int] common.Encoder),
 		Processings: make(map[int] bool),
 	}
 
@@ -111,35 +111,35 @@ func DeleteProcessing(processingId int)  (int, string)  {
 	return 0, ""
 }
 
-func SubscribeEncoderToProcessing(processingId int, encoderId int)  (int, string)  {
+func SubscribeEncoderToProcessing(processingId int, encoder common.Encoder)  (int, string)  {
 	processing, exists := ActiveProcessings[processingId]
 	if (!exists) {
 		return -1, "Processing not created"
 	}
 
-	_, exists = processing.Encoders[encoderId]
+	_, exists = processing.Encoders[encoder.GetId()]
 	if (exists) {
 		return -1, "Already subscribed"
 	}
 	
-	processing.Encoders[encoderId] = true
+	processing.Encoders[encoder.GetId()] = encoder
 	ActiveProcessings[processingId] = processing
 
 	return 0, ""
 }
 
-func UnsubscribeEncoderToProcessing(processingId int, encoderId int)  (int, string)  {
+func UnsubscribeEncoderToProcessing(processingId int, encoder common.Encoder)  (int, string)  {
 	processing, exists := ActiveProcessings[processingId]
 	if (!exists) {
 		return -1, "Processing not created"
 	}
 
-	_, exists = processing.Encoders[encoderId]
+	_, exists = processing.Encoders[encoder.GetId()]
 	if (!exists) {
 		return -1, "Encoder not subscribed"
 	}
 
-	delete(processing.Encoders, encoderId)	
+	delete(processing.Encoders, encoder.GetId())	
 
 	return 0, ""
 }

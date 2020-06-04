@@ -12,13 +12,15 @@
 
 var getParams = function (url) {
 	var params = {};
-	var parser = document.createElement('a');
-	parser.href = url;
-	var query = parser.search.substring(1);
+
+	//var parser = document.createElement('a');
+	//parser.href = url;
+	var query = url; //parser.search.substring(1);
 	var vars = query.split('&');
 	for (var i = 0; i < vars.length; i++) {
 		var pair = vars[i].split('=');
-		params[pair[0]] = decodeURIComponent(pair[1]);
+		params[pair[0]] = pair[1]; //decodeURIComponent(pair[1]);
+
 	}
 	return params;
 };
@@ -63,11 +65,14 @@ pc.createOffer().then(d => pc.setLocalDescription(d)).catch(log)
             $.ajax({
                 type: "POST",
                 url: "../api/webrtc/connect",
-                data: document.getElementById('localSessionDescription').value,
+                data: { sdp: document.getElementById('localSessionDescription').value, encoderId: document.getElementById('encoderId').value },
                 success: function( data ) {
                     var params = {};
                     params = getParams(data);
-                    $("#remoteSessionDescription" ).val(data);
+
+                    console.log(params);
+                    $("#remoteSessionDescription" ).val(params["sdp"]);
+                    $("#session" ).val(params["sessionId"]);
 
                     let sd = document.getElementById('remoteSessionDescription').value
                     if (sd === '') {
@@ -83,6 +88,17 @@ pc.createOffer().then(d => pc.setLocalDescription(d)).catch(log)
             });            
         }
 
+    window.closeSession = () => {
+        $.ajax({
+                type: "GET",
+                url: "../api/webrtc/disconnect",
+                data: { sessionId: document.getElementById('session').value },
+                success: function( data ) {
+					console.log("disconnected");
+                }
+            });            
+    }
+
     </script>
     </head>
     <body>
@@ -93,8 +109,16 @@ pc.createOffer().then(d => pc.setLocalDescription(d)).catch(log)
         Golang base64 Session Description<br />
         <textarea id="remoteSessionDescription"> </textarea> <br/>
 
+        Session<br />
+        <input id="session"></input><br /><br />
+
+        Encoder Id<br />
+        <input type="text" id="encoderId" name="encoderId"> <br /><br />
+
         <button onclick="window.startSession()">/api/webrtc/connect</button><br />
         <br />
+
+        <button onclick="window.closeSession()">/api/webrtc/disconnect</button><br />
 
         Video<br />
         <div id="remoteVideos"></div> <br />

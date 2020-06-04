@@ -34,6 +34,7 @@ var (
 		//#       insmod /lib/modules/hi3516dv300/hi_ipcm.ko
 		//        #nnie_max_tskbuf_num=64
 		//        #insmod /lib/modules/hi3516dv300/hi3516cv500_nnie.ko nnie_save_power=1 nnie_max_tskbuf_num=32
+        [2]string{"hi3516cv500_nnie.ko", "nnie_save_power=1 nnie_max_tskbuf_num=32"},
 		[2]string{"hi_pwm.ko", ""},
 		[2]string{"hi_piris.ko", ""},
 		[2]string{"hi_sensor_i2c.ko", ""},

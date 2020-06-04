@@ -16,13 +16,14 @@ type PredefinedEncoder struct {
 }
 
 type ActiveEncoder struct {
-    VencId int 
+	VencId int 
 	ProcessingId int 
-    Format string 
-    Width int 
-    Height int 
-    Bitrate int 
+	Format string 
+	Width int 
+	Height int 
+	Bitrate int 
 	Channels map[chan []byte]bool
+	DataChannels map[chan []byte]bool
 }
 
 var PredefinedEncoders map[string] PredefinedEncoder
@@ -64,9 +65,28 @@ func CreatePredefinedEncoder(encoderName string) (int, string)  {
 		Height: encoder.Height,
 		Bitrate: encoder.Bitrate,
 		Channels: make(map[chan []byte]bool),
+		DataChannels: make(map[chan []byte]bool),
 	}
 
 	createVencEncoder(activeEncoder)
+
+	ActiveEncoders[lastEncoderId] = activeEncoder
+
+	return lastEncoderId, ""
+}
+
+func CreateDummyEncoder() (int, string)  {
+	lastEncoderId++
+	activeEncoder := ActiveEncoder{
+		VencId: lastEncoderId, 
+		ProcessingId: -1,
+		Format: "",
+		Width: 0,
+		Height: 0,
+		Bitrate: 0,
+		Channels: make(map[chan []byte]bool),
+		DataChannels: make(map[chan []byte]bool),
+	}
 
 	ActiveEncoders[lastEncoderId] = activeEncoder
 
@@ -80,7 +100,7 @@ func DeleteEncoder(encoderId int) (int, string) {
 	}
 
 	if (encoder.ProcessingId != -1){
-		err, errorString := processing.UnsubscribeEncoderToProcessing(encoder.ProcessingId, encoderId)
+		err, errorString := processing.UnsubscribeEncoderToProcessing(encoder.ProcessingId, encoder)
 		if err < 0 {
 			return err, errorString
 		}
@@ -90,4 +110,18 @@ func DeleteEncoder(encoderId int) (int, string) {
 	delete(ActiveEncoders, encoderId)
 
 	return 0, ""
+}
+
+func (encoder ActiveEncoder) GetId() int {
+	return encoder.VencId
+}
+
+func (encoder ActiveEncoder) DataCallback(data []byte) {
+	for ch,_ := range encoder.DataChannels {
+		if (cap(ch) <= len(ch)) {
+			<-ch
+		}
+
+		ch <- data
+	}
 }

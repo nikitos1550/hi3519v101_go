@@ -11,9 +11,3 @@ type Processing interface {
 	Destroy()
 	Callback(unsafe.Pointer)
 }
-
-func init() {
-}
-
-func Init() {
-}

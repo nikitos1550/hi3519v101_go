@@ -4,6 +4,7 @@ package openapi
 
 import (
 	"net/http"
+	"net/url"
 	"strconv"    
 )
 
@@ -61,4 +62,35 @@ func GetIntParameterOrDefault(w http.ResponseWriter, r *http.Request, name strin
 	}
 
 	return num
+}
+
+func PostStringParameter(w http.ResponseWriter, body string, name string) (bool, string) {
+	values, err := url.ParseQuery(body)
+	if err != nil {
+		ResponseErrorWithDetails(w, http.StatusBadRequest, badParameter{Message: "Failed to parse request body. Required parameter '" + name + "' is missed"})
+		return false, ""
+	}
+
+	value, ok := values[name]
+	if !ok {
+		ResponseErrorWithDetails(w, http.StatusBadRequest, badParameter{Message: "Required parameter '" + name + "' is missed"})
+		return false, ""
+	}
+
+	return true, value[0]
+}
+
+func PostIntParameter(w http.ResponseWriter, body string, name string) (bool, int) {
+	ok, stringValue := PostStringParameter(w, body, name)
+	if !ok {
+		return false, 0
+	}
+
+	num, err := strconv.Atoi(stringValue)
+	if err != nil {
+		ResponseErrorWithDetails(w, http.StatusBadRequest, badParameter{Message: "Parameter '" + name + "' should be int"})
+		return false, 0
+	}
+
+	return true, num
 }

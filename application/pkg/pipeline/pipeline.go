@@ -50,6 +50,8 @@ func CreatePipeline(encoderName string)  (int, string)  {
 	}
 	logger.Log.Info().Int("encoderId", encoderId).Msg("Encoder was created")
 
+	activeEncoder, _ := venc.ActiveEncoders[encoderId]
+
 	activeProcessing, exists := processing.ActiveProcessings[processingId]
 	if (!exists) {
 		return -1, "Processing not created"
@@ -63,11 +65,10 @@ func CreatePipeline(encoderName string)  (int, string)  {
 	processing.ActiveProcessings[processingId] = activeProcessing
 	logger.Log.Info().Int("channelId", channelId).Int("processingId", processingId).Msg("Subscribed to channel")
 
-	errId, err = processing.SubscribeEncoderToProcessing(processingId, encoderId)
+	errId, err = processing.SubscribeEncoderToProcessing(processingId, activeEncoder)
 	if errId < 0 {
 		return errId, err
 	}
-	activeEncoder, _ := venc.ActiveEncoders[encoderId]
 	activeEncoder.ProcessingId = processingId
 	venc.ActiveEncoders[encoderId] = activeEncoder
 	logger.Log.Info().Int("processingId", processingId).Int("encoderId", encoderId).Msg("Subscribed to processing")
