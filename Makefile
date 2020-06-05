@@ -11,7 +11,7 @@ ifndef BOARD
     $(warning BOARD variable isn't defined, just a few common targets are allowed)
 else 
     ifndef CAMERA
-        $(warning CAMERA variable isn't defined, only build targets are allowed)
+        $(warning CAMERA variable isn't defined, no deploy targets are accessible)
     endif
 endif
 
