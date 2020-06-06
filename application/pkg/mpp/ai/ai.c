@@ -1,12 +1,64 @@
 #include "ai.h"
 
-#if HI_MPP == 3
+#if HI_MPP == 2 || HI_MPP == 3
 
-//#define ACODEC_FILE     "/dev/acodec"
+#define SAMPLES_PER_FRAME   960
+
+#define OPUS
+//#define AAC
+
+#if defined(OPUS)
+    #include <opus.h>
+    static OpusEncoder *opus_enc;
+#elif defined(AAC)
+    #include "aacenc_lib.h"
+    static HANDLE_AACENCODER *fdkaac_enc;
+#endif
+
+//void test_opus_init() {
+//    int error;
+//    //OpusEncoder *enc;
+//    //enc = opus_encoder_create(Fs, channels, application, &error);
+//    opus_enc = opus_encoder_create(48000, 1, OPUS_APPLICATION_AUDIO, &error);
+//    if (error <0 ) {
+//      printf("failed to create opus encoder: %s\n", opus_strerror(error));
+//      //return EXIT_FAILURE;
+//    }
+//
+//    error = opus_encoder_ctl(opus_enc, OPUS_SET_BITRATE(256000));
+//    if (error<0) {
+//      printf("failed to set bitrate: %s\n", opus_strerror(error));
+//      //return EXIT_FAILURE;
+//    }
+//}
 
 static pthread_t mpp_ai_thread_pid;
 
 void* mpp_ai_thread(HI_VOID *param){   //now we start it from go space
+
+    #if defined(OPUS)
+        int error_opus;
+        opus_enc = opus_encoder_create(48000, 1, OPUS_APPLICATION_AUDIO, &error_opus);
+        if (error_opus < 0 ) {
+            printf("failed to create opus encoder: %s\n", opus_strerror(error_opus));
+        }
+
+        error_opus = opus_encoder_ctl(opus_enc, OPUS_SET_BITRATE(256000));
+        if (error_opus < 0 ) {
+            printf("failed to set bitrate: %s\n", opus_strerror(error_opus));
+        }
+    #elif defined(AAC)
+        *fdkaac_enc = 0;
+        if (aacEncOpen(fdkaac_enc, 0, 0) != AACENC_OK) {
+            printf("ERROR: aacEncOpen() failed\n");
+        }
+
+        if (aacEncEncode(*fdkaac_enc, 0, 0, 0, 0) != AACENC_OK) {
+            printf("ERROR: encoder initialization failed\n");
+            //goto FAIL;
+        }
+    #endif
+
     //GO_LOG_AI(LOGGER_TRACE, "AI thread run");
     printf("AI thread run\n");
 
@@ -15,6 +67,14 @@ void* mpp_ai_thread(HI_VOID *param){   //now we start it from go space
         
     AUDIO_FRAME_S stFrame;
     AEC_FRAME_S   stAecFrm;
+
+    #if defined(OPUS)
+        FILE *fout;
+        fout = fopen("/opt/nfs/test.opus", "w");
+    #elif defined(AAC)
+        FILE *fout;
+        fout = fopen("/opt/nfs/test.aac", "w");
+    #endif
 
 #if 1
     fd = HI_MPI_AI_GetFd(0, 0);
@@ -33,6 +93,37 @@ void* mpp_ai_thread(HI_VOID *param){   //now we start it from go space
         }
 
         //printf("new audio frame ts %llu seq %u length %u vir %p phy %u\n", stFrame.u64TimeStamp, stFrame.u32Seq, stFrame.u32Len, stFrame.pVirAddr[0], stFrame.u32PhyAddr[0]);
+        
+    #if defined(OPUS)
+
+        #define MAX_PACKET_SIZE  (4000)
+
+        unsigned char cbits[MAX_PACKET_SIZE];
+        int nbBytes;
+        //printf("sizeof(opus_int16) = %d\n", sizeof(opus_int16));
+        //opus_int16 data[SAMPLES_PER_FRAME];
+    
+        #if HI_MPP == 2
+            opus_int16 *data = stFrame.pVirAddr[0];
+        #elif HI_MPP == 3
+            opus_int16 *data = stFrame.pVirAddr[0];
+        #elif HI_MPP == 4
+            //TODO not working
+            opus_int16 *data = stFrame.u64VirAddr[0];
+        #endif
+
+        nbBytes = opus_encode(opus_enc, data, SAMPLES_PER_FRAME, cbits, MAX_PACKET_SIZE);
+        if (nbBytes<0) {
+            printf("encode failed: %s\n", opus_strerror(nbBytes));
+            //return EXIT_FAILURE;
+        } else {
+            //printf("encoded %d bytes\n", nbBytes);
+            fwrite(cbits, sizeof(unsigned char), nbBytes, fout);
+            fflush(fout);
+        }
+    #elif defined(AAC)
+        //TODO
+    #endif
 
         /*    
         HI_U8 *pUserPageAddrV = stFrame.pVirAddr[0];
@@ -72,7 +163,8 @@ int mpp_ai_test(error_in *err) {
 
     //stAioAttr.enSamplerate   = AUDIO_SAMPLE_RATE_8000;
     //stAioAttr.enSamplerate   = AUDIO_SAMPLE_RATE_16000;
-    stAioAttr.enSamplerate   = AUDIO_SAMPLE_RATE_96000;
+    stAioAttr.enSamplerate   = AUDIO_SAMPLE_RATE_48000;
+    //stAioAttr.enSamplerate   = AUDIO_SAMPLE_RATE_96000;
 
     stAioAttr.enBitwidth     = AUDIO_BIT_WIDTH_16;
     //stAioAttr.enBitwidth     = AUDIO_BIT_WIDTH_8; //not working
@@ -96,7 +188,7 @@ int mpp_ai_test(error_in *err) {
     //kHz, you are advised to set the number of sampling points to a value that is greater than or
     //equal to 160.
 
-    stAioAttr.u32PtNumPerFrm = 320;//SAMPLE_AUDIO_PTNUMPERFRM;
+    stAioAttr.u32PtNumPerFrm = SAMPLES_PER_FRAME; //800;//320;//SAMPLE_AUDIO_PTNUMPERFRM;
     stAioAttr.u32ChnCnt      = 1;
     stAioAttr.u32ClkSel      = 0;
 
@@ -247,7 +339,8 @@ int mpp_ai_config_inner(error_in *err) {
 
     //ACODEC_FS_E i2s_fs_sel = ACODEC_FS_8000;
     //ACODEC_FS_E i2s_fs_sel = ACODEC_FS_16000;
-    ACODEC_FS_E i2s_fs_sel = ACODEC_FS_96000;
+    ACODEC_FS_E i2s_fs_sel = ACODEC_FS_48000;
+    //ACODEC_FS_E i2s_fs_sel = ACODEC_FS_96000;
 
     general_error_code = ioctl(fd, ACODEC_SET_I2S1_FS, &i2s_fs_sel);
     if (general_error_code != HI_SUCCESS) {
@@ -255,8 +348,16 @@ int mpp_ai_config_inner(error_in *err) {
         RETURN_ERR_GENERAL(err, "ACODEC_SET_I2S1_FS", general_error_code);
     }
 
-    ACODEC_MIXER_E input_mode = ACODEC_MIXER_IN0;
-    //ACODEC_MIXER_E input_mode = ACODEC_MIXER_IN1;
+    #if HI_MPP == 2
+        #if defined(HI3516AV100)
+            ACODEC_MIXER_E input_mode = ACODEC_MIXER_LINEIN;
+        #elif defined(HI3516CV200)
+            ACODEC_MIXER_E input_mode = ACODEC_MIXER_IN;
+        #endif
+    #elif HI_MPP == 3
+        ACODEC_MIXER_E input_mode = ACODEC_MIXER_IN0;
+        //ACODEC_MIXER_E input_mode = ACODEC_MIXER_IN1;
+    #endif
 
     general_error_code = ioctl(fd, ACODEC_SET_MIXER_MIC, &input_mode);
     if (general_error_code != HI_SUCCESS) {
@@ -315,7 +416,8 @@ int mpp_ao_test(error_in *err) {
 
     //stAioAttr.enSamplerate   = AUDIO_SAMPLE_RATE_8000;
     //stAioAttr.enSamplerate   = AUDIO_SAMPLE_RATE_16000;
-    stAioAttr.enSamplerate   = AUDIO_SAMPLE_RATE_96000; 
+    stAioAttr.enSamplerate   = AUDIO_SAMPLE_RATE_48000;
+    //stAioAttr.enSamplerate   = AUDIO_SAMPLE_RATE_96000; 
 
     stAioAttr.enBitwidth     = AUDIO_BIT_WIDTH_16;
     stAioAttr.enWorkmode     = AIO_MODE_I2S_MASTER;
@@ -323,7 +425,7 @@ int mpp_ao_test(error_in *err) {
     //stAioAttr.enSoundmode    = AUDIO_SOUND_MODE_STEREO;
     stAioAttr.u32EXFlag      = 0;
     stAioAttr.u32FrmNum      = MAX_AUDIO_FRAME_NUM; //30;
-    stAioAttr.u32PtNumPerFrm = 320; //SAMPLE_AUDIO_PTNUMPERFRM;
+    stAioAttr.u32PtNumPerFrm = SAMPLES_PER_FRAME; //800; //320; //SAMPLE_AUDIO_PTNUMPERFRM;
     stAioAttr.u32ChnCnt      = 1;
     //stAioAttr.u32ChnCnt      = 2;
     stAioAttr.u32ClkSel      = 0;

@@ -153,12 +153,12 @@ func closePrev() {
             logger.Log.Debug().
                 Msg("C.mpp3_sys_exit() ok")
         case C.ERR_MPP:
-            logger.Log.Fatal().
+            logger.Log.Warn().
                 Str("func", "HI_MPI_SYS_Exit()").
                 Uint("error", uint(errorCode)).
                 Msg("C.mpp3_sys_exit() error")
         default:
-            logger.Log.Fatal().
+            logger.Log.Warn().
                 Int("error", int(err)).
                 Msg("Unexpected return of C.mpp3_sys_exit()")
         } 
@@ -172,12 +172,12 @@ func closePrev() {
             logger.Log.Debug().
                 Msg("C.mpp3_vb_exit() ok")
         case C.ERR_MPP:
-            logger.Log.Fatal().
+            logger.Log.Warn().
                 Str("func", "HI_MPI_VB_Exit()").
                 Uint("error", uint(errorCode)).
                 Msg("C.mpp3_vb_exit() error")
         default:
-            logger.Log.Fatal().
+            logger.Log.Warn().
                 Int("error", int(err)).
                 Msg("Unexpected return of C.mpp3_vb_exit()")
         }

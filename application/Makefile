@@ -18,7 +18,14 @@ CMOS_DRIVER ?= unknown
 FAMILY_UPPERCASE    := $(shell echo '$(FAMILY)' | tr '[:lower:]' '[:upper:]')
 CHIP_UPPERCASE      := $(shell echo '$(CHIP)' | tr '[:lower:]' '[:upper:]')
 
-CGO_CFLAGS  := -Wall -Wno-comment -I$(abspath sdk/$(FAMILY)/include) -D$(FAMILY_UPPERCASE) -DLOGGER_C
+CGO_CFLAGS  := 	-Wall \
+				-Wno-comment \
+				-I$(abspath sdk/$(FAMILY)/include) \
+				-I$(abspath ../output/hisilicon/$(FAMILY)/.br-rootfs/staging/usr/include/opus) \
+				-I$(abspath ../output/hisilicon/$(FAMILY)/.br-rootfs/staging/usr/include/fdk-aac) \
+				-D$(FAMILY_UPPERCASE) \
+				-DLOGGER_C
+
 #-D$(CHIP_UPPERCASE)
 
 #CGO_CXXFLAGS := -Wall -I$(abspath ../experimental/tf/tensorflow) \
@@ -43,7 +50,7 @@ CMOS_TAGS		:= $(CMOS) cmos_data_$(CMOS_DATA) cmos_control_$(CMOS_CONTROL) cmos_b
 GOTAGS_PROBE    := gohisiprobe $(FAMILY) netgo nethttpomithttp2
  
 #GOTAGS_CAM      := gohisicam $(FAMILY) $(CHIP) $(CMOS_TAGS) netgo nethttpomithttp2 openapi debug processing streamerJpeg streamerFile streamerRtsp streamerPipe streamerYuv
-GOTAGS_CAM      := gohisicam $(FAMILY) netgo nethttpomithttp2 openapi debug processing streamerJpeg koEmbed scripts streamerWebrtc streamerRtsp streamerYuv
+GOTAGS_CAM      := gohisicam $(FAMILY) netgo nethttpomithttp2 openapi debug processing streamerJpeg koEmbed scripts streamerFile streamerWebrtc streamerRtsp streamerYuv
 #GOTAGS_CAM      := gohisicam $(FAMILY) netgo nethttpomithttp2 openapi debug processing streamerJpeg streamerFile streamerRtsp streamerPipe streamerWebrtc streamerYuv
 
 GOTAGS := $(GOTAGS_$(shell echo '$(APP)' | tr '[:lower:]' '[:upper:]'))
@@ -53,7 +60,8 @@ ifneq ($(wildcard ../hisilicon/$(FAMILY)/Makefile.params),)
 	#CGO_LDFLAGS := $(abspath $(CMOS_TARGET)) $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a )
 	CGO_LDFLAGS	:= 	$(abspath ../output/boards/$(BOARD)/cmos/lib_cmoses.a ) \
 					$(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a ) \
-					$(abspath ../output/hisilicon/$(FAMILY)/.br-rootfs/staging/usr/lib/libopus.a )
+					$(abspath ../output/hisilicon/$(FAMILY)/.br-rootfs/staging/usr/lib/libopus.a ) \
+					$(abspath ../output/hisilicon/$(FAMILY)/.br-rootfs/staging/usr/lib/libfdk-aac.a )
 					# $(abspath ../experimental/tf/tensorflow/tensorflow/lite/tools/make/gen/hi3516cv500_armv7l/lib/libtensorflow-lite.a)
 					# -ldl -lm
 endif 
