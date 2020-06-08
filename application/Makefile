@@ -22,9 +22,10 @@ CGO_CFLAGS  := 	-Wall \
 				-Wno-comment \
 				-I$(abspath sdk/$(FAMILY)/include) \
 				-I$(abspath ../output/hisilicon/$(FAMILY)/.br-rootfs/staging/usr/include/opus) \
-				-I$(abspath ../output/hisilicon/$(FAMILY)/.br-rootfs/staging/usr/include/fdk-aac) \
 				-D$(FAMILY_UPPERCASE) \
 				-DLOGGER_C
+
+#-I$(abspath ../output/hisilicon/$(FAMILY)/.br-rootfs/staging/usr/include/fdk-aac) \
 
 #-D$(CHIP_UPPERCASE)
 
@@ -60,10 +61,11 @@ ifneq ($(wildcard ../hisilicon/$(FAMILY)/Makefile.params),)
 	#CGO_LDFLAGS := $(abspath $(CMOS_TARGET)) $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a )
 	CGO_LDFLAGS	:= 	$(abspath ../output/boards/$(BOARD)/cmos/lib_cmoses.a ) \
 					$(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a ) \
-					$(abspath ../output/hisilicon/$(FAMILY)/.br-rootfs/staging/usr/lib/libopus.a ) \
-					$(abspath ../output/hisilicon/$(FAMILY)/.br-rootfs/staging/usr/lib/libfdk-aac.a )
+					$(abspath ../output/hisilicon/$(FAMILY)/.br-rootfs/staging/usr/lib/libopus.a )
+					#$(abspath ../output/hisilicon/$(FAMILY)/.br-rootfs/staging/usr/lib/libfdk-aac.a )
 					# $(abspath ../experimental/tf/tensorflow/tensorflow/lite/tools/make/gen/hi3516cv500_armv7l/lib/libtensorflow-lite.a)
 					# -ldl -lm
+					#$(abspath ../output/hisilicon/$(FAMILY)/.br-rootfs/staging/usr/lib/libfdk-aac.a )
 endif 
 
 #GODEBUG=cgocheck=0

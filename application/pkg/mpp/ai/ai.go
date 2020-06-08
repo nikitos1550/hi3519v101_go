@@ -27,6 +27,8 @@ func go_callback_raw_tmp(info_pointer *C.audio_info_from_c, data_pointer *C.audi
     dataFromC := (*[1 << 10]C.audio_data_from_c)(unsafe.Pointer(data_pointer))[:1:1]
     length := int(dataFromC[0].length)
 
+    //infoFromC := (*[1 << 10]C.audio_info_from_c)(unsafe.Pointer(info_pointer))[:1:1]
+
     //var timestamp uint64
     //timestamp = uint64(infoFromC[0].timestamp)
     //logger.Log.Trace().
@@ -53,7 +55,7 @@ func go_callback_opus_tmp(info_pointer *C.audio_info_from_c, data_pointer *C.aud
     dataFromC := (*[1 << 10]C.audio_data_from_c)(unsafe.Pointer(data_pointer))[:1:1]
     length := int(dataFromC[0].length)
 
-    infoFromC := (*[1 << 10]C.audio_info_from_c)(unsafe.Pointer(info_pointer))[:1:1]
+    //infoFromC := (*[1 << 10]C.audio_info_from_c)(unsafe.Pointer(info_pointer))[:1:1]
 
     //var timestamp uint64
     //timestamp = uint64(infoFromC[0].timestamp)
