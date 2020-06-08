@@ -6,3 +6,8 @@ package ai
 import "C"
 
 func Init() {}
+
+func IsAudioExistTmp() bool { //temporary function to check if there any audio avalible in the system
+    return false
+}
+
