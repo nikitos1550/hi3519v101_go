@@ -28,7 +28,6 @@ typedef struct info_from_c_struct {
    unsigned int     ref_type;
 } info_from_c;
 
-//void go_callback_receive_data(int venc, unsigned int seq, data_from_c * data_pointer, int num);
 void go_callback_receive_data(int venc, info_from_c *info_pointer, data_from_c *data_pointer, int num);
 
 int mpp3_venc_sample_mjpeg(unsigned int *error_code, int width, int height, int bitrate, int channelId);

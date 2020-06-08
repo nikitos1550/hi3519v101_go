@@ -68,13 +68,13 @@ void* mpp_ai_thread(HI_VOID *param){   //now we start it from go space
     AUDIO_FRAME_S stFrame;
     AEC_FRAME_S   stAecFrm;
 
-    #if defined(OPUS)
-        FILE *fout;
-        fout = fopen("/opt/nfs/test.opus", "w");
-    #elif defined(AAC)
-        FILE *fout;
-        fout = fopen("/opt/nfs/test.aac", "w");
-    #endif
+    //#if defined(OPUS)
+    //    FILE *fout;
+    //    fout = fopen("/opt/nfs/test.opus", "w");
+    //#elif defined(AAC)
+    //    FILE *fout;
+    //    fout = fopen("/opt/nfs/test.aac", "w");
+    //#endif
 
 #if 1
     fd = HI_MPI_AI_GetFd(0, 0);
@@ -92,6 +92,16 @@ void* mpp_ai_thread(HI_VOID *param){   //now we start it from go space
             return NULL;
         }
 
+        audio_info_from_c info;
+        audio_data_from_c data;
+
+        data.data   = stFrame.pVirAddr[0];
+        data.length = stFrame.u32Len;
+
+        info.timestamp = stFrame.u64TimeStamp;
+
+        go_callback_raw_tmp(&info, &data);
+
         //printf("new audio frame ts %llu seq %u length %u vir %p phy %u\n", stFrame.u64TimeStamp, stFrame.u32Seq, stFrame.u32Len, stFrame.pVirAddr[0], stFrame.u32PhyAddr[0]);
         
     #if defined(OPUS)
@@ -104,22 +114,28 @@ void* mpp_ai_thread(HI_VOID *param){   //now we start it from go space
         //opus_int16 data[SAMPLES_PER_FRAME];
     
         #if HI_MPP == 2
-            opus_int16 *data = stFrame.pVirAddr[0];
+            opus_int16 *raw_data = stFrame.pVirAddr[0];
         #elif HI_MPP == 3
-            opus_int16 *data = stFrame.pVirAddr[0];
+            opus_int16 *raw_data = stFrame.pVirAddr[0];
         #elif HI_MPP == 4
             //TODO not working
-            opus_int16 *data = stFrame.u64VirAddr[0];
+            opus_int16 *raw_data = stFrame.u64VirAddr[0];
         #endif
 
-        nbBytes = opus_encode(opus_enc, data, SAMPLES_PER_FRAME, cbits, MAX_PACKET_SIZE);
+        nbBytes = opus_encode(opus_enc, raw_data, SAMPLES_PER_FRAME, cbits, MAX_PACKET_SIZE);
         if (nbBytes<0) {
             printf("encode failed: %s\n", opus_strerror(nbBytes));
             //return EXIT_FAILURE;
         } else {
             //printf("encoded %d bytes\n", nbBytes);
-            fwrite(cbits, sizeof(unsigned char), nbBytes, fout);
-            fflush(fout);
+            //fwrite(cbits, sizeof(unsigned char), nbBytes, fout);
+            //fflush(fout);
+            
+            data.data   = cbits;
+            data.length = nbBytes;
+
+            go_callback_opus_tmp(&info, &data);
+
         }
     #elif defined(AAC)
         //TODO
