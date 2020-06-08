@@ -13,6 +13,8 @@ import (
     "application/pkg/buildinfo"
 )
 
+var Clients map[chan []byte]bool
+
 func IsAudioExistTmp() bool { //temporary function to check if there any audio avalible in the system
     if buildinfo.Family == "hi3516av200" {
         return true
@@ -75,6 +77,14 @@ func go_callback_opus_tmp(info_pointer *C.audio_info_from_c, data_pointer *C.aud
             Msg("go_callback_raw_tmp")
     }    
     //data is your target
+
+    for ch,_ := range Clients {
+        if (cap(ch) <= len(ch)) {
+            <-ch
+        }
+
+        ch <- data
+    }
 }
 
 func Init() {
@@ -125,4 +135,13 @@ func Init() {
         }
     }
 
+	Clients = make(map[chan []byte]bool)
+}
+
+func RemoveOpus(ch chan []byte) {
+    delete(Clients, ch)
+}
+
+func SubsribeOpus(ch chan []byte) {
+	Clients[ch] = true
 }
