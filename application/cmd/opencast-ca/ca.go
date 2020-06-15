@@ -14,6 +14,13 @@ import (
 
     //"time"
 
+    //dac "github.com/xinsnake/go-http-digest-auth-client"
+
+    //"github.com/delphinus/go-digest-request"
+    //"golang.org/x/net/context"
+
+    "github.com/bobziuchkovski/digest"
+
     _"strings"
     _"github.com/arran4/golang-ical"
 )
@@ -94,6 +101,11 @@ type opencastClient struct {
     ingestHost          string
     ingestPath          string
 
+    //ctx                 context.Context
+    //rd                  *digestRequest.DigestRequest
+    //t                   dac.DigestTransport
+
+    //c                   *http.Client
 }
 
 func (c *opencastClient) create(host string, port string, user string, pass string, name string) {
@@ -113,15 +125,31 @@ func (c *opencastClient) create(host string, port string, user string, pass stri
 
     c.name              = name
 
-    c.client            = &http.Client{}
+    //c.client            = &http.Client{}
+
+    //c.ctx = context.Background()
+    //c.rd = digestRequest.New(ctx, c.user, c.pass)
+    //c.rd = digestRequest.New(c.ctx, "opencast_system_account", "CHANGE_ME123")
+
+    //c.t = dac.NewTransport(c.user, c.pass)
+    //c.t = dac.NewTransport("opencast_system_account", "CHANGE_ME123")
+
+    //t := digest.NewTransport("opencast_system_account", "CHANGE_ME123")
+    t := digest.NewTransport(c.user, c.pass)
+    c.client, _ = t.Client()
 }
 
 func (c *opencastClient) getService(service string) (string, string, error) {
     url := "http://"+c.host+":"+c.port+"/services/available.json?serviceType="+service
     request, _ := http.NewRequest("GET", url, nil)
-    request.SetBasicAuth(c.user, c.pass)
+    //request.SetBasicAuth(c.user, c.pass)
+
+    request.Header.Set("X-Requested-Auth", "Digest")
 
     responce, err := c.client.Do(request)
+    //responce, err := c.rd.Do(request)
+    //responce, err := c.t.RoundTrip(request)
+
     if err != nil {
         fmt.Println("err:", err)
         return "", "", err
@@ -137,7 +165,7 @@ func (c *opencastClient) getService(service string) (string, string, error) {
 
     fmt.Println(serviceAnswer)
 
-    return serviceAnswer.Services.Service.Host,serviceAnswer.Services.Service.Path,nil
+    return serviceAnswer.Services.Service.Host, serviceAnswer.Services.Service.Path, nil
 }
 
 func (c *opencastClient) register(state string) error {
@@ -147,7 +175,8 @@ func (c *opencastClient) register(state string) error {
     fmt.Println("url:", url)
 
     request, _ := http.NewRequest("POST", url, bytes.NewBuffer(dataStr))
-    request.SetBasicAuth(c.user, c.pass)
+    //request.SetBasicAuth(c.user, c.pass)
+    request.Header.Set("X-Requested-Auth", "Digest")
 
     responce, err := c.client.Do(request)
     if err != nil {
@@ -173,7 +202,8 @@ func (c *opencastClient) getSchedule() error {
     fmt.Println("url:", url)
 
     request, _ := http.NewRequest("GET", url, nil)
-    request.SetBasicAuth(c.user, c.pass)
+    //request.SetBasicAuth(c.user, c.pass)
+    request.Header.Set("X-Requested-Auth", "Digest")
 
     responce, err := c.client.Do(request)
     if err != nil {
@@ -200,7 +230,8 @@ func main() {
     fmt.Println("CA")
 
     var c opencastClient
-    c.create("84.201.135.192", "8080", "admin", "opencast123", "MY-TEST-CA")
+    //c.create("84.201.135.192", "8080", "admin", "opencast123", "MY-TEST-CA")
+    c.create("84.201.135.192", "8080", "opencast_system_account", "CHANGE_ME123", "MY-TEST-CA")
 
     c.captureAdminHost, c.captureAdminPath, _ = c.getService("org.opencastproject.capture.admin")
     c.schedulerHost,    c.schedulerPath,    _ = c.getService("org.opencastproject.scheduler")

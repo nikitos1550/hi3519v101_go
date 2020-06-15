@@ -19,8 +19,15 @@ fi
 
 TMP_MP="$(mktemp)"
 TMP_DC="$(mktemp)"
+FINAL="$(mktemp)"
 START="$(date -d "1 min" --utc +%Y-%m-%dT%H:%MZ)"
 END="$(date -d "2 min" --utc +%Y-%m-%dT%H:%MZ)"
+
+#test
+curl -f --digest -u ${USER}:${PASSWORD} -H "X-Requested-Auth: Digest" \
+  "${HOST}/services/available.json?serviceType=org.opencastproject.capture.admin"
+
+exit 1
 
 echo '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <dublincore xmlns="http://www.opencastproject.org/xsd/1.0/dublincore/"
@@ -41,20 +48,32 @@ echo '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 curl -f --digest -u ${USER}:${PASSWORD} -H "X-Requested-Auth: Digest" \
   "${HOST}/ingest/createMediaPackage" -o "${TMP_MP}"
 
+cat ${TMP_MP}
+echo ""
+
 # Add DC catalog
 curl -f --digest -u ${USER}:${PASSWORD} -H "X-Requested-Auth: Digest" \
   "${HOST}/ingest/addDCCatalog" -F "mediaPackage=<${TMP_MP}" \
   -F "dublinCore=<${TMP_DC}" -o "${TMP_MP}"
+
+cat ${TMP_MP}
+echo ""
 
 # Add Track
 curl -f --digest -u ${USER}:${PASSWORD} -H "X-Requested-Auth: Digest" \
   "${HOST}/ingest/addTrack" -F flavor=presenter/source \
   -F "mediaPackage=<${TMP_MP}" -F Body=@testvideo.mp4 -o "${TMP_MP}"
 
-# Add Track
-curl -f --digest -u ${USER}:${PASSWORD} -H "X-Requested-Auth: Digest" \
-  "${HOST}/ingest/addTrack" -F flavor=presentation/source \
-  -F "mediaPackage=<${TMP_MP}" -F Body=@testvideo.mp4 -o "${TMP_MP}"
+cat ${TMP_MP}
+echo ""
+
+## Add Track
+#curl -f --digest -u ${USER}:${PASSWORD} -H "X-Requested-Auth: Digest" \
+#  "${HOST}/ingest/addTrack" -F flavor=presentation/source \
+#  -F "mediaPackage=<${TMP_MP}" -F Body=@testvideo.mp4 -o "${TMP_MP}"
+#
+#cat ${TMP_MP}
+#echo ""
 
 #curl -f -v -i --digest -u ${USER}:${PASSWORD} \
 #    -H "X-Requested-Auth: Digest" \
@@ -64,7 +83,9 @@ curl -f --digest -u ${USER}:${PASSWORD} -H "X-Requested-Auth: Digest" \
 curl -f -v -i --digest -u ${USER}:${PASSWORD} \
     -H "X-Requested-Auth: Digest" \
     "${HOST}/ingest/ingest" \
-    -F "mediaPackage=<${TMP_MP}"
+    -F "mediaPackage=<${TMP_MP}" -o "${FINAL}"
 
+cat ${FINAL}
+echo ""
 
-rm -f "${TMP_MP}" "${TMP_DC}"
+rm -f "${TMP_MP}" "${TMP_DC}" "${FINAL}"
