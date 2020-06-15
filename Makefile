@@ -1,44 +1,33 @@
 THIS_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
-ifeq ("$(wildcard Makefile.user.params)","")
- $(error cp Makefile.user.params.example to Makefile.user.params) 
-endif
-
 ifndef NO_USER_MAKEFILE
+    ifeq ("$(wildcard Makefile.user.params)","")
+        $(error cp Makefile.user.params.example to Makefile.user.params) 
+    endif
     include $(THIS_DIR)Makefile.user.params
 endif
+
 ifndef BOARD
-    $(error BOARD variable MUST be defined)
-endif
-ifndef CAMERA
-    $(warning CAMERA variable isn't defined, only build targets are allowed)
+    $(warning BOARD variable isn't defined, just a few common targets are allowed)
+else 
+    ifndef CAMERA
+        $(warning CAMERA variable isn't defined, no deploy targets are accessible)
+    endif
 endif
 
 
 BR             := buildroot-2020.02.3
 BUILDROOT_DIR  := $(abspath ./$(BR))
-BOARD_OUTDIR   := $(abspath ./output/boards/$(BOARD))
-CAMERA_TTY     := /dev/ttyCAM$(CAMERA)
-CAMERA_IP      := 192.168.10.1$(shell printf '%02d' $(CAMERA))
-TELNET_PORT    := 453$(shell printf '%02d' $(CAMERA))
 
-GATEWAY		   := 192.168.10.1
-DNS1		   := $(GATEWAY)
-DNS2		   := 8.8.8.8
-
-########################################################################
+GATEWAY        := 192.168.10.1
+DNS1           := $(GATEWAY)
+DNS2           := 8.8.8.8
 
 CAMSTORE       := $(THIS_DIR)/facility/camstore/control.sh client
 
-########################################################################
-
-GREETING	?= System startup
-PROMPT		?= hisilicon
-
-########################################################################
-
 APP             := application
 APP_TARGET      ?= probe   #default target will be tester, daemon build on request durin it`s early dev stage
+
 
 -include ./boards/boards/$(strip $(BOARD))/config
 -include ./hisilicon/$(strip $(FAMILY))/Makefile.params
@@ -59,8 +48,6 @@ help:
 
 submodules:
 	git submodule update --init --recursive
-	#	git submodule init
-	#	git submodule update
 
 br-hihisim-prepare:
 	make -C br-hisicam prepare
@@ -82,12 +69,21 @@ cleanall:
 	rm -f ./boards/boards
 	rm -rf ./.buildroot-ccache
 
-info:
-	@echo "BOARD=$(BOARD)"
-	@echo "FAMILY=$(FAMILY)"
-	@echo "APP_OVERLAY=$(APP)/distrib/$(FAMILY)"
 
 # -----------------------------------------------------------------------------------------------------------
+ifdef BOARD
+
+BOARD_OUTDIR   := $(abspath ./output/boards/$(BOARD))
+CAMERA_TTY     := /dev/ttyCAM$(CAMERA)
+CAMERA_IP      := 192.168.10.1$(shell printf '%02d' $(CAMERA))
+TELNET_PORT    := 453$(shell printf '%02d' $(CAMERA))
+
+info:
+	@echo "\
+	BOARD=$(BOARD)\n\
+	FAMILY=$(FAMILY)\n\
+	APP_OVERLAY=$(APP)/distrib/$(FAMILY)\
+	"
 
 rootfs-only.squashfs: $(BOARD_OUTDIR)/rootfs.squashfs
 	@echo "--- RootFS only image is ready: $^"
@@ -257,3 +253,5 @@ pack-archive: pack-app
 	cp $(BOARD_OUTDIR)/rootfs+app.squashfs $(BOARD_OUTDIR)/$(BOARD)/rootfs+app.squashfs
 	cd $(BOARD_OUTDIR); tar -cvzf ./$(BOARD).tar.gz ./$(BOARD)
 	rm -rf $(BOARD_OUTDIR)/$(BOARD)
+
+endif  # ifdef BOARD
