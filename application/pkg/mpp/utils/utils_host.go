@@ -10,3 +10,7 @@ func Version() string {
 func MppId() uint32 {
 	return 0
 }
+
+func SyncPTS(pts uint64) {
+
+}

@@ -3,11 +3,12 @@
 
 package utils
 
-// #include "mpi_sys.h"
-// HI_S32 HI_MPI_SYS_GetChipId(HI_U32 *pu32ChipId);
+// #include "utils.h"
 import "C"
 
-//import "log"
+import (
+    "errors"
+)
 
 func Version() string {
 	var ver C.MPP_VERSION_S
@@ -24,4 +25,27 @@ func MppId() uint32 {
 	//log.Println("ChipID=", id)
 
 	return uint32(id)
+}
+
+//After the current system PTS (unit:μs) is fine-tuned, the PTS does not roll back. When
+//multiple chips are synchronized, the difference between the clock sources of the boards may
+//be significant. Therefore, you are recommended to tune the PTS once a second.
+func SyncPTS(pts uint64) error {
+    err := C.HI_MPI_SYS_SyncPts(C.HI_U64(pts))
+    if err != 0 {
+        return errors.New("Some SyncPTS error")
+    }
+    return nil
+}
+
+//Regardless of the original system PTS, initializing the PTS base forces the current system
+//PTS to u64PtsBase. Therefore, you are recommended to call this MPI before a media service
+//is enabled. For example, you can call this MPI immediately when the OS starts. If a media
+//service is enabled, you can call HI_MPI_SYS_SyncPts to tune the PTS.
+func InitPTS(pts uint64) error {
+    err := C.HI_MPI_SYS_InitPtsBase(C.HI_U64(pts))
+    if err != 0 {
+        return errors.New("Some InitPTS error")
+    }
+    return nil
 }
