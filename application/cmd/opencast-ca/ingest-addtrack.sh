@@ -23,11 +23,11 @@ FINAL="$(mktemp)"
 START="$(date -d "1 min" --utc +%Y-%m-%dT%H:%MZ)"
 END="$(date -d "2 min" --utc +%Y-%m-%dT%H:%MZ)"
 
-#test
-curl -f --digest -u ${USER}:${PASSWORD} -H "X-Requested-Auth: Digest" \
-  "${HOST}/services/available.json?serviceType=org.opencastproject.capture.admin"
-
-exit 1
+##test
+#curl -f --digest -u ${USER}:${PASSWORD} -H "X-Requested-Auth: Digest" \
+#  "${HOST}/services/available.json?serviceType=org.opencastproject.capture.admin"
+#
+#exit 1
 
 echo '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <dublincore xmlns="http://www.opencastproject.org/xsd/1.0/dublincore/"

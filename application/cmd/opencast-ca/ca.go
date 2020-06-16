@@ -10,7 +10,11 @@ import (
     "io/ioutil"
     "encoding/json"
     "bytes"
-    _"net/url"
+    "net/url"
+
+    "os"
+    "mime/multipart"
+    //"io"
 
     //"time"
 
@@ -91,6 +95,7 @@ type opencastClient struct {
     name                string
 
     client              *http.Client
+    client0              *http.Client
 
     captureAdminHost    string
     captureAdminPath    string
@@ -125,7 +130,7 @@ func (c *opencastClient) create(host string, port string, user string, pass stri
 
     c.name              = name
 
-    //c.client            = &http.Client{}
+    c.client0            = &http.Client{}
 
     //c.ctx = context.Background()
     //c.rd = digestRequest.New(ctx, c.user, c.pass)
@@ -221,9 +226,219 @@ func (c *opencastClient) getSchedule() error {
     return nil
 }
 
-func (c *opencastClient) testSendMedia() error {
+func (c *opencastClient) createMediaPackage() (string, error) {
+    ///ingest/createMediaPackage
+    url := c.ingestHost+c.ingestPath+"/createMediaPackage"
+    fmt.Println("url:", url)
 
-    return nil
+    request, _ := http.NewRequest("GET", url, nil)
+    request.Header.Set("X-Requested-Auth", "Digest")
+
+    responce, err := c.client.Do(request)
+    if err != nil {
+        fmt.Println("err:", err)
+        return "", err
+    }
+    defer responce.Body.Close()
+
+    body, _ := ioutil.ReadAll(responce.Body)
+    fmt.Println(string(body))
+
+    return string(body), nil
+}
+
+func (c *opencastClient) addDCCatalog(xml string, dublinCore string) (string, error) {
+    //# Add DC catalog
+    //curl -f --digest -u ${USER}:${PASSWORD} -H "X-Requested-Auth: Digest" \
+    //"${HOST}/ingest/addDCCatalog" -F "mediaPackage=<${TMP_MP}" \
+    //-F "dublinCore=<${TMP_DC}" -o "${TMP_MP}"
+
+//    dublinCoreTmp := "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" standalone=\"no\"?>\n"+
+    dublinCoreTmp := "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"+
+        "<dublincore xmlns=\"http://www.opencastproject.org/xsd/1.0/dublincore/\" "+
+        "xmlns:dcterms=\"http://purl.org/dc/terms/\" "+
+        "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"+
+        "<dcterms:creator>demo123</dcterms:creator>\n"+
+        "<dcterms:contributor>demo123</dcterms:contributor>\n"+
+        "<dcterms:created xsi:type=\"dcterms:W3CDTF\">2020-06-16T19:30Z</dcterms:created>\n"+
+        "<dcterms:temporal xsi:type=\"dcterms:Period\">start=2020-06-16T19:30Z; end=2020-06-16T19:31Z; scheme=W3C-DTF;</dcterms:temporal>\n"+
+        "<dcterms:description>demo123</dcterms:description>\n"+
+        "<dcterms:subject>demo123</dcterms:subject>\n"+
+        "<dcterms:language>demo123</dcterms:language>\n"+
+        "<dcterms:spatial>pyca123</dcterms:spatial>\n"+
+        "<dcterms:title>Demo event 123</dcterms:title>\n"+
+        "</dublincore>"
+
+    uri := c.ingestHost+c.ingestPath+"/addDCCatalog"
+    fmt.Println("url:", uri)
+
+    params := url.Values{}
+	params.Add("mediaPackage", xml)
+	params.Add("dublinCore", dublinCoreTmp)
+    params.Add("flavor", "dublincore/episode")   
+
+	var dataStr = []byte(params.Encode())
+
+    fmt.Println(string(dataStr))
+
+    //var dataStr = []byte(`mediaPackage=`+xml+`&dublinCore=`+dublinCoreTmp+`&flavor=dublincore/episode`)
+
+    //request, _ := http.NewRequest("POST", url, ioutil.NopCloser(body))
+    request, _ := http.NewRequest("POST", uri, ioutil.NopCloser(bytes.NewBuffer(dataStr)))
+    //request, _ := http.NewRequest("POST", url, bytes.NewBuffer(dataStr))
+    //request.Header.Set("X-Requested-Auth", "Digest")
+    //request.Header.Set("Content-type", "application/x-www-form-urlencoded")
+    request.SetBasicAuth("admin", "opencast123")
+
+    //responce, err := c.client.Do(request)
+    responce, err := c.client0.Do(request)
+    if err != nil {
+        fmt.Println("err:", err)
+        return "", err
+    }
+    defer responce.Body.Close()
+
+    fmt.Println("responce code:", responce.Status)
+
+    body, _ := ioutil.ReadAll(responce.Body)
+    fmt.Println(string(body))
+
+    return string(body), nil
+
+}
+
+
+func (c *opencastClient) addTrack(xml string, flavor string, path string) (string, error) {
+    //# Add Track
+    //curl -f --digest -u ${USER}:${PASSWORD} -H "X-Requested-Auth: Digest" \
+    //"${HOST}/ingest/addTrack" -F flavor=presenter/source \
+    //-F "mediaPackage=<${TMP_MP}" -F Body=@testvideo.mp4 -o "${TMP_MP}"
+
+    //var err error
+
+    
+    file, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+    fileContents, err := ioutil.ReadAll(file)
+	if err != nil {
+		return "", err
+	}
+	fi, err := file.Stat()
+	if err != nil {
+		return "", err
+	}
+	file.Close()
+    
+
+    body := new(bytes.Buffer)
+	writer := multipart.NewWriter(body)
+
+    params := map[string]string{
+        "mediaPackage"  : xml,
+        "flavor"        : flavor,
+    }
+    
+    for key, val := range params {
+        _ = writer.WriteField(key, val)
+    }
+
+    //fmt.Println(body.String())
+    
+    
+	part, err := writer.CreateFormFile("BODY", fi.Name())
+	if err != nil {
+		return "", err
+	}
+	
+    part.Write(fileContents)
+  
+	err = writer.Close()
+	if err != nil {
+		return "", err
+	}
+    fmt.Println(writer.FormDataContentType())
+
+    //fmt.Println(body.String())
+
+    //var dataStr = []byte(`mediaPackage=`+xml+`&flavor=`+flavor)
+    //var dataStr = []byte(`mediaPackage=&flavor=`+flavor)
+    /*
+    paramsC := url.Values{}
+    paramsC.Add("mediaPackage", xml)
+    paramsC.Add("flavor", flavor)   
+    
+    var dataStr = []byte(paramsC.Encode())
+    */
+
+    uri := c.ingestHost+c.ingestPath+"/addTrack"
+    fmt.Println("url:", uri)
+
+    //request, _ := http.NewRequest("POST", uri, body)
+    request, _ := http.NewRequest("POST", uri, ioutil.NopCloser(body))
+    //request, _ := http.NewRequest("POST", uri, ioutil.NopCloser(bytes.NewBuffer(dataStr)))
+    //request.Header.Set("X-Requested-Auth", "Digest")
+    //request.Header.Set("Accept","/")
+    request.Header.Set("Content-Type", writer.FormDataContentType())
+    request.SetBasicAuth("admin", "opencast123")
+
+    //responce, err2 := c.client.Do(request)
+    responce, err2 := c.client0.Do(request)
+    if err2 != nil {
+        fmt.Println("err:", err2)
+        return "", err2
+    }
+    defer responce.Body.Close()
+
+    fmt.Println("responce code:", responce.Status)
+
+    bodya, _ := ioutil.ReadAll(responce.Body)
+    fmt.Println(string(bodya))
+
+    return string(bodya), nil
+}
+
+func (c *opencastClient) ingest(xml string) (string, error) {
+    //curl -f -v -i --digest -u ${USER}:${PASSWORD} \
+    //-H "X-Requested-Auth: Digest" \
+    //"${HOST}/ingest/ingest" \
+    //-F "mediaPackage=<${TMP_MP}" -o "${FINAL}"
+
+    //uri := c.ingestHost+c.ingestPath+"/ingest"
+    uri := c.ingestHost+c.ingestPath+"/ingest/schedule-and-upload"
+    fmt.Println("url:", uri)
+
+    paramsC := url.Values{}
+    paramsC.Add("mediaPackage", xml)
+    paramsC.Add("workflowDefinitionId", "")
+    paramsC.Add("workflowInstanceId", "")
+
+    var dataStr = []byte(paramsC.Encode())
+
+    fmt.Println(string(dataStr))
+
+    request, _ := http.NewRequest("POST", uri, ioutil.NopCloser(bytes.NewBuffer(dataStr)))
+    //request.Header.Set("X-Requested-Auth", "Digest")
+    request.Header.Set("Content-type", "application/x-www-form-urlencoded")
+    request.SetBasicAuth("admin", "opencast123")
+
+    //responce, err2 := c.client.Do(request)
+    responce, err2 := c.client0.Do(request)
+    if err2 != nil {
+        fmt.Println("err:", err2)
+        return "", err2
+    }
+    defer responce.Body.Close()
+
+    fmt.Println("responce code:", responce.Status)
+
+    bodya, _ := ioutil.ReadAll(responce.Body)
+    fmt.Println(string(bodya))
+
+    return string(bodya), nil
 }
 
 func main() {
@@ -240,6 +455,23 @@ func main() {
     c.register("idle")
     c.getSchedule()
 
+    xml, _ := c.createMediaPackage()
+    fmt.Println(xml)
+
+    xml2, _ := c.addDCCatalog(xml, "")
+    fmt.Println(xml2)
+
+    
+    xml3, err := c.addTrack(xml2, "presenter/source", "./testvideo.mp4")
+    //xml3, err := c.addTrack(xml2, "presenter/source", "./video.webm")
+    if err != nil {
+        fmt.Println("err:", err)
+    } else {
+        fmt.Println(xml3)
+    }
+    
+    xml4, _ := c.ingest(xml3)
+    fmt.Println(xml4)
 
 //////////////---------------
 //    params := url.Values{}
