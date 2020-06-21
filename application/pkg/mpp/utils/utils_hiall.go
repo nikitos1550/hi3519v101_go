@@ -8,6 +8,11 @@ import "C"
 
 import (
     "errors"
+    "application/pkg/logger"
+)
+
+var (
+    lastTS uint64
 )
 
 func Version() string {
@@ -32,9 +37,20 @@ func MppId() uint32 {
 //be significant. Therefore, you are recommended to tune the PTS once a second.
 func SyncPTS(pts uint64) error {
     err := C.HI_MPI_SYS_SyncPts(C.HI_U64(pts))
+
     if err != 0 {
+        logger.Log.Warn().
+            Uint64("pts", pts).
+            Uint64("delta", pts-lastTS).
+           Msg("SyncPTS")
         return errors.New("Some SyncPTS error")
+    } else {
+        logger.Log.Debug().
+            Uint64("pts", pts).
+            Uint64("delta", pts-lastTS).
+           Msg("SyncPTS")
     }
+    lastTS = pts
     return nil
 }
 
@@ -43,9 +59,18 @@ func SyncPTS(pts uint64) error {
 //is enabled. For example, you can call this MPI immediately when the OS starts. If a media
 //service is enabled, you can call HI_MPI_SYS_SyncPts to tune the PTS.
 func InitPTS(pts uint64) error {
+    lastTS = pts
+
     err := C.HI_MPI_SYS_InitPtsBase(C.HI_U64(pts))
     if err != 0 {
+        logger.Log.Warn().
+            Uint64("pts", pts).
+            Msg("InitPTS")
         return errors.New("Some InitPTS error")
+    } else {
+        logger.Log.Debug().
+            Uint64("pts", pts).
+            Msg("InitPTS")
     }
     return nil
 }
