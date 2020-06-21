@@ -371,8 +371,11 @@ int mpp_ai_config_inner(error_in *err) {
             ACODEC_MIXER_E input_mode = ACODEC_MIXER_IN;
         #endif
     #elif HI_MPP == 3
-        ACODEC_MIXER_E input_mode = ACODEC_MIXER_IN0;
-        //ACODEC_MIXER_E input_mode = ACODEC_MIXER_IN1;
+        #if defined(HI3516AV200)
+            ACODEC_MIXER_E input_mode = ACODEC_MIXER_IN0;
+        #elif defined(HI3516CV300)
+            ACODEC_MIXER_E input_mode = ACODEC_MIXER_IN1;
+        #endif
     #endif
 
     general_error_code = ioctl(fd, ACODEC_SET_MIXER_MIC, &input_mode);

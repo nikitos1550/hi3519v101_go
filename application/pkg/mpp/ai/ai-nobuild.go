@@ -11,3 +11,11 @@ func IsAudioExistTmp() bool { //temporary function to check if there any audio a
     return false
 }
 
+func RemoveOpus(ch chan []byte) {
+//    delete(Clients, ch)
+}
+
+func SubsribeOpus(ch chan []byte) {
+//    Clients[ch] = true
+}
+
