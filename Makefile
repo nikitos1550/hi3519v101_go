@@ -100,6 +100,7 @@ kernel: $(BOARD_OUTDIR)/kernel/uImage
 
 $(BOARD_OUTDIR)/rootfs+app.squashfs: $(BOARD_OUTDIR)/rootfs+app
 	rm -f $@
+	echo "192.168.10.2:/home/cam/cam$(CAMERA) /opt/nfs    nfs rw,tcp,intr,nolock 0 0" >> $(BOARD_OUTDIR)/rootfs+app/etc/fstab
 	mksquashfs $< $@ -all-root -comp xz -b 64K -Xdict-size 100%
 	#rm -f $(BOARD_OUTDIR)/rootfs+app.squashfs.xz
 	#mksquashfs $< $(BOARD_OUTDIR)/rootfs+app.squashfs.xz -all-root -comp xz -b 64K -Xdict-size 100%
