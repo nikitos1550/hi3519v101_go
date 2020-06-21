@@ -23,6 +23,8 @@ import (
     //"application/pkg/mpp/vo"
 
     "application/pkg/mpp/ai"
+
+    "time"
 )
 
 func Init(devInfo DeviceInfo) {
@@ -79,6 +81,9 @@ func Init(devInfo DeviceInfo) {
 	venc.Init()
 
     ai.Init()
+
+    //Set initial PTS
+    utils.InitPTS( uint64(time.Now().UnixNano() / 1000) )
 
     //vo.Init() //FOR TEST, onlu hi3516cv500
 }
