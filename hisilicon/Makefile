@@ -81,6 +81,7 @@ $(ROOTFS_BR_CONFIG): $(FAMILY_DIR)/rootfs-toolchain.buildroot
 $(ROOTFS_DIR): $(BUILDROOT_DIR) $(ROOTFS_BR_CONFIG) $(TOOLCHAIN_DIR)
 	rm -rf $@; mkdir -p $(OUTDIR)
 	make -C $(BUILDROOT_DIR) O=$(OUTDIR)/.br-rootfs defconfig BR2_DEFCONFIG=$(ROOTFS_BR_CONFIG)
+	#shopt -s nullglob; for P in $(ROOTFS_CONFIG_DIR)/overlay-common/*; do cp -r $$P $(OUTDIR)/.br-rootfs ; done
 	make -C $(OUTDIR)/.br-rootfs
 	ln -f --symbolic $(OUTDIR)/.br-rootfs/target $@
 
