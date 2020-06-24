@@ -31,8 +31,8 @@ PROG	 ?= 1
 #PROG     ?= 4
 
 #CAMERA  ?= 5
-#BOARD   ?= xm_ivg-hp201y-se_hi3516cv300_imx323
-#PROG    ?= 5
+#BOARD   ?= jvt_s274h19v-l29_hi3519v101_imx274
+#PROG     ?= no
 
 #CAMERA  ?= 6
 #BOARD   ?= jvt_s323h16xf_hi3516cv300_imx323
