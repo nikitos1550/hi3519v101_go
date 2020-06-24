@@ -32,6 +32,9 @@ type chunk struct {
 	Size int
 	StartTime time.Time 
 	EndTime time.Time 
+	StartTimestamp uint64
+	EndTimestamp uint64
+	FrameCount uint64
 	Md5 string
 }
 
@@ -44,6 +47,9 @@ type activeRecord struct {
 	CurrentFilePath string
 	Size int
 	StartTime time.Time 
+	StartTimestamp uint64
+	EndTimestamp uint64
+	FrameCount uint64
 	Chunks []chunk
 	Extention string
 }
@@ -54,6 +60,9 @@ type storedRecord struct {
 	Size int
 	StartTime time.Time 
 	EndTime time.Time 
+	StartTimestamp uint64
+	EndTimestamp uint64
+	FrameCount uint64
 	Chunks []chunk
 	Extention string
 }
@@ -63,6 +72,9 @@ type chunkInfo struct {
 	Size int
 	StartTime time.Time 
 	EndTime time.Time 
+	StartTimestamp uint64
+	EndTimestamp uint64
+	FrameCount uint64
 	Duration string
 	Md5 string
 }
@@ -75,6 +87,9 @@ type recordInfo struct {
 	Duration string
 	StartTime time.Time 
 	EndTime time.Time 
+	StartTimestamp uint64
+	EndTimestamp uint64
+	FrameCount uint64
 	Chunks []chunkInfo
 }
 
@@ -170,6 +185,9 @@ func saveRecord(uuid string, record activeRecord, md5Hash string) {
 		Size: record.Size,
 		StartTime: record.StartTime,
 		EndTime: record.Chunks[len(record.Chunks) - 1].EndTime,
+		StartTimestamp: record.StartTimestamp,
+		EndTimestamp: record.EndTimestamp,
+		FrameCount: record.FrameCount,
 		Chunks: record.Chunks,
 		Extention: record.Extention,
 	}
@@ -200,12 +218,15 @@ func writeVideoData(uuid string, chunks int, duration int){
 
 			record := ActiveRecords[uuid]
 			record.StartTime = time.Now()
+			record.StartTimestamp = data.Pts
 
 			c := chunk{
 				FilePath: record.CurrentFilePath,
 				Size: 0,
 				StartTime: record.StartTime,
+				StartTimestamp: data.Pts,
 				EndTime: time.Now(),
+				EndTimestamp: data.Pts,
 				Md5: "",
 			}
 
@@ -258,8 +279,12 @@ func writeVideoData(uuid string, chunks int, duration int){
 
 		record := ActiveRecords[uuid]
 		record.Size += len(data.Data)
+		record.FrameCount += 1
+		record.EndTimestamp = data.Pts
 		record.Chunks[len(record.Chunks) - 1].Size += len(data.Data)
 		record.Chunks[len(record.Chunks) - 1].EndTime = time.Now()
+		record.Chunks[len(record.Chunks) - 1].EndTimestamp = data.Pts
+		record.Chunks[len(record.Chunks) - 1].FrameCount += 1
 		ActiveRecords[uuid] = record
 	}
 }
@@ -369,6 +394,9 @@ func addChunksInfo(r *http.Request, inputChunks []chunk, chunksCount int, record
 			Size: inputChunks[i].Size,
 			StartTime: inputChunks[i].StartTime,
 			EndTime: inputChunks[i].EndTime,
+			StartTimestamp: inputChunks[i].StartTimestamp,
+			EndTimestamp: inputChunks[i].EndTimestamp,
+			FrameCount: inputChunks[i].FrameCount,
 			Duration: fmt.Sprintf("%v", inputChunks[i].EndTime.Sub(inputChunks[i].StartTime)),
 			Md5: inputChunks[i].Md5,
 		}
@@ -386,6 +414,9 @@ func addActiveRecord(r *http.Request, records *[]recordInfo, record activeRecord
 		Duration: fmt.Sprintf("%v", time.Now().Sub(record.StartTime)),
 		StartTime: record.StartTime,
 		EndTime: time.Now(),
+		StartTimestamp: record.StartTimestamp,
+		EndTimestamp: record.EndTimestamp,
+		FrameCount: record.FrameCount,
 		Chunks: []chunkInfo{},
 	}
 
@@ -409,6 +440,9 @@ func addFinishedRecord(r *http.Request, records *[]recordInfo, record storedReco
 		Duration: fmt.Sprintf("%v", record.EndTime.Sub(record.StartTime)),
 		StartTime: record.StartTime,
 		EndTime: record.EndTime,
+		StartTimestamp: record.StartTimestamp,
+		EndTimestamp: record.EndTimestamp,
+		FrameCount: record.FrameCount,
 		Chunks: []chunkInfo{},
 	}
 	
