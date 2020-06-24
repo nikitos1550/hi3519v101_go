@@ -39,7 +39,7 @@ func serveVersion(w http.ResponseWriter, r *http.Request) {
 
 
 func runSyncPts(w http.ResponseWriter, r *http.Request) {
-    err := utils.SyncPTS(100000)
+    err := utils.SyncPTS(50000000000)
 
     w.Header().Set("Content-Type", "application/json; charset=UTF-8")
     
@@ -53,7 +53,7 @@ func runSyncPts(w http.ResponseWriter, r *http.Request) {
 }
 
 func runInitPts(w http.ResponseWriter, r *http.Request) {
-    err := utils.InitPTS(0)
+    err := utils.InitPTS(10000000000)
 
     w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 

@@ -238,6 +238,39 @@ static void imx323_i2c_linear_1080p30_RAW12_init(HI_VOID)
         printf("-------Sony IMX323 Sensor 1080p_30fps_raw12_cmos_37p125Mhz Initial OK!-------\n");
 }
 
+/*
+    sensor_write_register(0x3000, 0x31);
+  sensor_write_register(8, 0);
+  sensor_write_register(9, 0xF0);
+  sensor_write_register(0x112, 0xC);
+  sensor_write_register(0x113, 0xC);
+  sensor_write_register(0x340, 4);
+  sensor_write_register(0x341, 0x65);
+  sensor_write_register(0x342, 5);
+  sensor_write_register(0x343, 0x28);
+  sensor_write_register(0x3002, 15);
+  sensor_write_register(0x3011, 0);
+  sensor_write_register(0x3012, 0x82);
+  sensor_write_register(0x3013, 0x40);
+  sensor_write_register(0x3016, 0x3C);
+  sensor_write_register(0x301A, 0x51);
+  sensor_write_register(0x301F, 0x73);
+  sensor_write_register(0x3022, 0x40);
+  sensor_write_register(0x3027, 0x20);
+  sensor_write_register(0x309A, 0x94);
+  sensor_write_register(0x309B, 2);
+  sensor_write_register(0x3117, 0xD);
+  sensor_write_register(0x30AF, 0xA);
+  sensor_write_register(0x303F, 0xA);
+  sensor_write_register(0x301E, 0);
+  sensor_write_register(0x202, 2);
+  sensor_write_register(0x203, 0xDE);
+  sensor_write_register(0x100, 1);
+  usleep(10000u);
+  sensor_write_register(0x302C, 0);
+
+
+ * */
 
 //HD 720p mode
 //37.125MHz

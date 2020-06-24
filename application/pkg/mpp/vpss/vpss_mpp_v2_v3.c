@@ -3,6 +3,7 @@
 #if defined(HI_MPP_V2) \
     || defined(HI_MPP_V3)
 VIDEO_FRAME_INFO_S channelFrames[VPSS_MAX_PHY_CHN_NUM];
+unsigned long long channelFramesTs[VPSS_MAX_PHY_CHN_NUM];
 
 int mpp_vpss_init(error_in *err, mpp_vpss_init_in *in) {
 
@@ -126,6 +127,17 @@ int mpp_receive_frame(error_in *err, unsigned int channel_id, void** frame) {
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_GetChnFrame, 0, channel_id, &channelFrames[channel_id], -1); //blocking mode call
 
     *frame = &channelFrames[channel_id];
+    
+    /*    
+    printf("VPSS getTimestamp %d %llu %llu\n", 
+            channel_id, 
+            channelFrames[channel_id].stVFrame.u64pts, 
+            channelFrames[channel_id].stVFrame.u64pts - channelFramesTs[channel_id]
+            );
+
+    channelFramesTs[channel_id] = channelFrames[channel_id].stVFrame.u64pts;
+    */
+
     return ERR_NONE;
 }
 

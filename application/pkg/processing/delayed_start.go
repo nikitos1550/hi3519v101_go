@@ -7,6 +7,9 @@ package processing
 
 unsigned long long getTimestamp(void* data) {
 	VIDEO_FRAME_INFO_S* stFrame = data;
+
+    //printf("getTimestamp %llu \n", stFrame->stVFrame.u64pts);
+
 	return stFrame->stVFrame.u64pts;
 }
 */

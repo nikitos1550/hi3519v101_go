@@ -15,7 +15,8 @@ func Init() {
 
 }
 
-func SubsribeEncoder(encoderId int, ch chan []byte) {
+//func SubsribeEncoder(encoderId int, ch chan []byte) {
+func SubsribeEncoder(encoderId int, ch chan ChannelEncoder) {
     encoder, encoderExists := ActiveEncoders[encoderId]
     if !encoderExists {
 		logger.Log.Error().
@@ -36,7 +37,8 @@ func SubsribeEncoder(encoderId int, ch chan []byte) {
     ActiveEncoders[encoderId] = encoder
 }
 
-func RemoveSubscription(encoderId int, ch chan []byte) {
+//func RemoveSubscription(encoderId int, ch chan []byte) {
+func RemoveSubscription(encoderId int, ch chan ChannelEncoder) {
     encoder, encoderExists := ActiveEncoders[encoderId]
     if !encoderExists {
 		logger.Log.Error().

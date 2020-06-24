@@ -24,7 +24,8 @@ type rtspStream struct {
 	Published bool
 	Sps []byte
 	Pps []byte
-	CameraIn chan []byte
+	//CameraIn chan []byte
+    CameraIn chan venc.ChannelEncoder
 	RtspOut chan gortsplib.InterleavedFrame
 }
 
@@ -91,7 +92,8 @@ func startRtspStream(w http.ResponseWriter, r *http.Request)  {
 		Published: false,
 		Sps: []byte{},
 		Pps: []byte{},
-		CameraIn: make(chan []byte, 100),
+		//CameraIn: make(chan []byte, 100),
+        CameraIn: make(chan venc.ChannelEncoder, 100),
 		RtspOut: make(chan gortsplib.InterleavedFrame, 1000),
 	}
 
@@ -139,11 +141,11 @@ func writeVideoData(streamName string) {
 		data := <-stream.CameraIn
 
 		if (len(stream.Sps) == 0) {
-			stream.Sps = ExtractSps(stream.EncoderType, data)
+			stream.Sps = ExtractSps(stream.EncoderType, data.Data)
 		}
 
 		if (len(stream.Pps) == 0) {
-			stream.Pps = ExtractPps(stream.EncoderType, data)
+			stream.Pps = ExtractPps(stream.EncoderType, data.Data)
 		}
 
 		if (!stream.Published && len(stream.Sps) > 0 && len(stream.Pps) > 0) {
@@ -164,7 +166,7 @@ func writeVideoData(streamName string) {
 			continue
 		}
 
-		packets := packetizer.H264ToRtp(data)
+		packets := packetizer.H264ToRtp(data.Data)
 		for _, p := range packets {
 			if (cap(stream.RtspOut) <= len(stream.RtspOut)) {
 				log.Println("Rtsp channel is full. Capacity ", cap(stream.RtspOut), " Length ", len(stream.RtspOut), "Skip element")

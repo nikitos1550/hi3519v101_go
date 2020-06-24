@@ -22,8 +22,14 @@ type ActiveEncoder struct {
 	Width int 
 	Height int 
 	Bitrate int 
-	Channels map[chan []byte]bool
+	//Channels map[chan []byte]bool
+    Channels map[chan ChannelEncoder]bool
 	DataChannels map[chan []byte]bool
+}
+
+type ChannelEncoder struct {
+    Data    []byte
+    Pts     uint64
 }
 
 var PredefinedEncoders map[string] PredefinedEncoder
@@ -64,7 +70,8 @@ func CreatePredefinedEncoder(encoderName string) (int, string)  {
 		Width: encoder.Width,
 		Height: encoder.Height,
 		Bitrate: encoder.Bitrate,
-		Channels: make(map[chan []byte]bool),
+		//Channels: make(map[chan []byte]bool),
+        Channels: make(map[chan ChannelEncoder]bool),
 		DataChannels: make(map[chan []byte]bool),
 	}
 
@@ -84,7 +91,8 @@ func CreateDummyEncoder() (int, string)  {
 		Width: 0,
 		Height: 0,
 		Bitrate: 0,
-		Channels: make(map[chan []byte]bool),
+		//Channels: make(map[chan []byte]bool),
+        Channels: make(map[chan ChannelEncoder]bool),
 		DataChannels: make(map[chan []byte]bool),
 	}
 

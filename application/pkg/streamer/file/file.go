@@ -36,7 +36,8 @@ type chunk struct {
 }
 
 type activeRecord struct {
-    Payload    chan []byte
+    //Payload    chan []byte
+    Payload    chan venc.ChannelEncoder
 	Started    bool
 	EncoderId  int
 	CurrentFile *os.File
@@ -193,7 +194,7 @@ func writeVideoData(uuid string, chunks int, duration int){
 
 		data := <- ActiveRecords[uuid].Payload
 		if (ActiveRecords[uuid].Size == 0){
-			if (!keyFrame(ActiveRecords[uuid].Extention, data)){
+			if (!keyFrame(ActiveRecords[uuid].Extention, data.Data)){
 				continue
 			}
 
@@ -216,7 +217,7 @@ func writeVideoData(uuid string, chunks int, duration int){
 			record := ActiveRecords[uuid]
 
 			chunkDuration := time.Now().Sub(record.Chunks[len(record.Chunks) - 1].StartTime)
-			if (chunkDuration.Seconds() >= float64(duration) && keyFrame(record.Extention, data)){
+			if (chunkDuration.Seconds() >= float64(duration) && keyFrame(record.Extention, data.Data)){
 				record.CurrentFile.Close()
 				finalFilePath := record.CurrentFilePath
 				if (strings.HasSuffix(finalFilePath, ".tmp")){
@@ -252,12 +253,12 @@ func writeVideoData(uuid string, chunks int, duration int){
 			}
 		}
 
-		ActiveRecords[uuid].CurrentFile.Write(data)
-		h.Write(data)
+		ActiveRecords[uuid].CurrentFile.Write(data.Data)
+		h.Write(data.Data)
 
 		record := ActiveRecords[uuid]
-		record.Size += len(data)
-		record.Chunks[len(record.Chunks) - 1].Size += len(data)
+		record.Size += len(data.Data)
+		record.Chunks[len(record.Chunks) - 1].Size += len(data.Data)
 		record.Chunks[len(record.Chunks) - 1].EndTime = time.Now()
 		ActiveRecords[uuid] = record
 	}
@@ -293,7 +294,8 @@ func startNewRecord(w http.ResponseWriter, r *http.Request)  {
     }
 	
 	ActiveRecords[uuid] = activeRecord{
-		Payload: make(chan []byte, 100),
+		//Payload: make(chan []byte, 100),
+        Payload: make(chan venc.ChannelEncoder, 100),
 		Started: true,
 		EncoderId: encoderId,
 		CurrentFile: f,

@@ -46,7 +46,14 @@ func go_callback_receive_data(venc_channel C.int, info_pointer *C.info_from_c, d
 
     num := int(data_num) 
 
-    //var infoFromC *C.info_from_c = info_pointer
+    var infoFromC *C.info_from_c = info_pointer
+
+    /*
+    logger.Log.Debug().
+        Uint64("pts", uint64(infoFromC.pts)).
+        Msg("VENC")
+    */
+
     //infoFromC.ref_type:
     //BASE_IDRSLICE = 0           //IDR frame at the base layer
     //BASE_PSLICE_REFTOIDR        //P-frame at the base layer, referenced by other frames at the base layer and references only IDR frames
@@ -76,7 +83,12 @@ func go_callback_receive_data(venc_channel C.int, info_pointer *C.info_from_c, d
                 <-ch
             }
 
-            ch <- data
+            var tmpData ChannelEncoder
+            tmpData.Data = data
+            tmpData.Pts = uint64(infoFromC.pts)
+
+            //ch <- data
+            ch <- tmpData
         }
     }
 }

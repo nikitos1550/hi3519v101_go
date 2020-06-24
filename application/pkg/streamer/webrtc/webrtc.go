@@ -25,7 +25,8 @@ type WebrtcSession struct {
 	Started bool
 	VideoTrack *webrtc.Track
 	AudioTrack *webrtc.Track
-    VideoPayload chan []byte
+    //VideoPayload chan []byte
+    VideoPayload chan venc.ChannelEncoder
     AudioPayload chan []byte
 }
 
@@ -58,7 +59,8 @@ func WebrtcConnect(browserSdp string, encoderId int) (int, string, string) {
 	var webrtcSession WebrtcSession
 	webrtcSession.SessionId = uuid.New().String()
 	webrtcSession.EncoderId = encoderId
-	webrtcSession.VideoPayload = make(chan []byte, 1)
+	//webrtcSession.VideoPayload = make(chan []byte, 1)
+    webrtcSession.VideoPayload = make(chan venc.ChannelEncoder, 1)
 	webrtcSession.AudioPayload = make(chan []byte, 1)
 
 	encoder, encoderExists := venc.ActiveEncoders[encoderId]
@@ -194,7 +196,7 @@ func sendVideoData(sessionId string) {
 		buf := <- session.VideoPayload
 
 		if (!spsSended){
-			sps := rtsp.ExtractSps(session.EncoderType, buf);
+			sps := rtsp.ExtractSps(session.EncoderType, buf.Data);
 			if (len(sps) == 0){
 				continue
 			}
@@ -202,7 +204,7 @@ func sendVideoData(sessionId string) {
 		}
 
         var h264Err error
-        if h264Err = session.VideoTrack.WriteSample(media.Sample{Data: buf, Samples: 90000}); h264Err != nil {
+        if h264Err = session.VideoTrack.WriteSample(media.Sample{Data: buf.Data, Samples: 90000}); h264Err != nil {
             log.Println("Webrtc video: ", h264Err)
         }
     }

@@ -85,7 +85,7 @@ func Init(devInfo DeviceInfo) {
     //Set initial PTS
     utils.InitPTS( uint64(time.Now().UnixNano() / 1000) )
 
-    /*
+   
     ticker := time.NewTicker(1 * time.Minute)
     quit := make(chan struct{})
     go func() {
@@ -99,7 +99,7 @@ func Init(devInfo DeviceInfo) {
             }
         }
     }()
-    */
+    
 
     //vo.Init() //FOR TEST, onlu hi3516cv500
 }

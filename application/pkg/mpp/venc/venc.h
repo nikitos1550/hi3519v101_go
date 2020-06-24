@@ -23,9 +23,10 @@ typedef struct data_from_c_struct {
 } data_from_c;
 
 typedef struct info_from_c_struct {
-   unsigned int     seq; 
-   unsigned int     q_factor;
-   unsigned int     ref_type;
+   unsigned int         seq; 
+   unsigned long long   pts;
+   unsigned int         q_factor;
+   unsigned int         ref_type;
 } info_from_c;
 
 void go_callback_receive_data(int venc, info_from_c *info_pointer, data_from_c *data_pointer, int num);
