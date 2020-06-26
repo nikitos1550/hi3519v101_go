@@ -6,6 +6,7 @@ package mpp
 //#include "isp_main.h"
 
 #include <string.h>
+#include <stdio.h>
 
 #define ERR_NONE    0
 #define ERR_MPP     1

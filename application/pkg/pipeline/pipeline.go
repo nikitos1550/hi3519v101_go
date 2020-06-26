@@ -1,3 +1,5 @@
+//+build nobuild
+
 package pipeline
 
 import (

@@ -36,7 +36,8 @@ func MppId() uint32 {
 //multiple chips are synchronized, the difference between the clock sources of the boards may
 //be significant. Therefore, you are recommended to tune the PTS once a second.
 func SyncPTS(pts uint64) error {
-    err := C.HI_MPI_SYS_SyncPts(C.HI_U64(pts))
+    //err := C.HI_MPI_SYS_SyncPts(C.HI_U64(pts))
+    err := C.SyncPts(C.HI_U64(pts))
 
     if err != 0 {
         logger.Log.Warn().
@@ -61,7 +62,9 @@ func SyncPTS(pts uint64) error {
 func InitPTS(pts uint64) error {
     lastTS = pts
 
-    err := C.HI_MPI_SYS_InitPtsBase(C.HI_U64(pts))
+    //err := C.HI_MPI_SYS_InitPtsBase(C.HI_U64(pts))
+    err := C.InitPtsBase(C.HI_U64(pts))
+
     if err != 0 {
         logger.Log.Warn().
             Uint64("pts", pts).

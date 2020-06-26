@@ -5,30 +5,28 @@ import "C"
 
 import (
     "flag"
+    "time"
     "unsafe"
+
     "application/pkg/mpp/vi"
     "application/pkg/mpp/errmpp"
     "application/pkg/logger"
     "application/pkg/buildinfo"
-
-    "time"
 )
 
 var (
     nr bool
     nrFrmNum uint
+
+    channelsAmount int = C.VPSS_MAX_PHY_CHN_NUM
 )
+
 func init() {
     flag.BoolVar(&nr, "vpss-nr", true, "Noise remove enable")
 
     if buildinfo.Family == "hi3516av200" {
-        //flag.BoolVar(&nr, "vpss-nr", true, "Noise remove enable") //moved outside as common param
         flag.UintVar(&nrFrmNum, "vpss-nr-frames", 2, "Noise remove reference frames number [1;2]")
     }
-}
-
-func maxChannels() uint {
-    return uint(C.VPSS_MAX_PHY_CHN_NUM)
 }
 
 func Init() {
@@ -43,6 +41,7 @@ func Init() {
     } else {
         in.nr = 0
     }
+
     if buildinfo.Family == "hi3516av200" {
         if nr == true {
 
@@ -52,10 +51,8 @@ func Init() {
                     Msg("vpss-nr-frames shoud be 1 or 2")
             }
             in.nr_frames = C.uchar(nrFrmNum)
-            //in.nr = 1
-        }   //else {
-            //in.nr = 0
-            //}
+
+        }
     }
 
     logger.Log.Trace().
@@ -77,18 +74,18 @@ func Init() {
         Msg("VPSS inited")
 }
 
-func createChannel(channel Channel) { //TODO return error
+func mppCreateChannel(id int, params Parameters) error {
     var inErr C.error_in
     var in C.mpp_vpss_create_channel_in
 
-    in.channel_id = C.uint(channel.ChannelId)
-    in.width = C.uint(channel.Width)
-    in.height = C.uint(channel.Height)
-    in.vi_fps = C.uint(vi.Fps())
-    in.fps = C.uint(channel.Fps)
+    in.channel_id   = C.uint(id)            //C.uint(channel.ChannelId)
+    in.width        = C.uint(params.Width)  //C.uint(channel.Width)
+    in.height       = C.uint(params.Height) //C.uint(channel.Height)
+    in.vi_fps       = C.uint(vi.Fps())
+    in.fps          = C.uint(params.Fps)    //C.uint(channel.Fps)
 
     logger.Log.Trace().
-        Int("channelId", channel.ChannelId).
+        Uint("channel", uint(in.channel_id)).
         Uint("width", uint(in.width)).
         Uint("height", uint(in.height)).
         Uint("vi_fps", uint(in.vi_fps)).
@@ -96,91 +93,112 @@ func createChannel(channel Channel) { //TODO return error
         Msg("VPSS channel params")
 
     err := C.mpp_vpss_create_channel(&inErr, &in)
-    
+
     if err != 0 {
-        logger.Log.Fatal(). //log temporary, should generate and return error
+        logger.Log.Fatal().
             Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
             Msg("VPSS")
+        return errmpp.New(C.GoString(inErr.name), uint(inErr.code))
     }
 
-    go func() {
-        sendDataToClients(channel)
-    }()
-
-    //return nil
+    return nil
 }
 
-func destroyChannel(channel Channel) { //TODO return error
+func mppDestroyChannel(id int) error {
     var inErr C.error_in
     var in C.mpp_vpss_destroy_channel_in
 
-    in.channel_id = C.uint(channel.ChannelId)
+    in.channel_id = C.uint(id)          //C.uint(channel.ChannelId)
 
     err := C.mpp_vpss_destroy_channel(&inErr, &in)
 
     if err != 0 {
-        logger.Log.Fatal(). //log temporary, should generate and return error
+        logger.Log.Fatal().
             Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
             Msg("VPSS")
+        return errmpp.New(C.GoString(inErr.name), uint(inErr.code))
     }
 
-    //return nil
+    return nil
 }
 
-func sendDataToClients(channel Channel) {
+func sendDataToClients(c *channel) {
+    periodTreshhold := uint64(1500000 / c.params.Fps)
+    periodWait      := uint64(5000 / c.params.Fps)
+
     logger.Log.Trace().
-        Int("channelId", channel.ChannelId).
+        Int("channel", c.id).
         Str("name", "sendDataToClients").
+        Uint64("treshhold", periodTreshhold).
+        Uint64("wait", periodWait).
         Msg("VPSS rutine started")
 
     for {
-        if (!channel.Started){
+        if (!c.started){
             break
         }
 
         var err C.int
         var inErr C.error_in
         var frame unsafe.Pointer
+        var pts C.ulonglong
 
         //hi3516cv100 family doesn`t provide blocking getFrame call
         if buildinfo.Family == "hi3516cv100" {  //TODO
             time.Sleep(1 * time.Second)         //now we will just sleep here
         }
 
-        err = C.mpp_receive_frame(&inErr, C.uint(channel.ChannelId), &frame);
+        err = C.mpp_receive_frame(&inErr, C.uint(c.id), &frame, &pts, C.uint(periodWait));
+
         if err != C.ERR_NONE {
             logger.Log.Warn().
-                Int("channelId", channel.ChannelId).
+                Int("channel", c.id).
                 Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
                 Msg("VPSS failed receive frame")
             continue
-        } else {
-            //logger.Log.Trace().
-            //    Int("channelId", channel.ChannelId).
-            //    Msg("VPSS received frame")
         }
 
-        
-        for processing, _ := range channel.Clients {
+        c.stat.TsPrev = c.stat.TsLast
+        c.stat.TsLast = uint64(pts)
+        c.stat.Count++
+
+        var period uint64 = c.stat.TsLast - c.stat.TsPrev
+
+        if period > periodTreshhold {
+            if (c.stat.Count > 1) {
+                c.stat.Drops++
+            }
+        } else {
+            c.stat.PeriodAvg += ((float64(period) - c.stat.PeriodAvg) / float64(c.stat.Count))
+        }
+
+        //logger.Log.Trace().
+        //    Float64("period", channel.Stat.PeriodAvg).
+        //    //Uint("period", channel.Stat.PeriodAvg).
+        //    Uint64("count", channel.Stat.Count).
+        //    Uint64("drops", channel.Stat.Drops).
+        //    Float64("delta", float64(period)).
+        //    //Float32("test",  ((1 / float32(channel.Fps))*1.5)).
+        //    Msg("STAT")
+
+        for processing, _ := range c.clients {
             processing.Callback(frame)
         }
-        
-        err = C.mpp_release_frame(&inErr, C.uint(channel.ChannelId));
+
+        err = C.mpp_release_frame(&inErr, C.uint(c.id));
+
         if err != C.ERR_NONE {
             logger.Log.Error().
-                Int("channelId", channel.ChannelId).
+                Int("channel", c.id).
                 Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
                 Msg("VPSS failed release frame")
-        } else {
-            //logger.Log.Trace().
-            //    Int("channelId", channel.ChannelId).
-            //    Msg("VPSS released frame")
         }
-
     }
 
-    logger.Log.Trace().        
-        Int("channelId", channel.ChannelId).    
+    c.rutineStop <- true //TODO improve channel stop
+
+    logger.Log.Trace().
+        Int("channel", c.id).
         Str("name", "sendDataToClients").
         Msg("VPSS rutine stopped")
 }

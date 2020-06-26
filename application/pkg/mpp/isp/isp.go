@@ -77,7 +77,8 @@ func Init() {
                 Msg("ISP")
         case C.ERR_GENERAL:
             logger.Log.Fatal().
-                Str("error", "ISP error TODO").
+                Uint("error", uint(inErr.code)).
+                Str("name", C.GoString(inErr.name)).
                 Msg("ISP")
         default:
             break

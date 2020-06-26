@@ -5,10 +5,25 @@ package processing
 /*
 #include "processing.h"
 
+//unsigned long long getTimestamp(void* data) {
+//	VIDEO_FRAME_INFO_S* stFrame = data;
+//	return stFrame->stVFrame.u64pts;
+//}
+
 unsigned long long getTimestamp(void* data) {
-	VIDEO_FRAME_INFO_S* stFrame = data;
-	return stFrame->stVFrame.u64pts;
+    VIDEO_FRAME_INFO_S* stFrame = data;
+
+    //printf("getTimestamp %llu \n", stFrame->stVFrame.u64pts);
+
+    #if HI_MPP == 1 \
+        || HI_MPP == 2 \
+        || HI_MPP == 3
+        return stFrame->stVFrame.u64pts;
+    #elif HI_MPP == 4
+        return stFrame->stVFrame.u64PTS;
+    #endif
 }
+
 */
 import "C"
 

@@ -36,5 +36,5 @@ typedef struct mpp_receive_frame_out_struct {
 int mpp_vpss_init(error_in *err, mpp_vpss_init_in *in);
 int mpp_vpss_create_channel(error_in *err, mpp_vpss_create_channel_in * in);
 int mpp_vpss_destroy_channel(error_in * err, mpp_vpss_destroy_channel_in *in);
-int mpp_receive_frame(error_in *err, unsigned int channel_id, void** frame);
+int mpp_receive_frame(error_in *err, unsigned int channel_id, void **frame, unsigned long long *pts, unsigned int wait);
 int mpp_release_frame(error_in *err, unsigned int channel_id);

@@ -29,7 +29,7 @@ var (
         	[2]string{"hi3516ev200_h265e.ko", ""},
         	[2]string{"hi3516ev200_jpege.ko", ""},
         	[2]string{"hi3516ev200_ive.ko", "save_power={save_power}"},
-        	//[2]string{"hi_pwm.ko", ""},
+        	[2]string{"hi_pwm.ko", ""},
         	[2]string{"hi_sensor_i2c.ko", ""},
         	[2]string{"hi_sensor_spi.ko", ""},
         	[2]string{"hi3516ev200_aio.ko", ""},

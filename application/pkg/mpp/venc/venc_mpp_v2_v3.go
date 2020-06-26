@@ -28,13 +28,13 @@ static int hi3516av200_venc_sample_mjpeg(error_in *err, hi3516av200_venc_create_
     stMjpegAttr.u32MaxPicHeight     = in->height;
     stMjpegAttr.u32PicWidth         = in->width;
     stMjpegAttr.u32PicHeight        = in->height;
-    stMjpegAttr.u32BufSize          = in->width * in->height * 3; //3840*2160*3;
+    stMjpegAttr.u32BufSize          = in->width * in->height * 6; //3840*2160*3;
     stMjpegAttr.bByFrame            = HI_TRUE;
 
 	VENC_ATTR_MJPEG_CBR_S stMjpegCbr;
 
     stMjpegCbr.u32SrcFrmRate        = 30;   //in->vpss_fps; TODO
-    stMjpegCbr.fr32DstFrmRate       = 1;    //in->fps; TODO
+    stMjpegCbr.fr32DstFrmRate       = 1;//30;//1;    //in->fps; TODO
     stMjpegCbr.u32BitRate           = in->bitrate;
 	stMjpegCbr.u32StatTime          = 1;
     stMjpegCbr.u32FluctuateLevel    = 1;

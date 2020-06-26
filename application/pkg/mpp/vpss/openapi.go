@@ -3,22 +3,15 @@
 package vpss
 
 import (
-    "application/pkg/common"
-	"application/pkg/openapi"
-	"net/http"
-)
+    "fmt"
+    "net/http"
+    "strconv"
+    "encoding/json"
 
-type ChannelInfo struct {
-	ChannelId  int
-	Width int
-	Height int
-	Fps int
-	CropX int
-	CropY int
-	CropWidth int
-	CropHeight int
-	Processings []int
-}
+    "github.com/gorilla/mux"
+
+	"application/pkg/openapi"
+)
 
 type responseRecord struct {
 	Message string
@@ -30,101 +23,168 @@ func init() {
     openapi.AddApiRoute("startChannel", "/mpp/channel/start", "GET", startChannelRequest)
     openapi.AddApiRoute("stopChannel", "/mpp/channel/stop", "GET", stopChannelRequest)
     openapi.AddApiRoute("listChannels", "/mpp/channel/list", "GET", listChannelsRequest)
+    ////////////////////
+    openapi.AddApiRoute("channelInfo", "/mpp/channel/{id:[0-9+]}", "GET", channelInfoRequest)
+
+}
+
+func channelInfoRequest(w http.ResponseWriter, r *http.Request)  {
+    var err error
+    var id int
+
+    params := mux.Vars(r)
+    id, err = strconv.Atoi(params["id"])
+
+    w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
+
+    if err != nil {
+        w.WriteHeader(http.StatusInternalServerError)
+        return
+    }
+
+    //channel, channelExists := Channels[channelId]
+    //if (!channelExists) {
+    //    w.WriteHeader(http.StatusNotFound)
+    //    return
+    //}
+
+    stat, err := GetStat(id)
+    if err != nil {
+        w.WriteHeader(http.StatusInternalServerError)
+        return
+    }
+
+    //logger.Log.Debug().
+    //    Uint64("count", stat.Count).
+    //    Float64("period", stat.PeriodAvg).
+    //    Msg("channel found")
+
+    w.WriteHeader(http.StatusOK)
+
+    schemaJson, _ := json.Marshal(stat)
+    fmt.Fprintf(w, "%s", string(schemaJson))
 }
 
 func apiDescription(w http.ResponseWriter, r *http.Request)  {
 	openapi.ApiDescription(w, r, "Channels api:\n\n", "/mpp/channel")
 }
 
+
 func startChannelRequest(w http.ResponseWriter, r *http.Request)  {
-	var channel Channel
 	var ok bool
+    var id int
+    var params Parameters
 
-	ok, channel.ChannelId = openapi.GetIntParameter(w, r, "channelId")
+	ok, id = openapi.GetIntParameter(w, r, "channelId")
 	if !ok {
 		return
 	}
 
-	ok, channel.Width = openapi.GetIntParameter(w, r, "width")
+	ok, params.Width = openapi.GetIntParameter(w, r, "width")
 	if !ok {
 		return
 	}
 
-	ok, channel.Height = openapi.GetIntParameter(w, r, "height")
+	ok, params.Height = openapi.GetIntParameter(w, r, "height")
 	if !ok {
 		return
 	}
 
-	ok, channel.Fps = openapi.GetIntParameter(w, r, "fps")
+	ok, params.Fps = openapi.GetIntParameter(w, r, "fps")
 	if !ok {
 		return
 	}
 
-	channel.CropX = openapi.GetIntParameterOrDefault(w, r, "cropX", 0)
+	params.CropX = openapi.GetIntParameterOrDefault(w, r, "cropX", 0)
 	if !ok {
 		return
 	}
 
-	channel.CropY = openapi.GetIntParameterOrDefault(w, r, "cropY", 0)
+	params.CropY = openapi.GetIntParameterOrDefault(w, r, "cropY", 0)
 	if !ok {
 		return
 	}
 
-	channel.CropWidth = openapi.GetIntParameterOrDefault(w, r, "cropWidth", channel.Width)
+	params.CropWidth = openapi.GetIntParameterOrDefault(w, r, "cropWidth", 0)
 	if !ok {
 		return
 	}
 
-	channel.CropHeight = openapi.GetIntParameterOrDefault(w, r, "cropHeight", channel.Height)
+	params.CropHeight = openapi.GetIntParameterOrDefault(w, r, "cropHeight", 0)
 	if !ok {
 		return
 	}
 
-	channel.Started = true                              //Should be done only after successfull channel start
-	channel.Clients = make(map[common.Processing] bool)               //Most probably same issue as above
-
-	err, errorString := StartChannel(channel)
-	if err < 0 {
-		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: errorString})
+	err := StartChannel(id, params)
+	if err != nil {
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: err.Error()})
 		return
 	}
 
 	openapi.ResponseSuccessWithDetails(w, responseRecord{Message: "Channel was started"})
 }
 
+
 func stopChannelRequest(w http.ResponseWriter, r *http.Request) {
-	ok, channelId := openapi.GetIntParameter(w, r, "channelId")
+	ok, id := openapi.GetIntParameter(w, r, "channelId")
 	if !ok {
 		return
 	}
 
-	err, errorString := StopChannel(channelId)
-	if err < 0 {
-		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: errorString})
+	err := StopChannel(id)
+	if err != nil {
+		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: err.Error()})
 		return
 	}
 
 	openapi.ResponseSuccessWithDetails(w, responseRecord{Message: "Channel was stopped"})
 }
 
-func listChannelsRequest(w http.ResponseWriter, r *http.Request) {
-	var channelsInfo []ChannelInfo
-	for _, channel := range Channels {
-		info := ChannelInfo{
-			ChannelId: channel.ChannelId,
-			Width: channel.Width,
-			Height: channel.Height,
-			Fps: channel.Fps,
-			CropX: channel.CropX,
-			CropY: channel.CropY,
-			CropWidth: channel.CropWidth,
-			CropHeight: channel.CropHeight,
-		}
-		for processing, _ := range channel.Clients {
-			info.Processings = append(info.Processings, processing.GetId())
-		}
+type ChannelInfo struct {
+    ChannelId   int
+    Params      Parameters
+    //Width int
+    //Height int
+    //Fps int
+    //CropX int
+    //CropY int
+    //CropWidth int
+    //CropHeight int
+    Processings []int
+}
 
-		channelsInfo = append(channelsInfo, info)
+
+func listChannelsRequest(w http.ResponseWriter, r *http.Request) {
+    var channelsInfo []ChannelInfo
+
+    for i:=0; i< channelsAmount;i++ {
+
+		//info := ChannelInfo{
+		//	ChannelId: channel.ChannelId,
+		//	Width: channel.Width,
+		//	Height: channel.Height,
+		//	Fps: channel.Fps,
+		//	CropX: channel.CropX,
+		//	CropY: channel.CropY,
+		//	CropWidth: channel.CropWidth,
+		//	CropHeight: channel.CropHeight,
+		//}
+		//for processing, _ := range channel.Clients {
+		//	info.Processings = append(info.Processings, processing.GetId())
+		//}
+        t := ChannelInfo{}
+        
+        t.ChannelId = i
+        t.Params, _ = GetParams(i)
+       
+        clients, _ := GetClientsTmp(i)
+
+        for processing, _ := range clients {
+            t.Processings = append(t.Processings, processing.GetId())
+        }
+
+		channelsInfo = append(channelsInfo, t)
 	}
 	openapi.ResponseSuccessWithDetails(w, channelsInfo)
 }
+

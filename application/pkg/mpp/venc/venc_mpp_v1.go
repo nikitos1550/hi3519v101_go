@@ -22,7 +22,7 @@ typedef struct hi3516cv100_venc_create_mjpeg_in_struct {
 } hi3516cv100_venc_create_mjpeg_in;
 
 int hi3516cv100_venc_sample_mjpeg(error_in *err, hi3516cv100_venc_create_mjpeg_in *in) {
-    HI_S32 s32Ret;
+    //HI_S32 s32Ret;
     VENC_CHN_ATTR_S stVencChnAttr;
     VENC_ATTR_MJPEG_S stMjpegAttr;
                        

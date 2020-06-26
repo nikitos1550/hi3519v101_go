@@ -29,9 +29,9 @@ int mpp_cmos_init(int *error_code, unsigned char cmos) {
         }
 
         ISP_SNS_COMMBUS_U uSnsBusInfo;
-        ISP_SNS_TYPE_E enBusType;
+        //ISP_SNS_TYPE_E enBusType;
 
-        enBusType = ISP_SNS_I2C_TYPE;
+        //enBusType = ISP_SNS_I2C_TYPE;
         uSnsBusInfo.s8I2cDev = 0;
 
         *error_code = cmos->pfnSetBusInfo(0, uSnsBusInfo);

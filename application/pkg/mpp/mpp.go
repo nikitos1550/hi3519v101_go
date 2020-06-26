@@ -46,7 +46,7 @@ func Init(devInfo DeviceInfo) {
     //echo "all=4" > /proc/umap/logmpp
 
     
-    if false {
+    if true {
         cmd := exec.Command("sh", "-c", "echo \"all=9\" > /proc/umap/logmpp")
 	    _, err := cmd.CombinedOutput()
     	if err != nil {
@@ -83,9 +83,10 @@ func Init(devInfo DeviceInfo) {
     ai.Init()
 
     //Set initial PTS
+    
     utils.InitPTS( uint64(time.Now().UnixNano() / 1000) )
 
-   
+    //update pts each minute
     ticker := time.NewTicker(1 * time.Minute)
     quit := make(chan struct{})
     go func() {
@@ -99,7 +100,7 @@ func Init(devInfo DeviceInfo) {
             }
         }
     }()
-    
+        
 
     //vo.Init() //FOR TEST, onlu hi3516cv500
 }

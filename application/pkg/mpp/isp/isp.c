@@ -1,5 +1,7 @@
 #include "isp.h"
 
+#include <sched.h>
+
 static pthread_t mpp_isp_thread_pid;
 
 void* mpp_isp_thread(HI_VOID *param){   //now we start it from go space
@@ -160,8 +162,75 @@ int mpp_isp_init(error_in *err, mpp_isp_init_in *in) {
     #endif
 
     //thread start moved to go space, tmp
-    DO_OR_RETURN_ERR_GENERAL(err, pthread_create, &mpp_isp_thread_pid, 0, (void* (*)(void*))mpp_isp_thread, NULL);
-	DO_OR_RETURN_ERR_GENERAL(err, pthread_setname_np, mpp_isp_thread_pid, "ISP");
 
+#if 0
+    /* configure thread priority */
+    {
+
+        pthread_attr_t attr;
+        struct sched_param param;
+        int newprio = 50;
+
+        pthread_attr_init(&attr);
+
+        {
+            int policy = 0;
+            int min, max;
+
+            pthread_attr_getschedpolicy(&attr, &policy);
+            printf("-->default thread use policy is %d --<\n", policy);
+
+            pthread_attr_setschedpolicy(&attr, SCHED_RR);
+            pthread_attr_getschedpolicy(&attr, &policy);
+            printf("-->current thread use policy is %d --<\n", policy);
+
+            switch (policy)
+            {
+                case SCHED_FIFO:
+                    printf("-->current thread use policy is SCHED_FIFO --<\n");
+                    break;
+
+                case SCHED_RR:
+                    printf("-->current thread use policy is SCHED_RR --<\n");
+                    break;
+
+                case SCHED_OTHER:
+                    printf("-->current thread use policy is SCHED_OTHER --<\n");
+                    break;
+
+                default:
+                    printf("-->current thread use policy is UNKNOW --<\n");
+                    break;
+            }
+
+            min = sched_get_priority_min(policy);
+            max = sched_get_priority_max(policy);
+
+            printf("-->current thread policy priority range (%d ~ %d) --<\n", min, max);
+        }
+
+        pthread_attr_getschedparam(&attr, &param);
+
+        printf("-->default isp thread priority is %d , next be %d --<\n", param.sched_priority, newprio);
+        param.sched_priority = newprio;
+        pthread_attr_setschedparam(&attr, &param);
+
+        DO_OR_RETURN_ERR_GENERAL(err, pthread_create, &mpp_isp_thread_pid, &attr, (void* (*)(void*))mpp_isp_thread, NULL);
+        /*
+        if (0 != pthread_create(&gs_IspPid, &attr, (void * (*)(void*))HI_MPI_ISP_Run, NULL))
+        {
+            printf("%s: create isp running thread failed!\n", __FUNCTION__);
+            return HI_FAILURE;
+        }
+        */
+
+        pthread_attr_destroy(&attr);
+    }
+#else
+    printf("pre pthread\n");
+    DO_OR_RETURN_ERR_GENERAL(err, pthread_create, &mpp_isp_thread_pid, 0, (void* (*)(void*))mpp_isp_thread, NULL);
+    printf("post pthread\n");
+	//DO_OR_RETURN_ERR_GENERAL(err, pthread_setname_np, mpp_isp_thread_pid, "ISP");
+#endif
     return ERR_NONE;
 }
