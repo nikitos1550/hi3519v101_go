@@ -1,7 +1,5 @@
 #include "vpss.h"
 
-VIDEO_FRAME_INFO_S channelFrames[VPSS_MAX_PHY_CHN_NUM];
-
 int mpp_vpss_init(error_in *err, mpp_vpss_init_in *in) {
 
     VPSS_GRP_ATTR_S stVpssGrpAttr;
@@ -104,8 +102,6 @@ int mpp_vpss_init(error_in *err, mpp_vpss_init_in *in) {
     return ERR_NONE;
 }
 
-#define TESTDEPTH   1
-
 int mpp_vpss_create_channel(error_in *err, mpp_vpss_create_channel_in * in) {
     VPSS_CHN_ATTR_S stVpssChnAttr;
 
@@ -131,7 +127,7 @@ int mpp_vpss_create_channel(error_in *err, mpp_vpss_create_channel_in * in) {
         stVpssChnAttr.stFrameRate.s32SrcFrameRate  = in->vi_fps;
         stVpssChnAttr.stFrameRate.s32DstFrameRate  = in->fps;
 
-        stVpssChnAttr.u32Depth                     = TESTDEPTH;
+        stVpssChnAttr.u32Depth                     = in->depth;
         stVpssChnAttr.bMirror                      = HI_FALSE;
         stVpssChnAttr.bFlip                        = HI_FALSE;
 
@@ -139,7 +135,7 @@ int mpp_vpss_create_channel(error_in *err, mpp_vpss_create_channel_in * in) {
         stVpssChnAttr.stAspectRatio.enMode         = ASPECT_RATIO_NONE;
     #endif
 
-    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_SetChnAttr, 0, in->channel_id, &stVpssChnAttr);
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_SetChnAttr, 0, in->id, &stVpssChnAttr);
 
     #if HI_MPP == 1 \
         || HI_MPP == 2 \
@@ -158,54 +154,56 @@ int mpp_vpss_create_channel(error_in *err, mpp_vpss_create_channel_in * in) {
             stVpssChnMode.enCompressMode = COMPRESS_MODE_NONE; //COMPRESS_MODE_SEG;
         #endif
 
-        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_SetChnMode, 0, in->channel_id, &stVpssChnMode);
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_SetChnMode, 0, in->id, &stVpssChnMode);
 
         //if depth == 1 frames can be dropped
-        HI_U32 u32Depth = TESTDEPTH; //TODO
+        HI_U32 u32Depth = in->depth; //TODO
 
-        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_SetDepth, 0, in->channel_id, u32Depth);
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_SetDepth, 0, in->id, u32Depth);
     #endif
 
-    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_EnableChn, 0, in->channel_id);
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_EnableChn, 0, in->id);
 
     return ERR_NONE;
 }
 
 int mpp_vpss_destroy_channel(error_in * err, mpp_vpss_destroy_channel_in *in) {
-    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_DisableChn, 0, in->channel_id);
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_DisableChn, 0, in->id);
 
     return ERR_NONE;
 }
 
-int mpp_receive_frame(error_in *err, unsigned int channel_id, void **frame, unsigned long long *pts, unsigned int wait) {
+VIDEO_FRAME_INFO_S channelFrames[VPSS_MAX_PHY_CHN_NUM];
+
+int mpp_receive_frame(error_in *err, unsigned int id, void **frame, unsigned long long *pts, unsigned int wait) {
     #if HI_MPP == 1
-        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_UserGetFrame, 0, channel_id, &channelFrames[channel_id])      //don`t have block mode
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_UserGetFrame, 0, id, &channelFrames[id])      //don`t have block mode
     #elif HI_MPP == 2 \
         || HI_MPP == 3 \
         || HI_MPP == 4
-        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_GetChnFrame, 0, channel_id, &channelFrames[channel_id], wait);  //blocking mode call
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_GetChnFrame, 0, id, &channelFrames[id], wait);  //blocking mode call
     #endif
 
-    *frame = &channelFrames[channel_id];
+    *frame = &channelFrames[id];
 
     #if HI_MPP == 1 \
         || HI_MPP == 2 \
         || HI_MPP == 3
-        *pts = channelFrames[channel_id].stVFrame.u64pts;
+        *pts = channelFrames[id].stVFrame.u64pts;
     #elif HI_MPP == 4
-        *pts = channelFrames[channel_id].stVFrame.u64PTS;
+        *pts = channelFrames[id].stVFrame.u64PTS;
     #endif
 
     return ERR_NONE;
 }
 
-int mpp_release_frame(error_in *err, unsigned int channel_id) {
+int mpp_release_frame(error_in *err, unsigned int id) {
     #if HI_MPP == 1
-        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_UserReleaseFrame, 0, channel_id, &channelFrames[channel_id]);
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_UserReleaseFrame, 0, id, &channelFrames[id]);
     #elif HI_MPP == 2 \
         || HI_MPP == 3 \
         || HI_MPP == 4
-        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_ReleaseChnFrame, 0, channel_id, &channelFrames[channel_id]);
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_ReleaseChnFrame, 0, id, &channelFrames[id]);
     #endif
 
     return ERR_NONE;

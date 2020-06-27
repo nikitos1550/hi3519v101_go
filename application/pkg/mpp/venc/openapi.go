@@ -3,11 +3,17 @@
 package venc
 
 import (
-        "net/http"
+    "fmt"
+    "net/http"
+    "strconv"
+    "encoding/json"
 
-        "application/pkg/openapi"
-        "application/pkg/processing"
+    "github.com/gorilla/mux"
+
+    "application/pkg/openapi"
+    "application/pkg/processing"
 )
+
 
 type responseRecord struct {
 	Message string
@@ -48,7 +54,39 @@ func init() {
     openapi.AddApiRoute("listEncodersRequest", "/encoder/list", "GET", listEncodersRequest)
 
     openapi.AddApiRoute("listPredefinedEncoders", "/encoder/predefined", "GET", listPredefinedEncodersRequest)
+    ////////////////////
+    openapi.AddApiRoute("encoderInfo", "/mpp/encoder/{id:[0-9]+}", "GET", encoderInfo)
+    //openapi.AddApiRoute("encoderStat", "/mpp/encoder/{id:[0-9]+}/stat", "GET", encoderStat)
+
 }
+
+func encoderInfo(w http.ResponseWriter, r *http.Request)  {
+    w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
+
+    var err error
+    var id int
+
+    queryParams := mux.Vars(r)
+    id, err = strconv.Atoi(queryParams["id"])
+
+    if err != nil {
+        w.WriteHeader(http.StatusInternalServerError)
+        return
+    }
+
+    params, err := GetParams(id)
+    if err != nil {
+        w.WriteHeader(http.StatusInternalServerError)
+        fmt.Fprintf(w, "{\"error\":\"%s\"}", err.Error())
+        return
+    }
+
+    w.WriteHeader(http.StatusOK)
+
+    schemaJson, _ := json.Marshal(params)
+    fmt.Fprintf(w, "%s", string(schemaJson))
+}
+
 
 func listPredefinedEncodersRequest(w http.ResponseWriter, r *http.Request)  {
     var encodersInfo []predefinedEncoderInfo

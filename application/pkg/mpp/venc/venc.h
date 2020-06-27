@@ -36,8 +36,8 @@ int mpp3_venc_sample_h264(unsigned int *error_code, int width, int height, int b
 int mpp3_venc_sample_h265(unsigned int *error_code, int width, int height, int bitrate, int channelId);
 int mpp3_venc_delete_encoder(unsigned int *error_code, int channelId);
 
-typedef struct mpp_venc_create_in_struct {              
-    unsigned int venc_id;
+typedef struct mpp_venc_create_encoder_in_struct {              
+    unsigned int id;
 
     unsigned int codec;
     unsigned int profile;
@@ -45,8 +45,8 @@ typedef struct mpp_venc_create_in_struct {
     unsigned int width;
     unsigned int height;
 
-    unsigned int in_fps;
-    unsigned int out_fps;
+    int in_fps;
+    int out_fps;
 
     unsigned int bitrate_control;
 
@@ -71,6 +71,12 @@ typedef struct mpp_venc_create_in_struct {
     unsigned int max_qp;
     unsigned int min_i_qp;
 
-} mpp_venc_create_in;              
+} mpp_venc_create_encoder_in;              
 
+typedef struct mpp_venc_destroy_encoder_in_struct {              
+    unsigned int id;
+} mpp_venc_destroy_encoder_in; 
 
+int mpp_venc_create_encoder(error_in *err, mpp_venc_create_encoder_in *in);
+int mpp_venc_update_encoder(error_in *err, mpp_venc_create_encoder_in *in);
+int mpp_venc_destroy_encoder(error_in *err, mpp_venc_destroy_encoder_in *in); 

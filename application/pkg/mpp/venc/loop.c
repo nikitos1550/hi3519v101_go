@@ -201,8 +201,7 @@ int mpp_data_loop_add(unsigned int *error_code, unsigned int venc_channel_id, un
 }
 
 //mpp_data_loop_del can`t run during loop operation on same venc channel
-//go space will garantee that several copies will not run simultaniously<Paste>
-
+//go space will garantee that several copies will not run simultaniously
 int mpp_data_loop_del(unsigned int *error_code, unsigned int venc_channel_id) {
     *error_code = 0;
 
@@ -251,7 +250,6 @@ int mpp_data_loop_init(unsigned int *error_code) {
     }
 
     if (pthread_mutex_init(&lock, NULL) != 0) {
-        //printf("\n mutex init failed\n");
         return ERR_GENERAL;
     }
 

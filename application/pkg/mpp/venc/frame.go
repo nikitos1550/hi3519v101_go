@@ -9,7 +9,7 @@ import (
 type frame struct {
     rwmux   sync.RWMutex
     data    []byte
-    seq      uint32
+    seq     uint32
 }
 
 //Not atomic op TODO

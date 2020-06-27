@@ -1,5 +1,9 @@
 package venc
 
+import (
+    "sync"
+)
+
 /*
 {
   "channel": 0,
@@ -26,44 +30,48 @@ package venc
 
 type Codec uint
 const (
-    MJPEG   Codec = iota + 1
-    H264    Codec = iota
-    H265    Codec = iota
+    MJPEG   Codec = 1
+    H264    Codec = 2
+    H265    Codec = 3
 )
 
 type Profile uint
 const (
-    Baseline    Profile = iota + 1
-    Main        Profile = iota
-    Main10      Profile = iota
-    High        Profile = iota
+    Baseline    Profile = 1
+    Main        Profile = 2
+    Main10      Profile = 3
+    High        Profile = 4
 )
 
 type BitrateControl uint 
 const (
-    Cbr     BitrateControl = iota + 1
-    Vbr     BitrateControl = iota
-    FixQp   BitrateControl = iota
-    CVbr    BitrateControl = iota
-    AVbr    BitrateControl = iota
-    QVbr    BitrateControl = iota
-    //Qmap    encoderBitcontrol = iota
+    Cbr     BitrateControl = 1
+    Vbr     BitrateControl = 2
+    FixQp   BitrateControl = 3
+    CVbr    BitrateControl = 4
+    AVbr    BitrateControl = 5
+    QVbr    BitrateControl = 6
+    //Qmap    encoderBitcontrol = 7
 )
 
-type BitrateControlParams struct {
-    bitrate     uint
-    stattime    uint
-    fluctuate   uint
+type BitrateControlParameters struct {
+    Bitrate     uint
+    //MaxBitrate  uint
 
-    maxbitrate  uint
-    //stattime    uint
-    minIqp      uint
-    maxqp       uint
-    minqp       uint
+    StatTime    uint
+    Fluctuate   uint
 
-    iqp         uint
-    pqp         uint
-    bqp         uint
+    QFactor     uint
+    MinQFactor  uint
+    MaxQFactor  uint
+
+    MinIQp      uint
+    MaxQp       uint
+    MinQp       uint
+
+    IQp         uint
+    PQp         uint
+    BQp         uint
 }
 
 type GopType uint
@@ -75,24 +83,45 @@ const (
     IntraR  GopType = iota
 )
 
-type GopParams struct {
+type GopParameters struct {
 
 }
 
-type encoderSettings struct {
-    //id          uint
-    //channel     uint
+type Parameters struct {
+    Codec               Codec
+    Profile             Profile
+    Width               uint
+    Height              uint
+    Fps                 uint
 
-    codec       Codec
-    profile     Profile
-    width       uint
-    height      uint
-    fps         uint    //maybe int to add -1 as uncontrolled fps 
+    Goptype             GopType
+    Gop                 uint    //value
+    Gopparams           GopParameters
 
-    goptype     GopType
-    gop         uint    //value
-    gopparams   GopParams
-
-    bitcontrol  BitrateControl
-    bitparams   BitrateControlParams
+    BitControl          BitrateControl
+    BitControlParams    BitrateControlParameters
 }
+
+type channel struct {
+    id          int
+
+    params      Parameters
+
+    started     bool
+	recvPics	bool
+
+    mutex       sync.RWMutex
+}
+
+var (
+    channels []channel
+)
+
+func init() {
+    channels = make([]channel, channelsAmount)
+
+    for i := 0; i < channelsAmount; i++ {
+        channels[i].id = i
+    }
+}
+

@@ -24,40 +24,58 @@ func init() {
     openapi.AddApiRoute("stopChannel", "/mpp/channel/stop", "GET", stopChannelRequest)
     openapi.AddApiRoute("listChannels", "/mpp/channel/list", "GET", listChannelsRequest)
     ////////////////////
-    openapi.AddApiRoute("channelInfo", "/mpp/channel/{id:[0-9+]}", "GET", channelInfoRequest)
+    openapi.AddApiRoute("channelInfo", "/mpp/channel/{id:[0-9]+}", "GET", channelInfo)
+    openapi.AddApiRoute("channelStat", "/mpp/channel/{id:[0-9]+}/stat", "GET", channelStat)
 
 }
 
-func channelInfoRequest(w http.ResponseWriter, r *http.Request)  {
+func channelInfo(w http.ResponseWriter, r *http.Request)  {
+    w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
+
     var err error
     var id int
 
-    params := mux.Vars(r)
-    id, err = strconv.Atoi(params["id"])
-
-    w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
+    queryParams := mux.Vars(r)
+    id, err = strconv.Atoi(queryParams["id"])
 
     if err != nil {
         w.WriteHeader(http.StatusInternalServerError)
         return
     }
 
-    //channel, channelExists := Channels[channelId]
-    //if (!channelExists) {
-    //    w.WriteHeader(http.StatusNotFound)
-    //    return
-    //}
+    params, err := GetParams(id)
+    if err != nil {
+        w.WriteHeader(http.StatusInternalServerError)
+        fmt.Fprintf(w, "{\"error\":\"%s\"}", err.Error())
+        return
+    }
+
+    w.WriteHeader(http.StatusOK)
+
+    schemaJson, _ := json.Marshal(params)
+    fmt.Fprintf(w, "%s", string(schemaJson))
+}
+
+func channelStat(w http.ResponseWriter, r *http.Request)  {
+    w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
+
+    var err error
+    var id int
+
+    queryParams := mux.Vars(r)
+    id, err = strconv.Atoi(queryParams["id"])
+
+    if err != nil {
+        w.WriteHeader(http.StatusInternalServerError)
+        return
+    }
 
     stat, err := GetStat(id)
     if err != nil {
         w.WriteHeader(http.StatusInternalServerError)
+        fmt.Fprintf(w, "{\"error\":\"%s\"}", err.Error())
         return
     }
-
-    //logger.Log.Debug().
-    //    Uint64("count", stat.Count).
-    //    Float64("period", stat.PeriodAvg).
-    //    Msg("channel found")
 
     w.WriteHeader(http.StatusOK)
 
@@ -68,7 +86,6 @@ func channelInfoRequest(w http.ResponseWriter, r *http.Request)  {
 func apiDescription(w http.ResponseWriter, r *http.Request)  {
 	openapi.ApiDescription(w, r, "Channels api:\n\n", "/mpp/channel")
 }
-
 
 func startChannelRequest(w http.ResponseWriter, r *http.Request)  {
 	var ok bool
@@ -115,7 +132,7 @@ func startChannelRequest(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
-	err := StartChannel(id, params)
+	err := CreateChannel(id, params)
 	if err != nil {
 		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: err.Error()})
 		return
@@ -131,7 +148,7 @@ func stopChannelRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := StopChannel(id)
+	err := DestroyChannel(id)
 	if err != nil {
 		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: err.Error()})
 		return
@@ -143,40 +160,18 @@ func stopChannelRequest(w http.ResponseWriter, r *http.Request) {
 type ChannelInfo struct {
     ChannelId   int
     Params      Parameters
-    //Width int
-    //Height int
-    //Fps int
-    //CropX int
-    //CropY int
-    //CropWidth int
-    //CropHeight int
     Processings []int
 }
-
 
 func listChannelsRequest(w http.ResponseWriter, r *http.Request) {
     var channelsInfo []ChannelInfo
 
     for i:=0; i< channelsAmount;i++ {
-
-		//info := ChannelInfo{
-		//	ChannelId: channel.ChannelId,
-		//	Width: channel.Width,
-		//	Height: channel.Height,
-		//	Fps: channel.Fps,
-		//	CropX: channel.CropX,
-		//	CropY: channel.CropY,
-		//	CropWidth: channel.CropWidth,
-		//	CropHeight: channel.CropHeight,
-		//}
-		//for processing, _ := range channel.Clients {
-		//	info.Processings = append(info.Processings, processing.GetId())
-		//}
         t := ChannelInfo{}
-        
+
         t.ChannelId = i
         t.Params, _ = GetParams(i)
-       
+
         clients, _ := GetClientsTmp(i)
 
         for processing, _ := range clients {

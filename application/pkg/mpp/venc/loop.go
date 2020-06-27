@@ -7,33 +7,13 @@ package venc
 import "C"
 
 import (
-	"application/pkg/logger"
-
     "unsafe"
-
-    "fmt"
-    "net/http"
-    "application/pkg/openapi"
-
     "sync"
+
+    "application/pkg/logger"
 )
 
 var mutex = &sync.Mutex{}
-
-func init() {
-    openapi.AddApiRoute("serveDebugLoop", "/mpp/venc/loop", "GET", serveDebugLoop)
-}
-
-func serveDebugLoop(w http.ResponseWriter, r *http.Request) {
-    logger.Log.Trace().
-	    Msg("mpp.venc.serveDebugLoop")
-
-    w.Header().Set("Content-Type", "test/plain; charset=UTF-8")
-    w.WriteHeader(http.StatusOK)
-
-    fmt.Fprintf(w, "%s", "TODO")
-}
-
 
 //export go_callback_receive_data
 func go_callback_receive_data(venc_channel C.int, info_pointer *C.info_from_c, data_pointer *C.data_from_c, data_num C.int) { 
@@ -160,7 +140,7 @@ func loopInit() {
     case C.ERR_NONE:
 	    logger.Log.Debug().
 		    Msg("C.mpp_data_loop_init() ok")
-    case C.ERR_GENERAL: //C.ERR_SYS:
+    case C.ERR_GENERAL:
 	    logger.Log.Fatal().
 		    Msg("C.mpp_data_loop_init() SYS error")
     default:

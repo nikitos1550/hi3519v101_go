@@ -17,7 +17,10 @@ type channel struct {
     started     bool
 
     mutex       sync.RWMutex
+
     clients     map[common.Processing] bool //int - id processing, callback processing
+    clients2    map[int] Client
+
     rutineStop  chan bool
 }
 
@@ -25,10 +28,11 @@ type Parameters struct {
     Width       int
     Height      int
     Fps         int
-    CropX       int                           //Not used
-    CropY       int                           //Not used
-    CropWidth   int                       //Not used
-    CropHeight  int                      //Not used
+    CropX       int
+    CropY       int
+    CropWidth   int
+    CropHeight  int
+    Depth       int
 }
 
 type statistics struct {

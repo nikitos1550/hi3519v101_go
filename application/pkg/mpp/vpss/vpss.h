@@ -18,15 +18,20 @@ typedef struct mpp_vpss_init_in_struct {
 } mpp_vpss_init_in;
 
 typedef struct mpp_vpss_create_channel_in_struct {
-    unsigned int channel_id;
+    unsigned int id;
     unsigned int width;
     unsigned int height;
     unsigned int vi_fps;
     unsigned int fps;
+    unsigned int depth;
+    unsigned int crop_x;
+    unsigned int crop_y;
+    unsigned int crop_width;
+    unsigned int crop_height;
 } mpp_vpss_create_channel_in;
 
 typedef struct mpp_vpss_destroy_channel_in_struct {
-    unsigned int channel_id;
+    unsigned int id;
 } mpp_vpss_destroy_channel_in;
 
 typedef struct mpp_receive_frame_out_struct {

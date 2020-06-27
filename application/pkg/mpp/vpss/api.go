@@ -4,7 +4,7 @@ import (
     "errors"
 
     "application/pkg/common"
-    //"application/pkg/logger"
+    "application/pkg/logger"
 )
 
 func GetAmount() int {
@@ -16,8 +16,8 @@ func IsStarted(id int) (bool, error) {
         return false, errors.New("Channel id not valid")
     }
 
-    channels[id].mutex.Lock()
-    defer channels[id].mutex.Unlock()
+    channels[id].mutex.RLock()          //read lock
+    defer channels[id].mutex.RUnlock()
 
     if channels[id].started == true {
         return true, nil
@@ -32,8 +32,8 @@ func GetStat(id int) (statistics, error) {
         return statistics{}, errors.New("Channel id not valid")
     }
 
-    channels[id].mutex.Lock()
-    defer channels[id].mutex.Unlock()
+    channels[id].mutex.RLock()          //read lock
+    defer channels[id].mutex.RUnlock()
 
     if channels[id].started == false {
         return statistics{}, errors.New("Channel is stopped")
@@ -47,8 +47,8 @@ func GetParams(id int) (Parameters, error) {
         return Parameters{}, errors.New("Channel id not valid")
     }
 
-    channels[id].mutex.Lock()
-    defer channels[id].mutex.Unlock()
+    channels[id].mutex.RLock()          //read lock
+    defer channels[id].mutex.RUnlock()
 
     if channels[id].started == false {
         return Parameters{}, errors.New("Channel is stopped")
@@ -62,8 +62,8 @@ func GetClientsTmp(id int) (map[common.Processing] bool, error) {
         return nil, errors.New("Channel id not valid")
     }
 
-    channels[id].mutex.Lock()
-    defer channels[id].mutex.Unlock()
+    channels[id].mutex.RLock()          //read lock
+    defer channels[id].mutex.RUnlock()
 
     if channels[id].started == false {
         return nil, errors.New("Channel is stopped")
@@ -72,12 +72,12 @@ func GetClientsTmp(id int) (map[common.Processing] bool, error) {
     return channels[id].clients, nil
 }
 
-func StartChannel(id int, params Parameters) error  {
+func CreateChannel(id int, params Parameters) error  {
     if id >= channelsAmount {
         return errors.New("Channel id not valid")
     }
 
-    channels[id].mutex.Lock()
+    channels[id].mutex.Lock()           //write lock
     defer channels[id].mutex.Unlock()
 
     if channels[id].started == true {
@@ -94,19 +94,25 @@ func StartChannel(id int, params Parameters) error  {
     channels[id].rutineStop = make(chan bool)
     channels[id].started    = true
 
-    go func() {
-        sendDataToClients(&channels[id])
-    }()
+    if params.Depth > 0 {
+        go func() {
+            sendDataToClients(&channels[id])
+        }()
+    }
+
+    logger.Log.Debug().
+        Int("id", id).
+        Msg("Channel started")
 
     return nil
 }
 
-func StopChannel(id int) error  {
+func DestroyChannel(id int) error  {
     if id >= channelsAmount {
         return errors.New("Channel id not valid")
     }
 
-    channels[id].mutex.Lock()
+    channels[id].mutex.Lock()           //write lock
     defer channels[id].mutex.Unlock()
 
     if channels[id].started == false {
@@ -123,22 +129,49 @@ func StopChannel(id int) error  {
     }
 
     channels[id].started    = false
-    _ = <- channels[id].rutineStop
+    if channels[id].params.Depth > 0 {
+        _ = <- channels[id].rutineStop
+    }
 
     channels[id].params     = Parameters{}
     channels[id].stat       = statistics{}
     channels[id].clients    = nil
     channels[id].rutineStop = nil
 
+    logger.Log.Debug(). 
+        Int("id", id).
+        Msg("Channel stopped")
+
     return nil
 }
+
+//func addClient(id int, c Client) error {
+//    if id >= channelsAmount {
+//        return errors.New("Channel id not valid")
+//    }
+//
+//    channels[id].mutex.Lock()           //write lock
+//    defer channels[id].mutex.Unlock()
+//
+//    if channels[id].started == false {
+//        return errors.New("Channel already stopped")
+//    }
+//
+//    for i:=0; i< len(channels[id].clients2); i++ {
+//
+//    }
+//
+//    return nil
+//}
+
+///////////////////////////////////////////////////////////////////////////////
 
 func SubscribeChannel(id int, processing common.Processing)  (int, string)  {
     if id >= channelsAmount {
         return -1, "Channel id not valid"
     }
 
-    channels[id].mutex.Lock()
+    channels[id].mutex.Lock()           //write lock
     defer channels[id].mutex.Unlock()
 
     if channels[id].started == false {
@@ -160,7 +193,7 @@ func UnsubscribeChannel(id int, processing common.Processing)  (int, string)  {
         return -1, "Channel id not valid"
     }
 
-    channels[id].mutex.Lock()
+    channels[id].mutex.Lock()           //write lock
     defer channels[id].mutex.Unlock()
 
     if channels[id].started == false {
