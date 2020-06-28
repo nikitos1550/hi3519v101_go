@@ -74,17 +74,25 @@ type BitrateControlParameters struct {
     BQp         uint
 }
 
-type GopType uint
+type GopStrategyType uint
 const (
-    NormalP GopType = iota + 1
-    DualP   GopType = iota
-    SmartP  GopType = iota
-    BipredB GopType = iota
-    IntraR  GopType = iota
+    NormalP     GopStrategyType = 1
+    DualP       GopStrategyType = 2
+    SmartP      GopStrategyType = 3
+    AdvSmartP   GopStrategyType = 4
+    BipredB     GopStrategyType = 5
+    IntraR      GopStrategyType = 6
 )
 
 type GopParameters struct {
-
+    IPQpDelta    int
+    SPInterval   uint
+    SPQpDelta    int
+    BgInterval   uint
+    BgQpDelta    int
+    ViQpDelta    int
+    BFrmNum      uint
+    BQpDelta     int
 }
 
 type Parameters struct {
@@ -94,12 +102,16 @@ type Parameters struct {
     Height              uint
     Fps                 uint
 
-    Goptype             GopType
-    Gop                 uint    //value
-    Gopparams           GopParameters
+    GopType             GopStrategyType
+    Gop                 uint
+    GopParams           GopParameters
 
     BitControl          BitrateControl
     BitControlParams    BitrateControlParameters
+}
+
+type Statistics struct {
+    //TODO
 }
 
 type channel struct {
@@ -107,10 +119,13 @@ type channel struct {
 
     params      Parameters
 
-    started     bool
-	recvPics	bool
+    created     bool
+	started	    bool
+    locked      bool    //TODO special lock, to prevent external api control
 
     mutex       sync.RWMutex
+
+    stat        Statistics
 }
 
 var (

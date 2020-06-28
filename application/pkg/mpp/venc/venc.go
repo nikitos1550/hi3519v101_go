@@ -157,8 +157,8 @@ func mppCreateEncoder(id int, params Parameters) error {
     }
     in.height			= C.uint(params.Height)
 
-    //TODO check with channel
-    in.in_fps			= C.int(-1)
+    //TODO very important parameter, documentation should be readed and evaluated
+    in.in_fps			= C.int(vi.Fps())
 
     if params.Fps > uint(vi.Fps()) {
         return errors.New("Fps can`t be too large")
@@ -167,19 +167,57 @@ func mppCreateEncoder(id int, params Parameters) error {
     in.out_fps			= C.int(params.Fps)
 
     if params.Gop > 65536 {
-        return errors.New("Gop should be <= than 65536")
+        return errors.New("Gop should be [1; 65536]")
     }
     in.gop				= C.uint(params.Gop)
 
-    //in.gop_mode			= C.uint(0) //TODO
+    switch params.GopType {
+        case NormalP:
+            in.gop_mode           = C.uint(C.VENC_GOPMODE_NORMALP)
+        case DualP:
+			if	buildinfo.Family == "hi3516cv100" ||
+				buildinfo.Family == "hi3516cv200" ||
+				buildinfo.Family == "hi3516av100" {
+				return errors.New("Chip doesn`t support dualp gop type")
+			}
+            in.gop_mode           = C.uint(C.VENC_GOPMODE_DUALP)
+        case SmartP:
+            if  buildinfo.Family == "hi3516cv100" ||
+				buildinfo.Family == "hi3516cv200" ||
+				buildinfo.Family == "hi3516av100" {
+                return errors.New("Chip doesn`t support smartp gop type")
+			}
+            in.gop_mode           = C.uint(C.VENC_GOPMODE_SMARTP)
+        case AdvSmartP:
+            if  buildinfo.Family == "hi3516cv100" ||
+				buildinfo.Family == "hi3516cv200" ||
+				buildinfo.Family == "hi3516cv300" ||
+				buildinfo.Family == "hi3516av100" ||
+				buildinfo.Family == "hi3516av200" {
+				return errors.New("Chip doesn`t support advsmartp gop type")
+			}
+            in.gop_mode           = C.uint(C.VENC_GOPMODE_ADVSMARTP)
+        case BipredB:
+            if params.Profile == Baseline {
+                return errors.New("Baseline doesn`t support gop type bipred")
+            }
+            if  buildinfo.Family == "hi3516cv100" ||
+				buildinfo.Family == "hi3516cv200" ||
+				buildinfo.Family == "hi3516av100" {
+				return errors.New("Chip doesn`t support bipred gop type")
+			}
+            in.gop_mode           = C.uint(C.VENC_GOPMODE_BIPREDB)
+        //case IntraR:
+        //    in.gop_mode           = C.uint(C.VENC_GOPMODE_TODO)
+	}
 
     if params.BitControlParams.Bitrate > uint(maxBitrate) {
         return errors.New("Bitrate is too large")
     }
 	in.bitrate			= C.uint(params.BitControlParams.Bitrate)
 
-    if params.BitControlParams.StatTime > 5 { //TODO
-        return errors.New("Stattime is too large")
+    if params.BitControlParams.StatTime > 60 { //TODO
+        return errors.New("Stattime should be [1; 60]")
     }
     in.stat_time		= C.uint(params.BitControlParams.StatTime)
 
@@ -221,7 +259,7 @@ func mppCreateEncoder(id int, params Parameters) error {
     err := C.mpp_venc_create_encoder(&inErr, &in)
 
     if err != 0 {
-        logger.Log.Fatal().
+        logger.Log.Error().
             Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
             Msg("VENC")
         return errmpp.New(C.GoString(inErr.name), uint(inErr.code))
@@ -255,7 +293,43 @@ func mppDestroyEncoder(id int) error {
     err := C.mpp_venc_destroy_encoder(&inErr, &in)
 
     if err != 0 {
-        logger.Log.Fatal().
+        logger.Log.Error().
+            Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
+            Msg("VENC")
+        return errmpp.New(C.GoString(inErr.name), uint(inErr.code))
+    }
+
+    return nil
+}
+
+func mppStartEncoder(id int) error {
+    var inErr C.error_in
+    var in C.mpp_venc_start_encoder_in
+
+    in.id = C.uint(id)
+
+    err := C.mpp_venc_start_encoder(&inErr, &in)
+
+    if err != 0 {
+        logger.Log.Error().
+            Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
+            Msg("VENC")
+        return errmpp.New(C.GoString(inErr.name), uint(inErr.code))
+    }
+
+    return nil
+}
+
+func mppStopEncoder(id int) error {
+    var inErr C.error_in
+    var in C.mpp_venc_stop_encoder_in
+
+    in.id = C.uint(id)
+
+    err := C.mpp_venc_stop_encoder(&inErr, &in) 
+
+    if err != 0 {
+        logger.Log.Error().
             Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
             Msg("VENC")
         return errmpp.New(C.GoString(inErr.name), uint(inErr.code))

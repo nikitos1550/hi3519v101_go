@@ -58,6 +58,73 @@ func init() {
     openapi.AddApiRoute("encoderInfo", "/mpp/encoder/{id:[0-9]+}", "GET", encoderInfo)
     //openapi.AddApiRoute("encoderStat", "/mpp/encoder/{id:[0-9]+}/stat", "GET", encoderStat)
 
+    openapi.AddApiRoute("encoderTest", "/mpp/encoder/{id:[0-9]+}/test", "GET", encoderTest)
+}
+
+func encoderTest(w http.ResponseWriter, r *http.Request)  {
+    w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
+
+    var err error
+    var id int
+
+    queryParams := mux.Vars(r)
+    id, err = strconv.Atoi(queryParams["id"])
+
+    if err != nil {
+        w.WriteHeader(http.StatusInternalServerError)
+        return
+    }
+
+    var params Parameters
+
+    params.Codec                = H264
+    params.Profile              = Main
+    params.Width                = 3840
+    params.Height               = 2160
+    params.Fps                  = 1
+
+    params.GopType              = BipredB
+    params.Gop                  = 120
+    //Gopparams           GopParameters
+
+    params.BitControl          = Vbr
+
+    params.BitControlParams.Bitrate     = 1024
+
+    params.BitControlParams.StatTime    = 1
+    params.BitControlParams.Fluctuate   = 1
+
+    params.BitControlParams.QFactor     = 1
+    params.BitControlParams.MinQFactor  = 1
+    params.BitControlParams.MaxQFactor  = 1
+
+    params.BitControlParams.MinIQp      = 1
+    params.BitControlParams.MaxQp       = 1
+    params.BitControlParams.MinQp       = 1
+
+    params.BitControlParams.IQp         = 1
+    params.BitControlParams.PQp         = 1
+    params.BitControlParams.BQp         = 1
+
+
+    err = CreateEncoder(id, params)
+    if err != nil {
+        w.WriteHeader(http.StatusInternalServerError)
+        fmt.Fprintf(w, "{\"error\":\"%s\"}", err.Error())
+        return
+    }
+
+    newParams, err := GetParams(id)
+    if err != nil {
+        w.WriteHeader(http.StatusInternalServerError)
+        fmt.Fprintf(w, "{\"error\":\"%s\"}", err.Error())
+        return
+    }
+
+    w.WriteHeader(http.StatusOK)
+
+    schemaJson, _ := json.MarshalIndent(newParams, "", "\t") //Marshal(newParams)
+    fmt.Fprintf(w, "%s", string(schemaJson))
 }
 
 func encoderInfo(w http.ResponseWriter, r *http.Request)  {

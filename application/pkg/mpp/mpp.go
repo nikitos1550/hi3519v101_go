@@ -46,7 +46,7 @@ func Init(devInfo DeviceInfo) {
     //echo "all=4" > /proc/umap/logmpp
 
     
-    if true {
+    if false {
         cmd := exec.Command("sh", "-c", "echo \"all=9\" > /proc/umap/logmpp")
 	    _, err := cmd.CombinedOutput()
     	if err != nil {

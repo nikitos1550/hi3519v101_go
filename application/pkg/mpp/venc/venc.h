@@ -37,39 +37,48 @@ int mpp3_venc_sample_h265(unsigned int *error_code, int width, int height, int b
 int mpp3_venc_delete_encoder(unsigned int *error_code, int channelId);
 
 typedef struct mpp_venc_create_encoder_in_struct {              
-    unsigned int id;
+    unsigned int    id;
 
-    unsigned int codec;
-    unsigned int profile;
+    unsigned int    codec;
+    unsigned int    profile;
 
-    unsigned int width;
-    unsigned int height;
+    unsigned int    width;
+    unsigned int    height;
 
-    int in_fps;
-    int out_fps;
+    int             in_fps;
+    int             out_fps;
 
-    unsigned int bitrate_control;
+    unsigned int    bitrate_control;
 
-    unsigned int gop;
+    unsigned int    gop;
 
-    unsigned int gop_mode;
+    unsigned int    gop_mode;
 
-    unsigned int bitrate;
+    int             i_pq_delta;
+    unsigned int    s_p_interval;
+    int             s_pq_delta;
+    unsigned int    bg_interval;
+    int             bg_qp_delta;
+    int             vi_qp_delta;
+    unsigned int    b_frm_num;
+    int             b_qp_delta;
 
-    unsigned int stat_time;
-    unsigned int fluctuate_level;
+    unsigned int    bitrate;
 
-    unsigned int q_factor;
-    unsigned int min_q_factor;
-    unsigned int max_q_factor;
+    unsigned int    stat_time;
+    unsigned int    fluctuate_level;
 
-    unsigned int i_qp;
-    unsigned int p_qp;
-    unsigned int b_qp;
+    unsigned int    q_factor;
+    unsigned int    min_q_factor;
+    unsigned int    max_q_factor;
 
-    unsigned int min_qp;
-    unsigned int max_qp;
-    unsigned int min_i_qp;
+    unsigned int    i_qp;
+    unsigned int    p_qp;
+    unsigned int    b_qp;
+
+    unsigned int    min_qp;
+    unsigned int    max_qp;
+    unsigned int    min_i_qp;
 
 } mpp_venc_create_encoder_in;              
 
@@ -77,6 +86,16 @@ typedef struct mpp_venc_destroy_encoder_in_struct {
     unsigned int id;
 } mpp_venc_destroy_encoder_in; 
 
+typedef struct mpp_venc_start_encoder_in_struct {              
+    unsigned int id;
+} mpp_venc_start_encoder_in; 
+
+typedef struct mpp_venc_stop_encoder_in_struct {              
+    unsigned int id;
+} mpp_venc_stop_encoder_in; 
+
 int mpp_venc_create_encoder(error_in *err, mpp_venc_create_encoder_in *in);
+int mpp_venc_start_encoder(error_in *err, mpp_venc_start_encoder_in *in);                   
+int mpp_venc_stop_encoder(error_in *err, mpp_venc_stop_encoder_in *in);                     
 int mpp_venc_update_encoder(error_in *err, mpp_venc_create_encoder_in *in);
 int mpp_venc_destroy_encoder(error_in *err, mpp_venc_destroy_encoder_in *in); 
