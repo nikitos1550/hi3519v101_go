@@ -14,7 +14,7 @@ type channel struct {
     params      Parameters
     stat        statistics
 
-    started     bool
+    started     bool //TODO change name to created
 
     mutex       sync.RWMutex
 
