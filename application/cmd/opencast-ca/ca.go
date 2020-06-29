@@ -441,8 +441,60 @@ func (c *opencastClient) ingest(xml string) (string, error) {
     return string(bodya), nil
 }
 
+func startRecord(api *CameraApi) {
+    channelId := 1
+    res := api.CreateChannel(channelId, 1920, 1080, 30)
+    if (!res){
+        fmt.Println("CreateChannel failed ")
+        return
+    }
+    fmt.Println("Channel was created ", channelId)
+
+    params := make(map[string]string)
+    params["StartTimestamp"] = "1593081840000000"
+    params["StopTimestamp"] = "1593081900000000"
+    res, processingId := api.CreateProcessing("schedule", params)
+    if (!res){
+        fmt.Println("Processing failed ")
+        return
+    }
+    fmt.Println("Processing was created ", processingId)
+
+    res, encoderId := api.CreateEncoder("H264_1920_1080_1M")
+    if (!res){
+        fmt.Println("Encoder failed ")
+        return
+    }
+    fmt.Println("Encoder was created ", encoderId)
+
+    res = api.SubscribeChannel(processingId, channelId)
+    if (!res){
+        fmt.Println("SubscribeChannel failed ")
+        return
+    }
+    fmt.Println("Channel was subscribed ")
+
+    res = api.SubscribeProcessing(processingId, encoderId)
+    if (!res){
+        fmt.Println("SubscribeProcessing failed ")
+        return
+    }
+    fmt.Println("Processing was subscribed ")
+
+    res, recordId := api.StartRecording(encoderId)
+    if (!res){
+        fmt.Println("StartRecording failed ")
+        return
+    }
+    fmt.Println("Record was started ", recordId)
+}
+
 func main() {
     fmt.Println("CA")
+
+//    var api CameraApi
+//    api.Create( "test", "hisilicon123","http://213.141.129.12:8080/cam1/")
+//    startRecord(&api)
 
     var c opencastClient
     //c.create("84.201.135.192", "8080", "admin", "opencast123", "MY-TEST-CA")
