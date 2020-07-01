@@ -61,7 +61,7 @@ func (p schedule) Create(id int, params map[string][]string) (common.Processing,
 	timestampString, ok := params["StartTimestamp"]
 	if (!ok || len(timestampString) <= 0) {
 		return nil, 0, "StartTimestamp not specified"
-	}	
+	}
 
 	startTimestamp, err := strconv.ParseUint(timestampString[0], 10, 64)
 	if err != nil {
@@ -71,7 +71,7 @@ func (p schedule) Create(id int, params map[string][]string) (common.Processing,
 	timestampString, ok = params["StopTimestamp"]
 	if (!ok || len(timestampString) <= 0) {
 		return nil, 0, "StopTimestamp not specified"
-	}	
+	}
 
 	stopTimestamp, err := strconv.ParseUint(timestampString[0], 10, 64)
 	if err != nil {
@@ -121,11 +121,21 @@ func (p schedule) updateState(frameTime uint64) {
 
 func (p schedule) Callback(data unsafe.Pointer) {
 	frameTime := uint64(C.getTimestamp(data))
-	p.updateState(frameTime)
+	//p.updateState(frameTime)
+	//
+	//if (p.CurrentState == STARTED) {
+	//	sendToEncoders(p.Id, data)
+	//}
 
-	if (p.CurrentState == STARTED) {
-		sendToEncoders(p.Id, data)
+	if frameTime < p.StartTimestamp {
+		return
 	}
+
+	if frameTime > p.StopTimestamp {
+		return
+	}
+
+	sendToEncoders(p.Id, data)
 }
 
 func init() {
