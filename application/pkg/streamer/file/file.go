@@ -210,6 +210,11 @@ func writeVideoData(uuid string, chunks int, duration int){
 			break
 		}
 
+		if (len(ActiveRecords[uuid].Payload) == 0){
+			time.Sleep(5 * time.Millisecond)
+			continue
+		}
+
 		data := <- ActiveRecords[uuid].Payload
 		if (ActiveRecords[uuid].Size == 0){
 			if (!keyFrame(ActiveRecords[uuid].Extention, data.Data)){
