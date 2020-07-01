@@ -5,18 +5,20 @@ package main
 //https://github.com/opencast/pyCA/blob/master/pyca/utils.py
 
 import (
-    "fmt"
-    "net/http"
-    "io/ioutil"
-    "encoding/json"
     "bytes"
+    "encoding/json"
+    "fmt"
+    "io/ioutil"
+    "log"
+    "net/http"
     "net/url"
+    "os/exec"
+    "strconv"
+    "time"
 
-    "os"
     "mime/multipart"
+    "os"
     //"io"
-
-    //"time"
 
     //dac "github.com/xinsnake/go-http-digest-auth-client"
 
@@ -25,8 +27,7 @@ import (
 
     "github.com/bobziuchkovski/digest"
 
-    _"strings"
-    _"github.com/arran4/golang-ical"
+    _ "strings"
 )
 
 //84.201.135.192
@@ -441,60 +442,132 @@ func (c *opencastClient) ingest(xml string) (string, error) {
     return string(bodya), nil
 }
 
-func startRecord(api *CameraApi) {
+func startRecord(api *CameraApi) string {
     channelId := 1
     res := api.CreateChannel(channelId, 1920, 1080, 30)
     if (!res){
         fmt.Println("CreateChannel failed ")
-        return
+        return ""
     }
     fmt.Println("Channel was created ", channelId)
 
     params := make(map[string]string)
-    params["StartTimestamp"] = "1593081840000000"
-    params["StopTimestamp"] = "1593081900000000"
+    t := time.Now().UnixNano() / 1000
+    params["StartTimestamp"] = strconv.FormatInt(t + 60000000, 10)
+    params["StopTimestamp"] = strconv.FormatInt(t + 60000000 + 60000000, 10)
     res, processingId := api.CreateProcessing("schedule", params)
     if (!res){
         fmt.Println("Processing failed ")
-        return
+        return ""
     }
     fmt.Println("Processing was created ", processingId)
 
     res, encoderId := api.CreateEncoder("H264_1920_1080_1M")
     if (!res){
         fmt.Println("Encoder failed ")
-        return
+        return ""
     }
     fmt.Println("Encoder was created ", encoderId)
 
     res = api.SubscribeChannel(processingId, channelId)
     if (!res){
         fmt.Println("SubscribeChannel failed ")
-        return
+        return ""
     }
     fmt.Println("Channel was subscribed ")
 
     res = api.SubscribeProcessing(processingId, encoderId)
     if (!res){
         fmt.Println("SubscribeProcessing failed ")
-        return
+        return ""
     }
     fmt.Println("Processing was subscribed ")
 
     res, recordId := api.StartRecording(encoderId)
     if (!res){
         fmt.Println("StartRecording failed ")
-        return
+        return ""
     }
     fmt.Println("Record was started ", recordId)
+    return recordId
+}
+
+func stopRecord(api *CameraApi, recordId string) {
+    var prevSize uint = 0
+    for {
+        res, records := api.GetAllRecords()
+        if (!res){
+            fmt.Println("GetAllRecords failed ")
+            return
+        }
+        for _, record := range records.Details {
+            if (record.RecordId == recordId){
+                if (prevSize != 0 && prevSize == record.Size){
+                    res = api.StopRecording(recordId)
+                    if res {
+                        return
+                    }
+                }
+
+                prevSize = record.Size
+            }
+        }
+
+        time.Sleep(time.Second)
+    }
+}
+
+func waitForFinish(api *CameraApi, recordId string) {
+    for {
+        res, records := api.GetAllRecords()
+        if (!res){
+            fmt.Println("GetAllRecords failed ")
+            return
+        }
+        for _, record := range records.Details {
+            if (record.RecordId == recordId && record.Status == "finished"){
+                return
+            }
+        }
+
+        time.Sleep(time.Second)
+    }
+}
+
+func packVideo(recordId string) bool {
+    ffmpegPath := "ffmpeg"
+    videoFolder := "/home/cam/cam1/" + recordId + "/"
+    videoPath := videoFolder + "out0.h264"
+    outPath := "out0.mp4"
+
+    cmd := exec.Command(ffmpegPath, "-i", videoPath, "-c:v", "copy", "-f", "mp4", outPath)
+    out, err := cmd.CombinedOutput()
+    if (err != nil){
+        log.Println("ffmpeg failed", err)
+        log.Println(string(out))
+        return false
+    }
+
+    log.Println("Video packed")
+    log.Println(string(out))
+    return true
 }
 
 func main() {
     fmt.Println("CA")
 
-//    var api CameraApi
-//    api.Create( "test", "hisilicon123","http://213.141.129.12:8080/cam1/")
-//    startRecord(&api)
+    var api CameraApi
+    api.Create( "test", "hisilicon123","http://213.141.129.12:8080/cam1/")
+    recordId := startRecord(&api)
+    if (recordId == ""){
+       fmt.Println("Record was not started")
+    }
+    //move logic to camera
+    stopRecord(&api, recordId)
+    waitForFinish(&api, recordId)
+    packVideo(recordId)
+    return
+
 
     var c opencastClient
     //c.create("84.201.135.192", "8080", "admin", "opencast123", "MY-TEST-CA")

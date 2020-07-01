@@ -43,12 +43,44 @@ type IdDatailsJson struct {
 type RecordResponse struct {
     InternalError int
     Message string
-    Details RecordDatailsJson
+    Details RecordDetailsJson
 }
 
-type RecordDatailsJson struct {
+type RecordDetailsJson struct {
     RecordId string
     Message string
+}
+
+type AllRecordsResponse struct {
+    InternalError int
+    Message string
+    Details []RecordsDetailsJson
+}
+
+type RecordsDetailsJson struct {
+    RecordId string
+    Status string
+    EncoderId uint
+    Size uint
+    Duration string
+    StartTime string
+    EndTime string
+    StartTimestamp uint64
+    EndTimestamp uint64
+    FrameCount uint
+    Chunks []Chunk
+}
+
+type Chunk struct {
+    DownloadLink string
+    Size uint
+    StartTime string
+    EndTime string
+    StartTimestamp uint64
+    EndTimestamp uint64
+    FrameCount uint
+    Duration string
+    Md5 string
 }
 
 type CameraApi struct {
@@ -205,4 +237,36 @@ func (c *CameraApi) StartRecording(encoderId int) (bool, string) {
     }
 
     return true, response.Details.RecordId
+}
+
+func (c *CameraApi) StopRecording(recordId string) bool {
+    url := c.camUrl + "api/files/record/stop?recordId=" + recordId
+
+    var response RecordResponse
+    if(!c.Request(url, &response)){
+        return false
+    }
+
+    if(response.Message != "Success"){
+        log.Println("Request failed ", url, response.Message, response.Details.Message)
+        return false
+    }
+
+    return true
+}
+
+func (c *CameraApi) GetAllRecords() (bool, AllRecordsResponse) {
+    url := c.camUrl + "api/files/record/listall"
+
+    var response AllRecordsResponse
+    if(!c.Request(url, &response)){
+        return false, response
+    }
+
+    if(response.Message != "Success"){
+        log.Println("Request failed ", url, response.Message)
+        return false, response
+    }
+
+    return true, response
 }
