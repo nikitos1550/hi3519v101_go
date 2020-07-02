@@ -14,6 +14,7 @@ import (
     "net/url"
     "os/exec"
     "strconv"
+    "strings"
     "time"
 
     "mime/multipart"
@@ -112,6 +113,7 @@ type opencastClient struct {
     //t                   dac.DigestTransport
 
     //c                   *http.Client
+    activeRecords map[string]bool
 }
 
 func (c *opencastClient) create(host string, port string, user string, pass string, name string) {
@@ -143,6 +145,7 @@ func (c *opencastClient) create(host string, port string, user string, pass stri
     //t := digest.NewTransport("opencast_system_account", "CHANGE_ME123")
     t := digest.NewTransport(c.user, c.pass)
     c.client, _ = t.Client()
+    c.activeRecords = make(map[string]bool)
 }
 
 func (c *opencastClient) getService(service string) (string, string, error) {
@@ -165,11 +168,11 @@ func (c *opencastClient) getService(service string) (string, string, error) {
 
     body, _ := ioutil.ReadAll(responce.Body)
 
-    fmt.Println(string(body))
+    //fmt.Println(string(body))
 
     serviceAnswer, _ := getResponce1(body)
 
-    fmt.Println(serviceAnswer)
+    //fmt.Println(serviceAnswer)
 
     return serviceAnswer.Services.Service.Host, serviceAnswer.Services.Service.Path, nil
 }
@@ -178,7 +181,7 @@ func (c *opencastClient) register(state string) error {
     var dataStr = []byte(`state=`+state+`&address=http://test`)
 
     url := c.captureAdminHost+c.captureAdminPath+"/agents/"+c.name
-    fmt.Println("url:", url)
+    //fmt.Println("url:", url)
 
     request, _ := http.NewRequest("POST", url, bytes.NewBuffer(dataStr))
     //request.SetBasicAuth(c.user, c.pass)
@@ -192,20 +195,19 @@ func (c *opencastClient) register(state string) error {
 
     defer responce.Body.Close()
 
-    body, _ := ioutil.ReadAll(responce.Body)
-    
-    fmt.Println(string(body))
+    //body, _ := ioutil.ReadAll(responce.Body)
+    //fmt.Println(string(body))
 
     return nil
 }
 
-func (c *opencastClient) getSchedule() error {
+func (c *opencastClient) getSchedule() (error,string) {
 
     //${SCHEDULER-ENDPOINT}/calendars?agentid=&cutoff=
     //Use the HTTP ETag and If-Not-Modified header to have Opencast only sent schedules when they have actually changed.
 
     url := c.schedulerHost+c.schedulerPath+"/calendars?agentid="+c.name
-    fmt.Println("url:", url)
+    //fmt.Println("url:", url)
 
     request, _ := http.NewRequest("GET", url, nil)
     //request.SetBasicAuth(c.user, c.pass)
@@ -214,23 +216,23 @@ func (c *opencastClient) getSchedule() error {
     responce, err := c.client.Do(request)
     if err != nil {
         fmt.Println("err:", err)
-        return err
+        return err,""
     }
     defer responce.Body.Close()
 
     body, _ := ioutil.ReadAll(responce.Body)
-    fmt.Println(string(body))
+    //fmt.Println(string(body))
 
     //cal, _ := ics.ParseCalendar(strings.NewReader(string(body5)))
     //fmt.Println(cal)
     
-    return nil
+    return nil, string(body)
 }
 
 func (c *opencastClient) createMediaPackage() (string, error) {
     ///ingest/createMediaPackage
     url := c.ingestHost+c.ingestPath+"/createMediaPackage"
-    fmt.Println("url:", url)
+    //fmt.Println("url:", url)
 
     request, _ := http.NewRequest("GET", url, nil)
     request.Header.Set("X-Requested-Auth", "Digest")
@@ -243,7 +245,7 @@ func (c *opencastClient) createMediaPackage() (string, error) {
     defer responce.Body.Close()
 
     body, _ := ioutil.ReadAll(responce.Body)
-    fmt.Println(string(body))
+    //fmt.Println(string(body))
 
     return string(body), nil
 }
@@ -271,7 +273,7 @@ func (c *opencastClient) addDCCatalog(xml string, dublinCore string) (string, er
         "</dublincore>"
 
     uri := c.ingestHost+c.ingestPath+"/addDCCatalog"
-    fmt.Println("url:", uri)
+    //fmt.Println("url:", uri)
 
     params := url.Values{}
 	params.Add("mediaPackage", xml)
@@ -280,7 +282,7 @@ func (c *opencastClient) addDCCatalog(xml string, dublinCore string) (string, er
 
 	var dataStr = []byte(params.Encode())
 
-    fmt.Println(string(dataStr))
+    //fmt.Println(string(dataStr))
 
     //var dataStr = []byte(`mediaPackage=`+xml+`&dublinCore=`+dublinCoreTmp+`&flavor=dublincore/episode`)
 
@@ -299,10 +301,10 @@ func (c *opencastClient) addDCCatalog(xml string, dublinCore string) (string, er
     }
     defer responce.Body.Close()
 
-    fmt.Println("responce code:", responce.Status)
+    //fmt.Println("responce code:", responce.Status)
 
     body, _ := ioutil.ReadAll(responce.Body)
-    fmt.Println(string(body))
+    //fmt.Println(string(body))
 
     return string(body), nil
 
@@ -376,7 +378,7 @@ func (c *opencastClient) addTrack(xml string, flavor string, path string) (strin
     */
 
     uri := c.ingestHost+c.ingestPath+"/addTrack"
-    fmt.Println("url:", uri)
+    //fmt.Println("url:", uri)
 
     //request, _ := http.NewRequest("POST", uri, body)
     request, _ := http.NewRequest("POST", uri, ioutil.NopCloser(body))
@@ -410,7 +412,7 @@ func (c *opencastClient) ingest(xml string) (string, error) {
 
     //uri := c.ingestHost+c.ingestPath+"/ingest"
     uri := c.ingestHost+c.ingestPath+"/ingest/schedule-and-upload"
-    fmt.Println("url:", uri)
+    //fmt.Println("url:", uri)
 
     paramsC := url.Values{}
     paramsC.Add("mediaPackage", xml)
@@ -419,7 +421,7 @@ func (c *opencastClient) ingest(xml string) (string, error) {
 
     var dataStr = []byte(paramsC.Encode())
 
-    fmt.Println(string(dataStr))
+    //fmt.Println(string(dataStr))
 
     request, _ := http.NewRequest("POST", uri, ioutil.NopCloser(bytes.NewBuffer(dataStr)))
     //request.Header.Set("X-Requested-Auth", "Digest")
@@ -442,7 +444,7 @@ func (c *opencastClient) ingest(xml string) (string, error) {
     return string(bodya), nil
 }
 
-func startRecord(api *CameraApi) string {
+func startRecord(api *CameraApi, startTimestamp uint64, stopTimestamp uint64) string {
     channelId := 1
     res := api.CreateChannel(channelId, 1920, 1080, 30)
     if (!res){
@@ -452,9 +454,8 @@ func startRecord(api *CameraApi) string {
     fmt.Println("Channel was created ", channelId)
 
     params := make(map[string]string)
-    t := time.Now().UnixNano() / 1000
-    params["StartTimestamp"] = strconv.FormatInt(t + 60000000, 10)
-    params["StopTimestamp"] = strconv.FormatInt(t + 60000000 + 60000000, 10)
+    params["StartTimestamp"] = strconv.FormatUint(startTimestamp, 10)
+    params["StopTimestamp"] = strconv.FormatUint(stopTimestamp, 10)
     res, processingId := api.CreateProcessing("schedule", params)
     if (!res){
         fmt.Println("Processing failed ")
@@ -538,7 +539,7 @@ func packVideo(recordId string) bool {
     ffmpegPath := "ffmpeg"
     videoFolder := "/home/cam/cam1/" + recordId + "/"
     videoPath := videoFolder + "out0.h264"
-    outPath := "out0.mp4"
+    outPath := "out.mp4"
 
     cmd := exec.Command(ffmpegPath, "-i", videoPath, "-c:v", "copy", "-f", "mp4", outPath)
     out, err := cmd.CombinedOutput()
@@ -553,51 +554,102 @@ func packVideo(recordId string) bool {
     return true
 }
 
+func convertTime(original string) string{
+    return original[:4] + "-" + original[4:6] + "-" + original[6:11] + ":" + original[11:13] + ":" + original[13:]
+}
+
+func parseSchedule(schedule string) (string, uint64, uint64){
+    uid := ""
+    var start uint64 = 0
+    var stop uint64 = 0
+    lines := strings.Split(schedule, "\r\n")
+    for _, line := range lines {
+       values := strings.Split(line, ":")
+        if (values[0] == "UID"){
+            uid = values[1]
+        }
+        if (values[0] == "DTSTART"){
+            t, err := time.Parse(time.RFC3339, convertTime(values[1]))
+            if (err == nil){
+                start = uint64(t.UnixNano() / 1000)
+            } else {
+                fmt.Println(err)
+            }
+        }
+        if (values[0] == "DTEND"){
+            t, err := time.Parse(time.RFC3339, convertTime(values[1]))
+            if (err == nil){
+                stop = uint64(t.UnixNano() / 1000)
+            } else {
+                fmt.Println(err)
+            }
+        }
+    }
+
+    fmt.Println(lines)
+    fmt.Println(schedule)
+    return uid,start,stop
+}
+
 func main() {
     fmt.Println("CA")
 
     var api CameraApi
     api.Create( "test", "hisilicon123","http://213.141.129.12:8080/cam1/")
-    recordId := startRecord(&api)
-    if (recordId == ""){
-       fmt.Println("Record was not started")
-    }
-    //move logic to camera
-    stopRecord(&api, recordId)
-    waitForFinish(&api, recordId)
-    packVideo(recordId)
-    return
-
 
     var c opencastClient
     //c.create("84.201.135.192", "8080", "admin", "opencast123", "MY-TEST-CA")
-    c.create("84.201.135.192", "8080", "opencast_system_account", "CHANGE_ME123", "MY-TEST-CA")
+    c.create("130.193.39.114", "8080", "opencast_system_account", "CHANGE_ME123", "MY-TEST-CA")
 
     c.captureAdminHost, c.captureAdminPath, _ = c.getService("org.opencastproject.capture.admin")
     c.schedulerHost,    c.schedulerPath,    _ = c.getService("org.opencastproject.scheduler")
     c.ingestHost,       c.ingestPath,       _ = c.getService("org.opencastproject.ingest")
 
     c.register("idle")
-    c.getSchedule()
 
-    xml, _ := c.createMediaPackage()
-    fmt.Println(xml)
+    for {
+        time.Sleep(10 * time.Second)
 
-    xml2, _ := c.addDCCatalog(xml, "")
-    fmt.Println(xml2)
+        err, schedule := c.getSchedule()
+        if err != nil{
+            log.Println("schedule load failed", err)
+            continue
+        }
 
-    
-    xml3, err := c.addTrack(xml2, "presenter/source", "./testvideo.mp4")
-    //xml3, err := c.addTrack(xml2, "presenter/source", "./video.webm")
-    if err != nil {
-        fmt.Println("err:", err)
-    } else {
-        fmt.Println(xml3)
+        uid,startTimestamp,endTimestamp := parseSchedule(schedule)
+        if (uid == "" || startTimestamp == 0 || endTimestamp == 0){
+            continue
+        }
+
+        recordId := startRecord(&api, startTimestamp, endTimestamp)
+        if (recordId == ""){
+         fmt.Println("Record was not started")
+         continue
+        }
+        //move logic to camera
+        stopRecord(&api, recordId)
+        waitForFinish(&api, recordId)
+        packVideo(recordId)
+
+        xml, _ := c.createMediaPackage()
+        //fmt.Println(xml)
+
+        xml2, _ := c.addDCCatalog(xml, "")
+        //fmt.Println(xml2)
+
+        xml3, err := c.addTrack(xml2, "presenter/source", "out.mp4")
+        //xml3, err := c.addTrack(xml2, "presenter/source", "./video.webm")
+        if err != nil {
+            fmt.Println("err:", err)
+        }
+        //} else {
+        //    fmt.Println(xml3)
+        //}
+
+        c.ingest(xml3)
+        //xml4, _ := c.ingest(xml3)
+        //fmt.Println(xml4)
     }
-    
-    xml4, _ := c.ingest(xml3)
-    fmt.Println(xml4)
-
 //////////////---------------
 //    params := url.Values{}
 //	params.Add("configuration", "{'capture.device.names':'MOCK_SCREEN,MOCK_PRESENTER,MOCK_MICROPHONE'}")
