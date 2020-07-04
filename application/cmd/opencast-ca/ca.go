@@ -250,7 +250,7 @@ func (c *opencastClient) createMediaPackage() (string, error) {
     return string(body), nil
 }
 
-func (c *opencastClient) addDCCatalog(xml string, dublinCore string) (string, error) {
+func (c *opencastClient) addDCCatalog(xml string, startTimestamp uint64, endTimestamp uint64) (string, error) {
     //# Add DC catalog
     //curl -f --digest -u ${USER}:${PASSWORD} -H "X-Requested-Auth: Digest" \
     //"${HOST}/ingest/addDCCatalog" -F "mediaPackage=<${TMP_MP}" \
@@ -263,8 +263,8 @@ func (c *opencastClient) addDCCatalog(xml string, dublinCore string) (string, er
         "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"+
         "<dcterms:creator>demo123</dcterms:creator>\n"+
         "<dcterms:contributor>demo123</dcterms:contributor>\n"+
-        "<dcterms:created xsi:type=\"dcterms:W3CDTF\">2020-06-16T19:30Z</dcterms:created>\n"+
-        "<dcterms:temporal xsi:type=\"dcterms:Period\">start=2020-06-16T19:30Z; end=2020-06-16T19:31Z; scheme=W3C-DTF;</dcterms:temporal>\n"+
+        "<dcterms:created xsi:type=\"dcterms:W3CDTF\">" + time.Now().Format(time.RFC3339)+ "</dcterms:created>\n"+
+        "<dcterms:temporal xsi:type=\"dcterms:Period\">start=" + time.Unix(0, int64(startTimestamp*1000)).Format(time.RFC3339) + "; end=" + time.Unix(0, int64(endTimestamp*1000)).Format(time.RFC3339) + "; scheme=W3C-DTF;</dcterms:temporal>\n"+
         "<dcterms:description>demo123</dcterms:description>\n"+
         "<dcterms:subject>demo123</dcterms:subject>\n"+
         "<dcterms:language>demo123</dcterms:language>\n"+
@@ -444,12 +444,12 @@ func (c *opencastClient) ingest(xml string) (string, error) {
     return string(bodya), nil
 }
 
-func startRecord(api *CameraApi, startTimestamp uint64, stopTimestamp uint64) string {
+func startRecord(api *CameraApi, startTimestamp uint64, stopTimestamp uint64) (string,int,int,int) {
     channelId := 1
     res := api.CreateChannel(channelId, 1920, 1080, 30)
     if (!res){
         fmt.Println("CreateChannel failed ")
-        return ""
+        return "",0,0,0
     }
     fmt.Println("Channel was created ", channelId)
 
@@ -459,38 +459,38 @@ func startRecord(api *CameraApi, startTimestamp uint64, stopTimestamp uint64) st
     res, processingId := api.CreateProcessing("schedule", params)
     if (!res){
         fmt.Println("Processing failed ")
-        return ""
+        return "",0,0,0
     }
     fmt.Println("Processing was created ", processingId)
 
     res, encoderId := api.CreateEncoder("H264_1920_1080_1M")
     if (!res){
         fmt.Println("Encoder failed ")
-        return ""
+        return "",0,0,0
     }
     fmt.Println("Encoder was created ", encoderId)
 
     res = api.SubscribeChannel(processingId, channelId)
     if (!res){
         fmt.Println("SubscribeChannel failed ")
-        return ""
+        return "",0,0,0
     }
     fmt.Println("Channel was subscribed ")
 
     res = api.SubscribeProcessing(processingId, encoderId)
     if (!res){
         fmt.Println("SubscribeProcessing failed ")
-        return ""
+        return "",0,0,0
     }
     fmt.Println("Processing was subscribed ")
 
     res, recordId := api.StartRecording(encoderId)
     if (!res){
         fmt.Println("StartRecording failed ")
-        return ""
+        return "",0,0,0
     }
     fmt.Println("Record was started ", recordId)
-    return recordId
+    return recordId,channelId,processingId,encoderId
 }
 
 func stopRecord(api *CameraApi, recordId string) {
@@ -535,6 +535,12 @@ func waitForFinish(api *CameraApi, recordId string) {
     }
 }
 
+func resetCam(api *CameraApi, channelId int, processingId int, encoderId int) {
+    api.StopEncoder(encoderId)
+    api.StopProcessing(processingId)
+    api.StopChannel(channelId)
+}
+
 func packVideo(recordId string) bool {
     ffmpegPath := "ffmpeg"
     videoFolder := "/home/cam/cam1/" + recordId + "/"
@@ -558,14 +564,23 @@ func convertTime(original string) string{
     return original[:4] + "-" + original[4:6] + "-" + original[6:11] + ":" + original[11:13] + ":" + original[13:]
 }
 
-func parseSchedule(schedule string) (string, uint64, uint64){
+func parseSchedule(schedule string, activeRecords map[string]bool) (string, uint64, uint64){
     uid := ""
     var start uint64 = 0
     var stop uint64 = 0
     lines := strings.Split(schedule, "\r\n")
     for _, line := range lines {
+        if (line == "END:VEVENT"){
+            if (uid != "" && start != 0 && stop != 0){
+                break
+            }
+        }
        values := strings.Split(line, ":")
         if (values[0] == "UID"){
+            _, exists := activeRecords[values[1]]
+            if (exists) {
+                continue
+            }
             uid = values[1]
         }
         if (values[0] == "DTSTART"){
@@ -586,7 +601,6 @@ func parseSchedule(schedule string) (string, uint64, uint64){
         }
     }
 
-    fmt.Println(lines)
     fmt.Println(schedule)
     return uid,start,stop
 }
@@ -616,12 +630,19 @@ func main() {
             continue
         }
 
-        uid,startTimestamp,endTimestamp := parseSchedule(schedule)
+        uid,startTimestamp,endTimestamp := parseSchedule(schedule, c.activeRecords)
         if (uid == "" || startTimestamp == 0 || endTimestamp == 0){
             continue
         }
 
-        recordId := startRecord(&api, startTimestamp, endTimestamp)
+        _, exists := c.activeRecords[uid]
+        if (exists) {
+            fmt.Println("Already processed ", uid)
+            continue
+        }
+        c.activeRecords[uid] = true
+
+        recordId,channelId,processingId,encoderId := startRecord(&api, startTimestamp, endTimestamp)
         if (recordId == ""){
          fmt.Println("Record was not started")
          continue
@@ -629,12 +650,13 @@ func main() {
         //move logic to camera
         stopRecord(&api, recordId)
         waitForFinish(&api, recordId)
+        resetCam(&api, channelId, processingId, encoderId)
         packVideo(recordId)
 
         xml, _ := c.createMediaPackage()
         //fmt.Println(xml)
 
-        xml2, _ := c.addDCCatalog(xml, "")
+        xml2, _ := c.addDCCatalog(xml,startTimestamp,endTimestamp)
         //fmt.Println(xml2)
 
         xml3, err := c.addTrack(xml2, "presenter/source", "out.mp4")

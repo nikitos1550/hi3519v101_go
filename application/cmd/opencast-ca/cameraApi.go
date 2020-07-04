@@ -270,3 +270,51 @@ func (c *CameraApi) GetAllRecords() (bool, AllRecordsResponse) {
 
     return true, response
 }
+
+func (c *CameraApi) StopChannel(channelId int) bool {
+    url := c.camUrl + "api/mpp/channel/stop?channelId=" + strconv.Itoa(channelId)
+
+    var response CommonResponse
+    if(!c.Request(url, &response)){
+        return false
+    }
+
+    if(response.Message != "Success"){
+        log.Println("Request failed ", url, response.Message, response.Details.Message)
+        return false
+    }
+
+    return true
+}
+
+func (c *CameraApi) StopProcessing(processingId int) bool {
+    url := c.camUrl + "api/processing/delete?processingId=" + strconv.Itoa(processingId)
+
+    var response CommonResponse
+    if(!c.Request(url, &response)){
+        return false
+    }
+
+    if(response.Message != "Success"){
+        log.Println("Request failed ", url, response.Message, response.Details.Message)
+        return false
+    }
+
+    return true
+}
+
+func (c *CameraApi) StopEncoder(encoderId int) bool {
+    url := c.camUrl + "api/encoder/delete?encoderId=" + strconv.Itoa(encoderId)
+
+    var response CommonResponse
+    if(!c.Request(url, &response)){
+        return false
+    }
+
+    if(response.Message != "Success"){
+        log.Println("Request failed ", url, response.Message, response.Details.Message)
+        return false
+    }
+
+    return true
+}
