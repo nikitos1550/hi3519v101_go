@@ -129,9 +129,8 @@ PROG	 ?= 1
 #BOARD    ?= ruision_rs-h805-a0_hi3518ev200_ar0237
 #PROG     ?= no
 
-#family not added
 #CAMERA   ?= 30
-#BOARD    ?= unknown_unknown_xm530_unknown
+#BOARD    ?= ruision_rs-h656s-ao-b_hi3516av300_imx415
 #PROG     ?= no
 
 #CAMERA  ?= 31
