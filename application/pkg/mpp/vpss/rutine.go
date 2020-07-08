@@ -4,45 +4,97 @@ package vpss
 import "C"
 
 import (
+    "errors"
     "time"
     "unsafe"
 
     "application/pkg/mpp/errmpp"
     "application/pkg/logger"
     "application/pkg/buildinfo"
+    "application/pkg/mpp/connection"
 )
 
-func sendDataToClients(c *channel) {
-    periodTreshhold := uint64(1500000 / c.params.Fps)
-    periodWait      := uint64(5000 / c.params.Fps)
+const (
+    defaultDepth = 1
+)
+
+func (c *Channel) rutineStart() error {
+    if c == nil {
+        return errors.New("Null pointer")
+    }
+
+    c.rutineRun = true
+
+    go func() {
+        c.rutine()
+    }()
+
+    err := mppChangeDepth(c.Id, defaultDepth)
+    if err != nil {
+        return err
+    }
+
+    c.depth = defaultDepth
+
+    return nil
+}
+
+func (c *Channel) rutineStop() error {
+    if c == nil {
+		return errors.New("Null pointer")
+	}
+
+    c.rutineRun = false
+
+    _ = <- c.rutineCtrl
+
+    err := mppChangeDepth(c.Id, 0)
+    if err != nil {
+        return err
+    }
+
+    c.depth = 0
+
+    return nil
+}
+
+func (c *Channel) rutine() {
+	if c == nil {
+		logger.Log.Fatal().
+			Msg("VPSS rutine null pointer")
+		return
+	}
+
+    periodTreshhold := uint64(1500000 / c.Params.Fps)   //TODO why this value
+    periodWait      := uint64(5000 / c.Params.Fps)      //TODO why this value
 
     logger.Log.Trace().
-        Int("channel", c.id).
+        Int("channel", c.Id).
         Str("name", "sendDataToClients").
-        Uint64("treshhold", periodTreshhold).
-        Uint64("wait", periodWait).
+        Uint64("treshhold,us", periodTreshhold).
+        Uint64("wait,ms", periodWait).
         Msg("VPSS rutine started")
 
     for {
-        if (!c.started){
+        if (!c.rutineRun) {
             break
         }
 
         var err C.int
         var inErr C.error_in
-        var frame unsafe.Pointer
+        var mppFrame unsafe.Pointer
         var pts C.ulonglong
 
         //hi3516cv100 family doesn`t provide blocking getFrame call
-        if buildinfo.Family == "hi3516cv100" {  //TODO
-            time.Sleep(1 * time.Second)         //now we will just sleep here
+        if buildinfo.Family == "hi3516cv100" {
+            time.Sleep(time.Duration(periodWait) * time.Millisecond)         //TODO set proper value
         }
 
-        err = C.mpp_receive_frame(&inErr, C.uint(c.id), &frame, &pts, C.uint(periodWait));
+        err = C.mpp_receive_frame(&inErr, C.uint(c.Id), &mppFrame, &pts, C.uint(periodWait));
 
         if err != C.ERR_NONE {
             logger.Log.Warn().
-                Int("channel", c.id).
+                Int("channel", c.Id).
                 Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
                 Msg("VPSS failed receive frame")
             continue
@@ -64,33 +116,32 @@ func sendDataToClients(c *channel) {
             c.stat.PeriodAvg += ((float64(period) - c.stat.PeriodAvg) / float64(c.stat.Count))
         }
 
-        c.mutex.RLock()         //clients list read lock
+        var frame connection.Frame
+        frame.Frame = mppFrame
+        frame.Pts = uint64(pts)
+
+        c.rawClientsMutex.RLock()
         {
-            for processing, _ := range c.clients {
-                processing.Callback(frame)
+            for client, _ := range c.rawClients {
+				client.PushRawFrame(frame)
             }
-
-            //for _, _ := range c.clents2 {
-            //    //TODO
-            //}
         }
-        c.mutex.RUnlock()
+        c.rawClientsMutex.RUnlock()
 
-        err = C.mpp_release_frame(&inErr, C.uint(c.id));
+        err = C.mpp_release_frame(&inErr, C.uint(c.Id));
 
         if err != C.ERR_NONE {
             logger.Log.Error().
-                Int("channel", c.id).
+                Int("channel", c.Id).
                 Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
                 Msg("VPSS failed release frame")
         }
     }
 
-    c.rutineStop <- true //TODO improve channel stop
+    c.rutineCtrl <- true //TODO improve channel stop
 
     logger.Log.Trace().
-        Int("channel", c.id).
+        Int("channel", c.Id).
         Str("name", "sendDataToClients").
         Msg("VPSS rutine stopped")
 }
-

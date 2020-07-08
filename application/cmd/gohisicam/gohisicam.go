@@ -19,14 +19,26 @@ import (
 	//"application/pkg/config"
 	"application/pkg/mpp"
 	"application/pkg/openapi"
-	"application/pkg/scripts"
+	////////"application/pkg/scripts"
 
 	//"application/pkg/mpp/cmos"
 
 	"application/pkg/pipeline"
-	"application/pkg/processing"
+	"application/pkg/processings"
 
-	"application/pkg/streamer"
+	////streamers "application/pkg/streamer"
+    //"application/pkg/streamer/file"
+    "application/pkg/streamer/jpeg"
+    //"application/pkg/streamer/pipe"
+    //"application/pkg/streamerrtsp"
+    //"application/pkg/streamer/yuv"
+    "application/pkg/streamer/webrtc"
+    //"application/pkg/streamerws"
+
+
+
+
+    //"application/pkg/streamers"
 
 	_ "application/pkg/godebug"
 	//"application/pkg/ko"
@@ -128,15 +140,26 @@ func main() {
 	//same time, it will start serve requests immediately, but
 	//some requests need mpp and other initilization
 
-	scripts.Init() //
+	//////////////////////scripts.Init() //
 
 	mpp.Init(devInfo)      //Init mpp and all subsystems
-	streamer.Init() //Init streamers
+
+
+	////streamers.Init() //Init streamers
+    //file.Init()
+    jpeg.Init()
+    //pipe.Init()
+    //rtsp.Init()
+    //yuv.Init()
+    webrtc.Init()
+    //ws.Init()
+
+
 	pipeline.Init()
-	processing.Init()
+	processings.Init()
 
 	//Start serving after everything inited and setuped
-	scripts.Start()
+	//////////////////scripts.Start()
 	openapi.Start()
 
     closeHandler()

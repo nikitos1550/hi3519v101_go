@@ -156,11 +156,42 @@ int mpp_vpss_create_channel(error_in *err, mpp_vpss_create_channel_in * in) {
 
         DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_SetChnMode, 0, in->id, &stVpssChnMode);
 
-        //if depth == 1 frames can be dropped
-        HI_U32 u32Depth = in->depth; //TODO
+        HI_U32 u32Depth = in->depth;
 
         DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_SetDepth, 0, in->id, u32Depth);
     #endif
+
+    if (in->crop_width > 0 && in->crop_height > 0) {
+        #if HI_MPP == 1
+            //TODO crop per channel isn`t supported
+        #elif HI_MPP == 2 || \
+            HI_MPP == 3 || \
+            HI_MPP == 4
+            VPSS_CROP_INFO_S stCropInfo;
+
+            stCropInfo.bEnable = HI_TRUE;
+            stCropInfo.enCropCoordinate = VPSS_CROP_RATIO_COOR;
+            stCropInfo.stCropRect.s32X = in->crop_x;
+            stCropInfo.stCropRect.s32Y = in->crop_y;
+            stCropInfo.stCropRect.u32Width = in->crop_width;
+            stCropInfo.stCropRect.u32Height = in->crop_height;
+
+            DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_SetChnCrop, 0, in->id, &stCropInfo);
+        #endif
+    }
+
+    /*
+    #if HI_MPP == 4
+        //TEST!!! TODO
+        VPSS_LOW_DELAY_INFO_S stLowDelayInfo;
+
+        stLowDelayInfo.bEnable = HI_TRUE;
+        stLowDelayInfo.u32LineCnt = 16;
+
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_SetLowDelayAttr, 0, in->id, &stLowDelayInfo);
+        //HI_MPI_VPSS_SetLowDelayAttr(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, const VPSS_LOW_DELAY_INFO_S *pstLowDelayInfo);
+    #endif
+    */
 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_EnableChn, 0, in->id);
 
@@ -173,9 +204,27 @@ int mpp_vpss_destroy_channel(error_in * err, mpp_vpss_destroy_channel_in *in) {
     return ERR_NONE;
 }
 
+int mpp_vpss_change_channel_depth(error_in * err, mpp_vpss_change_channel_depth_in *in) {
+    #if HI_MPP == 1 \
+        || HI_MPP == 2 \
+        || HI_MPP == 3
+        HI_U32 u32Depth = in->depth;
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_SetDepth, 0, in->id, u32Depth);
+    #elif HI_MPP == 4
+        VPSS_CHN_ATTR_S stVpssChnAttr;
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_GetChnAttr, 0, in->id, &stVpssChnAttr);
+        stVpssChnAttr.u32Depth = in->depth;
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_SetChnAttr, 0, in->id, &stVpssChnAttr);
+    #endif
+
+    return ERR_NONE;
+}
+
 VIDEO_FRAME_INFO_S channelFrames[VPSS_MAX_PHY_CHN_NUM];
 
 int mpp_receive_frame(error_in *err, unsigned int id, void **frame, unsigned long long *pts, unsigned int wait) {
+//int mpp_receive_frame(error_in *err, unsigned int id, VIDEO_FRAME_INFO_S *frame, unsigned long long *pts, unsigned int wait) {
+//int mpp_receive_frame(error_in *err, unsigned int id, void *frame, unsigned long long *pts, unsigned int wait) {
     #if HI_MPP == 1
         DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_UserGetFrame, 0, id, &channelFrames[id])      //don`t have block mode
     #elif HI_MPP == 2 \
@@ -184,7 +233,7 @@ int mpp_receive_frame(error_in *err, unsigned int id, void **frame, unsigned lon
         DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_GetChnFrame, 0, id, &channelFrames[id], wait);  //blocking mode call
     #endif
 
-    *frame = &channelFrames[id];
+    *frame = &channelFrames[id];//TODO
 
     #if HI_MPP == 1 \
         || HI_MPP == 2 \

@@ -26,6 +26,17 @@ int mpp_venc_getfd(int venc_channel_id) {
     return HI_MPI_VENC_GetFd(venc_channel_id);
 }
 
+int mpp_venc_closefd(int venc_channel_id) {
+    #if     HI_MPP == 1
+        //Not implemented
+        return ERR_NONE;
+    #elif   HI_MPP == 2 \
+            || HI_MPP == 3 \
+            || HI_MPP == 4
+        return HI_MPI_VENC_CloseFd(venc_channel_id);
+    #endif
+}
+
 void mpp_data_loop_get_data(unsigned int id) {
     HI_S32          s32Ret;
 
@@ -214,7 +225,7 @@ int mpp_data_loop_del(unsigned int *error_code, unsigned int venc_channel_id) {
     int i, item;
     item = -1;
     for (i=0; i<NUM_VENCS; i++) {
-        if (loop_vencs[i].id == venc_fd) {
+        if (loop_vencs[i].id == venc_channel_id) {
             item = i;
             break;
         }
@@ -236,6 +247,8 @@ int mpp_data_loop_del(unsigned int *error_code, unsigned int venc_channel_id) {
     }
     pthread_mutex_unlock(&lock);
 
+    mpp_venc_closefd(venc_channel_id);
+
     return ERR_NONE;
 }
 
@@ -245,8 +258,9 @@ int mpp_data_loop_init(unsigned int *error_code) {
 
     int i;
     for (i=0; i<NUM_VENCS; i++) {
-        loop_vencs[i].id = -1;
-        loop_vencs[i].fd = -1;
+        loop_vencs[i].id    = -1;
+        loop_vencs[i].fd    = -1;
+        loop_vencs[i].codec = -1;
     }
 
     if (pthread_mutex_init(&lock, NULL) != 0) {

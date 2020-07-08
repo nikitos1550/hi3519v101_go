@@ -51,7 +51,9 @@ CMOS_TAGS		:= $(CMOS) cmos_data_$(CMOS_DATA) cmos_control_$(CMOS_CONTROL) cmos_b
 GOTAGS_PROBE    := gohisiprobe $(FAMILY) netgo nethttpomithttp2
  
 #GOTAGS_CAM      := gohisicam $(FAMILY) $(CHIP) $(CMOS_TAGS) netgo nethttpomithttp2 openapi debug processing streamerJpeg streamerFile streamerRtsp streamerPipe streamerYuv
-GOTAGS_CAM      := gohisicam $(FAMILY) netgo nethttpomithttp2 openapi debug processing streamerJpeg koEmbed scripts streamerFile streamerWebrtc streamerRtsp streamerYuv
+#GOTAGS_CAM      := gohisicam $(FAMILY) netgo nethttpomithttp2 openapi debug processing streamerJpeg koEmbed scripts streamerFile streamerWebrtc streamerRtsp streamerYuv
+GOTAGS_CAM      := gohisicam $(FAMILY) netgo nethttpomithttp2 openapi debug processing streamerJpeg koEmbed scripts streamerWebrtc
+
 #GOTAGS_CAM      := gohisicam $(FAMILY) netgo nethttpomithttp2 openapi debug processing streamerJpeg streamerFile streamerRtsp streamerPipe streamerWebrtc streamerYuv
 
 GOTAGS := $(GOTAGS_$(shell echo '$(APP)' | tr '[:lower:]' '[:upper:]'))
@@ -165,7 +167,7 @@ deploy-dir-cam: distrib
 	mkdir -p ./distrib/$(FAMILY)/etc/init.d
 	mkdir -p ./distrib/$(FAMILY)/opt/cgi-bin
 	cp -r ./www/* ./distrib/$(FAMILY)/opt/www
-	cp -r ./scripts/* ./distrib/$(FAMILY)/opt/scripts
+	#cp -r ./scripts/* ./distrib/$(FAMILY)/opt/scripts
 	cp ./init/run.sh ./distrib/$(FAMILY)/opt
 	cp ./init/S99gohisicam ./distrib/$(FAMILY)/etc/init.d/
 	cp ./init/ldd.sh ./distrib/$(FAMILY)/opt
@@ -174,7 +176,7 @@ deploy-dir-cam: distrib
 	cp ../application/configs/* ./distrib/$(FAMILY)/opt/configs/
 	cp -r ./init/tools ././distrib/$(FAMILY)/opt/ 
 	mkdir -p ./distrib/$(FAMILY)/opt/svp
-	cp -r ./svp/* ./distrib/$(FAMILY)/opt/svp
+	#cp -r ./svp/* ./distrib/$(FAMILY)/opt/svp
 	mkdir -p ./distrib/$(FAMILY)/opt/nfs
 
 #deploy-dir-probe: distrib

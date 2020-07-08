@@ -21,8 +21,9 @@ func Init(chip string) {
     if  buildinfo.Chip == "hi3516ev100" ||
         buildinfo.Chip == "hi3518ev200" ||
         buildinfo.Chip == "hi3518ev201" ||
-        buildinfo.Chip == "hi3516ev200" ||
-        buildinfo.Chip == "hi3516ev300" { //TODO calc mem smart, now 32MB mpp ram only for hi3516ev100
+        buildinfo.Chip == "hi3516ev200" {
+        in.cnt = 5
+    } else if buildinfo.Chip == "hi3516ev300" { //TODO calc mem smart, now 32MB mpp ram only for hi3516ev100
         in.cnt = 5
     } else {
         in.cnt = 10

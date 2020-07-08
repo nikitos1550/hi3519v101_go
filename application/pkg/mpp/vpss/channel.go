@@ -1,58 +1,50 @@
-//+build openapi
-
 package vpss
 
 import (
     "sync"
 
-    "application/pkg/common"
+    "application/pkg/mpp/connection"
 )
 
-type channel struct {
-    id          int
+type Channel struct {
+    Id                  int                                                     `json:"id"`
 
-    params      Parameters
-    stat        statistics
+    Params              Parameters                                              `json:"parameters"`
+    stat                statistics                                              `json:"-"`
 
-    started     bool //TODO change name to created
+    Created             bool                                                    `json:"created"`
+    Locked              bool                                                    `json:"locked"`
 
-    mutex       sync.RWMutex
+    mutex               sync.RWMutex                                            `json:"-"`
 
-    clients     map[common.Processing] bool //int - id processing, callback processing
-    clients2    map[int] Client
+    depth               int                                                     `json:"-"`
 
-    rutineStop  chan bool
+    rawClients          map[connection.ClientRawFrame] bool                     //TODO
+    rawClientsMutex     sync.RWMutex                                            `json:"-"`
+
+    bindClients         map[connection.ClientBind] connection.BindInformation   //TODO
+    bindClientsMutex    sync.RWMutex                                            `json:"-"`
+
+    rutineRun           bool                                                    `json:"-"`
+    rutineCtrl          chan bool                                               `json:"-"`
 }
 
 type Parameters struct {
-    Width       int
-    Height      int
-    Fps         int
-    CropX       int
-    CropY       int
-    CropWidth   int
-    CropHeight  int
-    Depth       int
+    Width       int     `json:"width"`
+    Height      int     `json:"height"`
+    Fps         int     `json:"fps"`
+    CropX       int     `json:"cropx,omitempty"`
+    CropY       int     `json:"cropy,omitempty"`
+    CropWidth   int     `json:"cropwidth,omitempty"`
+    CropHeight  int     `json:"cropheight,omitempty"`
 }
 
 type statistics struct {
     Count       uint64  `json:"count"`
     Drops       uint64  `json:"drops"`
 
-    PeriodAvg   float64 `json:"period"`
+    PeriodAvg   float64 `json:"averageperiod"`
 
-    TsPrev      uint64
-    TsLast      uint64
-}
-
-var (
-    channels []channel
-)
-
-func init() {
-    channels = make([]channel, channelsAmount)
-
-    for i := 0; i < channelsAmount; i++ {
-		channels[i].id = i
-	}
+    TsPrev      uint64  `json:"-"`
+    TsLast      uint64  `json:"-"`
 }

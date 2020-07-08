@@ -7,8 +7,15 @@
             min-height: 75px;
         }
     </style>
+    <script type="text/javascript" src="./adapter.js"></script>
     <script type="text/javascript" src="../js/jquery-3.4.1.min.js"></script>
     <script>
+
+function a() { 
+    console.log(adapter.browserDetails.browser);
+    console.log(adapter.browserDetails.version);
+    //alert(detectBrowser()); 
+}
 
 var getParams = function (url) {
 	var params = {};
@@ -57,7 +64,7 @@ pc.onicecandidate = event => {
 // Offer to receive 1 audio, and 2 video tracks
 //pc.addTransceiver('audio', {'direction': 'recvonly'})
 //pc.addTransceiver('video', {'direction': 'recvonly'})
-pc.addTransceiver('audio', {})
+//pc.addTransceiver('audio', {})
 pc.addTransceiver('video', {})
 //pc.addTransceiver('video', {'direction': 'recvonly'})
 pc.createOffer().then(d => pc.setLocalDescription(d)).catch(log)
@@ -122,11 +129,13 @@ pc.createOffer().then(d => pc.setLocalDescription(d)).catch(log)
         <button onclick="window.closeSession()">/api/webrtc/disconnect</button><br />
 
         Video<br />
-        <div id="remoteVideos"></div> <br />
+        <div id="remoteVideos" style="width:640;height:360;"></div> <br />
 
         Logs<br />
         <div id="div"></div>
 
+        <hr />
+        <button id='browser' onclick="a()">as</button>
     </body>
 </html>
 

@@ -4,9 +4,11 @@
 #include "../errmpp/errmpp.h"
 #include "../../logger/logger.h"
 
-#define CODEC_MJPEG 1
-#define CODEC_H264  2
-#define CODEC_H265  3
+#define CODEC_MJPEG     1
+#define CODEC_H264      2
+#define CODEC_H265      3
+
+#define INVALID_VALUE   (0xFFFFFFFF >> 1)
 
 //forward declarations
 int mpp_data_loop_add(unsigned int *error_code, unsigned int venc_channel_id, unsigned int codec);
@@ -37,50 +39,52 @@ int mpp3_venc_sample_h265(unsigned int *error_code, int width, int height, int b
 int mpp3_venc_delete_encoder(unsigned int *error_code, int channelId);
 
 typedef struct mpp_venc_create_encoder_in_struct {              
-    unsigned int    id;
+    int id;
 
-    unsigned int    codec;
-    unsigned int    profile;
+    int codec;
+    int profile;
 
-    unsigned int    width;
-    unsigned int    height;
+    int width;
+    int height;
 
-    int             in_fps;
-    int             out_fps;
+    int in_fps;
+    int out_fps;
 
-    unsigned int    bitrate_control;
+    int bitrate_control;
 
-    unsigned int    gop;
+    int gop;
 
-    unsigned int    gop_mode;
+    int gop_mode;
 
-    int             i_pq_delta;
-    unsigned int    s_p_interval;
-    int             s_pq_delta;
-    unsigned int    bg_interval;
-    int             bg_qp_delta;
-    int             vi_qp_delta;
-    unsigned int    b_frm_num;
-    int             b_qp_delta;
+    int i_pq_delta;
+    int s_p_interval;
+    int s_pq_delta;
+    int bg_interval;
+    int bg_qp_delta;
+    int vi_qp_delta;
+    int b_frm_num;
+    int b_qp_delta;
 
-    unsigned int    bitrate;
+    int bitrate;
 
-    unsigned int    stat_time;
-    unsigned int    fluctuate_level;
+    int stat_time;
+    int fluctuate_level;
 
-    unsigned int    q_factor;
-    unsigned int    min_q_factor;
-    unsigned int    max_q_factor;
+    int q_factor;
+    int min_q_factor;
+    int max_q_factor;
 
-    unsigned int    i_qp;
-    unsigned int    p_qp;
-    unsigned int    b_qp;
+    int i_qp;
+    int p_qp;
+    int b_qp;
 
-    unsigned int    min_qp;
-    unsigned int    max_qp;
-    unsigned int    min_i_qp;
+    int min_qp;
+    int max_qp;
+    int min_i_qp;
 
 } mpp_venc_create_encoder_in;              
+
+void invalidate_mpp_venc_create_encoder_in (mpp_venc_create_encoder_in *in);
 
 typedef struct mpp_venc_destroy_encoder_in_struct {              
     unsigned int id;
@@ -99,3 +103,18 @@ int mpp_venc_start_encoder(error_in *err, mpp_venc_start_encoder_in *in);
 int mpp_venc_stop_encoder(error_in *err, mpp_venc_stop_encoder_in *in);                     
 int mpp_venc_update_encoder(error_in *err, mpp_venc_create_encoder_in *in);
 int mpp_venc_destroy_encoder(error_in *err, mpp_venc_destroy_encoder_in *in); 
+
+typedef struct mpp_send_frame_to_encoder_in_struct {
+    int                 id;
+    //VIDEO_FRAME_INFO_S  *frame;
+    void                *frame;
+} mpp_send_frame_to_encoder_in;
+
+int mpp_send_frame_to_encoder(error_in *err, mpp_send_frame_to_encoder_in *in);
+
+typedef struct mpp_venc_request_idr_in_struct {
+    int id;
+} mpp_venc_request_idr_in;
+
+int mpp_venc_request_idr(error_in *err, mpp_venc_request_idr_in *in);
+

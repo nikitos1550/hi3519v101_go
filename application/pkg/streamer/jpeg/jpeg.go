@@ -1,78 +1,201 @@
-//+build streamerJpeg
-
 package jpeg
 
 import (
-	"strconv"
+    "errors"
+    "sync"
 
-	"application/pkg/logger"
-
-	"net/http"
-	"application/pkg/openapi"
-
-    "application/pkg/mpp/venc"
+    "application/pkg/mpp/connection"
+    "application/pkg/logger"
 )
 
-type responseRecord struct {
-	Message string
+type jpeg struct {
+    sync.RWMutex
+    deleted bool
+
+    name    string
+
+    source  connection.SourceEncodedData
 }
 
+const (
+    maxId   = 1024
+)
+
+var (
+    jpegs       map[int] *jpeg
+    jpegsMutex  sync.RWMutex
+    LastId      int
+)
+
 func init() {
-    openapi.AddRoute("serveJpeg",   "/jpeg/image.jpg",   "GET",      serveJpeg)
+    jpegs = make(map[int] *jpeg)
 }
 
 func Init() {}
 
-func serve(w http.ResponseWriter, encoderId int) {
-	logger.Log.Trace().
-		Msg("serveJpeg")
+func GetById(id int) (*jpeg, error) {
+    jpegsMutex.RLock()
+    defer jpegsMutex.RUnlock()
 
-	//var payload = make(chan []byte, 1)
-    var payload = make(chan venc.ChannelEncoder, 1)
+    item, exist := jpegs[id]
+    if !exist {
+        return nil, errors.New("No such instance")
+    }
 
-	venc.SubsribeEncoder(encoderId, payload)
-
-	logger.Log.Trace().
-	    Int("encoderId", encoderId).
-		Msg("reed data from channel")
-
-	data := <- payload
-
-	logger.Log.Trace().
-        Int("encoderId", encoderId).
-        Msg("reeded data from channel")
-
-	venc.RemoveSubscription(encoderId, payload)
-
-	w.Header().Set("Content-Type", "image/jpeg")
-
-	n, err := w.Write(data.Data)
-	if err != nil {
-	logger.Log.Warn().
-	    Msg("Failed to write data")
-	} else {
-	logger.Log.Trace().
-	    Int("size", n).
-		Msg("written size")
-	}
+    return item, nil
 }
 
-func serveJpeg(w http.ResponseWriter, r *http.Request) {
-	ok, encoderId := openapi.GetIntParameter(w, r, "encoderId")
-	if !ok {
-		return
-	}
+func GetByName(name string) (*jpeg, error) {
+    jpegsMutex.RLock()
+    defer jpegsMutex.RUnlock()
 
-	encoder, encoderExists := venc.ActiveEncoders[encoderId]
-	if (!encoderExists) {
-		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: "Failed to find encoder  " + strconv.Itoa(encoderId)})
-		return
-	}
+    for _, item := range(jpegs) {
+        if item.Name() == name {
+            return item, nil
+        }
+    }
 
-	if (encoder.Format != "mjpeg") {
-		openapi.ResponseErrorWithDetails(w, http.StatusInternalServerError, responseRecord{Message: "Encoder has wrong format " + encoder.Format + ". Should be mjpeg"})
-		return
-	}
+    return nil, errors.New("No such instance")
+}
 
-	serve(w, encoderId)
+func Create(name string) (*jpeg, error) {
+    jpegsMutex.Lock()
+    defer jpegsMutex.Unlock()
+
+    var item jpeg
+
+    id := -1
+    for i:=0; i < maxId; i++ {
+        _, exist := jpegs[i]
+        if !exist {
+            id = i
+            break
+        }
+    }
+
+    if id == -1 {
+        return nil, errors.New("Max amount reached")
+    }
+
+    for _, item := range(jpegs) {
+        if item.Name() == name {
+            return nil, errors.New("Duplicate name")
+        }
+    }
+
+    item.name = name
+
+    jpegs[id] = &item
+
+    if id > LastId {
+        LastId = id
+    }
+
+    logger.Log.Debug().
+        Int("id", id).
+        Str("name", name).
+        Msg("Jpeg created")
+
+    return &item, nil
+}
+
+//func DeleteById(id int) error {
+//    jpegsMutex.Lock()
+//    defer jpegsMutex.Unlock()
+//
+//    item, exist := jpegs[id]
+//    if !exist {
+//        return errors.New("No such instance")
+//    }
+//
+//    if item.source != nil {
+//        return errors.New("Can`t delete, because sourced")
+//    }
+//
+//    delete(jpegs, id)
+//
+//    return nil
+//}
+
+func Delete(j *jpeg) error {
+    jpegsMutex.Lock()
+    defer jpegsMutex.Unlock()
+
+    for i:=0; i < maxId; i++ {
+        item := jpegs[i]
+        if j == item {
+            if item.destroy() != nil {
+                return errors.New("Can`t delete, because sourced")
+            }
+
+            delete(jpegs, i)
+
+            return nil
+        }
+    }
+
+    return errors.New("No such instance")
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+func (j *jpeg) destroy() error {
+    if j == nil {
+        return errors.New("Null pointer")
+    }
+
+    j.Lock()
+    defer j.Unlock()
+
+    if j.deleted == true {
+        logger.Log.Error().
+            Msg("Jpeg invoked deleted instance")
+        return nil
+    }
+
+    if j.source != nil {
+        return errors.New("Can`t destroy, because sourced")
+    }
+
+    j.deleted = true
+
+    return nil
+}
+
+func (j *jpeg) Name() string { //(string, error) {
+    if j == nil {
+        return "" //return nil, errors.New("Null pointer")
+    }
+
+    j.RLock()
+    defer j.RUnlock()
+
+    if j.deleted == true {
+        logger.Log.Error().
+            Msg("Jpeg invoked deleted instance")
+        return ""
+    }
+
+	return j.name //return j.name, nil
+}
+
+func (j *jpeg) getSource() (connection.SourceEncodedData, error) {
+    if j == nil {
+        return nil, errors.New("Null pointer")
+    }
+
+    j.RLock()
+    defer j.RUnlock()
+
+    if j.deleted == true {
+        logger.Log.Error().
+            Msg("Jpeg invoked deleted instance")
+        return nil, errors.New("Invoked deleted instance")
+    }
+
+    if j.source == nil {
+        return nil, errors.New("Instance not sourced")
+    }
+
+    return j.source, nil
 }

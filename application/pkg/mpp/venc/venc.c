@@ -13,26 +13,23 @@ int mpp_venc_mjpeg_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encode
             stVencChnAttr->stRcAttr.enRcMode = VENC_RC_MODE_MJPEGCBR;
 
             #if HI_MPP == 1
-                //stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_MJPEGCBR;
-                stVencChnAttr->stRcAttr.stAttrMjpegeCbr.u32StatTime          = in->stat_time;           //mpp1: [1; 16] //TODO
+                stVencChnAttr->stRcAttr.stAttrMjpegeCbr.u32StatTime          = in->stat_time;           //mpp1: [1; 60]
                 stVencChnAttr->stRcAttr.stAttrMjpegeCbr.u32ViFrmRate         = in->in_fps;              //mpp1: (0; 60]
                 stVencChnAttr->stRcAttr.stAttrMjpegeCbr.fr32TargetFrmRate    = in->out_fps;             //mpp1: (0; u32ViFrmRate]
                 stVencChnAttr->stRcAttr.stAttrMjpegeCbr.u32FluctuateLevel    = in->fluctuate_level;     //mpp1: [0; 5] (0 is recommended)
                 stVencChnAttr->stRcAttr.stAttrMjpegeCbr.u32BitRate           = in->bitrate;             //mpp1: [2; 40960]
             #elif HI_MPP == 2 || \
                   HI_MPP == 3
-                //stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_MJPEGCBR;
                 stVencChnAttr->stRcAttr.stAttrMjpegeCbr.u32StatTime          = in->stat_time;           //mpp2: [1; 60]                 //mpp3: [1; 60]
                 stVencChnAttr->stRcAttr.stAttrMjpegeCbr.u32SrcFrmRate        = in->in_fps;              //mpp2: [1; 240]                //mpp3: [1; 240]
                 stVencChnAttr->stRcAttr.stAttrMjpegeCbr.fr32DstFrmRate       = in->out_fps;             //mpp2: (0; u32SrcFrmRate]      //mpp3: [1/16; u32SrcFrmRate]
                 stVencChnAttr->stRcAttr.stAttrMjpegeCbr.u32FluctuateLevel    = in->fluctuate_level;     //mpp2: [1; 5] (1 recommended)  //mpp3: [1; 5]
                 stVencChnAttr->stRcAttr.stAttrMjpegeCbr.u32BitRate           = in->bitrate;             //mpp2: [2; 102400]             //mpp3: [2; 102400]
             #elif HI_MPP == 4
-                //stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_MJPEGCBR;
-                stVencChnAttr->stRcAttr.stMjpegCbr.u32StatTime              = in->stat_time;            //mpp4: [1;60]
-                stVencChnAttr->stRcAttr.stMjpegCbr.u32SrcFrameRate          = in->in_fps;               //mpp4: [1;240]
-                stVencChnAttr->stRcAttr.stMjpegCbr.fr32DstFrameRate         = in->out_fps;              //mpp4: [1/64; u32SrcFrmRate]
-                stVencChnAttr->stRcAttr.stMjpegCbr.u32BitRate               = in->bitrate;              //mpp4: Hi3559A V100ES/Hi3559A V100: [2, 409600] Hi3519A V100/Hi3556A V100/Hi3516C V500/Hi3516D V300: [2, 204800]
+                stVencChnAttr->stRcAttr.stMjpegCbr.u32StatTime               = in->stat_time;           //mpp4: [1;60]
+                stVencChnAttr->stRcAttr.stMjpegCbr.u32SrcFrameRate           = in->in_fps;              //mpp4: [1;240]
+                stVencChnAttr->stRcAttr.stMjpegCbr.fr32DstFrameRate          = in->out_fps;             //mpp4: [1/64; u32SrcFrmRate]
+                stVencChnAttr->stRcAttr.stMjpegCbr.u32BitRate                = in->bitrate;             //mpp4: Hi3559A V100ES/Hi3559A V100: [2, 409600] Hi3519A V100/Hi3556A V100/Hi3516C V500/Hi3516D V300: [2, 204800]
                                                                                                         //Hi3559AV100ES/Hi3559AV100：[2, 614400]
                                                                                                         //Hi3519AV100/Hi3556AV100：[2, 204800]
                                                                                                         //Hi3516CV500/Hi3516DV300/Hi3516AV300/Hi3556V200/Hi3559V200：[2,102400]
@@ -43,7 +40,6 @@ int mpp_venc_mjpeg_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encode
             stVencChnAttr->stRcAttr.enRcMode = VENC_RC_MODE_MJPEGVBR;
 
             #if HI_MPP == 1
-                //stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_MJPEGVBR;
                 stVencChnAttr->stRcAttr.stAttrMjpegeVbr.u32StatTime          = in->stat_time;           //mpp1: [1; 60]
                 stVencChnAttr->stRcAttr.stAttrMjpegeVbr.u32ViFrmRate         = in->in_fps;              //mpp1: [1; 60]
                 stVencChnAttr->stRcAttr.stAttrMjpegeVbr.fr32TargetFrmRate    = in->out_fps;             //mpp1: (0; u32ViFrmRate]
@@ -52,7 +48,6 @@ int mpp_venc_mjpeg_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encode
                 stVencChnAttr->stRcAttr.stAttrMjpegeVbr.u32MaxBitRate        = in->bitrate;             //mpp1: [2; 40960]
             #elif HI_MPP == 2 || \
                   HI_MPP == 3 
-                //stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_MJPEGVBR;
                 stVencChnAttr->stRcAttr.stAttrMjpegeVbr.u32StatTime          = in->stat_time;           //mpp2: [1; 60]                 //mpp3: [1; 60]
                 stVencChnAttr->stRcAttr.stAttrMjpegeVbr.u32SrcFrmRate        = in->in_fps;              //mpp2: [1; 240]                //mpp3: [1; 240]
                 stVencChnAttr->stRcAttr.stAttrMjpegeVbr.fr32DstFrmRate       = in->out_fps;             //mpp2: (0; u32SrcFrmRate]      //mpp3: [1/16; u32SrcFrmRate]
@@ -60,7 +55,6 @@ int mpp_venc_mjpeg_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encode
                 stVencChnAttr->stRcAttr.stAttrMjpegeVbr.u32MaxQfactor        = in->max_q_factor;        //mpp2: [1; 99]                 //mpp3: [1; 99]
                 stVencChnAttr->stRcAttr.stAttrMjpegeVbr.u32MaxBitRate        = in->bitrate;             //mpp2: [2; 102400]             //mpp3: [2; 102400]
             #elif HI_MPP == 4
-                //stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_MJPEGVBR;
                 stVencChnAttr->stRcAttr.stMjpegVbr.u32StatTime               = in->stat_time;           //mpp4: [1; 60] 
                 stVencChnAttr->stRcAttr.stMjpegVbr.u32SrcFrameRate           = in->in_fps;              //mpp4: [1; 240]
                 stVencChnAttr->stRcAttr.stMjpegVbr.fr32DstFrameRate          = in->out_fps;             //mpp4: [1/64; u32SrcFrmRate]
@@ -75,18 +69,15 @@ int mpp_venc_mjpeg_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encode
             stVencChnAttr->stRcAttr.enRcMode = VENC_RC_MODE_MJPEGFIXQP;
 
             #if HI_MPP == 1
-                //stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_MJPEGFIXQP;
                 stVencChnAttr->stRcAttr.stAttrMjpegeFixQp.u32Qfactor         = in->q_factor;            //mpp1: [1; 99]
                 stVencChnAttr->stRcAttr.stAttrMjpegeFixQp.u32ViFrmRate       = in->in_fps;              //mpp1: [1; 60]
                 stVencChnAttr->stRcAttr.stAttrMjpegeFixQp.fr32TargetFrmRate  = in->out_fps;             //mpp1: (0, u32ViFrmRate]
             #elif HI_MPP == 2 || \
                   HI_MPP == 3 
-                //stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_MJPEGFIXQP;
                 stVencChnAttr->stRcAttr.stAttrMjpegeFixQp.u32Qfactor         = in->q_factor;            //mpp2: [1; 99]                 //mpp3: [1; 99]
                 stVencChnAttr->stRcAttr.stAttrMjpegeFixQp.u32SrcFrmRate      = in->in_fps;              //mpp2: [1; 240]                //mpp3: [1; 240]
                 stVencChnAttr->stRcAttr.stAttrMjpegeFixQp.fr32DstFrmRate     = in->out_fps;             //mpp2: (0; u32ViFrmRate]       //mpp3: [1/16; u32ViFrmRate]
             #elif HI_MPP == 4
-                //stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_MJPEGFIXQP;
                 stVencChnAttr->stRcAttr.stMjpegFixQp.u32Qfactor             = in->q_factor;             //mpp4: [1; 99]
                 stVencChnAttr->stRcAttr.stMjpegFixQp.u32SrcFrameRate        = in->in_fps;               //mpp4: [1; 240]
                 stVencChnAttr->stRcAttr.stMjpegFixQp.fr32DstFrameRate       = in->out_fps;              //mpp4: [1/64; u32SrcFrmRate]
@@ -111,10 +102,9 @@ int mpp_venc_h264_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encoder
                 stVencChnAttr->stRcAttr.stAttrH264Cbr.u32ViFrmRate           = in->in_fps;              //mpp1: [1; 60]
                 stVencChnAttr->stRcAttr.stAttrH264Cbr.fr32TargetFrmRate      = in->out_fps;             //mpp1: (0; u32ViFrmRate]
                 stVencChnAttr->stRcAttr.stAttrH264Cbr.u32BitRate             = in->bitrate;             //mpp1: [2; 40960]
-                stVencChnAttr->stRcAttr.stAttrH264Cbr.u32FluctuateLevel      = in->fluctuate_level;     //mpp1: [0; 5] (0 is recommended)
+                stVencChnAttr->stRcAttr.stAttrH264Cbr.u32FluctuateLevel      = in->fluctuate_level;     //mpp1: [1; 5]
             #elif HI_MPP == 2 || \
                   HI_MPP == 3
-                //stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_H264CBR;
                 stVencChnAttr->stRcAttr.stAttrH264Cbr.u32Gop                 = in->gop;                 //mpp2: [1; 65536]              //mpp3: [1; 65536]
                 stVencChnAttr->stRcAttr.stAttrH264Cbr.u32StatTime            = in->stat_time;           //mpp2: [1; 60]                 //mpp3: [1; 60]
                 stVencChnAttr->stRcAttr.stAttrH264Cbr.u32SrcFrmRate          = in->in_fps;              //mpp2: [1; 240]                //mpp3: [1; 240]
@@ -122,9 +112,8 @@ int mpp_venc_h264_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encoder
                 stVencChnAttr->stRcAttr.stAttrH264Cbr.u32BitRate             = in->bitrate;             //mpp2: [2, 102400]             //mpp3: 
                                                                                                                                         //Hi3519 V100/Hi3519 V101/Hi3531D V100/Hi3521DV100/Hi3536C V100: [2, 102400]
                                                                                                                                         //Hi3516C V300/Hi3516E V100: [2, 30720]
-                stVencChnAttr->stRcAttr.stAttrH264Cbr.u32FluctuateLevel      = in->fluctuate_level;     //mpp2: [1; 5]                  //mpp3: [1; 5]
+                stVencChnAttr->stRcAttr.stAttrH264Cbr.u32FluctuateLevel      = in->fluctuate_level;     //mpp2: [0; 5]                  //mpp3: [1; 5]
             #elif HI_MPP == 4
-                //stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_H264CBR;
                 stVencChnAttr->stRcAttr.stH264Cbr.u32Gop                     = in->gop;                 //mpp4: [1; 65536]
                 stVencChnAttr->stRcAttr.stH264Cbr.u32StatTime                = in->stat_time;           //mpp4: [1; 60]
                 stVencChnAttr->stRcAttr.stH264Cbr.u32SrcFrameRate            = in->in_fps;              //mpp4: [1; 240]
@@ -151,7 +140,6 @@ int mpp_venc_h264_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encoder
                 stVencChnAttr->stRcAttr.stAttrH264Vbr.u32MaxBitRate          = in->bitrate;             //mpp1: [2; 40960]
             #elif HI_MPP == 2 || \
                   HI_MPP == 3
-                //stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_H264VBR;  
                 stVencChnAttr->stRcAttr.stAttrH264Vbr.u32Gop                 = in->gop;                 //mpp2: [1; 65536]              //mpp3: [1; 65536]
                 stVencChnAttr->stRcAttr.stAttrH264Vbr.u32StatTime            = in->stat_time;           //mpp2: [1; 60]                 //mpp3: [1; 60]
                 stVencChnAttr->stRcAttr.stAttrH264Vbr.u32SrcFrmRate          = in->in_fps;              //mpp2: [1; 240]                //mpp3: [1; 240]
@@ -165,10 +153,9 @@ int mpp_venc_h264_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encoder
 																																		//Hi3519 V100/Hi3519 V101/Hi3531DV100/Hi3521D V100/Hi3536C V100: [2, 102400]
 																																		//Hi3516C V300/Hi3516E V100: [2, 30720]<Paste>
             #elif HI_MPP == 4
-                //stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_H264VBR;  
                 stVencChnAttr->stRcAttr.stH264Vbr.u32Gop                     = in->gop;                 //mpp4: [1; 65536]
                 stVencChnAttr->stRcAttr.stH264Vbr.u32StatTime                = in->stat_time;           //mpp4: [1; 60]
-                stVencChnAttr->stRcAttr.stH264Vbr.u32SrcFrameRate            = in->in_fps;              //mpp4: 1; 240]
+                stVencChnAttr->stRcAttr.stH264Vbr.u32SrcFrameRate            = in->in_fps;              //mpp4: [1; 240]
                 stVencChnAttr->stRcAttr.stH264Vbr.fr32DstFrameRate           = in->out_fps;             //mpp4: [1/64; u32SrcFrmRate]
                 stVencChnAttr->stRcAttr.stH264Vbr.u32MaxBitRate              = in->bitrate;             //mpp4: 
                                                                                                         //Hi3559AV100ES/Hi3559AV100：[2, 614400]
@@ -182,7 +169,6 @@ int mpp_venc_h264_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encoder
             stVencChnAttr->stRcAttr.enRcMode = VENC_RC_MODE_H264FIXQP;
 
     		#if HI_MPP == 1
-            	//stVencChnAttr->stRcAttr.enRcMode = VENC_RC_MODE_H264FIXQP;
                 stVencChnAttr->stRcAttr.stAttrH264FixQp.u32Gop               = in->gop;                 //mpp1: [1; 65536]
                 stVencChnAttr->stRcAttr.stAttrH264FixQp.u32ViFrmRate         = in->in_fps;              //mpp1: [1; 60]
                 stVencChnAttr->stRcAttr.stAttrH264FixQp.fr32TargetFrmRate    = in->out_fps;             //mpp1: (0; u32ViFrmRate]
@@ -190,7 +176,6 @@ int mpp_venc_h264_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encoder
                 stVencChnAttr->stRcAttr.stAttrH264FixQp.u32PQp               = in->p_qp;                //mpp1: [0; 51]
           	#elif HI_MPP == 2 || \
 				  HI_MPP == 3
-    			//stVencChnAttr->stRcAttr.enRcMode = VENC_RC_MODE_H264FIXQP;
         		stVencChnAttr->stRcAttr.stAttrH264FixQp.u32Gop               = in->gop;                 //mpp2: [1; 65536]				//mpp3: [1; 65536]
             	stVencChnAttr->stRcAttr.stAttrH264FixQp.u32SrcFrmRate        = in->in_fps;              //mpp2: [1; 240]				//mpp3: [1; 240]
                 stVencChnAttr->stRcAttr.stAttrH264FixQp.fr32DstFrmRate       = in->out_fps;             //mpp2: (0; u32SrcFrmRate]		//mpp3: [1/16; u32SrcFrmRate]
@@ -200,7 +185,6 @@ int mpp_venc_h264_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encoder
                 	stVencChnAttr->stRcAttr.stAttrH264FixQp.u32BQp           = in->b_qp;												//mpp3: [0; 51]
 				#endif
 			#elif HI_MPP == 4
-    			//stVencChnAttr->stRcAttr.enRcMode = VENC_RC_MODE_H264FIXQP;
     			stVencChnAttr->stRcAttr.stH264FixQp.u32Gop                   = in->gop;                 //mpp4: [1; 65536]
     			stVencChnAttr->stRcAttr.stH264FixQp.u32SrcFrameRate          = in->in_fps;              //mpp4: [1; 240]
     			stVencChnAttr->stRcAttr.stH264FixQp.fr32DstFrameRate         = in->out_fps;             //mpp4: [1/64; u32SrcFrmRate]
@@ -216,7 +200,6 @@ int mpp_venc_h264_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encoder
 				;;;//TODO error
 			#elif HI_MPP == 2 || \
 				  HI_MPP == 3
-                //stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_H264AVBR;                            
                 stVencChnAttr->stRcAttr.stAttrH264AVbr.u32Gop                = in->gop;                 //mpp2: [1; 65536]         		//mpp3: [1; 65536] 
                 stVencChnAttr->stRcAttr.stAttrH264AVbr.u32StatTime           = in->stat_time;           //mpp2: [1; 60]					//mpp3: [1; 60]
                 stVencChnAttr->stRcAttr.stAttrH264AVbr.u32SrcFrmRate         = in->in_fps;              //mpp2: [1; 240]               	//mpp3: [1; 240]
@@ -225,7 +208,6 @@ int mpp_venc_h264_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encoder
 																																		//Hi3519 V100/Hi3519 V101/Hi3531DV100/Hi3521D V100/Hi3536C V100: [2, 102400]
 																																		//Hi3516C V300/Hi3516E V100: [2, 30720]
     		#elif HI_MPP == 4
-            	//stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_H264AVBR;
                 stVencChnAttr->stRcAttr.stH264AVbr.u32Gop                    = in->gop;                 //mpp4: [1; 65536]
                 stVencChnAttr->stRcAttr.stH264AVbr.u32StatTime               = in->stat_time;           //mpp4: [1; 60]
                 stVencChnAttr->stRcAttr.stH264AVbr.u32SrcFrameRate           = in->in_fps;              //mpp4: [1; 240]
@@ -246,7 +228,6 @@ int mpp_venc_h264_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encoder
 				HI_MPP == 3 
 				;;;//TODO error
 			#elif HI_MPP == 4
-            	//stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_H264CVBR;
             	stVencChnAttr->stRcAttr.stH264CVbr.u32Gop                    = in->gop;                 //mpp4: [1; 65536]
                 stVencChnAttr->stRcAttr.stH264CVbr.u32StatTime               = in->stat_time;           //mpp4: [1, 60]
                 stVencChnAttr->stRcAttr.stH264CVbr.u32SrcFrameRate           = in->in_fps;              //mpp4: [1; 240]
@@ -264,6 +245,8 @@ int mpp_venc_h264_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encoder
          	#endif
 			break;
 		case VENC_RC_MODE_H264QVBR:
+            stVencChnAttr->stRcAttr.enRcMode = VENC_RC_MODE_H264QVBR;
+
             #if HI_MPP == 1 || \
                 HI_MPP == 2
 				;;; //TODO error
@@ -276,7 +259,6 @@ int mpp_venc_h264_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encoder
                                                                                                         //Hi3519 V100/Hi3519 V101/Hi3531DV100/Hi3521D V100/Hi3536C V100: [2, 102400]
                                                                                                         //Hi3516C V300/Hi3516E V100: [2, 30720]
           	#elif HI_MPP == 4
-	  			stVencChnAttr->stRcAttr.enRcMode = VENC_RC_MODE_H264QVBR;
             	stVencChnAttr->stRcAttr.stH264QVbr.u32Gop                    = in->gop;                 //mpp4: [1; 65536]
                 stVencChnAttr->stRcAttr.stH264QVbr.u32StatTime               = in->stat_time;           //mpp4: [1; 60]
                 stVencChnAttr->stRcAttr.stH264QVbr.u32SrcFrameRate           = in->in_fps;              //mpp4: [1; 240]
@@ -307,7 +289,6 @@ int mpp_venc_h265_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encoder
 
             #if HI_MPP == 2 || \
                 HI_MPP == 3
-            	//stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_H265CBR;                           
                 stVencChnAttr->stRcAttr.stAttrH265Cbr.u32Gop                 = in->gop;               	//mpp2: [1; 65536]                  //mpp3: [1; 65536]
                 stVencChnAttr->stRcAttr.stAttrH265Cbr.u32StatTime            = in->stat_time;           //mpp2: [1; 60]                     //mpp3: [1; 60]
                 stVencChnAttr->stRcAttr.stAttrH265Cbr.u32SrcFrmRate          = in->in_fps;              //mpp2: [1; 240]                    //mpp3: [1; 240]
@@ -317,7 +298,6 @@ int mpp_venc_h265_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encoder
                                                                                                                                             //Hi3516C V300/Hi3516E V100: [2, 30720]
                 stVencChnAttr->stRcAttr.stAttrH265Cbr.u32FluctuateLevel      = in->fluctuate_level;   	//mpp2: [0, 5] (0 is recommended)???//mpp3: [1, 5] (1 is recommended)
 			#elif HI_MPP == 4
-            	//stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_H265CBR;
                 stVencChnAttr->stRcAttr.stH265Cbr.u32Gop                     = in->gop;                 //mpp4: [1; 65536]
                 stVencChnAttr->stRcAttr.stH265Cbr.u32StatTime                = in->stat_time;           //mpp4: [1; 60]
                 stVencChnAttr->stRcAttr.stH265Cbr.u32SrcFrameRate            = in->in_fps;              //mpp4: [1; 240]
@@ -337,7 +317,6 @@ int mpp_venc_h265_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encoder
 				;;;//TODO error
 			#elif HI_MPP == 2 || \
 				  HI_MPP == 3 
-                //stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_H265VBR;
                 stVencChnAttr->stRcAttr.stAttrH265Vbr.u32Gop                 = in->gop;                 //mpp2: [1; 65536]                  //mpp3: [1; 65536] 
                 stVencChnAttr->stRcAttr.stAttrH265Vbr.u32StatTime            = in->stat_time;           //mpp2: [1; 60]                     //mpp3: [1; 60]
                 stVencChnAttr->stRcAttr.stAttrH265Vbr.u32SrcFrmRate          = in->in_fps;              //mpp2: [1; 240]                    //mpp3: [1; 240]
@@ -351,7 +330,6 @@ int mpp_venc_h265_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encoder
                                                                                                                                             //Hi3519 V100/Hi3519 V101/Hi3531DV100/Hi3521D V100/Hi3536C V100: [2, 102400]
                                                                                                                                             //Hi3516C V300/Hi3516E V100: [2, 30720]
     		#elif HI_MPP == 4 
-            	//stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_H265VBR;
             	stVencChnAttr->stRcAttr.stH265Vbr.u32Gop                     = in->gop;                 //mpp4: [1; 65536]
                 stVencChnAttr->stRcAttr.stH265Vbr.u32StatTime                = in->stat_time;           //mpp4: [1; 60]
                 stVencChnAttr->stRcAttr.stH265Vbr.u32SrcFrameRate            = in->in_fps;              //mpp4: [1; 240]
@@ -364,11 +342,12 @@ int mpp_venc_h265_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encoder
                                                                                                         //Hi3516EV200/Hi3516EV300/Hi3518EV300/Hi3516DV200：[2,61440]
           	#endif
 		case VENC_RC_MODE_H265FIXQP:
+            stVencChnAttr->stRcAttr.enRcMode = VENC_RC_MODE_H265FIXQP;
+
             #if HI_MPP == 1
             	;;;//TODO error
             #elif HI_MPP == 2 || \
                   HI_MPP == 3 
-                stVencChnAttr->stRcAttr.enRcMode = VENC_RC_MODE_H265FIXQP;                    
                 stVencChnAttr->stRcAttr.stAttrH265FixQp.u32Gop               = in->gop;                 //mpp2: [1; 65536]                  //mpp3: [1; 65536]
                 stVencChnAttr->stRcAttr.stAttrH265FixQp.u32SrcFrmRate        = in->in_fps;              //mpp2: [1; 240]                    //mpp3: [1; 240]
                 stVencChnAttr->stRcAttr.stAttrH265FixQp.fr32DstFrmRate       = in->out_fps;             //mpp2: (0; u32SrcFrmRate]          //mpp3: [1/16; u32SrcFrmRate]
@@ -378,7 +357,6 @@ int mpp_venc_h265_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encoder
 					stVencChnAttr->stRcAttr.stAttrH265FixQp.u32BQp           = in->b_qp;                                                    //mpp3: [0; 51]
 				#endif
 			#elif HI_MPP == 4
-            	stVencChnAttr->stRcAttr.enRcMode = VENC_RC_MODE_H265FIXQP;
             	stVencChnAttr->stRcAttr.stH265FixQp.u32Gop                   = in->gop;                 //mpp4: [1; 65536]
                 stVencChnAttr->stRcAttr.stH265FixQp.u32SrcFrameRate          = in->in_fps;              //mpp4: [1; 240]
                 stVencChnAttr->stRcAttr.stH265FixQp.fr32DstFrameRate         = in->out_fps;             //mpp4: [1/64; u32SrcFrmRate]
@@ -393,7 +371,6 @@ int mpp_venc_h265_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encoder
             	;;;//TODO error
             #elif HI_MPP == 2 || \
             	  HI_MPP == 3 
-                //stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_H265AVBR;        
                 stVencChnAttr->stRcAttr.stAttrH264AVbr.u32Gop                = in->gop;                 //mpp2: [1; 65536]                  //mpp3: [1; 65536]
                 stVencChnAttr->stRcAttr.stAttrH264AVbr.u32StatTime           = in->stat_time;           //mpp2: [1; 60]                     //mpp3: [1; 60]
                 stVencChnAttr->stRcAttr.stAttrH264AVbr.u32SrcFrmRate         = in->in_fps;              //mpp2: [1; 240]                    //mpp3: [1; 240]
@@ -402,7 +379,6 @@ int mpp_venc_h265_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encoder
                                                                                                                                             //Hi3519 V100/Hi3519 V101/Hi3531DV100/Hi3521D V100/Hi3536C V100: [2, 102400]
                                                                                                                                             //Hi3516C V300/Hi3516E V100: [2, 30720]
     		#elif HI_MPP == 4
-        		//stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_H265AVBR;
     			stVencChnAttr->stRcAttr.stH265AVbr.u32Gop                    = in->gop;                 //mpp4: [1; 65536]
         		stVencChnAttr->stRcAttr.stH265AVbr.u32StatTime               = in->stat_time;           //mpp4: [1; 60]
             	stVencChnAttr->stRcAttr.stH265AVbr.u32SrcFrameRate           = in->in_fps;              //mpp4: [1; 240]
@@ -422,7 +398,6 @@ int mpp_venc_h265_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encoder
                 HI_MPP == 3 
                 ;;;//TODO error
             #elif HI_MPP == 4
-                //stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_H265CVBR;
                 stVencChnAttr->stRcAttr.stH265CVbr.u32Gop                    = in->gop;                 //mpp4: [1; 65536]
                 stVencChnAttr->stRcAttr.stH265CVbr.u32StatTime               = in->stat_time;           //mpp4: [1; 60]
                 stVencChnAttr->stRcAttr.stH265CVbr.u32SrcFrameRate           = in->in_fps;              //mpp4: [1; 240]
@@ -454,7 +429,6 @@ int mpp_venc_h265_params(VENC_CHN_ATTR_S *stVencChnAttr, mpp_venc_create_encoder
                                                                                                         //Hi3519 V100/Hi3519 V101/Hi3531DV100/Hi3521D V100/Hi3536C V100: [2, 102400]
                                                                                                         //Hi3516C V300/Hi3516E V100: [2, 30720]
             #elif HI_MPP == 4
-                //stVencChnAttr.stRcAttr.enRcMode = VENC_RC_MODE_H265QVBR;
                 stVencChnAttr->stRcAttr.stH265QVbr.u32Gop                    = in->gop;                 //mpp4: [1; 65536]
                 stVencChnAttr->stRcAttr.stH265QVbr.u32StatTime               = in->stat_time;           //mpp4: [1; 60]
                 stVencChnAttr->stRcAttr.stH265QVbr.u32SrcFrameRate           = in->in_fps;              //mpp4: [1; 240]
@@ -586,6 +560,7 @@ int mpp_venc_create_encoder(error_in *err, mpp_venc_create_encoder_in *in) {
             case PT_H264:
                 stVencChnAttr.stVencAttr.enType                     = PT_H264;
                 stVencChnAttr.stVencAttr.u32BufSize                 = in->width * in->height * H26XK;
+                break;
             case PT_H265:
                 stVencChnAttr.stVencAttr.enType                     = PT_H265;
                 stVencChnAttr.stVencAttr.u32BufSize                 = in->width * in->height * H26XK;
@@ -604,6 +579,7 @@ int mpp_venc_create_encoder(error_in *err, mpp_venc_create_encoder_in *in) {
             break;
         case PT_H265:
             mpp_venc_h265_params(&stVencChnAttr, in);
+            break;
         default:
             ;;;//TODO error
     }
@@ -642,11 +618,39 @@ int mpp_venc_create_encoder(error_in *err, mpp_venc_create_encoder_in *in) {
             #endif
             break;
         case VENC_GOPMODE_BIPREDB:
+			//TODO hi3516cv300 doesn`t support it
 			stVencChnAttr.stGopAttr.enGopMode 					= VENC_GOPMODE_BIPREDB;
             stVencChnAttr.stGopAttr.stBipredB.u32BFrmNum		= in->b_frm_num;            //mpp3: [1; 3]	                                                                //mpp4: [1; 3]
             stVencChnAttr.stGopAttr.stBipredB.s32BQpDelta		= in->b_qp_delta;           //mpp3: [-10; 30]                                                               //mpp4: [-10; 30]
             stVencChnAttr.stGopAttr.stBipredB.s32IPQpDelta		= in->i_pq_delta;           //mpp3: [-10; 30]                                                               //mpp4: [-10; 30]
             break;
+        case VENC_GOPMODE_INTRAREFRESH:
+            stVencChnAttr.stGopAttr.enGopMode                   = VENC_GOPMODE_NORMALP;
+            stVencChnAttr.stGopAttr.stNormalP.s32IPQpDelta      = -1;//in->i_pq_delta;           //mpp3: [-10; 30]                                                               //mpp4: [-10; 30]
+            /*
+			#if HI_MPP == 3
+            //typedef struct hiVENC_PARAM_INTRA_REFRESH_S {
+            //    HI_BOOL bRefreshEnable;
+            //    HI_BOOL bISliceEnable;
+            //    HI_U32 u32RefreshLineNum;
+            //    HI_U32 u32ReqIQp;
+            //}VENC_PARAM_INTRA_REFRESH_S;
+            //H264: u32RefreshLineNum*MaxRefreshFrameInGop ≥ (u32PicHeight + 15)/16
+            //H265: u32RefreshLineNum*MaxRefreshFrameInGop ≥ (u32PicHeight + 63)/64
+			//If advanced frame skipping reference is not used: MaxRefreshFrameInGop = Gop;
+            //If advanced frame skipping reference is used: MaxRefreshFrameInGop = (Gop + (u32Base*(u32Enhance+1) - 1))/(u32Base*(u32Enhance+1))
+            //HI_S32 HI_MPI_VENC_SetIntraRefresh(VENC_CHN VeChn,VENC_PARAM_INTRA_REFRESH_S *pstIntraRefresh)
+            
+            VENC_PARAM_INTRA_REFRESH_S stIntraRefresh;
+            
+            stIntraRefresh.bRefreshEnable = HI_TRUE;
+            stIntraRefresh.bISliceEnable = HI_TRUE;
+            stIntraRefresh.u32RefreshLineNum = (in->height + 15) / 16;
+            stIntraRefresh.u32ReqIQp = HI_FALSE;
+
+            DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_SetIntraRefresh, in->id, &stIntraRefresh);
+			#endif
+            */
         default:
             ;;;//TODO error
     }
@@ -656,7 +660,53 @@ int mpp_venc_create_encoder(error_in *err, mpp_venc_create_encoder_in *in) {
 	#endif 
 	///////////////////////////////////////////////////////
 
+    #if HI_MPP == 1
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_CreateGroup, in->id);
+    #endif
+
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_CreateChn, in->id, &stVencChnAttr);
+
+    if (in->gop_mode == VENC_GOPMODE_INTRAREFRESH) {
+        #if HI_MPP == 3
+            //typedef struct hiVENC_PARAM_INTRA_REFRESH_S {
+            //    HI_BOOL bRefreshEnable;
+            //    HI_BOOL bISliceEnable;
+            //    HI_U32 u32RefreshLineNum;
+            //    HI_U32 u32ReqIQp;
+            //}VENC_PARAM_INTRA_REFRESH_S;
+            //H264: u32RefreshLineNum*MaxRefreshFrameInGop ≥ (u32PicHeight + 15)/16
+            //H265: u32RefreshLineNum*MaxRefreshFrameInGop ≥ (u32PicHeight + 63)/64
+            //If advanced frame skipping reference is not used: MaxRefreshFrameInGop = Gop;
+            //If advanced frame skipping reference is used: MaxRefreshFrameInGop = (Gop + (u32Base*(u32Enhance+1) - 1))/(u32Base*(u32Enhance+1))
+            //HI_S32 HI_MPI_VENC_SetIntraRefresh(VENC_CHN VeChn,VENC_PARAM_INTRA_REFRESH_S *pstIntraRefresh)
+            
+            VENC_PARAM_INTRA_REFRESH_S stIntraRefresh;
+            
+            stIntraRefresh.bRefreshEnable = HI_TRUE;
+            stIntraRefresh.bISliceEnable = HI_TRUE;
+            stIntraRefresh.u32RefreshLineNum = (in->height) / in->gop;
+            stIntraRefresh.u32ReqIQp = HI_FALSE;
+
+            DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_SetIntraRefresh, in->id, &stIntraRefresh);
+            printf("HI_MPI_VENC_SetIntraRefresh ok\n");
+        #elif HI_MPP == 4
+            VENC_INTRA_REFRESH_S stIntraRefresh;
+
+            stIntraRefresh.bRefreshEnable = HI_TRUE;
+            //stIntraRefresh.enInraRefreshMode = INTRA_REFRESH_COLUMN;
+            stIntraRefresh.enIntraRefreshMode = INTRA_REFRESH_ROW;
+            stIntraRefresh.u32RefreshNum = (in->height) / in->gop;
+            stIntraRefresh.u32ReqIQp = HI_FALSE;
+
+			DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_SetIntraRefresh, in->id, &stIntraRefresh);
+            printf("HI_MPI_VENC_SetIntraRefresh ok\n");
+		#endif
+    }
+
+    #if HI_MPP == 1
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_RegisterChn, in->id, in->id);
+        //s32Ret = HI_MPI_VENC_RegisterChn(VencGrp, VencChn);
+    #endif
 
     //#if HI_MPP == 1 \
     //    || HI_MPP == 2 \
@@ -712,3 +762,25 @@ int mpp_venc_create_encoder(error_in *err, mpp_venc_create_encoder_in *in) { ret
 int mpp_venc_update_encoder(error_in *err, mpp_venc_create_encoder_in *in) { return ERR_NONE; }
 int mpp_venc_destroy_encoder(error_in *err, mpp_venc_destroy_encoder_in *in) { return ERR_NONE; }
 #endif
+
+int mpp_send_frame_to_encoder(error_in *err, mpp_send_frame_to_encoder_in *in) {
+    #if HI_MPP == 1
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_SendFrame, in->id, in->frame);
+    #elif HI_MPP >= 2
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_SendFrame, in->id, in->frame, -1);
+    #endif
+
+    return ERR_NONE;
+}
+
+int mpp_venc_request_idr(error_in *err, mpp_venc_request_idr_in *in) {
+    #if HI_MPP == 1
+        //Not implemented
+    #elif   HI_MPP == 2 \
+            || HI_MPP == 3 \
+            || HI_MPP == 4
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_RequestIDR, in->id, HI_FALSE);
+    #endif
+
+    return ERR_NONE;
+}

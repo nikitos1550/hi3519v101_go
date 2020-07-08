@@ -27,11 +27,12 @@
     #define VENC_RC_MODE_H265QVBR   10004
     #define VENC_RC_MODE_H265VBR    10005
 
-    #define VENC_GOPMODE_ADVSMARTP  10000
-    #define VENC_GOPMODE_BIPREDB    10001
-    #define VENC_GOPMODE_DUALP      10002
-    #define VENC_GOPMODE_NORMALP  10003
-    #define VENC_GOPMODE_SMARTP     10004
+    #define VENC_GOPMODE_ADVSMARTP      10000
+    #define VENC_GOPMODE_BIPREDB        10001
+    #define VENC_GOPMODE_DUALP          10002
+    #define VENC_GOPMODE_NORMALP        10003
+    #define VENC_GOPMODE_SMARTP         10004
+    #define VENC_GOPMODE_INTRAREFRESH   10005
 
     #define HI_MPP_V1
     #define HI_MPP 1
@@ -47,11 +48,12 @@
     #define VENC_RC_MODE_H265CVBR   1000
     #define VENC_RC_MODE_H265QVBR   2000
 
-    #define VENC_GOPMODE_ADVSMARTP  1000
-    #define VENC_GOPMODE_BIPREDB    1001
-    #define VENC_GOPMODE_DUALP      1002
-    #define VENC_GOPMODE_NORMALP    1003
-    #define VENC_GOPMODE_SMARTP     1004
+    #define VENC_GOPMODE_ADVSMARTP      10000
+    #define VENC_GOPMODE_BIPREDB        10001
+    #define VENC_GOPMODE_DUALP          10002
+    #define VENC_GOPMODE_NORMALP        10003
+    #define VENC_GOPMODE_SMARTP         10004
+    #define VENC_GOPMODE_INTRAREFRESH   10005
 
     #define HI_MPP_V2
     #define HI_MPP 2
@@ -66,11 +68,12 @@
     #define VENC_RC_MODE_H265CVBR   1000
     #define VENC_RC_MODE_H265QVBR   1001
 
-    #define VENC_GOPMODE_ADVSMARTP  10000
-    #define VENC_GOPMODE_BIPREDB    10001
-    #define VENC_GOPMODE_DUALP      10002
-    #define VENC_GOPMODE_NORMALP    10003
-    #define VENC_GOPMODE_SMARTP     10004
+    #define VENC_GOPMODE_ADVSMARTP      10000
+    #define VENC_GOPMODE_BIPREDB        10001
+    #define VENC_GOPMODE_DUALP          10002
+    #define VENC_GOPMODE_NORMALP        10003
+    #define VENC_GOPMODE_SMARTP         10004
+    #define VENC_GOPMODE_INTRAREFRESH   10005 
 
     #define HI_MPP_V2
     #define HI_MPP 2
@@ -83,7 +86,8 @@
     #define VENC_RC_MODE_H264CVBR   1000
     #define VENC_RC_MODE_H265CVBR   1000
 
-    #define VENC_GOPMODE_ADVSMARTP  10000
+    #define VENC_GOPMODE_ADVSMARTP      10000
+    #define VENC_GOPMODE_INTRAREFRESH   10001
 
     #define HI_MPP_V3
     #define HI_MPP 3
@@ -96,7 +100,8 @@
     #define VENC_RC_MODE_H264CVBR   1000
     #define VENC_RC_MODE_H265CVBR   1000
 
-    #define VENC_GOPMODE_ADVSMARTP  1000
+    #define VENC_GOPMODE_ADVSMARTP      10000
+    #define VENC_GOPMODE_INTRAREFRESH   10001
 
     #define HI_MPP_V3
     #define HI_MPP 3
@@ -106,6 +111,8 @@
 #ifdef HI3516CV500 //Family includes
     #define INPUT_MODE_CMOS_33V 0
 
+    #define VENC_GOPMODE_INTRAREFRESH   10000
+
     #define HI_MPP_V4
     #define HI_MPP 4
     #include "../include/hi3516cv500_mpp.h"
@@ -113,6 +120,8 @@
 
 #ifdef HI3516EV200 //Family includes
     #define INPUT_MODE_CMOS_33V 0
+
+    #define VENC_GOPMODE_INTRAREFRESH   10000
 
     #define HI_MPP_V4
     #define HI_MPP 4

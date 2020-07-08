@@ -4,205 +4,284 @@ import (
     "errors"
 
     "application/pkg/logger"
+    "application/pkg/mpp/connection"
+    "application/pkg/mpp/frames"
 )
 
-func GetAmount() int {
-    return channelsAmount
+func GetEncoder(id int) (*Encoder, error) {
+    if id >= EncodersAmount {
+        return nil, errors.New("Encoder id not valid")
+    }
+
+    return &encoders[id], nil
 }
 
-func GetParams(id int) (Parameters, error) {
-    if id >= channelsAmount {
-        return Parameters{}, errors.New("Encoder id not valid")
+func GetFirstEmpty() (*Encoder, error) {
+    for i:=0; i < EncodersAmount; i++ {
+        e, _ := GetEncoder(i)
+        created := e.IsCreated()
+        if created == false {
+            return e, nil
+        }
     }
 
-    channels[id].mutex.RLock()          //read lock
-    defer channels[id].mutex.RUnlock()
-
-    if channels[id].created == false {
-        return Parameters{}, errors.New("Encoder is not created")
-    }
-
-    return channels[id].params, nil
+    return nil, errors.New("No empty encoder")
 }
 
-func GetStat(id int) (Statistics, error) {
-    if id >= channelsAmount {
-        return Statistics{}, errors.New("Encoder id not valid")
+////////////////////////////////////////////////////////////////////////////////
+
+func (e *Encoder) IsCreated() bool {
+    if e == nil {
+        return false
     }
 
-    channels[id].mutex.RLock()          //read lock
-    defer channels[id].mutex.RUnlock()
+    e.mutex.RLock()
+    defer e.mutex.RUnlock()
 
-    if channels[id].created == false {
-        return Statistics{}, errors.New("Encoder is not created")
-    }
-
-    return channels[id].stat, nil
+    return e.Created
 }
 
-func CleanStat(id int) error {
-    if id >= channelsAmount {
-        return errors.New("Encoder id not valid")
+func (e *Encoder) IsStarted() (bool, error) {
+    if e == nil {
+        return false, errors.New("Null pointer")
     }
 
-    channels[id].mutex.Lock()          //write lock
-    defer channels[id].mutex.Unlock()
+    e.mutex.RLock()
+    defer e.mutex.RUnlock()
 
-    if channels[id].created == false {
-        return errors.New("Encoder is not created")
-    }
-
-    channels[id].stat = Statistics{}
-
-    return nil
-}
-
-func IsCreated(id int) (bool, error) {
-    if id >= channelsAmount {
-        return false, errors.New("Encoder id not valid")
-    }
-
-    channels[id].mutex.RLock()          //read lock
-    defer channels[id].mutex.RUnlock()
-
-    if channels[id].created == true {
-        return true, nil
-    } else {
-        return false, nil
-    }
-}
-
-func IsStarted(id int) (bool, error) {
-    if id >= channelsAmount {
-        return false, errors.New("Encoder id not valid")
-    }
-
-    channels[id].mutex.RLock()          //read lock
-    defer channels[id].mutex.RUnlock()
-
-    if channels[id].created == false {
+    if e.Created == false {
         return false, errors.New("Encoder is not created")
     }
 
-    if channels[id].started == true {
-        return true, nil
-    } else {
-        return false, nil
-    }
+    return e.Started, nil
 }
 
-func CreateEncoder(id int, params Parameters) error {
-    if id >= channelsAmount {
-        return errors.New("Encoder id not valid")
+func (e *Encoder) IsLocked() (bool, error) {
+    if e == nil {
+        return false, errors.New("Null pointer")
     }
 
-    channels[id].mutex.Lock()          //write lock
-    defer channels[id].mutex.Unlock()
+    e.mutex.RLock()
+    defer e.mutex.RUnlock()
 
-    if channels[id].created == true {
+    if e.Created == false {
+        return false, errors.New("Encoder is not created")
+    }
+
+    return e.Locked, nil
+}
+
+func (e *Encoder) GetCopy() (Encoder, error) {
+    if e == nil {
+        return Encoder{}, errors.New("Null pointer")
+    }
+
+    e.mutex.RLock()
+    defer e.mutex.RUnlock()
+
+    if e.Created == false {
+        return Encoder{}, errors.New("Encoder is not created")
+    }
+
+    return *e, nil
+}
+
+func (e *Encoder) GetParams() (Parameters, error) {
+    if e == nil {
+        return Parameters{}, errors.New("Null pointer")
+    }
+
+    e.mutex.RLock()
+    defer e.mutex.RUnlock()
+
+    if e.Created == false {
+        return Parameters{}, errors.New("Encoder is not created")
+    }
+
+    return e.Params, nil
+}
+
+func (e *Encoder) GetStat() (Statistics, error) {
+    if e == nil {
+        return Statistics{}, errors.New("Null pointer")
+    }
+
+    e.mutex.RLock()
+    defer e.mutex.RUnlock()
+
+    if e.Created == false {
+        return Statistics{}, errors.New("Encoder is not created")
+    }
+
+    return e.stat, nil
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+func (e *Encoder) CreateEncoder(params Parameters, lock bool) error {
+    if e == nil {
+        return errors.New("Null pointer")
+    }
+
+    e.mutex.Lock()
+    defer e.mutex.Unlock()
+
+    if e.Created == true {
         return errors.New("Encoder is already created")
     }
 
-    err := mppCreateEncoder(id, params)
+    err := mppCreateEncoder(e.Id, params)
     if err != nil {
         return err
     }
 
-    channels[id].params     = params
-    channels[id].created    = true
+    e.Params     = params
+    e.Created    = true
+    e.Locked     = lock
+    e.clients    = make(map[connection.ClientEncodedData] *chan frames.FrameItem)   //TODO this is not empty after first creation
 
     logger.Log.Debug().
-        Int("id", id).
+        Int("id", e.Id).
         Msg("Encoder created")
 
     return nil
 }
 
-func DestroyEncoder(id int) error {
-    if id >= channelsAmount {
-        return errors.New("Encoder id not valid")
+func (e *Encoder) DestroyEncoder() error {
+    if e == nil {
+        return errors.New("Null pointer")
     }
 
-    channels[id].mutex.Lock()          //write lock
-    defer channels[id].mutex.Unlock()
+    e.mutex.Lock()
+    defer e.mutex.Unlock()
 
-    if channels[id].created == false {
-        return errors.New("Encoder is already created")
+    if e.Created == false {
+        return errors.New("Encoder is not created")
     }
 
-    err := mppDestroyEncoder(id)
+    if e.Started == true {   //TODO
+        return errors.New("Encoder is started")
+    }
+
+    if len(e.clients) > 0 {
+        return errors.New("Can`t delete encoder because of clients")
+    }
+
+    err := mppDestroyEncoder(e.Id)
     if err != nil {
         return err
     }
 
-    channels[id].created    = false
-    channels[id].params     = Parameters{}
+    e.Params     = Parameters{}
+    e.Created    = false
+    e.Started    = false
+    e.Locked     = false
+    e.configured = false
+    e.stat       = Statistics{}
 
     logger.Log.Debug().
-        Int("id", id).
+        Int("id", e.Id).
         Msg("Encoder destroyed")
 
     return nil
 }
 
-func StartEncoder(id int) error {
-    if id >= channelsAmount {
-        return errors.New("Encoder id not valid")
+////////////////////////////////////////////////////////////////////////////////
+
+func (e *Encoder) Start() error {
+    if e == nil {
+        return errors.New("Null pointer")
     }
 
-    channels[id].mutex.Lock()          //write lock
-    defer channels[id].mutex.Unlock()
+    e.mutex.Lock()
+    defer e.mutex.Unlock()
 
-    if channels[id].created == false {
+    if e.Created == false {
         return errors.New("Encoder is not created")
     }
 
-    err := mppStartEncoder(id)
+    var err error
+
+    if e.sourceRaw == nil && e.sourceBind == nil {
+        return errors.New("Encoder is not connected to source")
+    }
+
+    err = addToLoop(e.Id, e.Params.Codec)
     if err != nil {
         return err
     }
 
-    channels[id].started    = true
+    err = mppStartEncoder(e.Id)
+    if err != nil {
+        return err
+    }
+
+    e.Started    = true
 
     logger.Log.Debug().
-        Int("id", id).
+        Int("id", e.Id).
         Msg("Encoder started")
 
     return nil
 }
 
-func StopEncoder(id int) error {
-    if id >= channelsAmount {
-        return errors.New("Encoder id not valid")
+func (e *Encoder) Stop() error {
+    if e == nil {
+        return errors.New("Null pointer")
     }
 
-    channels[id].mutex.Lock()          //write lock
-    defer channels[id].mutex.Unlock()
+    e.mutex.Lock()
+    defer e.mutex.Unlock()
 
-    if channels[id].created == false {
+    if e.Created == false {
         return errors.New("Encoder is not created")
     }
 
-    err := mppStopEncoder(id)
+    var err error
+
+    err = mppStopEncoder(e.Id)
     if err != nil {
         return err
     }
 
-    channels[id].started    = false
+    err = removeFromLoop(e.Id)
+    if err != nil {
+        return err
+    }
+
+    e.Started    = false
 
     logger.Log.Debug().
-        Int("id", id).
+        Int("id", e.Id).
         Msg("Encoder stoped")
 
     return nil
 }
 
-func UpdateEncoder(id int, params Parameters) error {
-    //TODO
+func (e *Encoder) RequestIFrame() error {
+    if e == nil {
+        return errors.New("Null pointer")
+    }
 
-    logger.Log.Debug().
-        Int("id", id).
-        Msg("Encoder updated")
+    e.mutex.RLock()
+    defer e.mutex.RUnlock()
+
+    if e.Created == false {
+        return errors.New("Encoder is not created")
+    }
+
+    if e.Started == false {
+        return errors.New("Encoder is not started")
+    }
+
+    err := mppRequestIdr(e.Id)
+    if err != nil {
+        return err
+    }
+
+    logger.Log.Trace().
+        Int("id", e.Id).
+        Msg("Encoder IDR requested")
 
     return nil
 }

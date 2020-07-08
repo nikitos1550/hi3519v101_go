@@ -13,8 +13,8 @@ combo_dev_attr_t imx290_lvds_mode_0 =
             .fid_type         = {LVDS_FID_NONE, HI_TRUE},
             .data_endian      = LVDS_ENDIAN_BIG,
             .sync_code_endian = LVDS_ENDIAN_BIG,
-            //.lane_id = {0, 1, 2, 3}, 
-            .lane_id = {1, 0, 3, 2},
+            .lane_id = {0, 1, 2, 3},  //TODO
+            //.lane_id = {1, 0, 3, 2},
             .sync_code = {
                 {
                     {0xab0, 0xb60, 0x800, 0x9d0},      // lane 0

@@ -41,5 +41,17 @@ typedef struct mpp_receive_frame_out_struct {
 int mpp_vpss_init(error_in *err, mpp_vpss_init_in *in);
 int mpp_vpss_create_channel(error_in *err, mpp_vpss_create_channel_in * in);
 int mpp_vpss_destroy_channel(error_in * err, mpp_vpss_destroy_channel_in *in);
+
+typedef struct mpp_vpss_change_channel_depth_in_struct {
+    unsigned int id;
+    unsigned int depth;
+} mpp_vpss_change_channel_depth_in;
+
+int mpp_vpss_change_channel_depth(error_in * err, mpp_vpss_change_channel_depth_in *in);
+
+
 int mpp_receive_frame(error_in *err, unsigned int channel_id, void **frame, unsigned long long *pts, unsigned int wait);
+//int mpp_receive_frame(error_in *err, unsigned int channel_id, VIDEO_FRAME_INFO_S *frame, unsigned long long *pts, unsigned int wait);
+//int mpp_receive_frame(error_in *err, unsigned int channel_id, void *frame, unsigned long long *pts, unsigned int wait);
+
 int mpp_release_frame(error_in *err, unsigned int channel_id);

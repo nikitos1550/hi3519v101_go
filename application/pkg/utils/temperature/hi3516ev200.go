@@ -3,18 +3,23 @@
 
 package temperature
 
-import "errors"
-//import "application/pkg/utils"
+//import "errors"
+import "application/pkg/utils"
 
 func init() {
-    //utils.WriteDevMem32(0x120300B4, 0xCBA00000)
+    utils.WriteDevMem32(0x120280B4, 0xCBA00000)
 }
 
 func Get() (float32, error) {
     //var tempCode uint32 = utils.ReadDevMem32(0x120300BC)
     //var temp float32 = ((( float32(tempCode & 0x3FF)-136)/793)*165)-40
     //return temp, nil
-    return 0, errors.New("TODO, not implemented yet")
+
+    var tempCode uint32 = utils.ReadDevMem32(0x120280BC)
+    var temp float32 = ((( float32(tempCode & 0x3FF)-117)/798)*165)-40
+    return temp, nil
+
+    //return 0, errors.New("TODO, not implemented yet")
 
 }
 

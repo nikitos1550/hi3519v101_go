@@ -73,7 +73,7 @@ var (
                 busNum: 0,
             },
             data: LVDS,
-            bayer: RGGB,
+            bayer: GBRG, //TODO
         },
         cmos {
             vendor: "Sony",

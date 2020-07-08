@@ -14,13 +14,18 @@ inline static int mpp_sys_vb_conf(mpp_sys_init_in *in) {
 
     memset(&stVbConf, 0, sizeof(stVbConf));
 
-    stVbConf.u32MaxPoolCnt                  = 128;
+    //stVbConf.u32MaxPoolCnt                  = 128;
     #if HI_MPP <= 3
+        stVbConf.u32MaxPoolCnt                  = 128;
         stVbConf.astCommPool[0].u32BlkSize  = (CEILING_2_POWER_L(in->width, 128) * CEILING_2_POWER_L(in->height, 128) * 1.5);
     #elif HI_MPP == 4
+        stVbConf.u32MaxPoolCnt                  = 512;
         stVbConf.astCommPool[0].u64BlkSize  = (CEILING_2_POWER_L(in->width, 128) * CEILING_2_POWER_L(in->height, 128) * 1.5);
+        //stVbConf.astCommPool[0].u64BlkSize  = 7558272;
+        //stVbConf.astCommPool[1].u64BlkSize  = 5529600;
     #endif
     stVbConf.astCommPool[0].u32BlkCnt       = in->cnt;
+    //stVbConf.astCommPool[1].u32BlkCnt       = 1;
 
     //stVbConf.astCommPool[0].u32BlkSize      = (CEILING_2_POWER(in->width, 64) * CEILING_2_POWER(in->height, 64) * 1.5); //TODO
     //stVbConf.astCommPool[0].u32BlkSize      = (CEILING_2_POWER(in->width, 128) * CEILING_2_POWER(in->height, 128) * 1.5); //TODO
@@ -87,7 +92,20 @@ int mpp_sys_init(error_in *err, mpp_sys_init_in *in) {
     #if HI_MPP == 4
         VI_VPSS_MODE_S      stVIVPSSMode;
         DO_OR_RETURN_ERR_MPP(err, HI_MPI_SYS_GetVIVPSSMode, &stVIVPSSMode);
-        stVIVPSSMode.aenMode[0] = VI_OFFLINE_VPSS_OFFLINE;
+
+        if (1) {
+            for (int i = 0; i < VI_MAX_PIPE_NUM; i++) {
+                stVIVPSSMode.aenMode[i] = VI_OFFLINE_VPSS_OFFLINE;    //ok
+                //stVIVPSSMode.aenMode[i] = VI_OFFLINE_VPSS_ONLINE;       //ok
+                //stVIVPSSMode.aenMode[i] = VI_ONLINE_VPSS_OFFLINE;
+                //stVIVPSSMode.aenMode[i] = VI_ONLINE_VPSS_ONLINE;
+            }
+        } else {
+            stVIVPSSMode.aenMode[0] = VI_ONLINE_VPSS_ONLINE;
+			for (int i = 1; i < VI_MAX_PIPE_NUM; i++) {
+            	stVIVPSSMode.aenMode[i] = VI_OFFLINE_VPSS_OFFLINE;
+			}
+        }
     
         DO_OR_RETURN_ERR_MPP(err, HI_MPI_SYS_SetVIVPSSMode, &stVIVPSSMode);
     #endif

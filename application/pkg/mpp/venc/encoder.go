@@ -1,135 +1,181 @@
 package venc
 
-import (
-	"encoding/json"
-	"io/ioutil"
-	"log"
+//#include "venc.h"
+import "C"
 
-    "application/pkg/processing"
+import (
+    "sync"
+    "reflect"
+    //"fmt"
+
+    "application/pkg/mpp/connection"
+    "application/pkg/mpp/frames"
 )
 
-type PredefinedEncoder struct {
-    Format string 
-    Width int 
-    Height int 
-    Bitrate int 
+type Codec int
+const (
+    MJPEG           Codec = 1
+    H264            Codec = 2
+    H265            Codec = 3
+)
+
+type Profile int
+const (
+    Baseline        Profile = 1
+    Main            Profile = 2
+    Main10          Profile = 3
+    High            Profile = 4
+)
+
+type BitrateControl int
+const (
+    Cbr                     BitrateControl = 1
+    Vbr                     BitrateControl = 2
+    FixQp                   BitrateControl = 3
+    CVbr                    BitrateControl = 4
+    AVbr                    BitrateControl = 5
+    QVbr                    BitrateControl = 6
+    //Qmap    encoderBitcontrol = 7
+)
+
+const invalidValue int = int(C.INVALID_VALUE)
+
+type BitrateControlParameters struct {
+    Bitrate     int     `json:"bitrate,omitempty"`
+    MaxBitrate  int     `json:"maxbitrate,omitempty"`
+
+    StatTime    int     `json:"stattime,omitempty"`
+    Fluctuate   int     `json:"fluctuate,omitempty"`
+
+    QFactor     int     `json:"qfactor,omitempty"`
+    MinQFactor  int     `json:"minqfactor,omitempty"`
+    MaxQFactor  int     `json:"maxqfactor,omitempty"`
+
+    MinIQp      int     `json:"miniqp,omitempty"`
+    MaxQp       int     `json:"maxqp,omitempty"`
+    MinQp       int     `json:"minqp,omitempty"`
+
+    IQp         int     `json:"iqp,omitempty"`
+    PQp         int     `json:"pqp,omitempty"`
+    BQp         int     `json:"bqp,omitempty"`
 }
 
-type ActiveEncoder struct {
-	VencId int 
-	ProcessingId int 
-	Format string 
-	Width int 
-	Height int 
-	Bitrate int 
-	//Channels map[chan []byte]bool
-    Channels map[chan ChannelEncoder]bool
-	DataChannels map[chan []byte]bool
+type GopStrategyType int
+const (
+    NormalP                 GopStrategyType = 1
+    DualP                   GopStrategyType = 2
+    SmartP                  GopStrategyType = 3
+    AdvSmartP               GopStrategyType = 4
+    BipredB                 GopStrategyType = 5
+    IntraR                  GopStrategyType = 6
+)
+
+type GopParameters struct {
+    Gop         int     `json:"gop"`
+
+    IPQpDelta   int     `json:"ipqdelta,omitempty"`
+    SPInterval  int     `json:"spinterval,omitempty"`
+    SPQpDelta   int     `json:"spqdelta,omitempty"`
+    BgInterval  int     `json:"bginterval,omitempty"`
+    BgQpDelta   int     `json:"bgqpdelta,omitempty"`
+    ViQpDelta   int     `json:"viqpdelta,omitempty"`
+    BFrmNum     int     `json:"bfrmnum,omitempty"`
+    BQpDelta    int     `json:"bqpdelta,omitempty"`
 }
 
-type ChannelEncoder struct {
-    Data    []byte
-    Pts     uint64
+type Parameters struct {
+    Codec               Codec                       `json:"codec"`
+    Profile             Profile                     `json:"profile"`
+    Width               int                         `json:"width"`
+    Height              int                         `json:"height"`
+    Fps                 int                         `json:"fps"`
+
+    GopType             GopStrategyType             `json:"goptype"`
+    GopParams           GopParameters               `json:"gopparams"`
+
+    BitControl          BitrateControl              `json:"bitratecontroltype"`
+    BitControlParams    BitrateControlParameters    `json:"bitratecontrolparams"`
 }
 
-var PredefinedEncoders map[string] PredefinedEncoder
-var ActiveEncoders map[int] ActiveEncoder
-var lastEncoderId int
+type Statistics struct {
+    //TODO
+}
+
+type SourceType int
+const (
+    ChannelSource       SourceType = 1
+    ProcessingSource    SourceType = 2
+)
+
+type Source struct {
+    srcType         SourceType
+    channelId       int
+    processingId    int
+    onWire          bool
+}
+
+type Encoder struct {
+    Id              int                                             `json:"id"`
+
+    Params          Parameters                                      `json:"parameters"` //TODO
+
+    Created         bool                                            `json:"created"`
+    Started	        bool                                            `json:"started"`
+    Locked          bool                                            `json:"locked"`
+
+    configured      bool                                            `json:"-"`          //TODO
+
+    mutex           sync.RWMutex                                    `json:"-"`
+
+    stat            Statistics                                      `json:"-"`
+
+    //source          Source                                          `json:"source"`     //TODO
+    sourceRaw       connection.SourceRawFrame
+    sourceBind      connection.SourceBind
+
+    clients         map[connection.ClientEncodedData] *chan frames.FrameItem    `json:"-"`
+    clientsMutex    sync.RWMutex                                                `json:"-"`
+
+    storage         frames.Frames                                               `json:"-"`
+}
+
+var (
+    encoders []Encoder
+)
 
 func init() {
-	PredefinedEncoders = make(map[string] PredefinedEncoder)
-	ActiveEncoders = make(map[int] ActiveEncoder)
-	lastEncoderId = 0
-}
+    encoders = make([]Encoder, EncodersAmount)
 
-func readEncoders() {
-	path := "/opt/configs/encoders.json"
-    data, err := ioutil.ReadFile(path)
-    if err != nil {
-		log.Fatal("Failed to read records from file " + path)
-		return
-    }
-    
-	err = json.Unmarshal(data, &PredefinedEncoders)
-    if err != nil {
-        log.Fatal("Failed to parse records from file " + path)
+    for i := 0; i < EncodersAmount; i++ {
+        encoders[i].Id = i
+        frames.CreateFrames(&encoders[i].storage, 10)
     }
 }
 
-func CreatePredefinedEncoder(encoderName string) (int, string)  {
-	encoder, encoderExists := PredefinedEncoders[encoderName]
-	if (!encoderExists) {
-		return -1, "Failed to find encoder  " + encoderName
-	}
-
-	lastEncoderId++
-	activeEncoder := ActiveEncoder{
-		VencId: lastEncoderId, 
-		ProcessingId: -1,
-		Format: encoder.Format,
-		Width: encoder.Width,
-		Height: encoder.Height,
-		Bitrate: encoder.Bitrate,
-		//Channels: make(map[chan []byte]bool),
-        Channels: make(map[chan ChannelEncoder]bool),
-		DataChannels: make(map[chan []byte]bool),
-	}
-
-	createVencEncoder(activeEncoder)
-
-	ActiveEncoders[lastEncoderId] = activeEncoder
-
-	return lastEncoderId, ""
+func InvalidateBitrateControlParameters(params *BitrateControlParameters) {
+    v := reflect.ValueOf(params)
+    if v.Kind() == reflect.Ptr {
+	    v = v.Elem()
+    }
+    invalidateInts(v)
 }
 
-func CreateDummyEncoder() (int, string)  {
-	lastEncoderId++
-	activeEncoder := ActiveEncoder{
-		VencId: lastEncoderId, 
-		ProcessingId: -1,
-		Format: "",
-		Width: 0,
-		Height: 0,
-		Bitrate: 0,
-		//Channels: make(map[chan []byte]bool),
-        Channels: make(map[chan ChannelEncoder]bool),
-		DataChannels: make(map[chan []byte]bool),
-	}
-
-	ActiveEncoders[lastEncoderId] = activeEncoder
-
-	return lastEncoderId, ""
+func InvalidateGopParameters(params *GopParameters) {
+    v := reflect.ValueOf(params)
+    if v.Kind() == reflect.Ptr {
+        v = v.Elem()
+    }
+    invalidateInts(v)
 }
 
-func DeleteEncoder(encoderId int) (int, string) {
-	encoder, encoderExists := ActiveEncoders[encoderId]
-	if (!encoderExists) {
-		return -1, "Failed to find encoder"
-	}
+func invalidateInts(v reflect.Value) {
+    typeOfS := v.Type()
 
-	if (encoder.ProcessingId != -1){
-		err, errorString := processing.UnsubscribeEncoderToProcessing(encoder.ProcessingId, encoder)
-		if err < 0 {
-			return err, errorString
-		}
-	}
+    for i := 0; i< v.NumField(); i++ {
+        t := v.FieldByName(typeOfS.Field(i).Name)
 
-	deleteVencEncoder(encoder)
-	delete(ActiveEncoders, encoderId)
-
-	return 0, ""
-}
-
-func (encoder ActiveEncoder) GetId() int {
-	return encoder.VencId
-}
-
-func (encoder ActiveEncoder) DataCallback(data []byte) {
-	for ch,_ := range encoder.DataChannels {
-		if (cap(ch) <= len(ch)) {
-			<-ch
-		}
-
-		ch <- data
-	}
+        if t.Kind() == reflect.Int {
+            t.SetInt(int64(invalidValue))
+        }
+    }
 }
