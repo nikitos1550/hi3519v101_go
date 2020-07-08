@@ -21,7 +21,7 @@ CHIP_UPPERCASE      := $(shell echo '$(CHIP)' | tr '[:lower:]' '[:upper:]')
 CGO_CFLAGS  := 	-Wall \
 				-Wno-comment \
 				-I$(abspath sdk/$(FAMILY)/include) \
-				-I$(abspath ../output/hisilicon/$(FAMILY)/.br-rootfs/staging/usr/include/opus) \
+				-I$(abspath $(STAGING_DIR)/usr/include/opus) \
 				-D$(FAMILY_UPPERCASE) \
 				-DLOGGER_C
 
@@ -250,6 +250,7 @@ clean:
 	rm -f ./testvideo.h265
 	rm -f ./testvideo-h264.mp4
 	rm -f ./testvideo-h265.mp4
+
 
 freeze-vendors:
 	GOPATH=$(GOPATH) $(GO) mod vendor
