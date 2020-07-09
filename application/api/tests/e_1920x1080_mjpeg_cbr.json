@@ -1,0 +1,18 @@
+{
+    "codec": "mjpeg",
+	"profile": "baseline",
+	"width": 1920,
+	"height": 1080,
+	"fps": 30,
+	"goptype": "normalp",
+	"gopparams": {
+		"gop": 120,
+		"ipqdelta": 10
+	},
+	"bitratecontroltype": "cbr",
+	"bitratecontrolparams": {
+		"bitrate": 10240,
+		"stattime": 60,
+		"fluctuate": 1
+	}
+}

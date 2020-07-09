@@ -1,0 +1,23 @@
+{
+    "codec": "h264",
+	"profile": "high",
+	"width": 1920,
+	"height": 1080,
+	"fps": 30,
+	"goptype": "normalp",
+	"gopparams": {
+		"gop": 60,
+		"ipqdelta": 4,
+        "spqdelta": 2,
+        "spinterval": 3
+	},
+	"bitratecontroltype": "vbr",
+	"bitratecontrolparams": {
+		"bitrate": 2048,
+		"stattime": 60,
+		"fluctuate": 1,
+        "minqp": 31,
+        "maxqp": 31,
+        "miniqp": 31
+	}
+}
