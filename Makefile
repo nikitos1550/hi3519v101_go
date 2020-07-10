@@ -134,6 +134,9 @@ $(BOARD_OUTDIR)/kernel/uImage:
 
 # ====================================================================================================================
 
+cleanapp: $(BOARD_OUTDIR)/Makefile.params
+	make -C $(APP) PARAMS_FILE=$< clean
+
 build-rootfs: $(BOARD_OUTDIR)/rootfs
 
 build-app: build-rootfs $(APP)/distrib/$(FAMILY)
