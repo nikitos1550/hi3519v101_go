@@ -1,4 +1,4 @@
--include $(PARAMS_FILE)
+include $(PARAMS_FILE)
 
 APP ?= cam
 GO  ?= go
@@ -17,6 +17,8 @@ CMOS_DRIVER ?= unknown
 
 FAMILY_UPPERCASE    := $(shell echo '$(FAMILY)' | tr '[:lower:]' '[:upper:]')
 CHIP_UPPERCASE      := $(shell echo '$(CHIP)' | tr '[:lower:]' '[:upper:]')
+
+CFLAGS += -fPIC
 
 CGO_CFLAGS  := 	-Wall \
 				-Wno-comment \
@@ -114,6 +116,7 @@ strip-ko:
 LIBS := $(wildcard sdk/$(FAMILY)/lib/*.a)
 
 $(LIB_FAMILY):
+	mkdir -p $(@D)
 	$(AR) rcsT $@ $(abspath $(LIBS))
 
 #CMOS all in one archive
