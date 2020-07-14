@@ -5,9 +5,8 @@ BR_HISICAM_OUTDIR=$(readlink -f $2)
 BR_HISICAM_ROOT=$(readlink -f $3)
 
 
-
 function get_br_vars() {
-    eval $(make -s --no-print-directory -C $BR_HISICAM_ROOT VARS="$*" br-printvars)
+    eval $(make -s --no-print-directory -C $BR_HISICAM_ROOT  OUT_DIR="$BR_HISICAM_OUTDIR" VARS="$*" br-printvars)
 }
 
 get_br_vars GO_GOARCH GO_GOARM GO_VERSION
