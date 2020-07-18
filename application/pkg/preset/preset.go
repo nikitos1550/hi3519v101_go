@@ -1,3 +1,0 @@
-package preset
-
-func Init() {}

@@ -88,15 +88,15 @@ GOCC	:=$(shell $(GOENV) $(CGOPARAMS) $(GO) env | grep "CC=" | rev | cut -d '"' -
 ELFSIZE:=1234567
 #ELFSIZE:=$(shell stat -c %s $(abspath ./distrib/hi3516ev200/opt/gohisicam))
 
-EMBEDDVARS  =   -X 'application/pkg/buildinfo.BuildDateTime=$(shell date --utc "+%Y-%m-%d %H:%M (UTC)")' \
-                -X 'application/pkg/buildinfo.GoVersion=$(shell $(GOENV) $(GO) version)' \
-                -X 'application/pkg/buildinfo.GccVersion=$(shell $(GOCC) --version | head -n 1)' \
-                -X 'application/pkg/buildinfo.BuildTags=$(GOTAGS)' \
-                -X 'application/pkg/buildinfo.BuildCommit=$(GIT_COMMIT)' \
-                -X 'application/pkg/buildinfo.Family=$(FAMILY)' \
-				-X 'application/pkg/buildinfo.SDK=$(SDKV)' \
-                -X 'application/pkg/buildinfo.CmosProfile=$(CMOS)' \
-				-X 'application/pkg/ko.ElfSizeStr=$(ELFSIZE)'
+EMBEDDVARS  =   -X 'application/core/compiletime.BuildDateTime=$(shell date --utc "+%Y-%m-%d %H:%M (UTC)")' \
+                -X 'application/core/compiletime.GoVersion=$(shell $(GOENV) $(GO) version)' \
+                -X 'application/core/compiletime.GccVersion=$(shell $(GOCC) --version | head -n 1)' \
+                -X 'application/core/compiletime.BuildTags=$(GOTAGS)' \
+                -X 'application/core/compiletime.BuildCommit=$(GIT_COMMIT)' \
+                -X 'application/core/compiletime.Family=$(FAMILY)' \
+				-X 'application/core/compiletime.SDK=$(SDKV)' \
+                -X 'application/core/compiletime.CmosProfile=$(CMOS)' \
+				-X 'application/core/ko.ElfSizeStr=$(ELFSIZE)'
 
 #NO DEBUG SYMBOLS, COMMENT IF WANT TO TURN ON DEBUG
 GODEBUG := -s -w -extldflags "-static" 
@@ -121,11 +121,11 @@ LIBS := $(wildcard sdk/$(FAMILY)/lib/*.a)
 	$(AR) rcsT ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a $(LIBS)
 
 #CMOS all in one archive
-CMOSES := $(wildcard pkg/mpp/cmos/$(FAMILY)/*/)
-CMOSDIRS := $(patsubst pkg/mpp/cmos/$(FAMILY)/%/, ../output/boards/$(BOARD)/cmos/%/, $(CMOSES))
+CMOSES := $(wildcard core/mpp/cmos/$(FAMILY)/*/)
+CMOSDIRS := $(patsubst core/mpp/cmos/$(FAMILY)/%/, ../output/boards/$(BOARD)/cmos/%/, $(CMOSES))
 
-CMOSSRC   := $(wildcard pkg/mpp/cmos/$(FAMILY)/*/*.c)
-CMOSOBJ := $(patsubst pkg/mpp/cmos/$(FAMILY)/%.c, ../output/boards/$(BOARD)/cmos/%.o, $(CMOSSRC))
+CMOSSRC   := $(wildcard core/mpp/cmos/$(FAMILY)/*/*.c)
+CMOSOBJ := $(patsubst core/mpp/cmos/$(FAMILY)/%.c, ../output/boards/$(BOARD)/cmos/%.o, $(CMOSSRC))
 
 ../output/boards/$(BOARD)/cmos/lib_cmoses.a: $(CMOSDIRS) $(CMOSOBJ)
 	$(AR) rcs ../output/boards/$(BOARD)/cmos/lib_cmoses.a $(CMOSOBJ)
@@ -133,7 +133,7 @@ CMOSOBJ := $(patsubst pkg/mpp/cmos/$(FAMILY)/%.c, ../output/boards/$(BOARD)/cmos
 ../output/boards/$(BOARD)/cmos/%/:
 	[ -d $@ ] || mkdir -p $@
 
-../output/boards/$(BOARD)/cmos/%.o: pkg/mpp/cmos/$(FAMILY)/%.c
+../output/boards/$(BOARD)/cmos/%.o: core/mpp/cmos/$(FAMILY)/%.c
 	$(CC) $(CFLAGS) -I$(abspath sdk/$(FAMILY)/include) -c $< -o $@
 
 #CMOS separate archive for each cmos
@@ -149,11 +149,11 @@ CMOSOBJ := $(patsubst pkg/mpp/cmos/$(FAMILY)/%.c, ../output/boards/$(BOARD)/cmos
 #../output/boards/$(BOARD)/cmos/lib_$(CMOS_DRIVER).a: ../output/boards/$(BOARD)/cmos/$(CMOS_DRIVER)/ $(CMOSOBJ)
 #	 $(AR) rcs ../output/boards/$(BOARD)/cmos/lib_$(CMOS_DRIVER).a $(CMOSOBJ)
 
-pkg/ko/embed_$(FAMILY).go:
-	GOPATH=$(GOPATH) $(GO) generate -tags "$(GOTAGS) generate" application/pkg/ko
+core/ko/embed_$(FAMILY).go:
+	GOPATH=$(GOPATH) $(GO) generate -tags "$(GOTAGS) generate" application/core/ko
 
-generate: pkg/ko/embed_$(FAMILY).go
-	make -C pkg/utils/regs
+generate: core/ko/embed_$(FAMILY).go
+	make -C core/utils/regs
 
 distrib:
 	mkdir distrib
@@ -163,7 +163,7 @@ deploy-dir-cam: distrib
 	mkdir -p ./distrib/$(FAMILY)/opt/www
 	mkdir -p ./distrib/$(FAMILY)/opt/storage
 	mkdir -p ./distrib/$(FAMILY)/opt/scripts
-	mkdir -p ./distrib/$(FAMILY)/opt/configs
+	#mkdir -p ./distrib/$(FAMILY)/opt/configs
 	mkdir -p ./distrib/$(FAMILY)/etc/init.d
 	mkdir -p ./distrib/$(FAMILY)/opt/cgi-bin
 	cp -r ./www/* ./distrib/$(FAMILY)/opt/www
@@ -173,7 +173,7 @@ deploy-dir-cam: distrib
 	cp ./init/ldd.sh ./distrib/$(FAMILY)/opt
 	cp ./init/uhttpd.sh ./distrib/$(FAMILY)/opt
 	if [ -f ../boards/boards/$(BOARD)/config ]; then cp ../boards/boards/$(BOARD)/config ./distrib/$(FAMILY)/opt/board.config; fi
-	cp ../application/configs/* ./distrib/$(FAMILY)/opt/configs/
+	#cp ../application/configs/* ./distrib/$(FAMILY)/opt/configs/
 	cp -r ./init/tools ././distrib/$(FAMILY)/opt/ 
 	mkdir -p ./distrib/$(FAMILY)/opt/svp
 	#cp -r ./svp/* ./distrib/$(FAMILY)/opt/svp
@@ -190,7 +190,7 @@ deploy-dir-cam: distrib
 TRIMPATH := $(abspath .) 
 
 #build-cam: generate $(LIB_TARGET) $(CMOS_TARGET) deploy-dir-cam
-build-cam: generate $(LIB_TARGET) ../output/boards/$(BOARD)/cmos/lib_cmoses.a deploy-dir-cam
+build-cam: generate $(LIB_TARGET) ../output/boards/$(BOARD)/cmos/lib_cmoses.a deploy-dir-cam vendors-build
 	#$(GOENV) $(CGOPARAMS) $(GO) build -work -gcflags=all="-trimpath=$(TRIMPATH) -l -B -C" -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./gohisicam application/cmd/gohisicam
 	#$(GOENV) $(CGOPARAMS) $(GO) install -work -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" ./pkg/...
 	#stat -c %s ./gohisicam
@@ -203,6 +203,9 @@ build-cam: generate $(LIB_TARGET) ../output/boards/$(BOARD)/cmos/lib_cmoses.a de
 	#stat -c %s ./distrib/$(FAMILY)/opt/gohisicam
 	#rm ./gohisicam
 	#cat pkg/ko/append_$(FAMILY).bin >> ./distrib/$(FAMILY)/opt/gohisicam
+
+vendors-build:
+	cd vendors/quirc; make; cd quirc; make clean; make CC=$(CC) libquirc.a
 
 build-probe: generate $(LIB_TARGET) deploy-dir-probe
 	$(GOENV) $(CGOPARAMS) $(GO) build -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/gohisiprobe application/cmd/gohisiprobe
@@ -236,9 +239,9 @@ testvideo-h265.mp4: testvideo.h265
 	MP4Box -add testvideo.h265 -fps 25 testvideo-h265.mp4
 
 clean:
-	rm -rf ./pkg/ko/embed_*.go
-	rm -rf ./pkg/ko/append_*.bin
-	rm -rf ./pkg/ko/append_*.go
+	rm -rf ./core/ko/embed_*.go
+	rm -rf ./core/ko/append_*.bin
+	rm -rf ./core/ko/append_*.go
 	rm -rf ./distrib
 	rm -f ./testvideo.h264
 	rm -f ./testvideo.h265

@@ -1,10 +1,10 @@
 {
     "codec": "h264",
-	"profile": "main",
+	"profile": "high",
 	"width": 1920,
 	"height": 1080,
 	"fps": 30,
-	"goptype": "dualp",
+	"goptype": "normalp",
 	"gopparams": {
 		"gop": 30,
 		"ipqdelta": 4,
@@ -13,7 +13,7 @@
 	},
 	"bitratecontroltype": "cbr",
 	"bitratecontrolparams": {
-		"bitrate": 1024,
+		"bitrate": 512,
 		"stattime": 60,
 		"fluctuate": 1
 	}

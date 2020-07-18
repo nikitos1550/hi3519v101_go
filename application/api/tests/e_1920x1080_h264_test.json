@@ -4,7 +4,7 @@
 	"width": 1920,
 	"height": 1080,
 	"fps": 30,
-	"goptype": "normalp",
+	"goptype": "intrar",
 	"gopparams": {
 		"gop": 60,
 		"ipqdelta": 4,

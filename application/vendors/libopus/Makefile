@@ -1,0 +1,4 @@
+download: opus-1.3.1.tar.gz
+
+opus-1.3.1.tar.gz:
+	wget https://archive.mozilla.org/pub/opus/opus-1.3.1.tar.gz

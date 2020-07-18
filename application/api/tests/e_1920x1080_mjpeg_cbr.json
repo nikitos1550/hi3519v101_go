@@ -11,7 +11,7 @@
 	},
 	"bitratecontroltype": "cbr",
 	"bitratecontrolparams": {
-		"bitrate": 10240,
+		"bitrate": 1024,
 		"stattime": 60,
 		"fluctuate": 1
 	}

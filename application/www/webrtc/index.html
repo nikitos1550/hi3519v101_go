@@ -72,7 +72,7 @@ pc.createOffer().then(d => pc.setLocalDescription(d)).catch(log)
         window.startSession = () => {
             $.ajax({
                 type: "POST",
-                url: "../api/webrtc/connect",
+                url: "../webrtc/0",
                 data: { sdp: document.getElementById('localSessionDescription').value, encoderId: document.getElementById('encoderId').value },
                 success: function( data ) {
                     var params = {};
@@ -98,8 +98,8 @@ pc.createOffer().then(d => pc.setLocalDescription(d)).catch(log)
 
     window.closeSession = () => {
         $.ajax({
-                type: "GET",
-                url: "../api/webrtc/disconnect",
+                type: "DELETE",
+                url: "../webrtc/0/"+document.getElementById('session').value,
                 data: { sessionId: document.getElementById('session').value },
                 success: function( data ) {
 					console.log("disconnected");

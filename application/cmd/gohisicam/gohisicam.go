@@ -1,78 +1,40 @@
 package main
 
-//#include <unistd.h>
-import "C"
-
 import (
 	"flag"
 	"fmt"
-	//"io/ioutil"
-	//"log"
 	"os"
     "os/signal"
     "syscall"
-	//"regexp"
-	//"strings"
-	//"strconv"
+    //"runtime"
 
-	"application/pkg/buildinfo"
-	//"application/pkg/config"
-	"application/pkg/mpp"
-	"application/pkg/openapi"
-	////////"application/pkg/scripts"
-
-	//"application/pkg/mpp/cmos"
-
-	"application/pkg/pipeline"
-	"application/pkg/processings"
-
-	////streamers "application/pkg/streamer"
-    //"application/pkg/streamer/file"
-    "application/pkg/streamer/jpeg"
-    //"application/pkg/streamer/pipe"
-    //"application/pkg/streamerrtsp"
-    //"application/pkg/streamer/yuv"
-    "application/pkg/streamer/webrtc"
-    //"application/pkg/streamerws"
-
-
-
-
-    //"application/pkg/streamers"
-
-	_ "application/pkg/godebug"
-	//"application/pkg/ko"
-	"application/pkg/utils/chip"
-	_ "application/pkg/utils/temperature"
-
-	"application/pkg/logger"
-	"application/pkg/common"
-
-    "application/pkg/utils/memparse"
-
-    //"time"
-
-    "application/pkg/nn/svp"
+	"application/core/compiletime"
+	"application/core/mpp"
+	"application/core/utils/chip"
+	"application/core/logger"
+    "application/core/utils/memparse"
 )
 
 func main() {
+
 	flag.Usage = usage
-	//flagVersion := flag.Bool("version", false, "Prints application version information")
 
-	memTotal := flag.String("mem-total", "32M", "Total RAM size") //&ko.MemTotal
-	memLinux := flag.String("mem-linux", "20M", "RAM size passed to Linux kernel, rest will be used for MPP") //ko.MemLinux
-	memMpp	 := flag.String("mem-mpp", "12M", "RAM size passed to MPP") //ko.MemMpp
+	memTotal := flag.String("mem-total", "32M", "Total RAM size")
+	memLinux := flag.String("mem-linux", "20M", "RAM size passed to Linux kernel, rest will be used for MPP")
+	memMpp	 := flag.String("mem-mpp", "12M", "RAM size passed to MPP")
 
-	chipCmd	 := flag.String("chip", buildinfo.Family, "Chip app will be running on")
-
-    //cmosInfo := flag.Bool("cmos-info", false, "Show avalible CMOSes and modes info")
-
+	chipCmd	 := flag.String("chip", compiletime.Family, "Chip app will be running on")
 
 	flag.Parse()
 
 	logger.Init()
 
-	common.Init()
+    //logger.Log.Debug().
+    //    Int("NumCPU", runtime.NumCPU()).
+    //    Int("GOMAXPROCS", runtime.GOMAXPROCS(0)).
+    //    Msg("RUNTIME")
+
+    ////////////////////////////////////////////////////////////////////////////
 
     //TODO move all run env to buildinfo
     var devInfo mpp.DeviceInfo
@@ -83,91 +45,39 @@ func main() {
 
     devInfo.Chip = *chipCmd
 
-    buildinfo.Chip = *chipCmd //temporary
-
-    fmt.Println(C.sysconf(C._SC_PHYS_PAGES)*C.sysconf(C._SC_PAGE_SIZE), " bytes")
-
-    fmt.Println("Detected chip ", chip.Detect(chip.RegId()))
+    compiletime.Chip = *chipCmd //TODO temporary
 
     logger.Info().
         Uint64("mem-total", devInfo.MemTotalSize).
         Uint64("mem-linux", devInfo.MemLinuxSize).
         Uint64("mem-mpp", devInfo.MemMppSize).
         Str("chip", *chipCmd).
-        Msg("cmdline mem params")
+        Str("chip_detected", chip.Detect(chip.RegId())).
+        Msg("Cmdline params")
 
     logger.Log.Info().
-        Str("go", buildinfo.GoVersion).
-        Str("gcc", buildinfo.GccVersion).
-        Str("date", buildinfo.BuildDateTime).
-        Str("tags", buildinfo.BuildTags).
-        Str("commit", buildinfo.BuildCommit).
-        Str("sdk", buildinfo.SDK).
-        Str("cmos", buildinfo.CmosProfile).
-        Msg("build info")
-
-	//ko.CmosName = buildinfo.CmosProfile
-
-
-	/*
-	cmdline, err := ioutil.ReadFile("/proc/cmdline")
-	if err != nil {
-		log.Println("Can`t read /proc/cmdline")
-		os.Exit(0)
-	}
-	cmdlineStr := string(cmdline)
-	re := regexp.MustCompile("mem=([0-9]*)M")
-	foundLinuxMem := re.FindStringSubmatch(cmdlineStr)
-	log.Println("CMDLINE Linux memory (MB) = ", foundLinuxMem[1])
-
-	foundLinuxMemUint, _ := strconv.ParseUint(foundLinuxMem[1], 10, 32)
-	if foundLinuxMemUint != uint64(ko.MemLinux) {
-		log.Println("Linux mem mistmatch!")
-		os.Exit(0)
-	}
-	*/
-
-	/*
-		    if *flagVersion {
-				printVersion()
-				os.Exit(0)
-			}
-	*/
-
-	//config.Init() //deprecated, use cmd and scripts
-
-	openapi.Init() //openapi init should go first, becasue of -openapi-routes flag
-	//same time, it will start serve requests immediately, but
-	//some requests need mpp and other initilization
-
-	//////////////////////scripts.Init() //
-
-	mpp.Init(devInfo)      //Init mpp and all subsystems
+        Str("go", compiletime.GoVersion).
+        Str("gcc", compiletime.GccVersion).
+        Str("date", compiletime.BuildDateTime).
+        Str("tags", compiletime.BuildTags).
+        Str("commit", compiletime.BuildCommit).
+        Str("sdk", compiletime.SDK).
+        Str("cmos", compiletime.CmosProfile).
+        Str("family", compiletime.Family).
+        Msg("Compiletime information")
 
 
-	////streamers.Init() //Init streamers
-    //file.Init()
-    jpeg.Init()
-    //pipe.Init()
-    //rtsp.Init()
-    //yuv.Init()
-    webrtc.Init()
-    //ws.Init()
+    mpp.Init(devInfo)      //Init mpp and all subsystems
 
+    ////////////////////////////////////////////////////////////////////////////
 
-	pipeline.Init()
-	processings.Init()
+    pipelineInit()
 
-	//Start serving after everything inited and setuped
-	//////////////////scripts.Start()
-	openapi.Start()
+    httpServerStart()
 
     closeHandler()
 
-	logger.Log.Info().Msg("GoHisiCam started")
-
-    //TMP
-    svp.Init()
+	logger.Log.Info().Msg("GoHisiCam ready")
 
 	select {} //pause this routine forever
 }
@@ -179,11 +89,6 @@ func closeHandler() {
 		<-c
         logger.Log.Info().
             Msg("SIGTERM received")
-		//DeleteFiles()
-
-        //mpp.IspClose()
-        //time.Sleep(5 * time.Second)
-
 		os.Exit(0)
 	}()
 }
