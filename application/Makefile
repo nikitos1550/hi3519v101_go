@@ -204,6 +204,9 @@ build-cam: generate $(LIB_TARGET) ../output/boards/$(BOARD)/cmos/lib_cmoses.a de
 	#rm ./gohisicam
 	#cat pkg/ko/append_$(FAMILY).bin >> ./distrib/$(FAMILY)/opt/gohisicam
 
+build-cam2: generate $(LIB_TARGET) ../output/boards/$(BOARD)/cmos/lib_cmoses.a deploy-dir-cam vendors-build
+	$(GOENV) $(CGOPARAMS) $(GO) build -work -gcflags=all="-trimpath=$(TRIMPATH) -l -B -C" -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/gohisicam application/cmd/recorder
+
 vendors-build:
 	cd vendors/quirc; make; cd quirc; make clean; make CC=$(CC) libquirc.a
 

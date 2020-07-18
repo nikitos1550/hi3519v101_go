@@ -46,10 +46,10 @@ int quirc_process(error_in *err, void *frame) {
     #endif
 
     quirc_begin(qr, &w, &h);
-    image = pUserPageAddr;//quirc_begin(qr, &w, &h);
+    image = quirc_begin(qr, &w, &h);
 
-    //memcpy(image, pUserPageAddr, w*h);
-    //HI_MPI_SYS_Munmap(pUserPageAddr, w*h);
+    memcpy(image, pUserPageAddr, w*h);
+    HI_MPI_SYS_Munmap(pUserPageAddr, w*h);
 
     quirc_end(qr);
 
@@ -116,7 +116,7 @@ int quirc_process(error_in *err, void *frame) {
         }
     }
 
-    HI_MPI_SYS_Munmap(pUserPageAddr, w*h);
+    ///////////HI_MPI_SYS_Munmap(pUserPageAddr, w*h);
 
     return ERR_NONE;    
 }

@@ -5,7 +5,12 @@ import (
 
     "github.com/pkg/errors"
 
+    "application/archive/record"
+
     "application/core/mpp/connection"
+    "application/core/mpp/frames"
+
+    //"application/core/logger"
 )
 
 const (
@@ -21,7 +26,17 @@ type Recorder struct {
     notify          chan frames.FrameItem
     rutineStop      chan bool
     rutineDone      chan bool
+
+    state           state
+    record          *record.Record
 }
+
+type state int
+const (
+    idle        state = 1
+    scheduled   state = 2
+    recording   state = 3
+)
 
 func New(name string) (*Recorder, error) {
     if name == "" {
@@ -96,7 +111,7 @@ func (r *Recorder) RegisterEncodedDataSource(source connection.SourceEncodedData
     return &r.notify, nil
 }
 
-func (r *Mjpeg) UnregisterEncodedDataSource(source connection.SourceEncodedData) error {
+func (r *Recorder) UnregisterEncodedDataSource(source connection.SourceEncodedData) error {
     r.Lock()
     defer r.Unlock()
 
@@ -115,10 +130,18 @@ func (r *Mjpeg) UnregisterEncodedDataSource(source connection.SourceEncodedData)
 }
 
 func (r *Recorder) rutine() {
+    //var tmp uint64
+
     for {
         select {
         case frame := <-r.notify:
             //TODO
+            //logger.Log.Trace().
+            //    Uint64("pts", frame.Info.Pts).
+            //   Uint64("delta", frame.Info.Pts - tmp).
+            //    Msg("Recorder frame recved")
+            //tmp = frame.Info.Pts
+            r.processFrame(frame)
             break
         case <-r.rutineStop:
             r.rutineDone <-true

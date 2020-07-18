@@ -3,6 +3,8 @@
 CAMERAIP=192.168.10.105
 #CAMERAIP=192.168.10.131
 
+################################################################################
+
 link()
 {
   echo "Link $1 instance $2 to $3 instance $4"
@@ -39,6 +41,8 @@ unlinkraw()
   echo ""
 }
 
+################################################################################
+
 delete()
 {
   echo "Delete $1 instance $2"
@@ -47,6 +51,8 @@ delete()
         "http://$CAMERAIP/api/$1/$2"
   echo ""
 }
+
+################################################################################
 
 create_channel()
 {
@@ -104,27 +110,39 @@ create_mjpeg()
     echo    ""
 }
 
-create_webrtc()
+#create_webrtc()
+#{
+#    echo    "Creating webrtc streamer"
+#    curl    --header "Content-Type: application/json" \
+#            --request POST \
+#            "http://$CAMERAIP/api/webrtc"
+#    echo    ""
+#}
+
+create_quirc()
 {
-    echo    "Creating webrtc streamer"
+    echo    "Creating quirc processing"
     curl    --header "Content-Type: application/json" \
             --request POST \
-            "http://$CAMERAIP/api/webrtc"
+            "http://$CAMERAIP/api/quirc/$1"
     echo    ""
 }
+
+################################################################################
 
 test()
 {
     create_channel main c_3840x2160.json
     create_channel fullhd c_1920x1080.json
 
-    create_encoder h264_1 e_1920x1080_h264_cbr.json
+    create_quirc qr1
+
+    link channel fullhd quirc qr1
+
     create_encoder mjpeg_1 e_1920x1080_mjpeg_cbr.json
 
-    link channel fullhd encoder h264_1
-    link channel fullhd encoder mjpeg_1
+    link quirc qr1 encoder mjpeg_1
 
-    encoder_start h264_1
     encoder_start mjpeg_1
 
     create_jpeg fullhd

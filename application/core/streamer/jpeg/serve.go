@@ -88,3 +88,25 @@ func (j *Jpeg) getFrameCopy(buf io.Writer) error {
 
     return nil
 }
+
+func (j *Jpeg) GetJpeg() ([]byte, error) {
+    j.RLock()
+    defer j.RUnlock()
+
+    if j.source == nil {
+        return nil, errors.New("Instance not sourced")
+    }
+
+    s, err := j.source.GetStorage()
+    if err != nil {
+        return nil, errors.Wrap(err, "GetJpeg failed")
+    }
+
+    var frame []byte
+    _, err = s.ReadLastAlloc(&frame)
+    if err != nil {
+        return nil, errors.Wrap(err, "GetJpeg failed")
+    }
+
+    return frame, nil
+}

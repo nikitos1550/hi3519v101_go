@@ -123,8 +123,8 @@ func httpServerStart() {
 
     api.HandleFunc("/link/channel/{source}/encoder/{client}", link.ConnectBindHandler(channelGroup, encoderGroup)).Methods("POST")
     api.HandleFunc("/link/channel/{source}/encoder/{client}", link.DisconnectBindHandler(channelGroup, encoderGroup)).Methods("DELETE")
-    api.HandleFunc("/link/channel/{source}/encoder/{client}/raw", link.ConnectRawFrameHandler(channelGroup, encoderGroup)).Methods("POST")
-    api.HandleFunc("/link/channel/{source}/encoder/{client}/raw", link.DisconnectRawFrameHandler(channelGroup, encoderGroup)).Methods("DELETE")
+    //api.HandleFunc("/link/channel/{source}/encoder/{client}/raw", link.ConnectRawFrameHandler(channelGroup, encoderGroup)).Methods("POST")
+    //api.HandleFunc("/link/channel/{source}/encoder/{client}/raw", link.DisconnectRawFrameHandler(channelGroup, encoderGroup)).Methods("DELETE")
 
     api.HandleFunc("/link/encoder/{source}/jpeg/{client}", link.ConnectEncodedDataHandler(encoderGroup, jpegGroup)).Methods("POST")
     api.HandleFunc("/link/encoder/{source}/jpeg/{client}", link.DisconnectEncodedDataHandler(encoderGroup, jpegGroup)).Methods("DELETE")
@@ -132,15 +132,15 @@ func httpServerStart() {
     api.HandleFunc("/link/encoder/{source}/mjpeg/{client}", link.ConnectEncodedDataHandler(encoderGroup, mjpegGroup)).Methods("POST")
     api.HandleFunc("/link/encoder/{source}/mjpeg/{client}", link.DisconnectEncodedDataHandler(encoderGroup, mjpegGroup)).Methods("DELETE")
 
-    api.HandleFunc("/link/channel/{source}/forward/{client}/raw", link.ConnectRawFrameHandler(channelGroup, forwardGroup)).Methods("POST")
-    api.HandleFunc("/link/channel/{source}/forward/{client}/raw", link.DisconnectRawFrameHandler(channelGroup, forwardGroup)).Methods("DELETE")
-    api.HandleFunc("/link/forward/{source}/encoder/{client}/raw", link.ConnectRawFrameHandler(forwardGroup, encoderGroup)).Methods("POST")
-    api.HandleFunc("/link/forward/{source}/encoder/{client}/raw", link.DisconnectRawFrameHandler(forwardGroup, encoderGroup)).Methods("DELETE")
+    api.HandleFunc("/link/channel/{source}/forward/{client}", link.ConnectRawFrameHandler(channelGroup, forwardGroup)).Methods("POST")
+    api.HandleFunc("/link/channel/{source}/forward/{client}", link.DisconnectRawFrameHandler(channelGroup, forwardGroup)).Methods("DELETE")
+    api.HandleFunc("/link/forward/{source}/encoder/{client}", link.ConnectRawFrameHandler(forwardGroup, encoderGroup)).Methods("POST")
+    api.HandleFunc("/link/forward/{source}/encoder/{client}", link.DisconnectRawFrameHandler(forwardGroup, encoderGroup)).Methods("DELETE")
 
-    api.HandleFunc("/link/channel/{source}/quirc/{client}/raw", link.ConnectRawFrameHandler(channelGroup, quircGroup)).Methods("POST")
-    api.HandleFunc("/link/channel/{source}/quirc/{client}/raw", link.DisconnectRawFrameHandler(channelGroup, quircGroup)).Methods("DELETE")
-    api.HandleFunc("/link/quirc/{source}/encoder/{client}/raw", link.ConnectRawFrameHandler(quircGroup, encoderGroup)).Methods("POST")
-    api.HandleFunc("/link/quirc/{source}/encoder/{client}/raw", link.DisconnectRawFrameHandler(quircGroup, encoderGroup)).Methods("DELETE")
+    api.HandleFunc("/link/channel/{source}/quirc/{client}", link.ConnectRawFrameHandler(channelGroup, quircGroup)).Methods("POST")
+    api.HandleFunc("/link/channel/{source}/quirc/{client}", link.DisconnectRawFrameHandler(channelGroup, quircGroup)).Methods("DELETE")
+    api.HandleFunc("/link/quirc/{source}/encoder/{client}", link.ConnectRawFrameHandler(quircGroup, encoderGroup)).Methods("POST")
+    api.HandleFunc("/link/quirc/{source}/encoder/{client}", link.DisconnectRawFrameHandler(quircGroup, encoderGroup)).Methods("DELETE")
 
     //api.HandleFunc("/link/encoder/{encoder:[0-9]+}/webrtc/{webrtc:[0-9]+}", webrtc.BindEncoder).Methods("POST")
     //api.HandleFunc("/link/encoder/{encoder:[0-9]+}/webrtc/{webrtc:[0-9]+}", webrtc.UnbindEncoder).Methods("DELETE")
@@ -149,11 +149,9 @@ func httpServerStart() {
 
     serve := router.PathPrefix("/serve/").Subrouter()
 
-    serve.HandleFunc("/jpeg/{name}.jpg", jpegGroup.ServeFrameGroup).Methods("GET")
-    serve.HandleFunc("/jpeg/{name}.jpeg", jpegGroup.ServeFrameGroup).Methods("GET")
+    serve.HandleFunc("/jpeg/{name}.{ext:jpg|jpeg}", jpegGroup.ServeFrameGroup).Methods("GET")
 
-    serve.HandleFunc("/mjpeg/{name}.mjpg", mjpegGroup.ServeStreamGroup).Methods("GET")
-    serve.HandleFunc("/mjpeg/{name}.mjpeg", mjpegGroup.ServeStreamGroup).Methods("GET")
+    serve.HandleFunc("/mjpeg/{name}.{ext:mjpg|mjpeg}", mjpegGroup.ServeStreamGroup).Methods("GET")
 
     //serve.HandleFunc("/webrtc/{id:[0-9]+}", webrtc.Connect).Methods("POST")
     //serve.HandleFunc("/webrtc/{id:[0-9]+}/{uuid:[0-9a-z_-]+}", webrtc.Disconnect).Methods("DELETE")
