@@ -1,4 +1,5 @@
 #!/bin/bash
 # Do here all neeeded for CI tests
 
-cd tests && python -m ci
+make prepare >&2
+cd tests && authbind --deep python -m ci
