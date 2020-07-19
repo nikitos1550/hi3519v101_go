@@ -7,7 +7,7 @@ import os
 import time
 
 
-PERSISTENT_DIR = "./zazaza"   # absjoin(PROJECT_DIR, "..")
+PERSISTENT_DIR = absjoin(PROJECT_DIR, "..")
 REPO_DIR = PROJECT_DIR
 logging.basicConfig(level=logging.DEBUG)
 
