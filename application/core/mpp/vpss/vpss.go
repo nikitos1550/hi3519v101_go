@@ -6,7 +6,7 @@ import "C"
 import (
     "flag"
     "errors"
-    "fmt"
+    //"fmt"
 
     "application/core/mpp/vi"
     "application/core/mpp/errmpp"
@@ -35,7 +35,7 @@ func init() {
     for i := 0; i < Amount; i++ {
         channels[i].Id = i
         //logger.Log.Trace().Int("id", i).Int("channelid", channels[i].Id).Msg("VPSS init")
-        fmt.Println("id ",i," channelid ", channels[i].Id)
+        //fmt.Println("id ",i," channelid ", channels[i].Id)
     }
 }
 

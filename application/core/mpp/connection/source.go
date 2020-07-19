@@ -13,11 +13,13 @@ type FrameCompatibility struct {
 type SourceRawFrame interface {
     AddRawFrameClient(ClientRawFrame) error                                     //will be called by 3rd party, can`t be called from client object
     RemoveRawFrameClient(ClientRawFrame) error                                  //will be called by 3rd party, can`t be called from client object
+    FullName() string
 }
 
 type ClientRawFrame interface {
     RegisterRawFrameSource(SourceRawFrame, FrameCompatibility) (*chan Frame, error) //will be called by source object
     UnregisterRawFrameSource(SourceRawFrame) error                                  //will be called by source object
+    FullName() string
 }
 
 type BindClientType  int
@@ -33,11 +35,13 @@ type BindInformation struct {
 type SourceBind interface {
     AddBindClient(ClientBind) error                                             //will be called by 3rd party, can`t be called from client object
     RemoveBindClient(ClientBind) error                                          //will be called by 3rd party, can`t be called from client object
+    FullName() string
 }
 
 type ClientBind interface {
     RegisterBindSource(SourceBind, FrameCompatibility) (BindInformation, error) //will be called by source object
 	UnregisterBindSource(SourceBind) error                                      //will be called by source object
+    FullName() string
 }
 
 
@@ -45,7 +49,7 @@ type SourceEncodedData interface {
     AddEncodedDataClient(ClientEncodedData) error                               //will be called by 3rd party, can`t be called from client object
     RemoveEncodedDataClient(ClientEncodedData) error                            //will be called by 3rd party, can`t be called from client object
     GetStorage() (*frames.Frames, error)                                        //will be called by client object
-    //Name() string
+    FullName() string
 }
 
 type CodecType int

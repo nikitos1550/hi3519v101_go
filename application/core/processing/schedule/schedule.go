@@ -1,153 +1,129 @@
-//+build nobuild
-
 package schedule
 
-/*
-#include "processing.h"
-
-//unsigned long long getTimestamp(void* data) {
-//	VIDEO_FRAME_INFO_S* stFrame = data;
-//	return stFrame->stVFrame.u64pts;
-//}
-
-unsigned long long getTimestamp(void* data) {
-    VIDEO_FRAME_INFO_S* stFrame = data;
-
-    //printf("getTimestamp %llu \n", stFrame->stVFrame.u64pts);
-
-    #if HI_MPP == 1 \
-        || HI_MPP == 2 \
-        || HI_MPP == 3
-        return stFrame->stVFrame.u64pts;
-    #elif HI_MPP == 4
-        return stFrame->stVFrame.u64PTS;
-    #endif
-}
-
-*/
-import "C"
-
 import (
-	"strconv"
-	"unsafe"
-	"application/pkg/common"
-	"application/pkg/logger"
+	"sync"
+    "time"
+
+    "github.com/pkg/errors"
+
+    "application/core/mpp/connection"
 )
 
-type State int
-var (
-	PENDING State = 0
-	STARTED State = 1
-	FINISHED State = 2
-)
+type Schedule struct {
+    sync.RWMutex
 
-type schedule struct {
-	Name string
-	Id int
-	StartTimestamp uint64
-	StopTimestamp uint64
-	CurrentState State
+	name            string
+
+    startTimestamp  uint64
+    stopTimestamp   uint64
+
+    params          connection.FrameCompatibility
+
+    sourceRaw       connection.SourceRawFrame
+    rawFramesCh     chan connection.Frame
+    rutineStop      chan bool
+    rutineDone      chan bool
+
+    clientRaw       connection.ClientRawFrame
+    clientCh        *chan connection.Frame
+
+    //finishCb        func ()
 }
 
-func (p schedule) GetName() string {
-	return p.Name
+func New(name string, forward bool) (*Schedule, error) {
+    if name == "" {
+        return nil, errors.New("Name can`t be empty")
+    }
+
+    var start uint64
+    var stop uint64
+
+    if forward == true {
+        stop = ^uint64(0)
+    }
+
+    return &Schedule{
+        name: name,
+        startTimestamp: start,
+        stopTimestamp: stop,
+    }, nil
 }
 
-func (p schedule) GetId() int {
-	return p.Id
+func (s *Schedule) Delete() error  {
+    s.Lock()
+    defer s.Unlock()
+
+    if s.sourceRaw != nil {
+        return errors.New("Forward can`t be destroyed because sourced")
+    }
+
+    if s.clientRaw != nil {
+        return errors.New("Forward can`t be destroyed because of client")
+    }
+
+    return nil
 }
 
-func (p schedule) Create(id int, params map[string][]string) (common.Processing,int,string) {
-	timestampString, ok := params["StartTimestamp"]
-	if (!ok || len(timestampString) <= 0) {
-		return nil, 0, "StartTimestamp not specified"
-	}
+////////////////////////////////////////////////////////////////////////////////
 
-	startTimestamp, err := strconv.ParseUint(timestampString[0], 10, 64)
-	if err != nil {
-		return nil, 0, "StartTimestamp must be int"
-	}
+func (s *Schedule) Name() string {
+    s.RLock()
+    defer s.RUnlock()
 
-	timestampString, ok = params["StopTimestamp"]
-	if (!ok || len(timestampString) <= 0) {
-		return nil, 0, "StopTimestamp not specified"
-	}
-
-	stopTimestamp, err := strconv.ParseUint(timestampString[0], 10, 64)
-	if err != nil {
-		return nil, 0, "StopTimestamp must be int"
-	}
-
-	v := &schedule{
-		Name: "schedule",
-		Id: id,
-		StartTimestamp: startTimestamp,
-		StopTimestamp: stopTimestamp,
-		CurrentState: PENDING,
-	}
-
-	return v,id,""
+    return s.name
 }
 
-func (p schedule) Destroy() {
+func (s *Schedule) FullName() string {
+    s.RLock()
+    defer s.RUnlock()
+
+    return "schedule:"+s.name
 }
 
-func (p schedule) updateState(frameTime uint64) {
-	if (p.CurrentState == PENDING) {
-		if frameTime >= p.StartTimestamp{
-			logger.Log.Debug().
-				Uint64("p.StartTimestamp", p.StartTimestamp).
-				Uint64("frameTime", frameTime).
-				Int("p.CurrentState", int(p.CurrentState)).
-				Int("newState", int(STARTED)).
-				Msg("State was changed")
+////////////////////////////////////////////////////////////////////////////////
 
-			p.CurrentState = STARTED
-		}
-	} else if (p.CurrentState == STARTED) {
-		if frameTime >= p.StopTimestamp{
-			logger.Log.Debug().
-				Uint64("p.StopTimestamp", p.StopTimestamp).
-				Uint64("frameTime", frameTime).
-				Int("p.CurrentState", int(p.CurrentState)).
-				Int("newState", int(FINISHED)).
-				Msg("State was changed")
+func (s *Schedule) SetForward() {
+    s.Lock()
+    defer s.Unlock()
 
-			p.CurrentState = FINISHED
-			//
-		}
-	}
+    s.startTimestamp    = 0
+    s.stopTimestamp     = ^uint64(0)
 }
 
-func (p schedule) Callback(data unsafe.Pointer) {
-	frameTime := uint64(C.getTimestamp(data))
-	//p.updateState(frameTime)
-	//
-	//if (p.CurrentState == STARTED) {
-	//	sendToEncoders(p.Id, data)
-	//}
+func (s *Schedule) SetTimeNano(start uint64, stop uint64) {
+    s.Lock()
+    defer s.Unlock()
 
-	if frameTime < p.StartTimestamp {
-		return
-	}
-
-	if frameTime > p.StopTimestamp {
-		return
-	}
-
-	sendToEncoders(p.Id, data)
+    s.startTimestamp    = start
+    s.stopTimestamp     = stop
 }
 
-func init() {
-	var v schedule
-	v.Name = "schedule"
-	v.Id = -1
-	register(v)
+func (s *Schedule) SetTime(start time.Time, stop time.Time) {
+    s.Lock()
+    defer s.Unlock()
+
+    s.startTimestamp    = uint64(start.UnixNano())
+    s.stopTimestamp     = uint64(stop.UnixNano())
 }
 
-//http://213.141.129.12:8080/cam1/api/mpp/channel/start?channelId=1&width=1920&height=1080&fps=30
-//http://213.141.129.12:8080/cam1/api/processing/create?processingName=schedule&StartTimestamp=1593081840000000&StopTimestamp=1593081900000000
-//http://213.141.129.12:8080/cam1/api/encoder/create?encoderName=H264_1920_1080_1M
-//http://213.141.129.12:8080/cam1/api/processing/subscribeChannel?processingId=1&channelId=1
-//http://213.141.129.12:8080/cam1/api/encoder/subscribeProcessing?processingId=1&encoderId=1
-//http://213.141.129.12:8080/cam1/api/files/record/start?encoderId=1
+func (s *Schedule) SetTimeWithDuration(start time.Time, duration time.Duration) {
+    s.Lock()
+    defer s.Unlock()
+
+    s.startTimestamp    = uint64(start.UnixNano())
+    s.stopTimestamp     = uint64(start.Add(duration).UnixNano())
+}
+
+func (s *Schedule) GetTimeNano() (uint64, uint64) {
+    s.RLock()
+    defer s.RUnlock()
+
+    return s.startTimestamp, s.stopTimestamp
+}
+
+func (s *Schedule) GetTime() (time.Time, time.Time) {
+    s.RLock()
+    defer s.RUnlock()
+
+    return time.Unix(0, int64(s.startTimestamp)), time.Unix(0, int64(s.stopTimestamp))
+}

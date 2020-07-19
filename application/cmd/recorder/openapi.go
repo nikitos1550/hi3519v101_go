@@ -7,7 +7,6 @@ import (
     "time"
     "net/http"
     "strings"
-    "sync"
 
     "github.com/gorilla/mux"
 
@@ -28,8 +27,6 @@ var (
     flagHttpPort    *uint
     flagWwwPath     *string
     flagLogReqs     *bool
-
-    pipelineLock    sync.RWMutex
 )
 
 func init() {
@@ -46,7 +43,7 @@ func httpServerStart() {
 
     ////////////////////////////////////////////////////////////////////////////
 
-    debug := router.PathPrefix("/debug/").Subrouter()
+    debug := router.PathPrefix("/debug").Subrouter()
 
     debug.HandleFunc("/routes", apiList).Methods("GET").Name("Routes list")
 
@@ -59,7 +56,7 @@ func httpServerStart() {
 
     ////////////////////////////////////////////////////////////////////////////
 
-    api := router.PathPrefix("/api/").Subrouter()
+    api := router.PathPrefix("/api").Subrouter()
 
     api.HandleFunc("/buildinfo", compiletime.Serve).Methods("GET")
     api.HandleFunc("/temperature", temperature.Serve).Methods("GET")
@@ -72,21 +69,22 @@ func httpServerStart() {
     api.HandleFunc("/recorder", recorderStatus).Methods("GET")
     api.HandleFunc("/recorder/start", recorderStart).Methods("GET")
     api.HandleFunc("/recorder/stop", recorderStop).Methods("GET")
-    api.HandleFunc("/recorder/schedule", recorderSchedule).Methods("GET")
+    //api.HandleFunc("/recorder/schedule", recorderSchedule).Methods("GET")
 
     ////////////////////////////////////////////////////////////////////////////
 
-    serve := router.PathPrefix("/serve/").Subrouter()
+    serve := router.PathPrefix("/serve").Subrouter()
 
     serve.HandleFunc("/image.{ext:jpg|jpeg}", jpegSmall.ServeFrame).Methods("GET")
 
     ////////////////////////////////////////////////////////////////////////////
 
+    router.HandleFunc("/archive", archiveList).Methods("GET")
     archive := router.PathPrefix("/archive").Subrouter()
 
-    archive.HandleFunc("/", archiveList).Methods("GET")
     archive.HandleFunc("/{uuid:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}", archiveItemInfo).Methods("GET")
     archive.HandleFunc("/{uuid:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}/preview.{ext:jpg|jpeg}", archiveItemPreview).Methods("GET")
+    archive.HandleFunc("/{uuid:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}/download.h264", archiveItemServe).Methods("GET")
 
     ////////////////////////////////////////////////////////////////////////////
 

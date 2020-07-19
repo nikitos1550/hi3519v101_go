@@ -56,7 +56,7 @@ func httpServerStart() {
 
     ////////////////////////////////////////////////////////////////////////////
 
-    debug := router.PathPrefix("/debug/").Subrouter()
+    debug := router.PathPrefix("/debug").Subrouter()
 
     debug.HandleFunc("/routes", apiList).Methods("GET").Name("Routes list")
 
@@ -69,7 +69,7 @@ func httpServerStart() {
 
     ////////////////////////////////////////////////////////////////////////////
 
-    api := router.PathPrefix("/api/").Subrouter()
+    api := router.PathPrefix("/api").Subrouter()
 
     api.HandleFunc("/buildinfo", compiletime.Serve).Methods("GET")
     api.HandleFunc("/temperature", temperature.Serve).Methods("GET")
@@ -123,8 +123,6 @@ func httpServerStart() {
 
     api.HandleFunc("/link/channel/{source}/encoder/{client}", link.ConnectBindHandler(channelGroup, encoderGroup)).Methods("POST")
     api.HandleFunc("/link/channel/{source}/encoder/{client}", link.DisconnectBindHandler(channelGroup, encoderGroup)).Methods("DELETE")
-    //api.HandleFunc("/link/channel/{source}/encoder/{client}/raw", link.ConnectRawFrameHandler(channelGroup, encoderGroup)).Methods("POST")
-    //api.HandleFunc("/link/channel/{source}/encoder/{client}/raw", link.DisconnectRawFrameHandler(channelGroup, encoderGroup)).Methods("DELETE")
 
     api.HandleFunc("/link/encoder/{source}/jpeg/{client}", link.ConnectEncodedDataHandler(encoderGroup, jpegGroup)).Methods("POST")
     api.HandleFunc("/link/encoder/{source}/jpeg/{client}", link.DisconnectEncodedDataHandler(encoderGroup, jpegGroup)).Methods("DELETE")
@@ -147,7 +145,7 @@ func httpServerStart() {
 
     ////////////////////////////////////////////////////////////////////////////
 
-    serve := router.PathPrefix("/serve/").Subrouter()
+    serve := router.PathPrefix("/serve").Subrouter()
 
     serve.HandleFunc("/jpeg/{name}.{ext:jpg|jpeg}", jpegGroup.ServeFrameGroup).Methods("GET")
 

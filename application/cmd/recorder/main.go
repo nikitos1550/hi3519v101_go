@@ -76,9 +76,9 @@ func main() {
 
     ////////////////////////////////////////////////////////////////////////////
 
-    pipelineInit()
-
+    initPipeline()
     initArchive()
+    initRecorder()
 
     httpServerStart()
 

@@ -6,40 +6,40 @@ import (
     "application/core/mpp/connection"
 )
 
-func (f *Forward) AddRawFrameClient(client connection.ClientRawFrame) error {
-    f.RLock()
-    defer f.RUnlock()
+func (s *Schedule) AddRawFrameClient(client connection.ClientRawFrame) error {
+    s.RLock()
+    defer s.RUnlock()
 
-    if f.clientRaw != nil {
+    if s.clientRaw != nil {
         return errors.New("Client already exist")
     }
 
-    notificator, err := client.RegisterRawFrameSource(f, f.params)
+    notificator, err := client.RegisterRawFrameSource(s, s.params)
     if err != nil {
         return err
     }
 
-    f.clientRaw = client
-    f.clientCh  = notificator
+    s.clientRaw = client
+    s.clientCh  = notificator
 
     return nil
 }
 
-func (f *Forward) RemoveRawFrameClient(client connection.ClientRawFrame) error {
-    f.RLock()
-    defer f.RUnlock()
+func (s *Schedule) RemoveRawFrameClient(client connection.ClientRawFrame) error {
+    s.RLock()
+    defer s.RUnlock()
 
-    if f.clientRaw != client {
+    if s.clientRaw != client {
         return errors.New("unknown client")
     }
 
-    err := client.UnregisterRawFrameSource(f)
+    err := client.UnregisterRawFrameSource(s)
     if err != nil {
         return err
     }
 
-    f.clientRaw = nil
-    f.clientCh  = nil
+    s.clientRaw = nil
+    s.clientCh  = nil
 
     return nil
 }

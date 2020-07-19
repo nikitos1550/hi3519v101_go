@@ -20,31 +20,36 @@ const (
 type Recorder struct {
     sync.RWMutex
 
-    name    string
+    name            string
+
+    path            string
 
     source          connection.SourceEncodedData
     notify          chan frames.FrameItem
     rutineStop      chan bool
     rutineDone      chan bool
 
-    state           state
+    //state           state
     record          *record.Record
+
+    lastPts         uint64
 }
 
-type state int
-const (
-    idle        state = 1
-    scheduled   state = 2
-    recording   state = 3
-)
+//type state int
+//const (
+//    idle        state = 1
+//    scheduled   state = 2
+//    recording   state = 3
+//)
 
-func New(name string) (*Recorder, error) {
+func New(name string, path string) (*Recorder, error) {
     if name == "" {
         return nil, errors.New("Name can`t be empty")
     }
 
     return &Recorder{
         name: name,
+        path: path,
     }, nil
 }
 

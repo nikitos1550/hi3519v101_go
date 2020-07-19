@@ -201,7 +201,7 @@ func (e *Encoder) Reset() error {
 
     logger.Log.Trace().
         Int("id", e.Id).
-        Msg("Encoder IDR requested")
+        Msg("Encoder Reseted")
 
     return nil
 }

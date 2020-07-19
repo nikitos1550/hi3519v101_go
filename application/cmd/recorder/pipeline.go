@@ -1,12 +1,15 @@
 package main
 
 import (
+    "sync"
+
     "application/core/mpp/vpss"
     "application/core/mpp/venc"
 
+    "application/core/processing/schedule"
+
     "application/core/streamer/jpeg"
 
-    "application/archive/recorder"
 
     "application/core/mpp/connection"
 
@@ -17,21 +20,23 @@ var (
     channelMain     *vpss.Channel
     channelSmall    *vpss.Channel
 
+    scheduleObj     *schedule.Schedule
+
     encoderH264Main *venc.Encoder
     encoderMjpeg    *venc.Encoder
 
     jpegSmall       *jpeg.Jpeg
 
-    recorderObj     *recorder.Recorder
+    pipelineLock    sync.RWMutex
 )
 
-func pipelineInit() {
+func initPipeline() {
     var err error
 
     channelMain, err        = vpss.New(0, "main", vpss.Parameters{
         Width: 3840,
         Height: 2160,
-        Fps: 30,
+        Fps: 25,
     })
     if err != nil {
         logger.Log.Fatal().
@@ -50,15 +55,17 @@ func pipelineInit() {
             Msg("Small channel failed")
     }
 
+    scheduleObj, _          = schedule.New("scheduler", true)
+
     encoderH264Main, err    = venc.New(0, "h264Main", venc.Parameters{
         Codec: venc.H264,
         Profile: venc.High,
         Width: 3840,
         Height: 2160,
-        Fps: 30,
+        Fps: 25,
         GopType: venc.NormalP,
         GopParams: venc.GopParameters{
-            Gop: 60,
+            Gop: 25,
         },
         BitControl: venc.Cbr,
         BitControlParams: venc.BitrateControlParameters{
@@ -103,11 +110,19 @@ func pipelineInit() {
             Msg("Jpeg streamer failed")
     }
 
-    err = connection.ConnectBind(channelMain, encoderH264Main)
+    err = connection.ConnectRawFrame(channelMain, scheduleObj)
     if err != nil {
         logger.Log.Fatal().
             Str("reason", err.Error()).
-            Msg("Connect main channel to main encoder failed")
+            Msg("Connect main channel to schedule processing failed")
+
+    }
+
+    err = connection.ConnectRawFrame(scheduleObj, encoderH264Main)
+    if err != nil {
+        logger.Log.Fatal().
+            Str("reason", err.Error()).
+            Msg("Connect schedule processing to main encoder failed")
 
     }
 
@@ -126,26 +141,17 @@ func pipelineInit() {
             Msg("Connect small channel to jpeg encoder failed")
     }
 
-    err = encoderH264Main.Start()
-    if err != nil {
-        logger.Log.Fatal().
-            Str("reason", err.Error()).
-            Msg("Can`t start main encoder")
-    }
+    //err = encoderH264Main.Start()
+    //if err != nil {
+    //    logger.Log.Fatal().
+    //        Str("reason", err.Error()).
+    //        Msg("Can`t start main encoder")
+    //}
 
     err = encoderMjpeg.Start()
     if err != nil {
         logger.Log.Fatal().
             Str("reason", err.Error()).
             Msg("Can`t start small encoder")
-    }
-
-    recorderObj, _ = recorder.New("testrecorder")
-
-    err = connection.ConnectEncodedData(encoderH264Main, recorderObj)
-    if err != nil {
-        logger.Log.Fatal().
-            Str("reason", err.Error()).
-            Msg("Connect main encoder to recorder failed")
     }
 }

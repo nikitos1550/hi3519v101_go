@@ -4,72 +4,88 @@ import (
     "errors"
 
     "application/core/mpp/connection"
+    "application/core/logger"
 )
 
 //connection.ClientRawFrame interface implementation
 
-func (f *Forward) RegisterRawFrameSource(source connection.SourceRawFrame, frameCompat connection.FrameCompatibility) (*chan connection.Frame, error) {
-    f.Lock()
-    defer f.Unlock()
+func (s *Schedule) RegisterRawFrameSource(source connection.SourceRawFrame, frameCompat connection.FrameCompatibility) (*chan connection.Frame, error) {
+    s.Lock()
+    defer s.Unlock()
 
-    if f.sourceRaw != nil {
+    if s.sourceRaw != nil {
         return nil, errors.New("Encoder already has source")
     }
 
-    f.params = frameCompat
+    s.params = frameCompat
 
-    f.rawFramesCh = make(chan connection.Frame)
+    s.rawFramesCh = make(chan connection.Frame)
 
-    f.rutineStop = make(chan bool)
-    f.rutineDone = make(chan bool)
+    s.rutineStop = make(chan bool)
+    s.rutineDone = make(chan bool)
 
-    go f.rawFramesRutine()
+    go s.rawFramesRutine()
 
-    f.sourceRaw = source
+    s.sourceRaw = source
 
-    return &f.rawFramesCh, nil
+    return &s.rawFramesCh, nil
 }
 
-func (f *Forward) UnregisterRawFrameSource(source connection.SourceRawFrame) error {
-    f.Lock()
-    defer f.Unlock()
+func (s *Schedule) UnregisterRawFrameSource(source connection.SourceRawFrame) error {
+    s.Lock()
+    defer s.Unlock()
 
-    if f.sourceRaw != source {
+    if s.sourceRaw != source {
         return errors.New("Encoder is not connected to this source")
     }
 
-    if f.clientRaw != nil {
+    if s.clientRaw != nil {
         return errors.New("Can`t unregister source, because of clients")
     }
 
-    f.rutineStop <- true
-    <-f.rutineDone
+    s.rutineStop <- true
+    <-s.rutineDone
 
-    f.sourceRaw = nil
+    s.sourceRaw = nil
 
     return nil
 }
 
-func (f *Forward) rawFramesRutine() {
+func (s *Schedule) rawFramesRutine() {
     for {
         select {
-        case frame := <-f.rawFramesCh:
-            f.RLock()
-            if f.clientRaw != nil {
-                frame.Wg.Add(1)
-                select {
-                case *f.clientCh<-frame:
-                    break
-                default:
-                    frame.Wg.Add(-1)
-                    break
+        case frame := <-s.rawFramesCh:
+            s.RLock()
+
+            //logger.Log.Trace().
+            //    Uint64("pts", frame.Pts).
+            //    Uint64("start", s.startTimestamp).
+            //    Uint64("stop", s.stopTimestamp).
+            //    Msg("scheduler frame recv")
+
+            if frame.Pts >= s.startTimestamp && frame.Pts <= s.stopTimestamp {
+
+                //logger.Log.Trace().Uint64("pts", frame.Pts).Msg("schedule frame")
+
+                if s.clientRaw != nil {
+                    frame.Wg.Add(1)
+                    select {
+                    case *s.clientCh<-frame:
+                        break
+                    default:
+                        logger.Log.Warn().
+                            Str("client", s.clientRaw.FullName()).
+                            Msg("Scheduler client droppped frame")
+                        frame.Wg.Add(-1)
+                        break
+                    }
                 }
             }
             frame.Wg.Add(-1)
-            f.RUnlock()
+            s.RUnlock()
             break
-        case <-f.rutineStop:
-            f.rutineDone <- true
+        case <-s.rutineStop:
+            s.rutineDone <- true
             break
         }
     }
