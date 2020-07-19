@@ -1,6 +1,9 @@
 from . import PROJECT_DIR
 import subprocess
+import json
+import time
 import os
+import shutil
 
 
 def read_file(path):
@@ -8,6 +11,33 @@ def read_file(path):
         return None
     with open(path, "r") as f:
         return f.read()
+
+
+def absjoin(*args):
+    return os.path.abspath(os.path.join(*args))
+
+
+def rmdir(path):
+    if os.path.exists(path):
+        shutil.rmtree(path)
+
+
+def copydir(src, dst):
+    rmdir(dst)
+    shutil.copytree(src, dst)
+
+
+def request_json(url, timeout=10):
+    import urllib.request
+
+    deadline = time.monotonic() + timeout
+    while True:
+        try:
+            with urllib.request.urlopen(url) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except:
+            if time.monotonic() > deadline:
+                raise
 
 
 class Git:
