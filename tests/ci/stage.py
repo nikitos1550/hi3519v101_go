@@ -9,7 +9,6 @@ import sys
 import subprocess
 import time
 import json
-from contextlib import contextmanager
 
 
 class Stage:
@@ -110,20 +109,15 @@ class Pipeline:
                 stage.run()
                 self.state_add(stage, " (OK)")
                 logging.info(f"Stage '{stage.name}' successfully finished for board '{board}'")
+            except AssertionError as err:
+                logging.exception(f"Stage '{stage.name}' failed with assertion error for board '{board}'")
+                self.state_add(f" (failed: {err})")
+                return
             except:
                 logging.exception(f"Stage '{stage.name}' failed with exception for board '{board}'")
                 self.state_add(stage, " (failed with exception)")
                 return
 
-
-# -------------------------------------------------------------------------------------------------
-class FakeStage1(Stage):
-    def run(self):
-        self.state("done")
-
-class FakeStage2(Stage):
-    def run(self):
-        self.state("failed")
 
 # -------------------------------------------------------------------------------------------------
 class BrHisicamMakeAll(Stage):
@@ -202,3 +196,6 @@ class CheckBuildInfo(Stage):
         
         resp = request_json(url, timeout=20)
         logging.info(f"Got build info: {json.dumps(resp, indent=4)}")
+
+        buildcommit = resp["buildcommit"].strip()
+        assert buildcommit == self.env.gitref, "Invalid buildinfo"
