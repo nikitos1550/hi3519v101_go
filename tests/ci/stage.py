@@ -107,15 +107,15 @@ class Pipeline:
                 logging.info(f"Start stage '{stage.name}' for board '{board}'...")
                 self.state_set(stage, "started...")
                 stage.run()
-                self.state_add(stage, " (OK)")
+                self.state_add(stage, " :white_check_mark:")
                 logging.info(f"Stage '{stage.name}' successfully finished for board '{board}'")
             except AssertionError as err:
                 logging.exception(f"Stage '{stage.name}' failed with assertion error for board '{board}'")
-                self.state_add(f" (failed: {err})")
+                self.state_add(f" :x: ({err})")
                 return
             except:
                 logging.exception(f"Stage '{stage.name}' failed with exception for board '{board}'")
-                self.state_add(stage, " (failed with exception)")
+                self.state_add(stage, " :x: (exception)")
                 return
 
 
@@ -199,3 +199,21 @@ class CheckBuildInfo(Stage):
 
         buildcommit = resp["buildcommit"].strip()
         assert buildcommit == self.env.gitref, "Invalid buildinfo"
+
+
+# -------------------------------------------------------------------------------------------------
+class GetBasicJpeg(Stage):
+    def run(self):
+        from . import jpeg
+        from testcore import DEVICE_LIST
+
+        addr = DEVICE_LIST[self.board]["ip_addr"]
+
+        self.info(f"Initialize basic JPEG, addr={addr}...")
+        jpeg.init_basic_jpeg(addr)
+
+        self.info(f"Get basic JPEG, addr={addr}...")
+        data = jpeg.get_jpeg(addr)
+        print(data)
+        with open(os.path.join(self.app_outdir, "basic.jpeg"), "wb") as f:
+            f.write(data)
