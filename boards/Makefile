@@ -83,6 +83,7 @@ $(MAKEFILE_PARAMS): $(BOARD_DIR)/config $(FAMILY_DIR)/Makefile.params
 	echo -e "# THIS FILE WAS GENERATED, PLEASE DO NOT MODIFY IT\n\
 	BOARD         := $(BOARD)\n\
 	TOOLCHAIN_DIR := $(TOOLCHAIN_DIR)\n\
+	STAGING_DIR   := $(FAMILY_OUTDIR)/.br-rootfs/staging\n\
 	GOPATH        := $(GOPATH)" >> $@
 	echo -e "\n# Parameters of the board" >> $@; cat $(BOARD_DIR)/config >> $@;
 	echo -e "\n# Parameters of the family" >> $@; cat $(FAMILY_DIR)/Makefile.params >> $@

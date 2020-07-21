@@ -32,7 +32,7 @@ APP_TARGET      ?= probe   #default target will be tester, daemon build on reque
 -include ./boards/boards/$(strip $(BOARD))/config
 -include ./hisilicon/$(strip $(FAMILY))/Makefile.params
 
-.PHONY: $(APP)/distrib/$(FAMILY) help prepare cleanall
+.PHONY: $(APP)/distrib/$(FAMILY) help prepare cleanall submodules
 
 # -----------------------------------------------------------------------------------------------------------
 
@@ -53,7 +53,7 @@ br-hihisim-prepare:
 	make -C br-hisicam prepare
 
 boards/boards: submodules
-	ln -s ../br-hisicam/br-ext-hisicam/board boards/boards
+	if [ ! -L $@ ]; then ln -s ../br-hisicam/br-ext-hisicam/board $@; fi
 
 prepare: $(BUILDROOT_DIR) submodules br-hihisim-prepare boards/boards
 	@echo "All prepared"
@@ -133,6 +133,9 @@ $(BOARD_OUTDIR)/kernel/uImage:
 	make -C ./boards BOARD_OUTDIR=$(BOARD_OUTDIR) BOARD=$(BOARD) kernel
 
 # ====================================================================================================================
+
+cleanapp: $(BOARD_OUTDIR)/Makefile.params
+	make -C $(APP) PARAMS_FILE=$< clean
 
 build-rootfs: $(BOARD_OUTDIR)/rootfs
 

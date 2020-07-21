@@ -1,8 +1,8 @@
--include $(PARAMS_FILE)
+include $(PARAMS_FILE)
 
-APP	?= cam
-
-GO	?= go
+APP ?= cam
+GO  ?= go
+OUTDIR ?= ../output
 
 GOOS    ?= linux
 GOARCH  ?= amd64
@@ -18,12 +18,17 @@ CMOS_DRIVER ?= unknown
 FAMILY_UPPERCASE    := $(shell echo '$(FAMILY)' | tr '[:lower:]' '[:upper:]')
 CHIP_UPPERCASE      := $(shell echo '$(CHIP)' | tr '[:lower:]' '[:upper:]')
 
+CFLAGS += -fPIC
+
 CGO_CFLAGS  := 	-Wall \
 				-Wno-comment \
 				-I$(abspath sdk/$(FAMILY)/include) \
-				-I$(abspath ../output/hisilicon/$(FAMILY)/.br-rootfs/staging/usr/include/opus) \
+				-I$(abspath $(STAGING_DIR)/usr/include/opus) \
 				-D$(FAMILY_UPPERCASE) \
 				-DLOGGER_C
+
+LIB_CMOSES := $(abspath $(OUTDIR)/boards/$(BOARD)/cmos/lib_cmoses.a)
+LIB_FAMILY := $(abspath $(OUTDIR)/hisilicon/$(FAMILY)/lib$(FAMILY).a)
 
 #-I$(abspath ../output/hisilicon/$(FAMILY)/.br-rootfs/staging/usr/include/fdk-aac) \
 
@@ -34,21 +39,19 @@ CGO_CFLAGS  := 	-Wall \
 #				-I$(abspath ../experimental/tf/tensorflow/tensorflow/lite/tools/make/downloads/flatbuffers/include)
 
 
+
 #TODO rework this
 ifneq ($(CMOS),unknown)
-#ifneq ($(CMOS_DRIVER),)
-#	CMOS := $(CMOS_DRIVER)
-#endif
- 	CMOS_TARGET := ../output/boards/$(BOARD)/cmos/lib_$(CMOS_DRIVER).a
+    CMOS_TARGET := $(OUTDIR)/boards/$(BOARD)/cmos/lib_$(CMOS_DRIVER).a
 endif
-
 ifeq ($(APP),probe)
-	CMOS_TARGET :=
+    CMOS_TARGET :=
 endif
 
-CMOS_TAGS		:= $(CMOS) cmos_data_$(CMOS_DATA) cmos_control_$(CMOS_CONTROL) cmos_bus_$(CMOS_BUS)
 
-GOTAGS_PROBE    := gohisiprobe $(FAMILY) netgo nethttpomithttp2
+CMOS_TAGS     := $(CMOS) cmos_data_$(CMOS_DATA) cmos_control_$(CMOS_CONTROL) cmos_bus_$(CMOS_BUS)
+
+GOTAGS_PROBE  := gohisiprobe $(FAMILY) netgo nethttpomithttp2
  
 #GOTAGS_CAM      := gohisicam $(FAMILY) $(CHIP) $(CMOS_TAGS) netgo nethttpomithttp2 openapi debug processing streamerJpeg streamerFile streamerRtsp streamerPipe streamerYuv
 #GOTAGS_CAM      := gohisicam $(FAMILY) netgo nethttpomithttp2 openapi debug processing streamerJpeg koEmbed scripts streamerFile streamerWebrtc streamerRtsp streamerYuv
@@ -58,17 +61,12 @@ GOTAGS_CAM      := gohisicam $(FAMILY) netgo nethttpomithttp2 openapi debug proc
 
 GOTAGS := $(GOTAGS_$(shell echo '$(APP)' | tr '[:lower:]' '[:upper:]'))
 
-ifneq ($(wildcard ../hisilicon/$(FAMILY)/Makefile.params),) 
-	LIB_TARGET := ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a
-	#CGO_LDFLAGS := $(abspath $(CMOS_TARGET)) $(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a )
-	CGO_LDFLAGS	:= 	$(abspath ../output/boards/$(BOARD)/cmos/lib_cmoses.a ) \
-					$(abspath ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a ) \
-					$(abspath ../output/hisilicon/$(FAMILY)/.br-rootfs/staging/usr/lib/libopus.a )
-					#$(abspath ../output/hisilicon/$(FAMILY)/.br-rootfs/staging/usr/lib/libfdk-aac.a )
-					# $(abspath ../experimental/tf/tensorflow/tensorflow/lite/tools/make/gen/hi3516cv500_armv7l/lib/libtensorflow-lite.a)
-					# -ldl -lm
-					#$(abspath ../output/hisilicon/$(FAMILY)/.br-rootfs/staging/usr/lib/libfdk-aac.a )
-endif 
+
+CGO_LDFLAGS := \
+    $(LIB_CMOSES) \
+    $(LIB_FAMILY) \
+    $(abspath $(STAGING_DIR)/usr/lib/libopus.a)
+
 
 #GODEBUG=cgocheck=0
 CGOPARAMS := CGO_CFLAGS='$(CFLAGS) $(CGO_CFLAGS)' CGO_CXXFLAGS='$(CXXFLAGS) $(CGO_CXXFLAGS)' CGO_CFLAGS_ALLOW='.*' CGO_ENABLED=1 CGO_LDFLAGS='$(CGO_LDFLAGS) $(FAMILY_LDFLAGS)'
@@ -117,37 +115,25 @@ strip-ko:
 
 LIBS := $(wildcard sdk/$(FAMILY)/lib/*.a)
 
-../output/hisilicon/$(FAMILY)/lib$(FAMILY).a:
-	$(AR) rcsT ../output/hisilicon/$(FAMILY)/lib$(FAMILY).a $(LIBS)
+$(LIB_FAMILY):
+	mkdir -p $(@D)
+	$(AR) rcsT $@ $(abspath $(LIBS))
 
 #CMOS all in one archive
-CMOSES := $(wildcard core/mpp/cmos/$(FAMILY)/*/)
-CMOSDIRS := $(patsubst core/mpp/cmos/$(FAMILY)/%/, ../output/boards/$(BOARD)/cmos/%/, $(CMOSES))
+CMOSES   := $(wildcard core/mpp/cmos/$(FAMILY)/*/)
+CMOSSRC  := $(wildcard core/mpp/cmos/$(FAMILY)/*/*.c)
+CMOSDIRS := $(patsubst core/mpp/cmos/$(FAMILY)/%/, $(OUTDIR)/boards/$(BOARD)/cmos/%/, $(CMOSES))
+CMOSOBJ  := $(patsubst core/mpp/cmos/$(FAMILY)/%.c, $(OUTDIR)/boards/$(BOARD)/cmos/%.o, $(CMOSSRC))
 
-CMOSSRC   := $(wildcard core/mpp/cmos/$(FAMILY)/*/*.c)
-CMOSOBJ := $(patsubst core/mpp/cmos/$(FAMILY)/%.c, ../output/boards/$(BOARD)/cmos/%.o, $(CMOSSRC))
+$(LIB_CMOSES): $(CMOSDIRS) $(CMOSOBJ)
+	$(AR) rcs $@ $(CMOSOBJ)
 
-../output/boards/$(BOARD)/cmos/lib_cmoses.a: $(CMOSDIRS) $(CMOSOBJ)
-	$(AR) rcs ../output/boards/$(BOARD)/cmos/lib_cmoses.a $(CMOSOBJ)
-
-../output/boards/$(BOARD)/cmos/%/:
+$(OUTDIR)/boards/$(BOARD)/cmos/%/:
 	[ -d $@ ] || mkdir -p $@
 
-../output/boards/$(BOARD)/cmos/%.o: core/mpp/cmos/$(FAMILY)/%.c
+$(OUTDIR)/boards/$(BOARD)/cmos/%.o: core/mpp/cmos/$(FAMILY)/%.c
 	$(CC) $(CFLAGS) -I$(abspath sdk/$(FAMILY)/include) -c $< -o $@
 
-#CMOS separate archive for each cmos
-#CMOSSRC   := $(wildcard pkg/mpp/cmos/$(FAMILY)/$(CMOS_DRIVER)/*.c)
-#CMOSOBJ := $(patsubst pkg/mpp/cmos/$(FAMILY)/$(CMOS_DRIVER)/%.c, ../output/boards/$(BOARD)/cmos/$(CMOS_DRIVER)/%.o, $(CMOSSRC))
-#
-#../output/boards/$(BOARD)/cmos/%/:
-#	[ -d $@ ] || mkdir -p $@
-#
-#../output/boards/$(BOARD)/cmos/$(CMOS_DRIVER)/%.o: pkg/mpp/cmos/$(FAMILY)/$(CMOS_DRIVER)/%.c
-#	$(CC) $(CFLAGS) -I$(abspath sdk/$(FAMILY)/include) -c $< -o $@
-#
-#../output/boards/$(BOARD)/cmos/lib_$(CMOS_DRIVER).a: ../output/boards/$(BOARD)/cmos/$(CMOS_DRIVER)/ $(CMOSOBJ)
-#	 $(AR) rcs ../output/boards/$(BOARD)/cmos/lib_$(CMOS_DRIVER).a $(CMOSOBJ)
 
 core/ko/embed_$(FAMILY).go:
 	GOPATH=$(GOPATH) $(GO) generate -tags "$(GOTAGS) generate" application/core/ko
@@ -190,7 +176,7 @@ deploy-dir-cam: distrib
 TRIMPATH := $(abspath .) 
 
 #build-cam: generate $(LIB_TARGET) $(CMOS_TARGET) deploy-dir-cam
-build-cam: generate $(LIB_TARGET) ../output/boards/$(BOARD)/cmos/lib_cmoses.a deploy-dir-cam vendors-build
+build-cam: generate $(LIB_FAMILY) $(LIB_CMOSES) deploy-dir-cam vendors-build
 	#$(GOENV) $(CGOPARAMS) $(GO) build -work -gcflags=all="-trimpath=$(TRIMPATH) -l -B -C" -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./gohisicam application/cmd/gohisicam
 	#$(GOENV) $(CGOPARAMS) $(GO) install -work -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" ./pkg/...
 	#stat -c %s ./gohisicam
@@ -204,13 +190,13 @@ build-cam: generate $(LIB_TARGET) ../output/boards/$(BOARD)/cmos/lib_cmoses.a de
 	#rm ./gohisicam
 	#cat pkg/ko/append_$(FAMILY).bin >> ./distrib/$(FAMILY)/opt/gohisicam
 
-build-cam2: generate $(LIB_TARGET) ../output/boards/$(BOARD)/cmos/lib_cmoses.a deploy-dir-cam vendors-build
+build-cam2: generate $(LIB_FAMILY) $(LIB_CMOSES) deploy-dir-cam vendors-build
 	$(GOENV) $(CGOPARAMS) $(GO) build -work -gcflags=all="-trimpath=$(TRIMPATH) -l -B -C" -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/gohisicam application/cmd/recorder
 
 vendors-build:
 	cd vendors/quirc; make; cd quirc; make clean; make CC=$(CC) libquirc.a
 
-build-probe: generate $(LIB_TARGET) deploy-dir-probe
+build-probe: generate $(LIB_FAMILY) deploy-dir-probe
 	$(GOENV) $(CGOPARAMS) $(GO) build -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/gohisiprobe application/cmd/gohisiprobe
 
 build: build-$(APP)
@@ -250,6 +236,9 @@ clean:
 	rm -f ./testvideo.h265
 	rm -f ./testvideo-h264.mp4
 	rm -f ./testvideo-h265.mp4
+	rm -f $(LIB_CMOSES)
+	rm -f $(LIB_FAMILY)
+
 
 freeze-vendors:
 	GOPATH=$(GOPATH) $(GO) mod vendor
