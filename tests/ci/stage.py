@@ -76,7 +76,7 @@ class Pipeline:
         report += " Board |" + "|".join(f" {s.__name__} " for s in self.stages) + "\n"
         report += "-------|" + "|".join("-" * (len(s.__name__) + 2) for s in self.stages) + "\n"
         for b in self.boards:
-            report += f" {b[0]} |" + "|".join(b[1].get(s.__name__, "") for s in self.stages) + "\n"
+            report += f"{b[2]} {b[0]} |" + "|".join(b[1].get(s.__name__, "") for s in self.stages) + "\n"
         return report
 
     def _get_states(self, board):
@@ -100,21 +100,25 @@ class Pipeline:
     
     def run_for_board(self, board):
         logging.info(f"Start pipeline for board '{board}'...")
-        self.boards.append((board, {}))
+        board_state = [board, {}, ""]
+        self.boards.append(board_state)
         for cls in self.stages:
             stage = cls(self.env, board, self)
             try:
                 logging.info(f"Start stage '{stage.name}' for board '{board}'...")
                 self.state_set(stage, "started...")
                 stage.run()
-                self.state_add(stage, " :white_check_mark:")
+                board_state[2] = ":heavy_check_mark:"
+                self.state_set(stage, ":heavy_check_mark:")
                 logging.info(f"Stage '{stage.name}' successfully finished for board '{board}'")
             except AssertionError as err:
                 logging.exception(f"Stage '{stage.name}' failed with assertion error for board '{board}'")
+                board_state[2] = ":x:"
                 self.state_add(f" :x: ({err})")
                 return
             except:
                 logging.exception(f"Stage '{stage.name}' failed with exception for board '{board}'")
+                board_state[2] = ":x:"
                 self.state_add(stage, " :x: (exception)")
                 return
 
