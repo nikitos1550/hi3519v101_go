@@ -175,19 +175,30 @@ class MakeRootFs(Stage):
 # -------------------------------------------------------------------------------------------------
 class Deploy(Stage):
     def run(self):
+        attempts = 3
+
         logging.info(f"Get board info...")
         info = self.br_hisicam.make_board_info()
-
+        
         logging.info(f"Deploy on device...")
         with open(self.stdout, "ab") as fout:
-            hiburn.boot(
-                self.board,
-                uimage=self.uimage_path,
-                rootfs=self.overlayed_rootfs_path,
-                device_info=info,
-                stdout=fout, stderr=fout,
-                timeout=180
-            )
+            while True:
+                try:
+                    hiburn.boot(
+                        self.board,
+                        uimage=self.uimage_path,
+                        rootfs=self.overlayed_rootfs_path,
+                        device_info=info,
+                        stdout=fout, stderr=fout,
+                        timeout=180
+                    )
+                    return
+                except subprocess.SubprocessError as err:
+                    logging.exception(f"Failed to deploy on device")
+                    if attempts == 0:
+                        raise err
+                    attempts -= 1
+                    logging.debug("Try again...")
 
 
 # -------------------------------------------------------------------------------------------------
