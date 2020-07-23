@@ -5,6 +5,9 @@
 
 start() {
     echo "S99 GoHisiCam"
+
+    mount /dev/sda1 /opt/usb
+
     . /opt/board.config
     dmesg -n 1 # for details see dmesg
 

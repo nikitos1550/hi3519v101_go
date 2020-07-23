@@ -205,3 +205,10 @@ func (e *Encoder) Reset() error {
 
     return nil
 }
+
+func (e *Encoder) SetScene(scene int) error {
+    e.mutex.Lock()
+    defer e.mutex.Unlock()
+
+    return mppSetScene(e.Id, scene)
+}

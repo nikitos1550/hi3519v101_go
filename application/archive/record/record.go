@@ -17,6 +17,8 @@ type Record struct {
 
     State		        RecordState         `json:"-"`
 
+    Codec               string              `json:"codec"`
+
     FirstPts            uint64              `json:"first_pts"`
     LastPts             uint64              `json:"last_pts"`
     FrameCount          uint64              `json:"frames"`
@@ -51,7 +53,7 @@ type Frame struct {
     offset  uint64
 }
 
-func New(dir string, name string) (*Record, error) {
+func New(dir string, name string, codec string) (*Record, error) {
 
     time1 := time.Now()
 
@@ -101,7 +103,9 @@ func New(dir string, name string) (*Record, error) {
     f.Write(json)
     f.Close()
 
-    rec.currentChunkFile, err = os.Create(dir+"/"+name+"/1.h264")
+    rec.Codec = codec
+
+    rec.currentChunkFile, err = os.Create(dir+"/"+name+"/1."+rec.Codec)
     if err != nil {
         logger.Log.Fatal().Str("reson", err.Error()).Msg("Can`t create chunk file")
     }

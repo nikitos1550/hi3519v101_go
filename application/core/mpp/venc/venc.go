@@ -29,12 +29,12 @@ func Init() {
         logger.Log.Fatal().
             Msg(err.Error())
     }
-	//readEncoders()
 }
 
 func mppCreateEncoder(id int, params Parameters) error {
     var inErr C.error_in
     var in C.mpp_venc_create_encoder_in
+
     C.invalidate_mpp_venc_create_encoder_in(&in)
 
     var err error
@@ -80,15 +80,15 @@ func mppCreateEncoder(id int, params Parameters) error {
             }
 
             if err = checkParamBitrate(&params); err != nil { return err }
-            in.bitrate          = C.int(params.BitControlParams.Bitrate)
+            in.cbr.bitrate          = C.int(params.BitControlParams.Bitrate)
             if err = checkParamStatTime(&params); err != nil { return err }
-            in.stat_time        = C.int(params.BitControlParams.StatTime)
+            in.cbr.stat_time        = C.int(params.BitControlParams.StatTime)
 
             if  compiletime.Family != "hi3516cv500" &&
                 compiletime.Family != "hi3516ev200" &&
                 compiletime.Family != "hi3519av100" {
                 if err = checkParamFluctuate(&params); err != nil { return err }
-                in.fluctuate_level  = C.int(params.BitControlParams.Fluctuate)
+                in.cbr.fluctuate_level  = C.int(params.BitControlParams.Fluctuate)
             }
 
         case Vbr:
@@ -102,9 +102,9 @@ func mppCreateEncoder(id int, params Parameters) error {
             }
 
 			if err = checkParamBitrate(&params); err != nil { return err }
-            in.bitrate          = C.int(params.BitControlParams.Bitrate)
+            in.vbr.maxbitrate          = C.int(params.BitControlParams.Bitrate)
             if err = checkParamStatTime(&params); err != nil { return err }
-            in.stat_time        = C.int(params.BitControlParams.StatTime)
+            in.vbr.stat_time        = C.int(params.BitControlParams.StatTime)
 
 			if  compiletime.Family != "hi3516cv500" &&
 				compiletime.Family != "hi3516ev200" &&
@@ -112,20 +112,20 @@ func mppCreateEncoder(id int, params Parameters) error {
 				switch params.Codec {
 					case MJPEG:
 						if err = checkParamMinQFactor(&params); err != nil { return err }
-                        in.min_q_factor     = C.int(params.BitControlParams.MinQFactor)
+                        in.vbr.min_q_factor     = C.int(params.BitControlParams.MinQFactor)
 						if err = checkParamMaxQFactor(&params); err != nil { return err }
-                        in.max_q_factor     = C.int(params.BitControlParams.MaxQFactor)
+                        in.vbr.max_q_factor     = C.int(params.BitControlParams.MaxQFactor)
 
 					case H264, H265:
 						if err = checkParamMinQp(&params); err != nil { return err }
-                        in.min_qp           = C.int(params.BitControlParams.MinQp)
+                        in.vbr.min_qp           = C.int(params.BitControlParams.MinQp)
 						if err = checkParamMaxQp(&params); err != nil { return err }
-                        in.max_qp           = C.int(params.BitControlParams.MaxQp)
+                        in.vbr.max_qp           = C.int(params.BitControlParams.MaxQp)
 
 						if	compiletime.Family == "hi3516cv300" ||
 							compiletime.Family == "hi3516av200" {
 							if err = checkParamMinIQp(&params); err != nil { return err }
-                            in.min_i_qp         = C.int(params.BitControlParams.MinIQp)
+                            in.vbr.min_i_qp         = C.int(params.BitControlParams.MinIQp)
 						}
 				}
            }
@@ -141,7 +141,7 @@ func mppCreateEncoder(id int, params Parameters) error {
             }
 
             if err = checkParamQFactor(&params); err != nil { return err }
-            in.q_factor         = C.int(params.BitControlParams.QFactor)
+            in.fixqp.q_factor         = C.int(params.BitControlParams.QFactor)
 
         case CVbr:
             if  compiletime.Family == "hi3516cv100" ||
@@ -178,8 +178,8 @@ func mppCreateEncoder(id int, params Parameters) error {
             }
 
             if err = checkParamStatTime(&params); err != nil { return err }
-            in.stat_time        = C.int(params.BitControlParams.StatTime)
-            in.bitrate          = C.int(params.BitControlParams.Bitrate)
+            in.avbr.stat_time        = C.int(params.BitControlParams.StatTime)
+            in.avbr.maxbitrate          = C.int(params.BitControlParams.Bitrate)
         case QVbr:
             if  compiletime.Family == "hi3516cv100" ||
                 compiletime.Family == "hi3516cv200" ||
@@ -199,7 +199,7 @@ func mppCreateEncoder(id int, params Parameters) error {
             }
 
             if err = checkParamStatTime(&params); err != nil { return err }
-            in.stat_time        = C.int(params.BitControlParams.StatTime)
+            in.qvbr.stat_time        = C.int(params.BitControlParams.StatTime)
 
         default:
             return errors.New("Unknown bitrate control strategy")
@@ -221,7 +221,7 @@ func mppCreateEncoder(id int, params Parameters) error {
     }
     in.height			= C.int(params.Height)
 
-    //TODO very important parameter, documentation should be readed and evaluated
+    //TODO set maximum, it will be update on connection to source
     in.in_fps			= C.int(vi.Fps())
 
     if params.Fps > vi.Fps() {
@@ -246,7 +246,7 @@ func mppCreateEncoder(id int, params Parameters) error {
                     compiletime.Family != "hi3516cv200" &&
                     compiletime.Family != "hi3516av100" {
                     if err = checkParamIPQpDelta(&params); err != nil { return err }
-                    in.i_pq_delta       = C.int(params.GopParams.IPQpDelta)
+                    in.normalp.i_pq_delta       = C.int(params.GopParams.IPQpDelta)
                 }
 
             case DualP:
@@ -258,11 +258,11 @@ func mppCreateEncoder(id int, params Parameters) error {
                 in.gop_mode           = C.int(C.VENC_GOPMODE_DUALP)
 
                 if err = checkParamIPQpDelta(&params); err != nil { return err }
-                in.i_pq_delta       = C.int(params.GopParams.IPQpDelta)
+                in.dualp.i_pq_delta       = C.int(params.GopParams.IPQpDelta)
                 if err = checkParamSPInterval(&params); err != nil { return err }
-                in.s_p_interval     = C.int(params.GopParams.SPInterval)
+                in.dualp.s_p_interval     = C.int(params.GopParams.SPInterval)
                 if err = checkParamSPQpDelta(&params); err != nil { return err}
-                in.s_pq_delta       = C.int(params.GopParams.SPQpDelta)
+                in.dualp.s_pq_delta       = C.int(params.GopParams.SPQpDelta)
 
             case SmartP:
                 if  compiletime.Family == "hi3516cv100" ||
@@ -273,11 +273,11 @@ func mppCreateEncoder(id int, params Parameters) error {
                 in.gop_mode           = C.int(C.VENC_GOPMODE_SMARTP)
 
                 if err = checkParamBgInterval(&params); err != nil { return err }
-                in.bg_interval      = C.int(params.GopParams.BgInterval)
+                in.smartp.bg_interval      = C.int(params.GopParams.BgInterval)
                 if err = checkParamBgQpDelta(&params); err != nil { return err }
-                in.bg_qp_delta      = C.int(params.GopParams.BgQpDelta)
+                in.smartp.bg_qp_delta      = C.int(params.GopParams.BgQpDelta)
                 if err = checkParamViQpDelta(&params); err != nil { return err }
-                in.vi_qp_delta      = C.int(params.GopParams.ViQpDelta)
+                in.smartp.vi_qp_delta      = C.int(params.GopParams.ViQpDelta)
 
             case AdvSmartP:
                 if  compiletime.Family == "hi3516cv100" ||
@@ -290,11 +290,11 @@ func mppCreateEncoder(id int, params Parameters) error {
                 in.gop_mode           = C.int(C.VENC_GOPMODE_ADVSMARTP)
 
                 if err = checkParamBgInterval(&params); err != nil { return err }
-                in.bg_interval      = C.int(params.GopParams.BgInterval)
+                in.advsmartp.bg_interval      = C.int(params.GopParams.BgInterval)
                 if err = checkParamBgQpDelta(&params); err != nil { return err }
-                in.bg_qp_delta      = C.int(params.GopParams.BgQpDelta)
+                in.advsmartp.bg_qp_delta      = C.int(params.GopParams.BgQpDelta)
                 if err = checkParamViQpDelta(&params); err != nil { return err }
-                in.vi_qp_delta      = C.int(params.GopParams.ViQpDelta)
+                in.advsmartp.vi_qp_delta      = C.int(params.GopParams.ViQpDelta)
 
             case BipredB:
                 if  compiletime.Family == "hi3516cv100" ||
@@ -309,11 +309,11 @@ func mppCreateEncoder(id int, params Parameters) error {
                 in.gop_mode           = C.int(C.VENC_GOPMODE_BIPREDB)
 
                 if err = checkParamBFrmNum(&params); err != nil { return err }
-                in.b_frm_num        = C.int(params.GopParams.BFrmNum)
+                in.bipredb.b_frm_num        = C.int(params.GopParams.BFrmNum)
                 if err = checkParamBQpDelta(&params); err != nil { return err }
-                in.b_qp_delta       = C.int(params.GopParams.BQpDelta)
+                in.bipredb.b_qp_delta       = C.int(params.GopParams.BQpDelta)
                 if err = checkParamIPQpDelta(&params); err != nil { return err }
-                in.i_pq_delta       = C.int(params.GopParams.IPQpDelta)
+                in.bipredb.i_pq_delta       = C.int(params.GopParams.IPQpDelta)
 
             case IntraR:
                 in.gop_mode           = C.int(C.VENC_GOPMODE_INTRAREFRESH)
@@ -322,34 +322,12 @@ func mppCreateEncoder(id int, params Parameters) error {
                     compiletime.Family != "hi3516cv200" &&
                     compiletime.Family != "hi3516av100" {
                     if err = checkParamIPQpDelta(&params); err != nil { return err }
-                    in.i_pq_delta       = C.int(params.GopParams.IPQpDelta)
+                    in.intrar.i_pq_delta       = C.int(params.GopParams.IPQpDelta)
                 }
 	    }
 
         //TODO gop params
     }
-
-	//in.bitrate			= C.int(params.BitControlParams.Bitrate)
-    //in.stat_time		= C.int(params.BitControlParams.StatTime)
-    //in.fluctuate_level	= C.int(params.BitControlParams.Fluctuate)
-    //in.q_factor			= C.int(params.BitControlParams.QFactor)
-    //in.max_q_factor		= C.int(params.BitControlParams.MaxQFactor)
-    //in.min_q_factor     = C.int(params.BitControlParams.MinQFactor)
-    //in.i_qp				= C.int(params.BitControlParams.IQp)
-    //in.p_qp				= C.int(params.BitControlParams.PQp)
-    //in.b_qp				= C.int(params.BitControlParams.BQp)
-    //in.min_qp			= C.int(params.BitControlParams.MinQp)
-    //in.max_qp			= C.int(params.BitControlParams.MaxQp)
-    //in.min_i_qp			= C.int(params.BitControlParams.MinIQp)
-
-    //in.i_pq_delta       = C.int(0)
-    //in.s_p_interval     = C.int(0)
-    //in.s_pq_delta       = C.int(0)
-    //in.bg_interval      = C.int(0)
-    //in.bg_qp_delta      = C.int(0)
-    //in.vi_qp_delta      = C.int(0)
-    //in.b_frm_num        = C.int(0)
-    //in.b_qp_delta       = C.int(0)
 
 
     logger.Log.Trace().
@@ -363,26 +341,26 @@ func mppCreateEncoder(id int, params Parameters) error {
         Int("bitrate_control",  int(in.bitrate_control)).
         Int("gop",              int(in.gop)).
         Int("gop_mode",         int(in.gop_mode)).
-        Int("i_pq_delta",       int(in.i_pq_delta)).
-        Int("s_p_interval",     int(in.s_p_interval)).
-        Int("s_pq_delta",       int(in.s_pq_delta)).
-        Int("bg_interval",      int(in.bg_interval)).
-        Int("bg_qp_delta",      int(in.bg_qp_delta)).
-        Int("vi_qp_delta",      int(in.vi_qp_delta)).
-        Int("b_frm_num",        int(in.b_frm_num)).
-        Int("b_qp_delta",       int(in.b_qp_delta)).
-        Int("bitrate",          int(in.bitrate)).
-        Int("stat_time",        int(in.stat_time)).
-        Int("fluctuate_level",  int(in.fluctuate_level)).
-        Int("q_factor",         int(in.q_factor)).
-        Int("min_q_factor",     int(in.min_q_factor)).
-        Int("max_q_factor",     int(in.max_q_factor)).
-        Int("i_qp",             int(in.i_qp)).
-        Int("p_qp",             int(in.p_qp)).
-        Int("b_qp",             int(in.b_qp)).
-        Int("min_qp",           int(in.min_qp)).
-        Int("max_qp",           int(in.max_qp)).
-        Int("min_i_qp",         int(in.min_i_qp)).
+        //Int("i_pq_delta",       int(in.i_pq_delta)).
+        //Int("s_p_interval",     int(in.s_p_interval)).
+        //Int("s_pq_delta",       int(in.s_pq_delta)).
+        //Int("bg_interval",      int(in.bg_interval)).
+        //Int("bg_qp_delta",      int(in.bg_qp_delta)).
+        //Int("vi_qp_delta",      int(in.vi_qp_delta)).
+        //Int("b_frm_num",        int(in.b_frm_num)).
+        //Int("b_qp_delta",       int(in.b_qp_delta)).
+        //Int("bitrate",          int(in.bitrate)).
+        //Int("stat_time",        int(in.stat_time)).
+        //Int("fluctuate_level",  int(in.fluctuate_level)).
+        //Int("q_factor",         int(in.q_factor)).
+        //Int("min_q_factor",     int(in.min_q_factor)).
+        //Int("max_q_factor",     int(in.max_q_factor)).
+        //Int("i_qp",             int(in.i_qp)).
+        //Int("p_qp",             int(in.p_qp)).
+        //Int("b_qp",             int(in.b_qp)).
+        //Int("min_qp",           int(in.min_qp)).
+        //Int("max_qp",           int(in.max_qp)).
+        //Int("min_i_qp",         int(in.min_i_qp)).
         Msg("VENC encoder params")
 
     err2 := C.mpp_venc_create_encoder(&inErr, &in)//TODO err2 rename
@@ -397,21 +375,64 @@ func mppCreateEncoder(id int, params Parameters) error {
     return nil
 }
 
-//func mppUpdateEncoder(id int, params Parameters) error {
-//    var inErr C.error_in
-//    var in C.mpp_venc_create_encoder_in
-//
-//    err := C.mpp_venc_update_encoder(&inErr, &in)
-//
-//    if err != 0 {
-//    	logger.Log.Fatal().
-//        	Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
-//            Msg("VENC")
-//      	return errmpp.New(C.GoString(inErr.name), uint(inErr.code))
-//  	}
-//
-//	return nil
-//}
+func mppSetScene(id int, scene int) error {
+    var inErr C.error_in
+
+    err := C.mpp_venc_scene(&inErr, C.int(id), C.int(scene))
+
+    if err != 0 {
+        logger.Log.Error().
+            Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
+            Msg("VENC")
+        return errmpp.New(C.GoString(inErr.name), uint(inErr.code))
+    }
+
+    return nil
+}
+
+func mppUpdateEncoderFps(id int, inFps int, outFps int) error {
+    var inErr C.error_in
+    var in C.mpp_venc_create_encoder_in
+
+    C.invalidate_mpp_venc_create_encoder_in(&in)
+
+    if inFps > vi.Fps() {
+        return errors.New("In FPS can`t be more than VI fps")
+    }
+
+    if outFps > vi.Fps() {
+        return errors.New("Out FPS can`t be more than VI fps")
+    }
+
+    if inFps > outFps {
+        return errors.New("Out FPS can`t be more than In fps")
+    }
+
+
+    err2 := C.mpp_venc_update_fps2(&inErr, C.int(id), C.int(inFps), C.int(outFps))
+    if err2 != 0 {
+        logger.Log.Error().
+            Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
+            Msg("VENC")
+        return errmpp.New(C.GoString(inErr.name), uint(inErr.code))
+    }
+
+
+    in.id       = C.int(id)
+    in.in_fps   = C.int(inFps)
+    in.out_fps  = C.int(outFps)
+
+    err := C.mpp_venc_update_fps(&inErr, &in)
+
+    if err != 0 {
+        logger.Log.Error().
+            Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
+            Msg("VENC")
+        return errmpp.New(C.GoString(inErr.name), uint(inErr.code))
+    }
+
+    return nil
+}
 
 func mppDestroyEncoder(id int) error {
     var inErr C.error_in

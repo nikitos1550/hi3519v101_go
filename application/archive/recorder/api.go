@@ -17,7 +17,7 @@ func (r *Recorder) Start(name string) error {
         return errors.New("TODO")
     }
 
-    rec, err := record.New(r.path, name) //uuid.New().String())
+    rec, err := record.New(r.path, name, r.codec) //uuid.New().String())
     if err != nil {
         return errors.Wrap(err, "Start record failed")
     }

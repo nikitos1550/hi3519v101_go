@@ -22,7 +22,7 @@ var (
 
     scheduleObj     *schedule.Schedule
 
-    encoderH264Main *venc.Encoder
+    encoderH26XMain *venc.Encoder
     encoderMjpeg    *venc.Encoder
 
     jpegSmall       *jpeg.Jpeg
@@ -37,7 +37,7 @@ func initPipeline() {
     channelMain, err        = vpss.New(0, "main", vpss.Parameters{
         Width: 3840,
         Height: 2160,
-        Fps: 30,
+        Fps: 25,
     })
     if err != nil {
         logger.Log.Fatal().
@@ -48,7 +48,7 @@ func initPipeline() {
     channelSmall, err       = vpss.New(1, "small", vpss.Parameters{
         Width: 1280,
         Height: 720,
-        Fps: 30,
+        Fps: 1,
     })
     if err != nil {
         logger.Log.Fatal().
@@ -58,24 +58,29 @@ func initPipeline() {
 
     scheduleObj, _          = schedule.New("scheduler", true)
 
-    encoderH264Main, err    = venc.New(0, "h264Main", venc.Parameters{
+    encoderH26XMain, err    = venc.New(0, "h26XMain", venc.Parameters{
         Codec: venc.H264,
         Profile: venc.High,
+        //Codec: venc.H265,
+        //Profile: venc.Baseline,
         Width: 3840,
         Height: 2160,
-        Fps: 30,
-        GopType: venc.NormalP,
+        Fps: 25,
+        GopType: venc.BipredB,
         GopParams: venc.GopParameters{
-            Gop: 60,
+            Gop: 100,
+            BFrmNum: 3,
+            BQpDelta:10,
+            IPQpDelta:10,
         },
-        BitControl: venc.Cbr,
+        BitControl: venc.Vbr,
         BitControlParams: venc.BitrateControlParameters{
             Bitrate: 1024*16,
             StatTime: 60,
             Fluctuate: 1,
-            //MinQp: 40,
-            //MaxQp: 40,
-            //MinIQp: 40,
+            MinQp: 30,
+            MaxQp: 50,
+            MinIQp: 30,
         },
     })
     if err != nil {
@@ -132,7 +137,7 @@ func initPipeline() {
 
     }
 
-    err = connection.ConnectRawFrame(scheduleObj, encoderH264Main)
+    err = connection.ConnectRawFrame(scheduleObj, encoderH26XMain)
     if err != nil {
         logger.Log.Fatal().
             Str("reason", err.Error()).
@@ -172,7 +177,14 @@ func initPipeline() {
             Msg("Connect small channel to mjpeg encoder failed")
     }
 
-    err = encoderH264Main.Start()
+    //err = encoderH26XMain.SetScene(1) //experimental
+    //if err != nil {
+    //    logger.Log.Fatal().
+    //        Str("reason", err.Error()).
+    //        Msg("Can`t set scene for main encoder")
+    //}
+
+    err = encoderH26XMain.Start()
     if err != nil {
         logger.Log.Fatal().
             Str("reason", err.Error()).
