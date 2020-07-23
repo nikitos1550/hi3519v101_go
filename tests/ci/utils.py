@@ -3,6 +3,7 @@ import subprocess
 import json
 import time
 import os
+import sys
 import shutil
 
 
@@ -53,3 +54,8 @@ class Git:
     @classmethod
     def get_submodule_ref(cls, submodule):
         return cls.get_ref(repodir=os.path.join(PROJECT_DIR, submodule))
+
+
+def print_for_github_comment(msg):
+    sys.stdout.buffer.write(msg.encode("utf-8") + b"\x04")
+    sys.stdout.flush()

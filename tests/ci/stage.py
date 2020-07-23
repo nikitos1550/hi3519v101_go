@@ -1,5 +1,5 @@
 from . import CI_DIR, BR_HISICAM_DIR, APPLICATION_DIR
-from .utils import copydir, absjoin, request_json
+from .utils import copydir, absjoin, request_json, print_for_github_comment
 from testcore.brhisicam import BrHisiCam
 from testcore.make import Make
 from testcore import hiburn
@@ -66,17 +66,26 @@ class Stage:
 
 # -------------------------------------------------------------------------------------------------
 class Pipeline:
+    SUCCESS = ":heavy_check_mark:"
+    FAILED = ":x:"
+
     def __init__(self, env, stages):
         self.env = env
         self.stages = stages
         self.boards = []
+        self.failures = []
 
     def make_report(self):
-        report = ""
+        report = f"Run root directory: `{self.env.rundir_root}`\n"
         report += " Board |" + "|".join(f" {s.__name__} " for s in self.stages) + "\n"
         report += "-------|" + "|".join("-" * (len(s.__name__) + 2) for s in self.stages) + "\n"
         for b in self.boards:
             report += f"{b[2]} {b[0]} |" + "|".join(b[1].get(s.__name__, "") for s in self.stages) + "\n"
+
+        if self.failures:
+            report += "### :poop: Failures:\n"
+            for f in self.failures:
+                report += f" - {f}\n"
         return report
 
     def _get_states(self, board):
@@ -85,8 +94,7 @@ class Pipeline:
                 return b[1]
 
     def print_report(self):
-        sys.stdout.buffer.write(self.make_report().encode("utf-8") + b"\x04")
-        sys.stdout.flush()
+        print_for_github_comment(self.make_report())
     
     def state_set(self, stage, msg):
         states = self._get_states(stage.board)
@@ -108,20 +116,15 @@ class Pipeline:
                 logging.info(f"Start stage '{stage.name}' for board '{board}'...")
                 self.state_set(stage, "started...")
                 stage.run()
-                board_state[2] = ":heavy_check_mark:"
-                self.state_set(stage, ":heavy_check_mark:")
+                self.state_set(stage, self.SUCCESS)
                 logging.info(f"Stage '{stage.name}' successfully finished for board '{board}'")
-            except AssertionError as err:
-                logging.exception(f"Stage '{stage.name}' failed with assertion error for board '{board}'")
-                board_state[2] = ":x:"
-                self.state_add(f" :x: ({err})")
-                return
-            except:
+            except Exception as err:
                 logging.exception(f"Stage '{stage.name}' failed with exception for board '{board}'")
-                board_state[2] = ":x:"
-                self.state_add(stage, " :x: (exception)")
+                board_state[2] = self.FAILED
+                self.state_set(stage, self.FAILED)
+                self.failures.append(f"{board} on {stage.name}:\n```{err}```")
                 return
-
+        board_state[2] = self.SUCCESS
 
 # -------------------------------------------------------------------------------------------------
 class BrHisicamMakeAll(Stage):
@@ -175,19 +178,30 @@ class MakeRootFs(Stage):
 # -------------------------------------------------------------------------------------------------
 class Deploy(Stage):
     def run(self):
+        attempts = 3
+
         logging.info(f"Get board info...")
         info = self.br_hisicam.make_board_info()
-
+        
         logging.info(f"Deploy on device...")
         with open(self.stdout, "ab") as fout:
-            hiburn.boot(
-                self.board,
-                uimage=self.uimage_path,
-                rootfs=self.overlayed_rootfs_path,
-                device_info=info,
-                stdout=fout, stderr=fout,
-                timeout=180
-            )
+            while True:
+                try:
+                    hiburn.boot(
+                        self.board,
+                        uimage=self.uimage_path,
+                        rootfs=self.overlayed_rootfs_path,
+                        device_info=info,
+                        stdout=fout, stderr=fout,
+                        timeout=180
+                    )
+                    return
+                except subprocess.SubprocessError as err:
+                    logging.exception(f"Failed to deploy on device")
+                    if attempts == 0:
+                        raise err
+                    attempts -= 1
+                    logging.debug("Try again...")
 
 
 # -------------------------------------------------------------------------------------------------
