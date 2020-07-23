@@ -1,5 +1,5 @@
 from . import CI_DIR, BR_HISICAM_DIR, APPLICATION_DIR
-from .utils import copydir, absjoin, request_json
+from .utils import copydir, absjoin, request_json, print_for_github_comment
 from testcore.brhisicam import BrHisiCam
 from testcore.make import Make
 from testcore import hiburn
@@ -72,7 +72,7 @@ class Pipeline:
         self.boards = []
 
     def make_report(self):
-        report = ""
+        report = f"Run root directory: {self.env.rundir_root}\n"
         report += " Board |" + "|".join(f" {s.__name__} " for s in self.stages) + "\n"
         report += "-------|" + "|".join("-" * (len(s.__name__) + 2) for s in self.stages) + "\n"
         for b in self.boards:
@@ -85,8 +85,7 @@ class Pipeline:
                 return b[1]
 
     def print_report(self):
-        sys.stdout.buffer.write(self.make_report().encode("utf-8") + b"\x04")
-        sys.stdout.flush()
+        print_for_github_comment(self.make_report())
     
     def state_set(self, stage, msg):
         states = self._get_states(stage.board)
@@ -111,15 +110,10 @@ class Pipeline:
                 board_state[2] = ":heavy_check_mark:"
                 self.state_set(stage, ":heavy_check_mark:")
                 logging.info(f"Stage '{stage.name}' successfully finished for board '{board}'")
-            except AssertionError as err:
-                logging.exception(f"Stage '{stage.name}' failed with assertion error for board '{board}'")
-                board_state[2] = ":x:"
-                self.state_add(f" :x: ({err})")
-                return
             except:
                 logging.exception(f"Stage '{stage.name}' failed with exception for board '{board}'")
                 board_state[2] = ":x:"
-                self.state_add(stage, " :x: (exception)")
+                self.state_add(stage, f" :x: ({err})")
                 return
 
 
