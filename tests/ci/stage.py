@@ -110,7 +110,7 @@ class Pipeline:
                 board_state[2] = ":heavy_check_mark:"
                 self.state_set(stage, ":heavy_check_mark:")
                 logging.info(f"Stage '{stage.name}' successfully finished for board '{board}'")
-            except:
+            except Exception as err:
                 logging.exception(f"Stage '{stage.name}' failed with exception for board '{board}'")
                 board_state[2] = ":x:"
                 self.state_add(stage, f" :x: ({err})")
