@@ -66,10 +66,14 @@ class Stage:
 
 # -------------------------------------------------------------------------------------------------
 class Pipeline:
+    SUCCESS = ":heavy_check_mark:"
+    FAILED = ":x:"
+
     def __init__(self, env, stages):
         self.env = env
         self.stages = stages
         self.boards = []
+        self.failures = []
 
     def make_report(self):
         report = f"Run root directory: `{self.env.rundir_root}`\n"
@@ -77,6 +81,11 @@ class Pipeline:
         report += "-------|" + "|".join("-" * (len(s.__name__) + 2) for s in self.stages) + "\n"
         for b in self.boards:
             report += f"{b[2]} {b[0]} |" + "|".join(b[1].get(s.__name__, "") for s in self.stages) + "\n"
+
+        if self.failures:
+            report += "### :poop: Failures:\n"
+            for f in self.failures:
+                report += f" - {f}\n"
         return report
 
     def _get_states(self, board):
@@ -107,14 +116,15 @@ class Pipeline:
                 logging.info(f"Start stage '{stage.name}' for board '{board}'...")
                 self.state_set(stage, "started...")
                 stage.run()
-                self.state_set(stage, ":heavy_check_mark:")
+                self.state_set(stage, self.SUCCESS)
                 logging.info(f"Stage '{stage.name}' successfully finished for board '{board}'")
             except Exception as err:
                 logging.exception(f"Stage '{stage.name}' failed with exception for board '{board}'")
-                board_state[2] = ":x:"
-                self.state_add(stage, f" :x: ({err})")
+                board_state[2] = self.FAILED
+                self.state_set(stage, self.FAILED)
+                self.failures.append(f"{board} on {stage.name}:\n```{err}```")
                 return
-        board_state[2] = ":heavy_check_mark:"
+        board_state[2] = self.SUCCESS
 
 # -------------------------------------------------------------------------------------------------
 class BrHisicamMakeAll(Stage):
