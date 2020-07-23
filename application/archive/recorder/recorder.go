@@ -14,7 +14,7 @@ import (
 )
 
 const (
-    defaultRecvChannelSize      = 0
+    defaultRecvChannelSize      = 90
 )
 
 type Recorder struct {

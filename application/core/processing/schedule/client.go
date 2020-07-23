@@ -7,6 +7,10 @@ import (
     "application/core/logger"
 )
 
+const (
+    defaultRecvChannelSize      = 0
+)
+
 //connection.ClientRawFrame interface implementation
 
 func (s *Schedule) RegisterRawFrameSource(source connection.SourceRawFrame, frameCompat connection.FrameCompatibility) (*chan connection.Frame, error) {
@@ -19,7 +23,11 @@ func (s *Schedule) RegisterRawFrameSource(source connection.SourceRawFrame, fram
 
     s.params = frameCompat
 
-    s.rawFramesCh = make(chan connection.Frame)
+    if defaultRecvChannelSize == 0 {
+        s.rawFramesCh = make(chan connection.Frame)
+    } else {
+        s.rawFramesCh = make(chan connection.Frame, defaultRecvChannelSize)
+    }
 
     s.rutineStop = make(chan bool)
     s.rutineDone = make(chan bool)

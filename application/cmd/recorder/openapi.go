@@ -76,6 +76,7 @@ func httpServerStart() {
     serve := router.PathPrefix("/serve").Subrouter()
 
     serve.HandleFunc("/image.{ext:jpg|jpeg}", jpegSmall.ServeFrame).Methods("GET")
+    serve.HandleFunc("/video.{ext:mjpg|mjpeg}", mjpegSmall.ServeStream).Methods("GET")
 
     ////////////////////////////////////////////////////////////////////////////
 

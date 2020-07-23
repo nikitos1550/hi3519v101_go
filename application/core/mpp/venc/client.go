@@ -4,6 +4,11 @@ import (
     "errors"
 
     "application/core/mpp/connection"
+    //"application/core/logger"
+)
+
+const (
+    defaultRecvChannelSize      = 0
 )
 
 //connection.ClientRawFrame interface implementation
@@ -26,7 +31,11 @@ func (e *Encoder) RegisterRawFrameSource(source connection.SourceRawFrame, frame
 		return nil, errors.New("Input frame error, fps can`t be more")
 	}
 
-    e.rawFramesCh = make(chan connection.Frame)
+    if defaultRecvChannelSize == 0 {
+        e.rawFramesCh = make(chan connection.Frame)
+    } else {
+        e.rawFramesCh = make(chan connection.Frame, defaultRecvChannelSize)
+    }
 
     e.rutineStop = make(chan bool)
     e.rutineDone = make(chan bool)
@@ -70,9 +79,12 @@ func (e *Encoder) rawFramesRutine() {
         select {
         case frame := <-e.rawFramesCh:
             //logger.Log.Trace().Uint64("pts", frame.Pts).Msg("VENC Wg done")
+            //logger.Log.Trace().Int("id", e.Id).Msg("VENC new frame")
+            e.mutex.RLock()
             if e.Started {
                 mppSendFrameToEncoder(e.Id, frame)
             }
+            e.mutex.RUnlock()
             frame.Wg.Add(-1) //frame.Wg.Done()
             break
         case <-e.rutineStop:

@@ -72,7 +72,7 @@ func New(id int, name string, params Parameters) (*Encoder, error) {
     encoder.Params     = params
     encoder.clients    = make(map[connection.ClientEncodedData] *chan frames.FrameItem)   //TODO this is not empty after first creation
 
-    frames.CreateFrames(&encoder.storage, 10)
+    frames.CreateFrames(&encoder.storage, 100) //TODO
 
     logger.Log.Debug().
         Int("id", encoder.Id).

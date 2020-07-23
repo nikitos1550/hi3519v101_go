@@ -110,7 +110,7 @@ typedef struct mpp_send_frame_to_encoder_in_struct {
     void                *frame;
 } mpp_send_frame_to_encoder_in;
 
-int mpp_send_frame_to_encoder(error_in *err, mpp_send_frame_to_encoder_in *in);
+int mpp_send_frame_to_encoder(error_in *err, mpp_send_frame_to_encoder_in *in, void *frame);
 
 typedef struct mpp_venc_request_idr_in_struct {
     int id;

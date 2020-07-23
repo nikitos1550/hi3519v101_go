@@ -9,15 +9,12 @@ import (
 
     "application/core/mpp/frames"
 )
-//type MppFrame C.VIDEO_FRAME_INFO_S
-//type MppFrame unsafe.Pointer
 
 type Frame struct {
-    //Frame   MppFrame
-    //Frame   *C.VIDEO_FRAME_INFO_S
-    Frame   unsafe.Pointer
-    Pts     uint64
-    Wg      *sync.WaitGroup
+    FrameMPP    C.VIDEO_FRAME_INFO_S
+    Frame       unsafe.Pointer
+    Pts         uint64
+    Wg          *sync.WaitGroup
 }
 
 type ConnectionType int

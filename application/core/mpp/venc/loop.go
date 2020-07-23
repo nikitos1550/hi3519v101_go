@@ -171,6 +171,7 @@ func go_callback_receive_data(id C.int, info_pointer *C.info_from_c, data_pointe
                     default:
                         logger.Log.Warn().
                             Str("name", client.FullName()).
+                            Int("queue", len(*notify)).
                             Msg("VENC LOOP client dropped frame")
                     }
                     //if notify != nil && len(*notify) < cap(*notify) {

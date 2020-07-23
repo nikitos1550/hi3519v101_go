@@ -28,7 +28,7 @@ type archiveItem struct {
 }
 
 func init() {
-    flagArchiveRawPath     = flag.String("archive-raw-path",     "/opt/nfs",              "Raw archive dir path")
+    flagArchiveRawPath     = flag.String("archive-raw-path",     "/opt/usb",              "Raw archive dir path")
 }
 
 func initArchive() {
@@ -95,8 +95,12 @@ func archiveList(w http.ResponseWriter, r *http.Request) {
         fmt.Fprintf(w, "FirstPts %d, ", item.record.FirstPts)
         fmt.Fprintf(w, "LastPts %d, ", item.record.LastPts)
         fmt.Fprintf(w, "FrameCount %d, ", item.record.FrameCount)
-        fmt.Fprintf(w, "Period %d.", (item.record.LastPts-item.record.FirstPts)/item.record.FrameCount)
-
+        fmt.Fprintf(w, "Period %d, ", (item.record.LastPts-item.record.FirstPts)/item.record.FrameCount)
+        if len(item.record.Chunks) > 0 {
+            fmt.Fprintf(w, "<br />Size per hour %d MB", (item.record.Chunks[0].Size / item.record.FrameCount) * 25* 60 *60 / (1024*1024))
+            fmt.Fprintf(w, "<br />Size per minute %d kB", (item.record.Chunks[0].Size / item.record.FrameCount) * 25* 60 / 1024)
+            fmt.Fprintf(w, "<br />Size per second %d kB", (item.record.Chunks[0].Size / item.record.FrameCount) * 25 / 1024)
+        }
         fmt.Fprintf(w, "</li>")
     }
     fmt.Fprintf(w, "</ul>")

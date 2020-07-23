@@ -37,6 +37,8 @@ int mpp_venc_closefd(int venc_channel_id) {
     #endif
 }
 
+unsigned long long lastPts = 0;
+
 void mpp_data_loop_get_data(unsigned int id) {
     HI_S32          s32Ret;
 
@@ -154,14 +156,29 @@ void mpp_data_loop_get_data(unsigned int id) {
 
         data = (data_from_c *)malloc(sizeof(data_from_c) * stStream.u32PackCount);
 
+        //////////////unsigned int sizeTmp = 0;
+
         int i;
         for(i = 0; i < stStream.u32PackCount; i++) {
             data[i].data = stStream.pstPack[i].pu8Addr;
             data[i].length = stStream.pstPack[i].u32Len;
+
+            /////sizeTmp += stStream.pstPack[i].u32Len;
+            /////for(int j=0;j<=8;j++) {
+            /////    printf("0x%x ", stStream.pstPack[i].pu8Addr[j]);
+            /////}
+            /////printf("\n");
+
             //TODO VENC_PACK_S->U64PTS
             info.pts = stStream.pstPack[i].u64PTS;
             //printf("VENC %llu\n", stStream.pstPack[i].u64PTS);
         }
+
+        //if (id == 1) {
+        //    printf("%d venc seq %d (%d) count %d, delta: %lld\n", id, stStream.u32Seq, stStream.stH264Info.enRefType, i, (stStream.pstPack[0].u64PTS-lastPts));
+        //    lastPts = stStream.pstPack[0].u64PTS;
+        //}
+
         //go_callback_receive_data(venc_channel_id, stStream.u32Seq, st_data, stStream.u32PackCount);
         go_callback_receive_data(venc_channel_id, &info, data, stStream.u32PackCount);
     #endif

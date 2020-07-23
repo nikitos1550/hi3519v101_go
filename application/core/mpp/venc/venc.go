@@ -5,6 +5,7 @@ import "C"
 
 import (
     "errors"
+    "unsafe"
 
     "application/core/mpp/vi"
     "application/core/mpp/connection"
@@ -178,7 +179,7 @@ func mppCreateEncoder(id int, params Parameters) error {
 
             if err = checkParamStatTime(&params); err != nil { return err }
             in.stat_time        = C.int(params.BitControlParams.StatTime)
-
+            in.bitrate          = C.int(params.BitControlParams.Bitrate)
         case QVbr:
             if  compiletime.Family == "hi3516cv100" ||
                 compiletime.Family == "hi3516cv200" ||
@@ -506,10 +507,12 @@ func mppSendFrameToEncoder(id int, f connection.Frame) error {
     var inErr C.error_in
     var in C.mpp_send_frame_to_encoder_in
 
-    in.id = C.int(id)
-    in.frame = f.Frame
+    //var tmp unsafe.Pointer = unsafe.Pointer(&f.FrameMPP)
 
-    err := C.mpp_send_frame_to_encoder(&inErr, &in)
+    in.id = C.int(id)
+    in.frame = f.Frame //TODO!
+
+    err := C.mpp_send_frame_to_encoder(&inErr, &in, unsafe.Pointer(&f.FrameMPP))
     if err != 0 {
         logger.Log.Error().
             Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
