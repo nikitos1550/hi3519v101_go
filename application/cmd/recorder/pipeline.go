@@ -9,7 +9,7 @@ import (
     "application/core/processing/schedule"
 
     "application/core/streamer/jpeg"
-
+    "application/core/streamer/mjpeg"
 
     "application/core/mpp/connection"
 
@@ -26,6 +26,7 @@ var (
     encoderMjpeg    *venc.Encoder
 
     jpegSmall       *jpeg.Jpeg
+    mjpegSmall      *mjpeg.Mjpeg
 
     pipelineLock    sync.RWMutex
 )
@@ -36,7 +37,7 @@ func initPipeline() {
     channelMain, err        = vpss.New(0, "main", vpss.Parameters{
         Width: 3840,
         Height: 2160,
-        Fps: 25,
+        Fps: 30,
     })
     if err != nil {
         logger.Log.Fatal().
@@ -47,7 +48,7 @@ func initPipeline() {
     channelSmall, err       = vpss.New(1, "small", vpss.Parameters{
         Width: 1280,
         Height: 720,
-        Fps: 1,
+        Fps: 30,
     })
     if err != nil {
         logger.Log.Fatal().
@@ -62,16 +63,19 @@ func initPipeline() {
         Profile: venc.High,
         Width: 3840,
         Height: 2160,
-        Fps: 25,
+        Fps: 30,
         GopType: venc.NormalP,
         GopParams: venc.GopParameters{
-            Gop: 25,
+            Gop: 60,
         },
         BitControl: venc.Cbr,
         BitControlParams: venc.BitrateControlParameters{
-            Bitrate: 1024,
+            Bitrate: 1024*16,
             StatTime: 60,
             Fluctuate: 1,
+            //MinQp: 40,
+            //MaxQp: 40,
+            //MinIQp: 40,
         },
     })
     if err != nil {
@@ -79,6 +83,7 @@ func initPipeline() {
             Str("reason", err.Error()).
             Msg("Main encoder failed")
     }
+
 
     encoderMjpeg, err       = venc.New(1, "mjpegSmall", venc.Parameters{
         Codec: venc.MJPEG,
@@ -88,7 +93,7 @@ func initPipeline() {
         Fps: 1,
         GopType: venc.NormalP,
         GopParams: venc.GopParameters{
-            Gop: 60,
+            Gop: 30,
         },
         BitControl: venc.Cbr,
         BitControlParams: venc.BitrateControlParameters{
@@ -103,11 +108,20 @@ func initPipeline() {
             Msg("Small encoder failed")
     }
 
+
+
     jpegSmall, err          = jpeg.New("small")
     if err != nil {
         logger.Log.Fatal().
             Str("reason", err.Error()).
             Msg("Jpeg streamer failed")
+    }
+
+    mjpegSmall, err          = mjpeg.New("small")
+    if err != nil {
+        logger.Log.Fatal().
+            Str("reason", err.Error()).
+            Msg("Mjpeg streamer failed")
     }
 
     err = connection.ConnectRawFrame(channelMain, scheduleObj)
@@ -125,7 +139,17 @@ func initPipeline() {
             Msg("Connect schedule processing to main encoder failed")
 
     }
+    /*
+    err = connection.ConnectBind(channelMain, encoderH264Main)
+    if err != nil {
+        logger.Log.Fatal().
+            Str("reason", err.Error()).
+            Msg("Connect small channel to jpeg encoder failed")
 
+    }
+    */
+
+    //err = connection.ConnectRawFrame(channelSmall, encoderMjpeg)
     err = connection.ConnectBind(channelSmall, encoderMjpeg)
     if err != nil {
         logger.Log.Fatal().
@@ -141,12 +165,19 @@ func initPipeline() {
             Msg("Connect small channel to jpeg encoder failed")
     }
 
-    //err = encoderH264Main.Start()
-    //if err != nil {
-    //    logger.Log.Fatal().
-    //        Str("reason", err.Error()).
-    //        Msg("Can`t start main encoder")
-    //}
+    err = connection.ConnectEncodedData(encoderMjpeg, mjpegSmall)
+    if err != nil {
+        logger.Log.Fatal().
+            Str("reason", err.Error()).
+            Msg("Connect small channel to mjpeg encoder failed")
+    }
+
+    err = encoderH264Main.Start()
+    if err != nil {
+        logger.Log.Fatal().
+            Str("reason", err.Error()).
+            Msg("Can`t start main encoder")
+    }
 
     err = encoderMjpeg.Start()
     if err != nil {

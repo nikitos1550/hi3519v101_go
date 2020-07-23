@@ -71,6 +71,8 @@ func httpServerStart() {
 
     api := router.PathPrefix("/api").Subrouter()
 
+    api.HandleFunc("/preset/preview", presetPreview).Methods("GET")
+
     api.HandleFunc("/buildinfo", compiletime.Serve).Methods("GET")
     api.HandleFunc("/temperature", temperature.Serve).Methods("GET")
     api.HandleFunc("/chip", chip.Info).Methods("GET")

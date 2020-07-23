@@ -6,6 +6,7 @@ import "C"
 
 import (
     "errors"
+    "unsafe"
 
     "application/core/mpp/connection"
     "application/core/mpp/errmpp"
@@ -67,7 +68,7 @@ func (f *Forward) rawFramesRutine() {
                 frame.Wg.Add(1)
 
                 var inErr C.error_in
-                err := C.quirc_process(&inErr, frame.Frame)
+                err := C.quirc_process(&inErr, unsafe.Pointer(&frame.FrameMPP))
 
                 if err != 0 {
                     logger.Log.Warn().

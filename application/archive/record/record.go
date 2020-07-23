@@ -40,6 +40,7 @@ type Chunk struct {
     FirstPts    uint64              `json:"first_pts"`
     LastPts     uint64              `json:"last_pts"`
     FrameCount  uint64              `json:"frames"`
+    Size        uint64              `json:"size"`
 
     //frames      []Frame
 
@@ -161,6 +162,7 @@ func Load(path string, dir string) (*Record, error) {
 
 func (r *Record) Close() error {
 
+    r.currentChunkFile.Sync()
     r.currentChunkFile.Close()
 
     //f, err := os.Open(r.Dir+"/"+r.Name+"/info.json")
@@ -189,7 +191,13 @@ func (r *Record) SetPreview(jpeg []byte) error {
         return errors.New("Can`t create preview.jpeg")
     }
 
-    f.Write(jpeg)
+    n, err := f.Write(jpeg)
+    if err != nil {
+        logger.Log.Warn().
+            Int("total", len(jpeg)).
+            Int("wrote", n).
+            Msg("preview write error")
+    }
     f.Sync()
     f.Close()
 
@@ -207,9 +215,10 @@ func (r *Record) Write(pts uint64, b []byte) (int, error) {
         r.LastPts   = pts
     }
     r.FrameCount++
+    r.Chunks[0].Size = r.Chunks[0].Size + uint64(len(b))
 
     n, err := r.currentChunkFile.Write(b)
-    r.currentChunkFile.Sync()
+    //r.currentChunkFile.Sync()
 
     return n, err
 }

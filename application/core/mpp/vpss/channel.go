@@ -26,8 +26,16 @@ type Channel struct {
     bindClients         map[connection.ClientBind] connection.BindInformation   `json:"-"`//TODO
     bindClientsMutex    sync.RWMutex                                            `json:"-"`
 
+    //sync rutine
     rutineRun           bool                                                    `json:"-"`
     rutineCtrl          chan bool                                               `json:"-"`
+
+    //async rutine
+    sendFrame           chan connection.Frame
+    //newFrame            chan connection.Frame
+    //releaseFrame        chan connection.Frame
+    //rutineDone          chan bool
+    lastPts             uint64
 }
 
 type Parameters struct {

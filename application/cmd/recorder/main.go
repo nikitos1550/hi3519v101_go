@@ -50,6 +50,8 @@ func main() {
 
     devInfo.Chip = *chipCmd
 
+    devInfo.ViVpssOnline=true
+
     compiletime.Chip = *chipCmd //TODO temporary
 
     logger.Info().

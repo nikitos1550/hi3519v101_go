@@ -722,6 +722,20 @@ int mpp_venc_create_encoder(error_in *err, mpp_venc_create_encoder_in *in) {
     return ERR_NONE;
 }
 
+int mpp_venc_update_encoder(error_in *err, mpp_venc_create_encoder_in *in) {
+    VENC_CHN_ATTR_S stAttr;
+
+    //HI_S32 HI_MPI_VENC_GetChnAttr(VENC_CHN VeChn, VENC_CHN_ATTR_S*pstAttr);
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_GetChnAttr, in->id, &stAttr);
+
+    //TODO CHANGE
+
+    //HI_S32 HI_MPI_VENC_SetChnAttr(VENC_CHN VeChn, const VENC_CHN_ATTR_S* pstAttr);
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_SetChnAttr, in->id, &stAttr);
+    
+    return ERR_NONE;
+}
+
 int mpp_venc_start_encoder(error_in *err, mpp_venc_start_encoder_in *in) { 
     #if HI_MPP == 1 \
         || HI_MPP == 2 \
@@ -749,7 +763,7 @@ int mpp_venc_stop_encoder(error_in *err, mpp_venc_stop_encoder_in *in) {
     return ERR_NONE; 
 }
 
-int mpp_venc_update_encoder(error_in *err, mpp_venc_create_encoder_in *in) { return ERR_NONE; }
+//int mpp_venc_update_encoder(error_in *err, mpp_venc_create_encoder_in *in) { return ERR_NONE; }
 
 int mpp_venc_destroy_encoder(error_in *err, mpp_venc_destroy_encoder_in *in) { 
     DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_DestroyChn, in->id);
@@ -763,11 +777,11 @@ int mpp_venc_update_encoder(error_in *err, mpp_venc_create_encoder_in *in) { ret
 int mpp_venc_destroy_encoder(error_in *err, mpp_venc_destroy_encoder_in *in) { return ERR_NONE; }
 #endif
 
-int mpp_send_frame_to_encoder(error_in *err, mpp_send_frame_to_encoder_in *in) {
+int mpp_send_frame_to_encoder(error_in *err, mpp_send_frame_to_encoder_in *in, void *frame) {
     #if HI_MPP == 1
-        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_SendFrame, in->id, in->frame);
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_SendFrame, in->id, frame);
     #elif HI_MPP >= 2
-        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_SendFrame, in->id, in->frame, -1);
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VENC_SendFrame, in->id, frame, -1);
     #endif
 
     return ERR_NONE;

@@ -53,10 +53,10 @@ func (r *Recorder) processFrame(f frames.FrameItem) {
     r.RLock()
     defer r.RUnlock()
 
-    logger.Log.Trace().
-        Uint64("delta", f.Info.Pts - r.lastPts).
-        Msg("recorder new frame")
-    r.lastPts = f.Info.Pts
+    //logger.Log.Trace().
+    //    Uint64("delta", f.Info.Pts - r.lastPts).
+    //    Msg("recorder new frame")
+    //r.lastPts = f.Info.Pts
 
     if r.record != nil {
         s, err := r.source.GetStorage()
