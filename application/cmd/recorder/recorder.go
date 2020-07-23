@@ -22,7 +22,7 @@ var(
 func initRecorder() {
     recorderObj, _ = recorder.New("testrecorder", *flagArchiveRawPath)
 
-    err := connection.ConnectEncodedData(encoderH264Main, recorderObj)
+    err := connection.ConnectEncodedData(encoderH26XMain, recorderObj)
     if err != nil {
         logger.Log.Fatal().
             Str("reason", err.Error()).
@@ -44,9 +44,9 @@ func recorderStart(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    encoderH264Main.Stop()
+    encoderH26XMain.Stop()
     logger.Log.Trace().Msg("encoderH264Main.Stop()")
-    encoderH264Main.Reset()
+    encoderH26XMain.Reset()
     logger.Log.Trace().Msg("encoderH264Main.Reset()")
     scheduleObj.SetForward()
     logger.Log.Trace().Msg("scheduleObj.SetForward()")
@@ -54,7 +54,7 @@ func recorderStart(w http.ResponseWriter, r *http.Request) {
     logger.Log.Trace().Msg("uuid done")
     recorderObj.Start(tmp)
     logger.Log.Trace().Msg("recorderObj.Start(uuid.New().String())")
-    encoderH264Main.Start()
+    encoderH26XMain.Start()
     logger.Log.Trace().Msg("encoderH264Main.Start()")
 
     preview, err := jpegSmall.GetJpeg()
@@ -76,8 +76,8 @@ func recorderStop(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    encoderH264Main.Stop()
-    encoderH264Main.Reset()
+    encoderH26XMain.Stop()
+    encoderH26XMain.Reset()
 
     archiveMutex.Lock()
     defer archiveMutex.Unlock()

@@ -85,7 +85,7 @@ func httpServerStart() {
 
     archive.HandleFunc("/{uuid:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}", archiveItemInfo).Methods("GET")
     archive.HandleFunc("/{uuid:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}/preview.{ext:jpg|jpeg}", archiveItemPreview).Methods("GET")
-    archive.HandleFunc("/{uuid:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}/download.h264", archiveItemServe).Methods("GET")
+    archive.HandleFunc("/{uuid:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}/download.{codec:h264|h265}", archiveItemServe).Methods("GET")
 
     ////////////////////////////////////////////////////////////////////////////
 

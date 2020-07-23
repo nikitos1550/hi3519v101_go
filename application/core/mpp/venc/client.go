@@ -1,7 +1,7 @@
 package venc
 
 import (
-    "errors"
+    "github.com/pkg/errors"
 
     "application/core/mpp/connection"
     //"application/core/logger"
@@ -30,6 +30,11 @@ func (e *Encoder) RegisterRawFrameSource(source connection.SourceRawFrame, frame
     if e.Params.Fps > frameCompat.Fps {
 		return nil, errors.New("Input frame error, fps can`t be more")
 	}
+
+    //err := mppUpdateEncoderFps(e.Id, frameCompat.Fps, e.Params.Fps)
+    //if err != nil {
+    //    return nil, errors.Wrap(err, "Can`t set input fps")
+    //}
 
     if defaultRecvChannelSize == 0 {
         e.rawFramesCh = make(chan connection.Frame)
@@ -113,6 +118,11 @@ func (e *Encoder) RegisterBindSource(source connection.SourceBind, frameCompat c
 	if e.Params.Fps > frameCompat.Fps {
 		return connection.BindInformation{}, errors.New("Input frame error, fps can`t be more")
 	}
+
+    //err := mppUpdateEncoderFps(e.Id, frameCompat.Fps, e.Params.Fps)
+    //if err != nil {
+    //    return connection.BindInformation{}, errors.Wrap(err, "Can`t set input fps")
+    //}
 
     e.sourceBind = source
 

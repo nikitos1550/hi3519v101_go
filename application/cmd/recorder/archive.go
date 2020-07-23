@@ -88,7 +88,7 @@ func archiveList(w http.ResponseWriter, r *http.Request) {
 
     fmt.Fprintf(w, "<h1>List:</h1><ul>")
     for name, item := range(archive) {
-        fmt.Fprintf(w, "<li><a href='/archive/%s/download.h264'>%s</a>", name, name)
+        fmt.Fprintf(w, "<li><a href='/archive/%s/download.%s'>%s</a>", name, item.record.Codec, name)
         if item.record.Preview {
             fmt.Fprintf(w, "<img width='320' height='180' src='/archive/%s/preview.jpeg'>", name)
         }
@@ -153,7 +153,7 @@ func archiveItemServe(w http.ResponseWriter, r *http.Request) {
     rec := item.record
 
     if len(rec.Chunks) > 0 {
-        http.ServeFile(w, r, rec.Dir+"/"+rec.Name+"/1.h264")
+        http.ServeFile(w, r, rec.Dir+"/"+rec.Name+"/1."+rec.Codec)
     } else {
         fmt.Fprintf(w, "Not chunks")
     }
