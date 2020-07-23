@@ -107,7 +107,6 @@ class Pipeline:
                 logging.info(f"Start stage '{stage.name}' for board '{board}'...")
                 self.state_set(stage, "started...")
                 stage.run()
-                board_state[2] = ":heavy_check_mark:"
                 self.state_set(stage, ":heavy_check_mark:")
                 logging.info(f"Stage '{stage.name}' successfully finished for board '{board}'")
             except Exception as err:
@@ -115,7 +114,7 @@ class Pipeline:
                 board_state[2] = ":x:"
                 self.state_add(stage, f" :x: ({err})")
                 return
-
+        board_state[2] = ":heavy_check_mark:"
 
 # -------------------------------------------------------------------------------------------------
 class BrHisicamMakeAll(Stage):
