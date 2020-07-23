@@ -72,7 +72,7 @@ class Pipeline:
         self.boards = []
 
     def make_report(self):
-        report = f"Run root directory: {self.env.rundir_root}\n"
+        report = f"Run root directory: `{self.env.rundir_root}`\n"
         report += " Board |" + "|".join(f" {s.__name__} " for s in self.stages) + "\n"
         report += "-------|" + "|".join("-" * (len(s.__name__) + 2) for s in self.stages) + "\n"
         for b in self.boards:
