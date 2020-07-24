@@ -19,6 +19,7 @@ require (
 	github.com/shuLhan/go-bindata v3.4.0+incompatible // indirect
 	github.com/valyala/bytebufferpool v1.0.0
 	github.com/valyala/fasthttp v1.14.0
+	github.com/vishvananda/netlink v1.1.0
 	github.com/xinsnake/go-http-digest-auth-client v0.4.0 // indirect
 	github.com/yuin/gopher-lua v0.0.0-20191220021717-ab39c6098bdb
 	go.starlark.net v0.0.0-20200519165436-0aa95694c768

@@ -13,6 +13,8 @@ import (
 	"application/core/utils/chip"
 	"application/core/logger"
     "application/core/utils/memparse"
+
+    "application/system"
 )
 
 func main() {
@@ -76,6 +78,9 @@ func main() {
     httpServerStart()
 
     closeHandler()
+
+    //experimantal
+    system.Test()
 
 	logger.Log.Info().Msg("GoHisiCam ready")
 
