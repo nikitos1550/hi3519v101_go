@@ -65,6 +65,7 @@ func httpServerStart() {
     api.HandleFunc("/mpp/version", mpp.Version).Methods("GET")
     api.HandleFunc("/mpp/syncpts", mpp.RunSyncPts).Methods("GET")
     api.HandleFunc("/mpp/initpts", mpp.RunInitPts).Methods("GET")
+    api.HandleFunc("/mpp/ldc", mpp.UpdateLDC).Methods("GET")
 
     api.HandleFunc("/recorder", recorderStatus).Methods("GET")
     api.HandleFunc("/recorder/start", recorderStart).Methods("GET")

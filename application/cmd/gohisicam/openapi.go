@@ -80,6 +80,7 @@ func httpServerStart() {
     api.HandleFunc("/mpp/version", mpp.Version).Methods("GET")
     api.HandleFunc("/mpp/syncpts", mpp.RunSyncPts).Methods("GET")
     api.HandleFunc("/mpp/initpts", mpp.RunInitPts).Methods("GET")
+    api.HandleFunc("/mpp/ldc", mpp.UpdateLDC).Methods("GET")
 
     api.HandleFunc("/channel", channel.GroupListHandler(channelGroup)).Methods("GET")
     api.HandleFunc("/channel/{name}", channel.GroupInfoHandler(channelGroup)).Methods("GET")

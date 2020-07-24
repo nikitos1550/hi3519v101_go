@@ -328,3 +328,21 @@ int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
 
     return ERR_NONE;
 }
+
+int mpp_vi_ldc_update(error_in *err, mpp_vi_ldc_in * in) {
+    #if HI_MPP == 2 \
+        || HI_MPP == 3
+        VI_LDC_ATTR_S stLDCAttr;
+
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_GetLDCAttr, 0, &stLDCAttr);
+        if (stLDCAttr.bEnable == HI_TRUE) {
+            stLDCAttr.stAttr.s32CenterXOffset   = in->x;
+            stLDCAttr.stAttr.s32CenterYOffset   = in->y;
+            stLDCAttr.stAttr.s32Ratio           = in->k;
+            
+            DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetLDCAttr, 0, &stLDCAttr);
+        }
+    #endif
+
+    return ERR_NONE;
+}
