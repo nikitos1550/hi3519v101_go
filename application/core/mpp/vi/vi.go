@@ -5,6 +5,7 @@ import "C"
 
 import (
     "flag"
+    "errors"
 
     "application/core/compiletime"
     "application/core/logger"
@@ -64,7 +65,7 @@ func init() {
     }
 
     if compiletime.Family == "hi3516av200" {
-        flag.BoolVar(&ldc, "vi-ldc", false, "LDC enable")
+        flag.BoolVar(&ldc, "vi-ldc", true, "LDC enable")
         flag.IntVar(&ldcOffsetX, "vi-ldc-offset-x", 0, "LDC x offset from center [-127;127]")
         flag.IntVar(&ldcOffsetY, "vi-ldc-offset-y", 0, "LDC y offset from center [-127;127]")
         flag.IntVar(&ldcK, "vi-ldc-k", 0, "LDC coefficient [-300;500]")
@@ -383,6 +384,37 @@ func Init() {
     }
     logger.Log.Debug().
         Msg("VI inited")
+}
+
+func UpdateLDC(x int, y int, k int) error {
+    if  compiletime.Family == "hi3516av100" ||
+        compiletime.Family == "hi3516av200" {
+
+        if ldc != true {
+            return errors.New("LDC is not turned on")
+        }
+
+        var inErr C.error_in
+        var in C.mpp_vi_ldc_in
+
+        in.x    = C.int(x)
+        in.y    = C.int(y)
+        in.k    = C.int(k)
+
+        err := C.mpp_vi_ldc_update(&inErr, &in)
+
+        if err != C.ERR_NONE {
+            logger.Log.Fatal().
+                Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
+                Msg("VI LDC")
+        }
+
+        logger.Log.Trace().Msg("LDC updated")
+
+        return nil
+    } else {
+        return errors.New("LDC is not suppoorted")
+    }
 }
 
 //export go_logger_vi

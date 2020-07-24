@@ -65,3 +65,10 @@ typedef struct mpp_vi_init_in_struct {
 
 int mpp_vi_init(error_in *err, mpp_vi_init_in * in);
 
+typedef struct mpp_vi_ldc_in_struct {
+    int x;
+    int y;
+    int k;
+} mpp_vi_ldc_in;
+
+int mpp_vi_ldc_update(error_in *err, mpp_vi_ldc_in * in);
