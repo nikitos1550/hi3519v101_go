@@ -232,6 +232,5 @@ class GetBasicJpeg(Stage):
 
         self.info(f"Get basic JPEG, addr={addr}...")
         data = jpeg.get_jpeg(addr)
-        print(data)
         with open(os.path.join(self.app_outdir, "basic.jpeg"), "wb") as f:
             f.write(data)

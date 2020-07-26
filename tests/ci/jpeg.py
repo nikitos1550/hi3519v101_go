@@ -2,6 +2,7 @@ import urllib.request
 from . import APPLICATION_DIR
 import json
 import os
+import time
 
 
 PARAMS_DIR = os.path.join(APPLICATION_DIR, "api/tests")
@@ -55,9 +56,29 @@ def init_basic_jpeg(addr):
 
 
 def get_jpeg(addr):
+    attempts = 3
     req = f"http://{addr}/serve/jpeg/fullhd.jpeg"
-    print(f"REQUEST: {req}")
-    with urllib.request.urlopen(req) as resp:
-        data = resp.read()
-    print("DATA: ", data)
-    return data
+
+    while True:
+        try:
+            with urllib.request.urlopen(req) as resp:
+                data = resp.read()
+            if data:
+                return data
+            attempts -= 1
+            time.sleep(1)
+        except:
+            if attempts == 0:
+                raise
+            attempts -= 1
+            time.sleep(1)
+
+
+if  __name__ == "__main__":
+    addr = "192.168.10.105"
+    init_basic_jpeg(addr)
+    data = b""
+    while not data:
+        data = get_jpeg(addr)
+    with open("./basic.jpeg", "wb") as f:
+        f.write(data)
