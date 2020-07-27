@@ -75,6 +75,7 @@ def prepare_rundir(persistent_dir):
 class Environment:
     def __init__(self, persistent_dir):
         self.gitref = Git.get_ref()
+        self.runid = self.gitref + "_" + time.strftime("%Y%m%dT%H%M%S", time.localtime())
         self.br_hisicam_outdir_root = prepare_br_hisicam_outdir(persistent_dir)
         self.rundir_root = prepare_rundir(persistent_dir)
         self.go_workdir = absjoin(self.rundir_root, "go_workdir")
