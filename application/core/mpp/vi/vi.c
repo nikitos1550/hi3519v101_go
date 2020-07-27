@@ -318,6 +318,22 @@ int mpp_vi_init(error_in *err, mpp_vi_init_in * in) {
 
             DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetLDCAttr, 0, &stLDCAttr);
         }
+    #elif HI_MPP == 4
+        if (in->ldc == 1) {
+            VI_LDC_ATTR_S stLDCAttr;
+
+            stLDCAttr.bEnable = HI_TRUE;
+
+            stLDCAttr.stAttr.bAspect            = 1; /*0|1 RW; Whether aspect ration is kept */
+            stLDCAttr.stAttr.s32XRatio          = 0; /*RW; Range: [0, 100], field angle ration of horizontal, valid when bAspect=0.*/
+            stLDCAttr.stAttr.s32YRatio          = 0; /* RW; Range: [0, 100], field angle ration of vertical, valid when bAspect=0.*/
+            stLDCAttr.stAttr.s32XYRatio         = 0; /* RW; Range: [0, 100], field angle ration of all, valid when bAspect=1.*/
+            stLDCAttr.stAttr.s32CenterXOffset   = 0; /* RW; Range: [-511, 511], horizontal offset of the image distortion center relative to image center.*/
+            stLDCAttr.stAttr.s32CenterYOffset   = 0; /* RW; Range: [-511, 511], vertical offset of the image distortion center relative to image center.*/
+            stLDCAttr.stAttr.s32DistortionRatio = 100; /* RW; Range: [-300, 500], LDC Distortion ratio.*/
+
+            DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetChnLDCAttr, 0, 0, &stLDCAttr);
+        }
     #endif
 
     #if HI_MPP <= 3
@@ -342,6 +358,22 @@ int mpp_vi_ldc_update(error_in *err, mpp_vi_ldc_in * in) {
             
             DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetLDCAttr, 0, &stLDCAttr);
         }
+    #elif HI_MPP == 4
+            VI_LDC_ATTR_S stLDCAttr;
+			
+			DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_GetChnLDCAttr, 0, 0, &stLDCAttr);
+
+            if (stLDCAttr.bEnable == HI_TRUE) {
+            	stLDCAttr.stAttr.bAspect            = 1; /*0|1 RW; Whether aspect ration is kept */
+            	stLDCAttr.stAttr.s32XRatio          = 0; /*RW; Range: [0, 100], field angle ration of horizontal, valid when bAspect=0.*/
+            	stLDCAttr.stAttr.s32YRatio          = 0; /* RW; Range: [0, 100], field angle ration of vertical, valid when bAspect=0.*/
+            	stLDCAttr.stAttr.s32XYRatio         = 0; /* RW; Range: [0, 100], field angle ration of all, valid when bAspect=1.*/
+            	stLDCAttr.stAttr.s32CenterXOffset   = in->x; /* RW; Range: [-511, 511], horizontal offset of the image distortion center relative to image center.*/
+            	stLDCAttr.stAttr.s32CenterYOffset   = in->y; /* RW; Range: [-511, 511], vertical offset of the image distortion center relative to image center.*/
+            	stLDCAttr.stAttr.s32DistortionRatio = in->k; /* RW; Range: [-300, 500], LDC Distortion ratio.*/
+
+            	DO_OR_RETURN_ERR_MPP(err, HI_MPI_VI_SetChnLDCAttr, 0, 0, &stLDCAttr);
+			}
     #endif
 
     return ERR_NONE;

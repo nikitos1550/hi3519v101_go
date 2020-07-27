@@ -83,14 +83,14 @@ func (e *Encoder) rawFramesRutine() {
     for {
         select {
         case frame := <-e.rawFramesCh:
-            //logger.Log.Trace().Uint64("pts", frame.Pts).Msg("VENC Wg done")
-            //logger.Log.Trace().Int("id", e.Id).Msg("VENC new frame")
             e.mutex.RLock()
-            if e.Started {
-                mppSendFrameToEncoder(e.Id, frame)
+            {
+                if e.Started {
+                    mppSendFrameToEncoder(e.Id, frame)
+                }
+                frame.Wg.Add(-1)
             }
             e.mutex.RUnlock()
-            frame.Wg.Add(-1) //frame.Wg.Done()
             break
         case <-e.rutineStop:
             e.rutineDone <- true

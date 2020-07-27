@@ -8,6 +8,13 @@ import (
 
     "github.com/pkg/errors"
 
+    //"application/archive/mp4"
+    "application/archive/ts"
+
+    //"github.com/nareix/joy4/format/mp4"
+    "github.com/nareix/joy4/av"
+    "github.com/nareix/joy4/codec/h264parser"
+
     "application/core/logger"
 )
 
@@ -22,10 +29,17 @@ type Record struct {
     FirstPts            uint64              `json:"first_pts"`
     LastPts             uint64              `json:"last_pts"`
     FrameCount          uint64              `json:"frames"`
+    Fps                 int
 
     currentChunk        int
     currentChunkFile    *os.File
     Chunks              []Chunk             `json:"chunks"`
+
+    //mp4                 *mp4.Muxer
+    //mp4test             *os.File
+    ts                  *ts.Muxer
+    tstest              *os.File
+    tstime              uint64
 
     Preview             bool                `json:"preview"`
 }
@@ -121,6 +135,34 @@ func New(dir string, name string, codec string) (*Record, error) {
         Time("t6", time6).
         Msg("record create timings")
 
+    //rec.mp4test, err = os.Create(dir+"/"+name+"/1.mp4")
+    //if err != nil {
+    //    logger.Log.Fatal().Str("reson", err.Error()).Msg("Can`t create mp4 file")
+    //}
+
+    //rec.tstest, err = os.Create(dir+"/"+name+"/1.ts")
+    //if err != nil {
+    //    logger.Log.Fatal().Str("reson", err.Error()).Msg("Can`t create mp4 file")
+    //}
+
+    //rec.mp4 = mp4.NewMuxer(rec.mp4test)
+    //rec.ts  = ts.NewMuxer(rec.tstest)
+
+    //var tmp h264parser.CodecData
+    //var streams []av.CodecData
+    //streams = make([]av.CodecData, 1)
+    //streams[0] = tmp
+
+    //err = rec.mp4.WriteHeader(streams)
+    //if err != nil {
+    //    //TODO
+    //}
+
+    //err = rec.ts.WriteHeader(streams)
+    //if err != nil {
+    //    //TODO
+    //}
+
     return &rec, nil
 }
 
@@ -186,6 +228,31 @@ func (r *Record) Close() error {
     }
     f.Close()
 
+    //err = r.mp4.WriteTrailer()
+    //if err != nil {
+    //    //TODO
+    //    logger.Log.Warn().
+    //        Str("reason", err.Error()).
+    //        Msg("close mp4")
+    //}
+
+    //r.mp4test.Sync()
+    //r.mp4test.Close()
+
+    if r.ts != nil {
+        err = r.ts.WriteTrailer()
+        if err != nil {
+            //TODO
+            logger.Log.Warn().
+                Str("reason", err.Error()).
+                Msg("close mp4")
+        }
+
+        r.tstest.Sync()
+        r.tstest.Close()
+
+    }
+
     return nil
 }
 
@@ -210,6 +277,38 @@ func (r *Record) SetPreview(jpeg []byte) error {
     return nil
 }
 
+func (r *Record) ConfigureTs(sps, pps []byte) error {
+    if r.ts != nil {
+        return errors.New("Already configured")
+    }
+
+    var err error
+
+    r.tstest, err = os.Create(r.Dir+"/"+r.Name+"/1.ts")
+    if err != nil {
+        logger.Log.Fatal().Str("reson", err.Error()).Msg("Can`t create mp4 file")
+    }
+
+    r.ts  = ts.NewMuxer(r.tstest)
+
+    tmp, err := h264parser.NewCodecDataFromSPSAndPPS(sps, pps)
+    if err != nil {
+        logger.Log.Fatal().Str("reason", err.Error()).Msg("cat init ts muxer")
+    }
+
+    var streams []av.CodecData
+    streams = make([]av.CodecData, 1)
+    streams[0] = tmp
+
+    err = r.ts.WriteHeader(streams)
+    if err != nil {
+        //TODO
+        logger.Log.Error().Str("reason", err.Error()).Msg("can`t write ts header")
+    }
+
+    return nil
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 func (r *Record) Write(pts uint64, b []byte) (int, error) {
@@ -223,6 +322,50 @@ func (r *Record) Write(pts uint64, b []byte) (int, error) {
 
     n, err := r.currentChunkFile.Write(b)
     //r.currentChunkFile.Sync()
+
+/*
+type Packet struct {
+	IsKeyFrame      bool // video packet is key frame
+	Idx             int8 // stream index in container format
+	CompositionTime time.Duration // packet presentation time minus decode time for H264 B-Frame
+	Time time.Duration // packet decode time
+	Data            []byte // packet data
+}
+*/
+    //logger.Log.Trace().
+    //    Uint64("pts", pts).
+    //    //Time("tpts", time.Duration(pts))
+    //    Msg("record write")
+
+    if r.ts != nil {
+        var flag bool
+
+        if b[4] == 103 {
+            flag = true
+            logger.Log.Trace().Msg("KeyFrame")
+        }
+
+        var packet av.Packet = av.Packet{
+            IsKeyFrame: flag,
+            Idx: 0,
+            //CompositionTime: time.Duration(pts),
+            Time: time.Duration(pts-r.FirstPts)*time.Microsecond,// / time.Duration(90000),
+            //Time: time.Duration(r.tstime),
+            Data: b,
+        }
+        //r.tstime = r.tstime + 3000
+
+    //err = r.mp4.WritePacket(packet)
+    //if err != nil {
+    //    //TODO
+    //}
+
+        err = r.ts.WritePacket(packet)
+        if err != nil {
+            //TODO
+            logger.Log.Error().Str("reason", err.Error()).Msg("ts write")
+        }
+    }
 
     return n, err
 }

@@ -29,9 +29,9 @@ func main() {
 
 	logger.Init()
 
-    if compiletime.Family != "hi3516av200" {
+    if compiletime.Family != "hi3516av200" && compiletime.Family != "hi3516cv500" {
         logger.Log.Fatal().
-            Msg("This is test recorder only for hi3516av200/hi3519v101")
+            Msg("This is test recorder only for hi3516av200, hi3516cv500 families")
     }
 
     //logger.Log.Debug().

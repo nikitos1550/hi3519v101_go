@@ -147,15 +147,29 @@ func (e *Encoder) Stop() error {
 
     var err error
 
-    err = mppStopEncoder(e.Id)
-    if err != nil {
-        return err
-    }
+    //logger.Log.Trace().Msg("pre stop")
 
     err = removeFromLoop(e.Id)
     if err != nil {
         return err
     }
+
+    err = mppStopEncoder(e.Id)
+    if err != nil {
+        return err  //TODO this is fatal error
+    }
+
+    //e.Started    = false
+    //e.mutex.Unlock()
+
+    //logger.Log.Trace().Msg("stoped")
+
+    //err = removeFromLoop(e.Id)
+    //if err != nil {
+    //    return err
+    //}
+
+    logger.Log.Trace().Msg("removed from loop")
 
     e.Started    = false
 
