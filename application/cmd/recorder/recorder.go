@@ -4,7 +4,8 @@ import (
     "fmt"
     "net/http"
 
-    "github.com/google/uuid"
+    //"github.com/google/uuid"
+    "github.com/satori/go.uuid"
 
     "application/archive/recorder"
     "application/core/mpp/connection"
@@ -44,13 +45,16 @@ func recorderStart(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    logger.Log.Trace().Msg("encoder main pre stop")
     encoderH26XMain.Stop()
     logger.Log.Trace().Msg("encoderH264Main.Stop()")
     encoderH26XMain.Reset()
     logger.Log.Trace().Msg("encoderH264Main.Reset()")
     scheduleObj.SetForward()
     logger.Log.Trace().Msg("scheduleObj.SetForward()")
-    tmp := uuid.New().String()
+    //tmp := uuid.New().String()
+    tmp := uuid.NewV4().String()
+    //tmp := "142b94ac-1159-4d11-1140-2c321f0a3314"
     logger.Log.Trace().Msg("uuid done")
     recorderObj.Start(tmp)
     logger.Log.Trace().Msg("recorderObj.Start(uuid.New().String())")
@@ -76,8 +80,11 @@ func recorderStop(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    logger.Log.Trace().Msg("encoder main pre stop")
     encoderH26XMain.Stop()
+    logger.Log.Trace().Msg("encoder main stoped")
     encoderH26XMain.Reset()
+    logger.Log.Trace().Msg("encoder main reseted")
 
     archiveMutex.Lock()
     defer archiveMutex.Unlock()

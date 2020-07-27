@@ -3,6 +3,9 @@ package main
 import (
     "sync"
 
+    "application/core/compiletime"
+
+    "application/core/mpp/vi"
     "application/core/mpp/vpss"
     "application/core/mpp/venc"
 
@@ -14,6 +17,21 @@ import (
     "application/core/mpp/connection"
 
     "application/core/logger"
+)
+
+const (
+    
+    width   = 3840
+    height  = 2160
+    
+    /*
+    width   = 2560
+    height  = 1440
+    */
+    /*
+    width   = 1920
+    height  = 1080
+    */
 )
 
 var (
@@ -34,18 +52,50 @@ var (
 func initPipeline() {
     var err error
 
-    channelMain, err        = vpss.New(0, "main", vpss.Parameters{
-        Width: 3840,
-        Height: 2160,
-        Fps: 25,
-    })
-    if err != nil {
-        logger.Log.Fatal().
-            Str("reason", err.Error()).
-            Msg("Main channel failed")
+    var k int
+    if compiletime.Family == "hi3516av200" {
+        k = 110
+    }
+    
+    //if compiletime.Family == "hi3516cv500" {
+    //    k = 90
+    //}
+
+    if compiletime.Family == "hi3516av200" {
+        err = vi.UpdateLDC(0, 0, k) //Undistortion for hi3519v101+imx274 with long lens
+        if err != nil {
+            logger.Log.Fatal().
+                Str("reason", err.Error()).
+                Msg("LDC failed")
+        }
     }
 
-    channelSmall, err       = vpss.New(1, "small", vpss.Parameters{
+    if compiletime.Family == "hi3516av200" {
+        channelMain, err        = vpss.New(0, "main", vpss.Parameters{
+            Width: width,
+            Height: height,
+            Fps: 30,
+        })
+        if err != nil {
+            logger.Log.Fatal().
+                Str("reason", err.Error()).
+                Msg("Main channel failed")
+        }
+    }
+    if compiletime.Family == "hi3516cv500" {
+        channelMain, err        = vpss.New(1, "main", vpss.Parameters{
+            Width: width,
+            Height: height,
+            Fps: 30,
+        })
+        if err != nil {
+            logger.Log.Fatal().
+                Str("reason", err.Error()).
+                Msg("Main channel failed")
+        }
+    }
+
+    channelSmall, err       = vpss.New(2, "small", vpss.Parameters{
         Width: 1280,
         Height: 720,
         Fps: 1,
@@ -63,24 +113,34 @@ func initPipeline() {
         Profile: venc.High,
         //Codec: venc.H265,
         //Profile: venc.Baseline,
-        Width: 3840,
-        Height: 2160,
-        Fps: 25,
-        GopType: venc.BipredB,
+
+        Width: width,
+        Height: height,
+        //Width: 1920,
+        //Height: 1080,
+
+        Fps: 30,
+        //GopType: venc.BipredB,
+        GopType: venc.NormalP,
         GopParams: venc.GopParameters{
-            Gop: 100,
+            Gop: 10,
+            BgInterval:100,
+            BgQpDelta:0,
+            ViQpDelta:0,
+            ///
             BFrmNum: 3,
             BQpDelta:10,
+            ///
             IPQpDelta:10,
         },
         BitControl: venc.Vbr,
         BitControlParams: venc.BitrateControlParameters{
-            Bitrate: 1024*16,
+            Bitrate: 1024*3,
             StatTime: 60,
             Fluctuate: 1,
-            MinQp: 30,
+            MinQp: 35,
             MaxQp: 50,
-            MinIQp: 30,
+            MinIQp: 35,
         },
     })
     if err != nil {

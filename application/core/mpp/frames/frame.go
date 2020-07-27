@@ -103,16 +103,7 @@ func (f *frame) ReadIfEq(info FrameInfo, buf []byte) (n int, err error) { //read
         return 0, errors.New("Frame doesn`t exist")
     }
 
-    //logger.Log.Trace().
-    //    Int("buf", len(buf)).
-    //    Int("data", len(f.data)).
-    //    Msg("Frame")
-
     if len(buf) < len(f.data) {
-        //logger.Log.Error().
-        //    Int("buf", len(buf)).
-        //    Int("data", len(f.data)).
-        //    Msg("Frame")
         return 0, errors.New("Buffer is too small")
     } else {
         n = copy(buf, f.data)
@@ -147,6 +138,23 @@ func (f *frame) ReadAlloc(buf *[]byte) (n int, err error) { //read from frame to
     return n, nil
 }
 
+func (f *frame) ReadIfEqAlloc(info FrameInfo, buf *[]byte) (n int, err error) { //read from frame to buf
+    f.rwmux.RLock()
+    defer f.rwmux.RUnlock()
+
+    if f.info != info {
+        return 0, errors.New("Frame doesn`t exist")
+    }
+
+    *buf = make([]byte, len(f.data))
+
+    n = copy(*buf, f.data)
+    if n < len(f.data) {
+        return n, errors.New("Not all data copied")
+    }
+
+    return n, nil
+}
 
 func (f *frame) WriteTo (w io.Writer) (n int, err error) { // read from frame to writer
     f.rwmux.RLock()

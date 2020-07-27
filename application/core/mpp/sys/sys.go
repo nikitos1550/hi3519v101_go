@@ -25,6 +25,8 @@ func Init(chip string) {
         in.cnt = 5
     } else if compiletime.Chip == "hi3516ev300" { //TODO calc mem smart, now 32MB mpp ram only for hi3516ev100
         in.cnt = 5
+    } else if compiletime.Chip == "hi3516av300" {
+        in.cnt = 14
     } else {
         in.cnt = 10
     }

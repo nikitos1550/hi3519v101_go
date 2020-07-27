@@ -85,8 +85,16 @@ func httpServerStart() {
     archive := router.PathPrefix("/archive").Subrouter()
 
     archive.HandleFunc("/{uuid:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}", archiveItemInfo).Methods("GET")
+
+    archive.HandleFunc("/{uuid:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}/delete", archiveItemDelete).Methods("GET")
+
     archive.HandleFunc("/{uuid:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}/preview.{ext:jpg|jpeg}", archiveItemPreview).Methods("GET")
     archive.HandleFunc("/{uuid:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}/download.{codec:h264|h265}", archiveItemServe).Methods("GET")
+    //archive.HandleFunc("/{uuid:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}/download.mp4", archiveItemServeMP4).Methods("GET")
+
+    archive.HandleFunc("/{uuid:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}/player", archiveItemPlayer).Methods("GET")
+	archive.HandleFunc("/{uuid:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}/index.m3u8", archiveItemM3U8).Methods("GET")
+    archive.HandleFunc("/{uuid:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}/{chunk:[0-9]+}.ts", archiveItemTs).Methods("GET")
 
     ////////////////////////////////////////////////////////////////////////////
 

@@ -26,7 +26,7 @@ func (c *Channel) rutineStart() error {
 
     c.rutineRun = true
 
-    c.sendFrame = make(chan connection.Frame, defaultDepth)
+    c.sendFrame = make(chan connection.Frame, defaultDepth) //This is normal working
     //c.sendFrame = make(chan connection.Frame)
     go c.sendToClients()
     go c.rutine()
@@ -160,9 +160,10 @@ func (c *Channel) rutine() {
 				break
             default:
                 c.releaseFrame(frame)
-                logger.Log.Warn().
-                    Uint64("pts", frame.Pts).
-                    Msg("VPSS dropping raw frame")
+                //TODO
+                //logger.Log.Warn().
+                //    Uint64("pts", frame.Pts).
+                //    Msg("VPSS dropping raw frame")
 				break
 		}
 

@@ -141,9 +141,17 @@ func (m *Mjpeg) UnregisterEncodedDataSource(source connection.SourceEncodedData)
 }
 
 func (m *Mjpeg) rutine() {
+    //var lastPts uint64
+
     for {
         select {
         case frame := <-m.notify:
+
+            //logger.Log.Trace().
+            //    Uint64("delta", frame.Info.Pts-lastPts).
+            //    Msg("mjpeg new frm")
+            //lastPts = frame.Info.Pts
+
             m.clientsMutex.RLock()
             for _, client := range(m.clients) {
                 select {

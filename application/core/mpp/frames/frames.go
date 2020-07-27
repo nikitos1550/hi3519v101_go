@@ -9,19 +9,96 @@ import (
     "errors"
     "sync"
     "io"
+
+    "fmt"
+    "application/core/logger"
 )
 
 type Frames struct {
-    frames  []frame
+    frames      []frame
 
-    rwmux   sync.RWMutex
-    last    int
+    rwmux       sync.RWMutex
+    last        int
+
+    //firstPts    uint64
+    h264        H264Info
+    configured  bool
+}
+
+type H264Info struct {
+    SPS []byte
+    PPS []byte
 }
 
 type FrameItem struct {
     Slot    int
     Size    int
     Info    FrameInfo
+}
+
+func (f *Frames) SPS() ([]byte, error) {
+    f.rwmux.RLock()
+    defer f.rwmux.RUnlock()
+
+    if f.configured == true {
+        return f.h264.SPS, nil
+    }
+    return nil, errors.New("Not configured")
+}
+
+func (f *Frames) PPS() ([]byte, error) {
+    f.rwmux.RLock()
+    defer f.rwmux.RUnlock()
+
+    if f.configured == true {
+        return f.h264.PPS, nil
+    }
+    return nil, errors.New("Not configured")
+}
+
+
+func (f *Frames) configure(p [][]byte) {
+    //logger.Log.Trace().Int("num NALs", len(p)).Msg("configure")
+    //for i:=0;i<len(p);i++ {
+    //    logger.Log.Trace().Int("NAL", i).Int("len", len(p[i])).Int("type", int(p[i][4])).Msg("configure")
+    //}
+
+    if len(p) == 4 {
+        logger.Log.Trace().Msg("frame try sps pps")
+
+        f.h264.SPS = make([]byte, len(p[0])-4)
+        f.h264.SPS = p[0][4:]
+
+        f.h264.PPS = make([]byte, len(p[1])-4)
+        f.h264.PPS = p[1][4:]
+
+        logger.Log.Trace().
+            Int("len(p[0])", len(p[0])).
+            Int("len(p[1])", len(p[1])).
+            Int("len(p[2])", len(p[2])).
+            Int("len(p[3])", len(p[3])).
+            Msg("stream info")
+
+        for i:=0;i<len(p[0]);i++ {
+            fmt.Print(p[0][i], " ")
+        }
+        fmt.Println()
+        for i:=0;i<len(p[1]);i++ {
+            fmt.Print(p[1][i], " ")
+        }
+        fmt.Println()
+        for i:=0;i<len(p[2]);i++ {
+            fmt.Print(p[2][i], " ")
+        }
+        fmt.Println()
+        for i:=0;i<10;i++ {
+            fmt.Print(p[3][i], " ")
+        }
+        fmt.Println()
+
+		f.configured = true
+    }
+
 }
 
 //func CreateFrames(num int) *frames {
@@ -77,6 +154,13 @@ func CreateFrames(f *Frames, num int) {
 //}
 
 func (f *Frames) WritevNext(p [][]byte, info FrameInfo) (int, error) {
+    //f.rwmux.Lock() //TODO
+    //    if f.firstPts == 0 {
+    //       f.firstPts = info.Pts
+    //    }
+    //f.rwmux.Unlock()
+    //info.Pts = info.Pts - f.firstPts
+
     next := 0
     if f.last != (cap(f.frames)-1) {
         next = f.last + 1
@@ -97,6 +181,12 @@ func (f *Frames) WritevNext(p [][]byte, info FrameInfo) (int, error) {
 
     f.rwmux.Lock()
     f.last = next
+
+    if f.configured == false {
+        //logger.Log.Trace().Msg("Try configure")
+        f.configure(p)
+    }
+
     f.rwmux.Unlock()
 
     return next, err
@@ -139,6 +229,15 @@ func (f* Frames) ReadItem(item FrameItem, buf []byte) (int, error) {
     defer f.rwmux.RUnlock()
 
     n, err := f.frames[item.Slot].ReadIfEq(item.Info, buf)
+
+    return n, err
+}
+
+func (f* Frames) ReadItemAlloc(item FrameItem, buf *[]byte) (int, error) {
+    f.rwmux.RLock()
+    defer f.rwmux.RUnlock()
+
+    n, err := f.frames[item.Slot].ReadIfEqAlloc(item.Info, buf)
 
     return n, err
 }
