@@ -19,6 +19,8 @@ def get_json(url, timeout=10):
 
 
 def post_json(url, data, timeout=10):
+    if isinstance(data, str):
+        data = data.encode("utf-8")
     return urllib.request.urlopen(
         urllib.request.Request(
             url=url,
