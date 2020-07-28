@@ -34,6 +34,8 @@ class Stage:
             stderr=self.stdout  # to keep all output in order
         )
 
+        self.artifacts = []
+
     @property
     def uimage_path(self):
         return absjoin(self.br_hisicam_outdir, "images/uImage")
@@ -62,6 +64,10 @@ class Stage:
     
     def state(self, msg):
         self.pipeline.set_stage_state(self, msg)
+    
+    def add_artifact(self, data):
+        self.artifacts.append(data)
+
 
 
 # -------------------------------------------------------------------------------------------------
@@ -74,6 +80,7 @@ class Pipeline:
         self.stages = stages
         self.boards = []
         self.failures = []
+        self.artifacts = []
 
     def make_report(self):
         report = f"Run root directory: `{self.env.rundir_root}`\n"
@@ -86,6 +93,12 @@ class Pipeline:
             report += "### :poop: Failures:\n"
             for f in self.failures:
                 report += f" - {f}\n"
+        
+        if self.artifacts:
+            report += "### :poop: Artifacts:\n"
+            for a in self.artifacts:
+                report += f" - {a}\n"
+
         return report
 
     def _get_states(self, board):
@@ -118,6 +131,11 @@ class Pipeline:
                 stage.run()
                 self.state_set(stage, self.SUCCESS)
                 logging.info(f"Stage '{stage.name}' successfully finished for board '{board}'")
+                if stage.artifacts:
+                    self.artifacts.append(
+                        f"{board} on {stage.name} produced:\n" + "\n".join(stage.artifacts)
+                    )
+
             except Exception as err:
                 logging.exception(f"Stage '{stage.name}' failed with exception for board '{board}'")
                 board_state[2] = self.FAILED
@@ -215,23 +233,28 @@ class CheckBuildInfo(Stage):
         resp = request_json(url, timeout=20)
         logging.info(f"Got build info: {json.dumps(resp, indent=4)}")
 
-        buildcommit = resp["buildcommit"].strip()
-        assert buildcommit == self.env.gitref, "Invalid buildinfo"
+        buildcommit = resp["buildcommit"]
+        assert self.env.gitref in buildcommit, f"Invalid buildinfo: expected {self.env.gitref} in {buildcommit}"
 
 
 # -------------------------------------------------------------------------------------------------
 class GetBasicJpeg(Stage):
     def run(self):
         from . import jpeg
+        from .uploader import upload_jpeg_image
         from testcore import DEVICE_LIST
 
+        info = self.br_hisicam.make_board_info()
         addr = DEVICE_LIST[self.board]["ip_addr"]
 
         self.info(f"Initialize basic JPEG, addr={addr}...")
-        jpeg.init_basic_jpeg(addr)
+        jpeg.init_basic_jpeg(addr, info)
 
         self.info(f"Get basic JPEG, addr={addr}...")
         data = jpeg.get_jpeg(addr)
-        print(data)
         with open(os.path.join(self.app_outdir, "basic.jpeg"), "wb") as f:
             f.write(data)
+        
+        key = f"pics/{self.env.runid}/{self.board}/basic.jpeg"
+        url = upload_jpeg_image(data, key)
+        self.add_artifact(f"![{self.board}/basic.jpeg]({url})")
