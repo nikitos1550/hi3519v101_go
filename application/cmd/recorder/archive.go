@@ -162,11 +162,14 @@ func archiveItemM3U8(w http.ResponseWriter, r *http.Request) {
 
     fmt.Fprintf(w, "#EXTM3U\n")
     fmt.Fprintf(w, "#EXT-X-PLAYLIST-TYPE:VOD\n")
-    fmt.Fprintf(w, "#EXT-X-TARGETDURATION:10\n")
+    fmt.Fprintf(w, "#EXT-X-TARGETDURATION:120\n")
     fmt.Fprintf(w, "#EXT-X-VERSION:4\n")
     fmt.Fprintf(w, "#EXT-X-MEDIA-SEQUENCE:0\n")
-    fmt.Fprintf(w, "#EXTINF:10.0,\n")
-    fmt.Fprintf(w, "/archive/%s/1.ts\n", rec.Name)
+
+    for id, _ := range(rec.Chunks) {
+        fmt.Fprintf(w, "#EXTINF:60.0,\n")
+        fmt.Fprintf(w, "/archive/%s/%d.ts\n", rec.Name, id)
+    }
     //#fmt.Printf("#EXTINF:10.0,")
     //#fmt.Printf("http://example.com/movie1/fileSequenceB.ts")
     //fmt.Printf("#EXTINF:10.0,")
@@ -190,7 +193,7 @@ func archiveItemTs(w http.ResponseWriter, r *http.Request) {
     rec := item.record
 
     if len(rec.Chunks) > 0 {
-        http.ServeFile(w, r, rec.Dir+"/"+rec.Name+"/1.ts")
+        http.ServeFile(w, r, rec.Dir+"/"+rec.Name+"/"+queryParams["chunk"]+".ts")
     } else {
         fmt.Fprintf(w, "Not chunks")
     }
