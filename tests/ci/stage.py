@@ -244,10 +244,11 @@ class GetBasicJpeg(Stage):
         from .uploader import upload_jpeg_image
         from testcore import DEVICE_LIST
 
+        info = self.br_hisicam.make_board_info()
         addr = DEVICE_LIST[self.board]["ip_addr"]
 
         self.info(f"Initialize basic JPEG, addr={addr}...")
-        jpeg.init_basic_jpeg(addr)
+        jpeg.init_basic_jpeg(addr, info)
 
         self.info(f"Get basic JPEG, addr={addr}...")
         data = jpeg.get_jpeg(addr)

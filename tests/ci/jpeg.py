@@ -30,8 +30,8 @@ def post_json(url, data, timeout=10):
     )
 
 
-def create_channel(addr, name, params_name):
-    post_json(f"http://{addr}/api/channel/{name}", get_params(params_name))
+def create_channel(addr, name, params):
+    post_json(f"http://{addr}/api/channel/{name}", json.dumps(params))
 
 def create_encoder(addr, name, params_name):
     post_json(f"http://{addr}/api/encoder/{name}", get_params(params_name))
@@ -46,8 +46,16 @@ def create_jpeg(addr, name):
     post_json(f"http://{addr}/api/jpeg/{name}", b"")
 
 
-def init_basic_jpeg(addr):
-    create_channel(addr, "main", "c_3840x2160.json")
+def init_basic_jpeg(addr, board_info):
+    create_channel(addr, name="main", params={
+        "fps": 30,
+        "width": int(board_info["RESOLUTION_WIDTH"]),
+        "height": int(board_info["RESOLUTION_HEIGHT"]),
+        "cropx": 0,
+        "cropy": 0,
+        "cropwidth": 0,
+        "cropheight": 0
+    })
     create_encoder(addr, "mjpeg_1", "e_1920x1080_mjpeg_cbr.json")
     link(addr, ("channel", "main"), ("encoder", "mjpeg_1"))
     encoder_start(addr, "mjpeg_1")
