@@ -169,7 +169,7 @@ deploy-dir-cam: distrib
 TRIMPATH := $(abspath .) 
 
 #build-cam: generate $(LIB_TARGET) $(CMOS_TARGET) deploy-dir-cam
-build-cam: generate $(LIB_FAMILY) $(LIB_CMOSES) deploy-dir-cam vendors-build
+build-cam2: generate $(LIB_FAMILY) $(LIB_CMOSES) deploy-dir-cam vendors-build
 	#$(GOENV) $(CGOPARAMS) $(GO) build -work -gcflags=all="-trimpath=$(TRIMPATH) -l -B -C" -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./gohisicam application/cmd/gohisicam
 	#$(GOENV) $(CGOPARAMS) $(GO) install -work -gcflags=all=-trimpath=$(TRIMPATH) -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" ./pkg/...
 	#stat -c %s ./gohisicam
@@ -183,7 +183,7 @@ build-cam: generate $(LIB_FAMILY) $(LIB_CMOSES) deploy-dir-cam vendors-build
 	#rm ./gohisicam
 	#cat pkg/ko/append_$(FAMILY).bin >> ./distrib/$(FAMILY)/opt/gohisicam
 
-build-cam2: generate $(LIB_FAMILY) $(LIB_CMOSES) deploy-dir-cam vendors-build
+build-cam: generate $(LIB_FAMILY) $(LIB_CMOSES) deploy-dir-cam vendors-build
 	$(GOENV) $(CGOPARAMS) $(GO) build -work -gcflags=all="-trimpath=$(TRIMPATH) -l -B -C" -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/gohisicam application/cmd/recorder
 
 vendors-build:

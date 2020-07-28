@@ -87,7 +87,7 @@ func (r *Recorder) processFrame(f frames.FrameItem) {
         }
         //logger.Log.Trace().Int("len", len(pps)).Msg("pps")
 
-        r.record.ConfigureTs(sps, pps)
+        r.record.SetSPSPPS(sps, pps)//r.record.ConfigureTs(sps, pps)
 
 
         //_, err = s.WriteItemTo(f, buf)
