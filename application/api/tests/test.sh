@@ -1,7 +1,7 @@
 #!/bin/sh
 
-CAMERAIP=192.168.10.105
-#CAMERAIP=192.168.10.131
+CAMERAIP=192.168.10.101
+#CAMERAIP=192.168.10.130
 
 ################################################################################
 
@@ -133,23 +133,29 @@ create_quirc()
 test()
 {
     create_channel main c_3840x2160.json
-    create_channel fullhd c_1920x1080.json
+    #create_channel fullhd c_2560x1440.json
 
-    create_quirc qr1
+    #create_quirc qr1
+    #link channel fullhd quirc qr1
 
-    link channel fullhd quirc qr1
+    create_encoder h264_1 e_3840x2160_h264_cbr.json
+    #create_encoder h264_1 e_2560x1440_h264_cbr.json
+    #create_encoder mjpeg_1 e_1920x1080_mjpeg_cbr.json
 
-    create_encoder mjpeg_1 e_1920x1080_mjpeg_cbr.json
+    link channel main encoder h264_1
+    #link channel fullhd encoder h264_1
+    #link channel fullhd encoder mjpeg_1
 
-    link quirc qr1 encoder mjpeg_1
+    #link quirc qr1 encoder mjpeg_1
 
-    encoder_start mjpeg_1
+    encoder_start h264_1
+    #encoder_start mjpeg_1
 
-    create_jpeg fullhd
-    create_mjpeg fullhd
+    #create_jpeg fullhd
+    #create_mjpeg fullhd
 
-    link encoder mjpeg_1 jpeg fullhd
-    link encoder mjpeg_1 mjpeg fullhd
+    #link encoder mjpeg_1 jpeg fullhd
+    #link encoder mjpeg_1 mjpeg fullhd
 
 }
 

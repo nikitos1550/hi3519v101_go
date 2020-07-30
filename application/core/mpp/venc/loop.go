@@ -28,6 +28,8 @@ func go_callback_receive_data(id C.int, info_pointer *C.info_from_c, data_pointe
     mutex.Lock()
     defer mutex.Unlock()
 
+    //logger.Log.Trace().Int("id", int(id)).Int("num", int(data_num)).Msg("loop go")
+
     encoder, exist := encoders[int(id)]
 
     if !exist {
@@ -138,12 +140,15 @@ func go_callback_receive_data(id C.int, info_pointer *C.info_from_c, data_pointe
         info.Type = 1
     }
 
-    encoder.clientsMutex.RLock() //encoders[id].clientsMutex.RLock()
-    doCopy := false
-    if len(encoder.clients) > 0 { //if len(encoders[id].clients) > 0 {
-        doCopy = true
-    }
-    encoder.clientsMutex.RUnlock() //encoders[id].clientsMutex.RUnlock()
+    //TODO this prevents immediate stream configuration, so should be reworked or deleted
+    //encoder.clientsMutex.RLock() //encoders[id].clientsMutex.RLock()
+    //doCopy := false
+    //if len(encoder.clients) > 0 { //if len(encoders[id].clients) > 0 {
+    //    doCopy = true
+    //}
+    //encoder.clientsMutex.RUnlock() //encoders[id].clientsMutex.RUnlock()
+
+    doCopy := true
 
     if doCopy {
         //slot, err := encoders[id].storage.WritevNext(p, info)
@@ -171,6 +176,7 @@ func go_callback_receive_data(id C.int, info_pointer *C.info_from_c, data_pointe
                     default:
                         logger.Log.Warn().
                             Str("name", client.FullName()).
+                            Int("queue", len(*notify)).
                             Msg("VENC LOOP client dropped frame")
                     }
                     //if notify != nil && len(*notify) < cap(*notify) {
@@ -244,6 +250,8 @@ func removeFromLoop(id int) error {
 	defer mutex.Unlock()
 
     var errorCode C.uint
+
+    logger.Log.Trace().Msg("removeFromLoop start")
 
     err := C.mpp_data_loop_del(&errorCode, C.uint(id))
     if err != C.ERR_NONE {

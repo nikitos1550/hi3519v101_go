@@ -1,9 +1,14 @@
 package venc
 
 import (
-    "errors"
+    "github.com/pkg/errors"
 
     "application/core/mpp/connection"
+    //"application/core/logger"
+)
+
+const (
+    defaultRecvChannelSize      = 0
 )
 
 //connection.ClientRawFrame interface implementation
@@ -26,7 +31,16 @@ func (e *Encoder) RegisterRawFrameSource(source connection.SourceRawFrame, frame
 		return nil, errors.New("Input frame error, fps can`t be more")
 	}
 
-    e.rawFramesCh = make(chan connection.Frame)
+    //err := mppUpdateEncoderFps(e.Id, frameCompat.Fps, e.Params.Fps)
+    //if err != nil {
+    //    return nil, errors.Wrap(err, "Can`t set input fps")
+    //}
+
+    if defaultRecvChannelSize == 0 {
+        e.rawFramesCh = make(chan connection.Frame)
+    } else {
+        e.rawFramesCh = make(chan connection.Frame, defaultRecvChannelSize)
+    }
 
     e.rutineStop = make(chan bool)
     e.rutineDone = make(chan bool)
@@ -69,11 +83,14 @@ func (e *Encoder) rawFramesRutine() {
     for {
         select {
         case frame := <-e.rawFramesCh:
-            //logger.Log.Trace().Uint64("pts", frame.Pts).Msg("VENC Wg done")
-            if e.Started {
-                mppSendFrameToEncoder(e.Id, frame)
+            e.mutex.RLock()
+            {
+                if e.Started {
+                    mppSendFrameToEncoder(e.Id, frame)
+                }
+                frame.Wg.Add(-1)
             }
-            frame.Wg.Add(-1) //frame.Wg.Done()
+            e.mutex.RUnlock()
             break
         case <-e.rutineStop:
             e.rutineDone <- true
@@ -101,6 +118,11 @@ func (e *Encoder) RegisterBindSource(source connection.SourceBind, frameCompat c
 	if e.Params.Fps > frameCompat.Fps {
 		return connection.BindInformation{}, errors.New("Input frame error, fps can`t be more")
 	}
+
+    //err := mppUpdateEncoderFps(e.Id, frameCompat.Fps, e.Params.Fps)
+    //if err != nil {
+    //    return connection.BindInformation{}, errors.Wrap(err, "Can`t set input fps")
+    //}
 
     e.sourceBind = source
 

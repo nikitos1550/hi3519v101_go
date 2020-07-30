@@ -14,7 +14,7 @@ import (
 )
 
 const (
-    defaultRecvChannelSize      = 0
+    defaultRecvChannelSize      = 90
 )
 
 type Recorder struct {
@@ -32,6 +32,7 @@ type Recorder struct {
     //state           state
     record          *record.Record
 
+    codec           string
     lastPts         uint64
 }
 
@@ -96,8 +97,15 @@ func (r *Recorder) RegisterEncodedDataSource(source connection.SourceEncodedData
         return nil, errors.New("Already sourced")
     }
 
-    if params.Codec != connection.H264 {
-        return nil, errors.New("Only codec h.264 supported")
+    if params.Codec != connection.H264 && params.Codec != connection.H265{
+        return nil, errors.New("Only codec h.264 or h.265 supported")
+    }
+
+    if params.Codec == connection.H264 {
+        r.codec = "h264"
+    }
+    if params.Codec == connection.H265 {
+        r.codec = "h265"
     }
 
     r.source = source

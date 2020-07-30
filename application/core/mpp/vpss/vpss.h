@@ -49,9 +49,13 @@ typedef struct mpp_vpss_change_channel_depth_in_struct {
 
 int mpp_vpss_change_channel_depth(error_in * err, mpp_vpss_change_channel_depth_in *in);
 
-
+#if 1
+int mpp_receive_frame(error_in *err, unsigned int channel_id, void **frame, unsigned long long *pts, unsigned int wait, void *raw_frame);
+int mpp_release_frame(error_in *err, unsigned int channel_id, void *raw_frame);
+#else 
 int mpp_receive_frame(error_in *err, unsigned int channel_id, void **frame, unsigned long long *pts, unsigned int wait);
-//int mpp_receive_frame(error_in *err, unsigned int channel_id, VIDEO_FRAME_INFO_S *frame, unsigned long long *pts, unsigned int wait);
-//int mpp_receive_frame(error_in *err, unsigned int channel_id, void *frame, unsigned long long *pts, unsigned int wait);
+int mpp_release_frame(error_in *err, unsigned int channel_id, void **frame);
+#endif
 
-int mpp_release_frame(error_in *err, unsigned int channel_id);
+
+//int mpp_frame_test(error_in *err, unsigned int id);

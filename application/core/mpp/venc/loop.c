@@ -37,6 +37,8 @@ int mpp_venc_closefd(int venc_channel_id) {
     #endif
 }
 
+unsigned long long lastPts = 0;
+
 void mpp_data_loop_get_data(unsigned int id) {
     HI_S32          s32Ret;
 
@@ -82,6 +84,8 @@ void mpp_data_loop_get_data(unsigned int id) {
         	return;
     	}
     #endif
+
+    //printf("channel %d u32LeftStreamFrames %d\n", venc_channel_id, stStat.u32LeftStreamFrames);
 
     if (0 == stStat.u32CurPacks) {
         go_logger_venc(LOGGER_PANIC, "stStat.u32CurPacks"); 
@@ -144,6 +148,7 @@ void mpp_data_loop_get_data(unsigned int id) {
                 break;
             case CODEC_H264:
                 info.ref_type = stStream.stH264Info.enRefType;
+                //printf("ref_type = %d, pack count = %d\n", info.ref_type, stStream.u32PackCount);
                 break;
             case CODEC_H265:
                 info.ref_type = stStream.stH265Info.enRefType;
@@ -154,14 +159,29 @@ void mpp_data_loop_get_data(unsigned int id) {
 
         data = (data_from_c *)malloc(sizeof(data_from_c) * stStream.u32PackCount);
 
+        //////////////unsigned int sizeTmp = 0;
+
         int i;
         for(i = 0; i < stStream.u32PackCount; i++) {
             data[i].data = stStream.pstPack[i].pu8Addr;
             data[i].length = stStream.pstPack[i].u32Len;
+
+            /////sizeTmp += stStream.pstPack[i].u32Len;
+            /////for(int j=0;j<=8;j++) {
+            /////    printf("0x%x ", stStream.pstPack[i].pu8Addr[j]);
+            /////}
+            /////printf("\n");
+
             //TODO VENC_PACK_S->U64PTS
             info.pts = stStream.pstPack[i].u64PTS;
             //printf("VENC %llu\n", stStream.pstPack[i].u64PTS);
         }
+
+        //if (id == 1) {
+        //    printf("%d venc seq %d (%d) count %d, delta: %lld\n", id, stStream.u32Seq, stStream.stH264Info.enRefType, i, (stStream.pstPack[0].u64PTS-lastPts));
+        //    lastPts = stStream.pstPack[0].u64PTS;
+        //}
+
         //go_callback_receive_data(venc_channel_id, stStream.u32Seq, st_data, stStream.u32PackCount);
         go_callback_receive_data(venc_channel_id, &info, data, stStream.u32PackCount);
     #endif
@@ -197,6 +217,8 @@ int mpp_data_loop_add(unsigned int *error_code, unsigned int venc_channel_id, un
         return ERR_GENERAL; //TODO create return code for this case
     }
 
+    //pthread_mutex_lock(&lock);
+
     loop_vencs[item].id     = venc_channel_id;
     loop_vencs[item].fd     = venc_fd;
     loop_vencs[item].codec  = codec;
@@ -205,8 +227,11 @@ int mpp_data_loop_add(unsigned int *error_code, unsigned int venc_channel_id, un
     event.events = EPOLLIN; // | EPOLLET; //EPOLLIN | EPOLLPRI | EPOLLET;
     event.data.fd = venc_fd;
     if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, venc_fd, &event) < 0) {
+        //pthread_mutex_unlock(&lock);
         return ERR_GENERAL;
     }
+
+    //pthread_mutex_unlock(&lock);
 
     return ERR_NONE;
 }
@@ -231,9 +256,13 @@ int mpp_data_loop_del(unsigned int *error_code, unsigned int venc_channel_id) {
         }
     }
 
+    printf("mpp_data_loop_del found %d\n", item);
+
     if (item == -1) {
         return ERR_GENERAL; //TODO create new return code for such case
     }
+
+    printf("pre lock\n");
 
     pthread_mutex_lock(&lock);
 
@@ -246,6 +275,8 @@ int mpp_data_loop_del(unsigned int *error_code, unsigned int venc_channel_id) {
         return ERR_GENERAL;
     }
     pthread_mutex_unlock(&lock);
+
+    printf("post lock\n");
 
     mpp_venc_closefd(venc_channel_id);
 
@@ -298,11 +329,17 @@ void * mpp_data_loop_thread() {
             int j;
             for(j=0; j<NUM_VENCS; j++) {                        //this for will not also find proper venc id and fd relation
                 if (loop_vencs[j].fd == events[i].data.fd) {    //but also will protect us from situation when
+                    pthread_mutex_unlock(&lock);//TODO
                     mpp_data_loop_get_data(j);
+                    pthread_mutex_lock(&lock);//TODO
                     //mpp_data_loop_get_data(loop_vencs[j].id);	//mpp_data_loop_del made delation bettwen 
                     break;										//epoll_wait unblock and this lock of this area
                 }                                               //https://stackoverflow.com/questions/3652056/how-efficient-is-locking-an-unlocked-mutex-what-is-the-cost-of-a-mutex
             }
+            //printf("j = %d\n", j);
+            //if (j == (NUM_VENCS)) {
+            //    printf("FD triggered but item not found\n");
+            //}
         }
         pthread_mutex_unlock(&lock);    //Here we unlock
     }

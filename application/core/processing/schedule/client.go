@@ -7,6 +7,10 @@ import (
     "application/core/logger"
 )
 
+const (
+    defaultRecvChannelSize      = 0
+)
+
 //connection.ClientRawFrame interface implementation
 
 func (s *Schedule) RegisterRawFrameSource(source connection.SourceRawFrame, frameCompat connection.FrameCompatibility) (*chan connection.Frame, error) {
@@ -19,7 +23,11 @@ func (s *Schedule) RegisterRawFrameSource(source connection.SourceRawFrame, fram
 
     s.params = frameCompat
 
-    s.rawFramesCh = make(chan connection.Frame)
+    if defaultRecvChannelSize == 0 {
+        s.rawFramesCh = make(chan connection.Frame)
+    } else {
+        s.rawFramesCh = make(chan connection.Frame, defaultRecvChannelSize)
+    }
 
     s.rutineStop = make(chan bool)
     s.rutineDone = make(chan bool)
@@ -56,32 +64,33 @@ func (s *Schedule) rawFramesRutine() {
         select {
         case frame := <-s.rawFramesCh:
             s.RLock()
+            {
+                //logger.Log.Trace().
+                //    Uint64("pts", frame.Pts).
+                //    Uint64("start", s.startTimestamp).
+                //    Uint64("stop", s.stopTimestamp).
+                //    Msg("scheduler frame recv")
 
-            //logger.Log.Trace().
-            //    Uint64("pts", frame.Pts).
-            //    Uint64("start", s.startTimestamp).
-            //    Uint64("stop", s.stopTimestamp).
-            //    Msg("scheduler frame recv")
+                if frame.Pts >= s.startTimestamp && frame.Pts <= s.stopTimestamp {
 
-            if frame.Pts >= s.startTimestamp && frame.Pts <= s.stopTimestamp {
+                    //logger.Log.Trace().Uint64("pts", frame.Pts).Msg("schedule frame")
 
-                //logger.Log.Trace().Uint64("pts", frame.Pts).Msg("schedule frame")
-
-                if s.clientRaw != nil {
-                    frame.Wg.Add(1)
-                    select {
-                    case *s.clientCh<-frame:
-                        break
-                    default:
-                        logger.Log.Warn().
-                            Str("client", s.clientRaw.FullName()).
-                            Msg("Scheduler client droppped frame")
-                        frame.Wg.Add(-1)
-                        break
+                    if s.clientRaw != nil {
+                        frame.Wg.Add(1)
+                        select {
+                        case *s.clientCh<-frame:
+                            break
+                        default:
+                            logger.Log.Warn().
+                                Str("client", s.clientRaw.FullName()).
+                                Msg("Scheduler client droppped frame")
+                            frame.Wg.Add(-1)
+                            break
+                        }
                     }
                 }
+                frame.Wg.Add(-1)
             }
-            frame.Wg.Add(-1)
             s.RUnlock()
             break
         case <-s.rutineStop:

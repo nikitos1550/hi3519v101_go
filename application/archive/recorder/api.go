@@ -2,7 +2,7 @@ package recorder
 
 import (
     "github.com/pkg/errors"
-    "github.com/valyala/bytebufferpool"
+    //"github.com/valyala/bytebufferpool"
 
     "application/archive/record"
     "application/core/mpp/frames"
@@ -17,7 +17,7 @@ func (r *Recorder) Start(name string) error {
         return errors.New("TODO")
     }
 
-    rec, err := record.New(r.path, name) //uuid.New().String())
+    rec, err := record.New(r.path, name, r.codec) //uuid.New().String())
     if err != nil {
         return errors.Wrap(err, "Start record failed")
     }
@@ -53,10 +53,10 @@ func (r *Recorder) processFrame(f frames.FrameItem) {
     r.RLock()
     defer r.RUnlock()
 
-    logger.Log.Trace().
-        Uint64("delta", f.Info.Pts - r.lastPts).
-        Msg("recorder new frame")
-    r.lastPts = f.Info.Pts
+    //logger.Log.Trace().
+    //    Uint64("delta", f.Info.Pts - r.lastPts).
+    //    Msg("recorder new frame")
+    //r.lastPts = f.Info.Pts
 
     if r.record != nil {
         s, err := r.source.GetStorage()
@@ -64,10 +64,34 @@ func (r *Recorder) processFrame(f frames.FrameItem) {
             return
         }
 
-        buf := bytebufferpool.Get()
-        defer bytebufferpool.Put(buf)
+        //buf := bytebufferpool.Get()
+        //defer bytebufferpool.Put(buf)
 
-        _, err = s.WriteItemTo(f, buf)
+        var buf []byte
+
+        sps, err := s.SPS()
+        if err != nil {
+            logger.Log.Warn().Str("reason", err.Error()).Msg("SPS get")
+        }
+        //logger.Log.Trace().Int("len", len(sps)).Msg("sps")
+        if len(sps) == 0 {
+            logger.Log.Warn().Msg("SPS len 0")
+        }
+
+        pps, err := s.PPS()
+        if err != nil {
+            logger.Log.Warn().Str("reason", err.Error()).Msg("PPS get")
+        }
+        if len(pps) == 0 {
+            logger.Log.Warn().Msg("PPS len 0")
+        }
+        //logger.Log.Trace().Int("len", len(pps)).Msg("pps")
+
+        r.record.SetSPSPPS(sps, pps)//r.record.ConfigureTs(sps, pps)
+
+
+        //_, err = s.WriteItemTo(f, buf)
+        _, err = s.ReadItemAlloc(f, &buf)
         if err != nil {
             logger.Log.Warn().
                 Str("reason", err.Error()).
@@ -75,7 +99,8 @@ func (r *Recorder) processFrame(f frames.FrameItem) {
             return
         }
 
-        n, err := r.record.Write(f.Info.Pts, buf.B)
+        //n, err := r.record.Write(f.Info.Pts, buf.B)
+        n, err := r.record.Write(f.Info.Pts, buf)
         if err != nil {
             logger.Log.Warn().
                 Str("reson", err.Error()).

@@ -4,7 +4,8 @@ import (
     "fmt"
     "net/http"
 
-    "github.com/google/uuid"
+    //"github.com/google/uuid"
+    "github.com/satori/go.uuid"
 
     "application/archive/recorder"
     "application/core/mpp/connection"
@@ -22,7 +23,7 @@ var(
 func initRecorder() {
     recorderObj, _ = recorder.New("testrecorder", *flagArchiveRawPath)
 
-    err := connection.ConnectEncodedData(encoderH264Main, recorderObj)
+    err := connection.ConnectEncodedData(encoderH26XMain, recorderObj)
     if err != nil {
         logger.Log.Fatal().
             Str("reason", err.Error()).
@@ -44,16 +45,21 @@ func recorderStart(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    encoderH264Main.Stop()
-    logger.Log.Trace().Msg("encoderH264Main.Stop()")
-    encoderH264Main.Reset()
-    logger.Log.Trace().Msg("encoderH264Main.Reset()")
+    //logger.Log.Trace().Msg("encoder main pre stop")
+    encoderH26XMain.Stop()
+    //logger.Log.Trace().Msg("encoderH264Main.Stop()")
+    encoderH26XMain.Reset()
+    //logger.Log.Trace().Msg("encoderH264Main.Reset()")
     scheduleObj.SetForward()
-    logger.Log.Trace().Msg("scheduleObj.SetForward()")
-    recorderObj.Start(uuid.New().String())
-    logger.Log.Trace().Msg("recorderObj.Start(uuid.New().String())")
-    encoderH264Main.Start()
-    logger.Log.Trace().Msg("encoderH264Main.Start()")
+    //logger.Log.Trace().Msg("scheduleObj.SetForward()")
+    //tmp := uuid.New().String()
+    //tmp := uuid.NewV4().String()
+    //tmp := "142b94ac-1159-4d11-1140-2c321f0a3314"
+    //logger.Log.Trace().Msg("uuid done")
+    recorderObj.Start(uuid.NewV4().String())
+    //logger.Log.Trace().Msg("recorderObj.Start(uuid.New().String())")
+    encoderH26XMain.Start()
+    //logger.Log.Trace().Msg("encoderH264Main.Start()")
 
     preview, err := jpegSmall.GetJpeg()
     if err == nil {
@@ -74,8 +80,11 @@ func recorderStop(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    encoderH264Main.Stop()
-    encoderH264Main.Reset()
+    //logger.Log.Trace().Msg("encoder main pre stop")
+    encoderH26XMain.Stop()
+    //logger.Log.Trace().Msg("encoder main stoped")
+    encoderH26XMain.Reset()
+    //logger.Log.Trace().Msg("encoder main reseted")
 
     archiveMutex.Lock()
     defer archiveMutex.Unlock()
@@ -83,6 +92,8 @@ func recorderStop(w http.ResponseWriter, r *http.Request) {
     archive[rec.Name] = archiveItem{
         record: rec,
     }
+
+    logger.Log.Trace().Msg("Stopef")
 }
 
 //func recorderSchedule(w http.ResponseWriter, r *http.Request) {

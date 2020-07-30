@@ -220,40 +220,110 @@ int mpp_vpss_change_channel_depth(error_in * err, mpp_vpss_change_channel_depth_
     return ERR_NONE;
 }
 
-VIDEO_FRAME_INFO_S channelFrames[VPSS_MAX_PHY_CHN_NUM];
+#if 1
 
-int mpp_receive_frame(error_in *err, unsigned int id, void **frame, unsigned long long *pts, unsigned int wait) {
-//int mpp_receive_frame(error_in *err, unsigned int id, VIDEO_FRAME_INFO_S *frame, unsigned long long *pts, unsigned int wait) {
-//int mpp_receive_frame(error_in *err, unsigned int id, void *frame, unsigned long long *pts, unsigned int wait) {
+//VIDEO_FRAME_INFO_S channelFrames[VPSS_MAX_PHY_CHN_NUM][2];
+/*
+int mpp_frame_test(error_in *err, unsigned int id) {
+
+    VIDEO_FRAME_INFO_S newFrame;
+    unsigned long long lastPts = 0;
+    for (;;) {
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_GetChnFrame, 0, id, &newFrame, -1);
+
+    printf("delta: %lld\n", (newFrame.stVFrame.u64pts-lastPts));
+    lastPts = newFrame.stVFrame.u64pts;
+
+    DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_ReleaseChnFrame, 0, id, &newFrame);
+    }
+    return ERR_NONE;
+}
+*/
+
+int mpp_receive_frame(error_in *err, unsigned int id, void **frame, unsigned long long *pts, unsigned int wait, void *raw_frame) {
+
+    //VIDEO_FRAME_INFO_S newFrame;
+
     #if HI_MPP == 1
-        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_UserGetFrame, 0, id, &channelFrames[id])      //don`t have block mode
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_UserGetFrame, 0, id, raw_frame)      //don`t have block mode
     #elif HI_MPP == 2 \
         || HI_MPP == 3 \
         || HI_MPP == 4
-        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_GetChnFrame, 0, id, &channelFrames[id], wait);  //blocking mode call
+        //DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_GetChnFrame, 0, id, &newFrame, -1);  //blocking mode call
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_GetChnFrame, 0, id, raw_frame, wait);
     #endif
 
-    *frame = &channelFrames[id];//TODO
+    //*frame = raw_frame;
+    //memcpy(raw_frame, &newFrame, sizeof(VIDEO_FRAME_INFO_S));
+
+    VIDEO_FRAME_INFO_S *newFrame = raw_frame;
 
     #if HI_MPP == 1 \
         || HI_MPP == 2 \
         || HI_MPP == 3
-        *pts = channelFrames[id].stVFrame.u64pts;
+        *pts = (newFrame)->stVFrame.u64pts;
     #elif HI_MPP == 4
-        *pts = channelFrames[id].stVFrame.u64PTS;
+        *pts = (newFrame)->stVFrame.u64PTS;
     #endif
 
     return ERR_NONE;
 }
 
-int mpp_release_frame(error_in *err, unsigned int id) {
+int mpp_release_frame(error_in *err, unsigned int id, void *raw_frame) {
+    //VIDEO_FRAME_INFO_S oldFrame;
+
+    //memcpy(&oldFrame, raw_frame, sizeof(VIDEO_FRAME_INFO_S))
+
     #if HI_MPP == 1
-        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_UserReleaseFrame, 0, id, &channelFrames[id]);
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_UserReleaseFrame, 0, id, raw_frame);
     #elif HI_MPP == 2 \
         || HI_MPP == 3 \
         || HI_MPP == 4
-        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_ReleaseChnFrame, 0, id, &channelFrames[id]);
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_ReleaseChnFrame, 0, id, raw_frame);
     #endif
 
     return ERR_NONE;
 }
+#else
+
+int mpp_receive_frame(error_in *err, unsigned int id, void **frame, unsigned long long *pts, unsigned int wait) {
+    VIDEO_FRAME_INFO_S newFrame;
+
+    #if HI_MPP == 1
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_UserGetFrame, 0, id, &newFrame)      //don`t have block mode
+    #elif HI_MPP == 2 \
+        || HI_MPP == 3 \
+        || HI_MPP == 4
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_GetChnFrame, 0, id, &newFrame, wait);  //blocking mode call
+    #endif
+
+    *frame = &newFrame;
+
+    #if HI_MPP == 1 \
+        || HI_MPP == 2 \
+        || HI_MPP == 3
+        *pts = newFrame.stVFrame.u64pts;
+    #elif HI_MPP == 4
+        *pts = newFrame.stVFrame.u64PTS;
+    #endif
+
+    return ERR_NONE;
+}
+
+int mpp_release_frame(error_in *err, unsigned int id, void **frame) {
+    VIDEO_FRAME_INFO_S oldFrame;
+
+    memcpy(&oldFrame, *frame, sizeof(VIDEO_FRAME_INFO_S));
+
+    #if HI_MPP == 1
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_UserReleaseFrame, 0, id, &oldFrame);
+    #elif HI_MPP == 2 \
+        || HI_MPP == 3 \
+        || HI_MPP == 4
+        DO_OR_RETURN_ERR_MPP(err, HI_MPI_VPSS_ReleaseChnFrame, 0, id, &oldFrame);
+    #endif
+
+    return ERR_NONE;
+}
+
+#endif

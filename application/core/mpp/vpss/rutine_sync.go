@@ -1,3 +1,5 @@
+//+build nobuild
+
 package vpss
 
 //#include "vpss.h"

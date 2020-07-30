@@ -72,7 +72,7 @@ func New(id int, name string, params Parameters) (*Encoder, error) {
     encoder.Params     = params
     encoder.clients    = make(map[connection.ClientEncodedData] *chan frames.FrameItem)   //TODO this is not empty after first creation
 
-    frames.CreateFrames(&encoder.storage, 10)
+    frames.CreateFrames(&encoder.storage, 100) //TODO
 
     logger.Log.Debug().
         Int("id", encoder.Id).
@@ -147,15 +147,29 @@ func (e *Encoder) Stop() error {
 
     var err error
 
-    err = mppStopEncoder(e.Id)
-    if err != nil {
-        return err
-    }
+    //logger.Log.Trace().Msg("pre stop")
 
     err = removeFromLoop(e.Id)
     if err != nil {
         return err
     }
+
+    err = mppStopEncoder(e.Id)
+    if err != nil {
+        return err  //TODO this is fatal error
+    }
+
+    //e.Started    = false
+    //e.mutex.Unlock()
+
+    //logger.Log.Trace().Msg("stoped")
+
+    //err = removeFromLoop(e.Id)
+    //if err != nil {
+    //    return err
+    //}
+
+    logger.Log.Trace().Msg("removed from loop")
 
     e.Started    = false
 
@@ -204,4 +218,11 @@ func (e *Encoder) Reset() error {
         Msg("Encoder Reseted")
 
     return nil
+}
+
+func (e *Encoder) SetScene(scene int) error {
+    e.mutex.Lock()
+    defer e.mutex.Unlock()
+
+    return mppSetScene(e.Id, scene)
 }

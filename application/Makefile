@@ -164,14 +164,7 @@ deploy-dir-cam: distrib
 	mkdir -p ./distrib/$(FAMILY)/opt/svp
 	#cp -r ./svp/* ./distrib/$(FAMILY)/opt/svp
 	mkdir -p ./distrib/$(FAMILY)/opt/nfs
-
-#deploy-dir-probe: distrib
-#	rm -rf ./distrib/$(FAMILY)
-#	mkdir -p ./distrib/$(FAMILY)/etc/init.d
-#	mkdir -p ./distrib/$(FAMILY)/opt
-#	cp ./init/S99gohisiprobe ./distrib/$(FAMILY)/etc/init.d/
-#	if [ -f ../boards/boards/$(BOARD)/config ]; then cp ../boards/boards/$(BOARD)/config ./distrib/$(FAMILY)/opt/board.config; fi
-#	#cp ../application/configs/* ./distrib/$(FAMILY)/opt/configs/
+	mkdir -p ./distrib/$(FAMILY)/opt/usb
 
 TRIMPATH := $(abspath .) 
 
@@ -190,8 +183,11 @@ build-cam: generate $(LIB_FAMILY) $(LIB_CMOSES) deploy-dir-cam vendors-build
 	#rm ./gohisicam
 	#cat pkg/ko/append_$(FAMILY).bin >> ./distrib/$(FAMILY)/opt/gohisicam
 
-build-cam2: generate $(LIB_FAMILY) $(LIB_CMOSES) deploy-dir-cam vendors-build
+build-cam3: generate $(LIB_FAMILY) $(LIB_CMOSES) deploy-dir-cam vendors-build
 	$(GOENV) $(CGOPARAMS) $(GO) build -work -gcflags=all="-trimpath=$(TRIMPATH) -l -B -C" -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/gohisicam application/cmd/recorder
+
+build-cam2: generate $(LIB_FAMILY) $(LIB_CMOSES) deploy-dir-cam vendors-build
+	$(GOENV) $(CGOPARAMS) $(GO) build -work -gcflags=all="-trimpath=$(TRIMPATH) -l -B -C" -asmflags=all=-trimpath=$(TRIMPATH) -a -tags "$(GOTAGS)" -ldflags "$(GODEBUG) $(EMBEDDVARS)" -o ./distrib/$(FAMILY)/opt/gohisicam application/cmd/ndi
 
 vendors-build:
 	cd vendors/quirc; make; cd quirc; make clean; make CC=$(CC) libquirc.a

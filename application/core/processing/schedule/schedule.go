@@ -2,7 +2,7 @@ package schedule
 
 import (
 	"sync"
-    "time"
+    //"time"
 
     "github.com/pkg/errors"
 
@@ -90,6 +90,7 @@ func (s *Schedule) SetForward() {
     s.stopTimestamp     = ^uint64(0)
 }
 
+/*
 func (s *Schedule) SetTimeNano(start uint64, stop uint64) {
     s.Lock()
     defer s.Unlock()
@@ -127,3 +128,4 @@ func (s *Schedule) GetTime() (time.Time, time.Time) {
 
     return time.Unix(0, int64(s.startTimestamp)), time.Unix(0, int64(s.stopTimestamp))
 }
+*/

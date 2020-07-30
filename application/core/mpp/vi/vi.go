@@ -5,6 +5,7 @@ import "C"
 
 import (
     "flag"
+    "errors"
 
     "application/core/compiletime"
     "application/core/logger"
@@ -64,9 +65,16 @@ func init() {
     }
 
     if compiletime.Family == "hi3516av200" {
-        flag.BoolVar(&ldc, "vi-ldc", false, "LDC enable")
+        flag.BoolVar(&ldc, "vi-ldc", true, "LDC enable")
         flag.IntVar(&ldcOffsetX, "vi-ldc-offset-x", 0, "LDC x offset from center [-127;127]")
         flag.IntVar(&ldcOffsetY, "vi-ldc-offset-y", 0, "LDC y offset from center [-127;127]")
+        flag.IntVar(&ldcK, "vi-ldc-k", 0, "LDC coefficient [-300;500]")
+    }
+
+    if compiletime.Family == "hi3516cv500" {
+        flag.BoolVar(&ldc, "vi-ldc", false, "LDC enable")
+        flag.IntVar(&ldcOffsetX, "vi-ldc-offset-x", 0, "LDC x offset from center [-511;511]")
+        flag.IntVar(&ldcOffsetY, "vi-ldc-offset-y", 0, "LDC y offset from center [-511;511]")
         flag.IntVar(&ldcK, "vi-ldc-k", 0, "LDC coefficient [-300;500]")
     }
 }
@@ -194,6 +202,32 @@ func Init() {
             in.ldc_k = C.int(ldcK)
         }
     }
+
+    if compiletime.Family == "hi3516cv500" {
+        if ldc == true {
+            if ldcOffsetX < -511 || ldcOffsetX > 511 {
+                logger.Log.Fatal().
+                    Int("ldc-offset-x", ldcOffsetX).
+                    Msg("vi-ldc-offset-x should be [-511;511]")
+            }
+            if ldcOffsetY < -511 || ldcOffsetY > 511 {
+                logger.Log.Fatal().
+                    Int("ldc-offset-y", ldcOffsetY).
+                    Msg("vi-ldc-offset-y should be [-511;511]")
+            }
+            if ldcK < -300 || ldcK > 500 {
+                logger.Log.Fatal().
+                    Int("ldc-k", ldcK).
+                    Msg("vi-ldc-k should be [-300;500]")
+            }
+
+            in.ldc = 1
+            in.ldc_offset_x = C.int(ldcOffsetX)
+            in.ldc_offset_y = C.int(ldcOffsetY)
+            in.ldc_k = C.int(ldcK)
+        }
+    }
+
 
     if flipY == true {
         in.mirror = 1
@@ -383,6 +417,38 @@ func Init() {
     }
     logger.Log.Debug().
         Msg("VI inited")
+}
+
+func UpdateLDC(x int, y int, k int) error {
+    if  compiletime.Family == "hi3516av100" ||
+        compiletime.Family == "hi3516av200" ||
+        compiletime.Family == "hi3516cv500" {
+
+        if ldc != true {
+            return errors.New("LDC is not turned on")
+        }
+
+        var inErr C.error_in
+        var in C.mpp_vi_ldc_in
+
+        in.x    = C.int(x)
+        in.y    = C.int(y)
+        in.k    = C.int(k)
+
+        err := C.mpp_vi_ldc_update(&inErr, &in)
+
+        if err != C.ERR_NONE {
+            logger.Log.Fatal().
+                Str("error", errmpp.New(C.GoString(inErr.name), uint(inErr.code)).Error()).
+                Msg("VI LDC")
+        }
+
+        logger.Log.Trace().Msg("LDC updated")
+
+        return nil
+    } else {
+        return errors.New("LDC update is not suppoorted")
+    }
 }
 
 //export go_logger_vi
